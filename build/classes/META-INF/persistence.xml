@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+
+    <persistence-unit name="KuechePU">
+        <class>entity.Buchungen</class>
+        <class>entity.Lager</class>
+        <class>entity.Lieferanten</class>
+        <class>entity.Mitarbeiter</class>
+        <class>entity.Produkte</class>
+        <class>entity.Stoffart</class>
+        <class>entity.Vorrat</class>
+        <class>entity.Warengruppe</class>
+        <properties>
+            <property name="eclipselink.jdbc.url" value="jdbc:mysql://srv0004:3306/kueche"/>
+            <property name="eclipselink.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+            <property name="eclipselink.jdbc.user" value="root"/>
+            <property name="eclipselink.jdbc.password" value="qrp2507te"/>
+            <property name="eclipselink.logging.level" value="FINER"/>
+        </properties>
+    </persistence-unit>
+</persistence>

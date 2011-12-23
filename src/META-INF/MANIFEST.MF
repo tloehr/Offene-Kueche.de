@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Class-Path: commons-lang-2.6-javadoc.jar commons-lang-2.6-sources.jar 
+ commons-lang-2.6.jar mysql-connector-java-5.1.13-bin.jar swing-layout
+ -1.0.4-doc.zip swing-layout-1.0.4-src.zip swing-layout-1.0.4.jar ecli
+ pselink.jar javax.persistence_2.0.1.v201006031150.jar swingx-beaninfo
+ -1.6.2.jar swingx-core-1.6.2.jar trident.jar log4j-1.2.16.jar looks-2
+ .0.1.jar jcalendar-1.3.3.jar barcode4j.jar jgoodies-common-1.2.0.jar 
+ jgoodies-forms-1.4.1.jar jgoodies-looks-2.4.1.jar jgoodies-binding-2.
+ 2.2.jar jgoodies-validation-2.3.0.jar animation-1.2.0.jar commons-cli
+ -1.2.jar
+Main-Class: Main.Main
+
