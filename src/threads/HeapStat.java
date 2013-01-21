@@ -27,10 +27,7 @@
 
 package threads;
 
-import tools.Tools;
-
-import javax.swing.JLabel;
-import javax.swing.JProgressBar;
+import javax.swing.*;
 import java.text.DateFormat;
 import java.util.Date;
 

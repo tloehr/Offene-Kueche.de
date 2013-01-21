@@ -73,7 +73,7 @@ public class PrintProcessor extends Thread {
                         PrintListElement thisElement = printQueue.get(0);
                         printQueue.remove(0); // Das wird danach dann direkt aus der Liste gelöscht.
 
-                        // Geschwindigkeitesgründen (und die sind immens) werden innerhalb eines Drucklaufes
+                        // Aus Geschwindigkeitesgründen (und die sind immens) werden innerhalb eines Drucklaufes
                         // alle nicht Seitendrucker-Ausgaben innerhalb eines Printjobs (im Sinne des Betriebssystems)
                         // zusammengefasst.
                         //

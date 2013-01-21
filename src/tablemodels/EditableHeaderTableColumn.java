@@ -2,7 +2,8 @@
 package tablemodels;
 
 import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableColumn;
 
 
 /**

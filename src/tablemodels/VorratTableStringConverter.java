@@ -5,12 +5,8 @@
 
 package tablemodels;
 
-import entity.Vorrat;
-import javax.swing.DefaultRowSorter;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableStringConverter;
-import tools.Const;
-import tools.Tools;
 
 /**
  *

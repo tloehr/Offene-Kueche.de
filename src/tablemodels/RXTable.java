@@ -5,13 +5,17 @@
 
 package tablemodels;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.List;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.util.EventObject;
+import java.util.Vector;
 
 /**
  * The RXTable provides some extensions to the default JTable

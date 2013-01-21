@@ -4,11 +4,12 @@
  */
 package tablemodels;
 
-import entity.Lager;
-import java.util.ArrayList;
-import javax.swing.table.DefaultTableModel;
 import beans.Buchung;
+import entity.Lager;
 import tools.Const;
+
+import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
 
 /**
  *

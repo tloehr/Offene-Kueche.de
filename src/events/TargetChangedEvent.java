@@ -5,8 +5,8 @@
 
 package events;
 
-import java.util.EventObject;
 import javax.swing.text.JTextComponent;
+import java.util.EventObject;
 
 /**
  *

@@ -5,11 +5,11 @@
 
 package tablemodels;
 
+import javax.swing.table.DefaultTableModel;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import javax.swing.table.DefaultTableModel;
 
 /**
  * Dieses TableModel zeigt einfach eine Tabelle mit einer Spalte

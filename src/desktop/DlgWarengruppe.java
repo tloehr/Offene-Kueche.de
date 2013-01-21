@@ -5,14 +5,15 @@
 package desktop;
 
 import entity.Warengruppe;
-import java.util.List;
-import java.awt.*;
-import java.awt.event.*;
+
 import javax.persistence.Query;
 import javax.swing.*;
-import javax.swing.GroupLayout;
-import javax.swing.LayoutStyle;
-import javax.swing.event.*;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
 
 /**
  * @author Torsten Löhr

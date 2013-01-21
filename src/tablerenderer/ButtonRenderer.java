@@ -1,10 +1,8 @@
 package tablerenderer;
 
-import java.awt.Component;
-import javax.swing.JButton;
-import javax.swing.JTable;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
+import java.awt.*;
 
 public class ButtonRenderer extends JButton implements TableCellRenderer {
 

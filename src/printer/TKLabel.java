@@ -4,20 +4,19 @@
  */
 package printer;
 
-import java.awt.*;
-import java.awt.image.ImageObserver;
-import java.awt.print.*;
-
-import java.awt.image.BufferedImage;
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.HashMap;
-
 import Main.Main;
 import org.krysalis.barcode4j.impl.upcean.EAN13Bean;
 import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
 import org.krysalis.barcode4j.tools.UnitConv;
 import tools.Tools;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.awt.print.*;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.HashMap;
 
 public class TKLabel implements Printable {
 

@@ -6,17 +6,13 @@ package desktop;
 
 import entity.Mitarbeiter;
 import threads.CardMonitor;
+import threads.CardStateChangedEvent;
 import threads.CardStateListener;
 
+import javax.persistence.Query;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.GroupLayout;
-import javax.swing.LayoutStyle;
-
-import java.awt.Frame;
-import javax.persistence.Query;
-import threads.CardStateChangedEvent;
 
 /**
  * @author Torsten Löhr

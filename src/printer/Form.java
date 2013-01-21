@@ -5,10 +5,8 @@
 
 package printer;
 
-import Main.Main;
 import tools.Tools;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;

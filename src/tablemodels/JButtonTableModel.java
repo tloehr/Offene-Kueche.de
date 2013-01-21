@@ -4,10 +4,8 @@
 
 package tablemodels;
 
-import tablemodels.RowTableModel;
-
-import java.util.*;
 import javax.swing.*;
+import java.util.Arrays;
 
 public class JButtonTableModel extends RowTableModel<JButton>
 {

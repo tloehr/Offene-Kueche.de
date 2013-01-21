@@ -2,8 +2,6 @@ package touch;
 
 import events.PanelSwitchEvent;
 import events.PanelSwitchListener;
-import events.TargetChangedEvent;
-import events.TargetChangedListener;
 import org.pushingpixels.trident.Timeline;
 import tools.Tools;
 

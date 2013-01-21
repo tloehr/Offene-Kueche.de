@@ -7,8 +7,6 @@ package touch;
 
 import events.PanelSwitchEvent;
 import events.PanelSwitchListener;
-import events.TargetChangedEvent;
-import events.TargetChangedListener;
 
 /**
  * Alles was die Panels für das Touch Interface gemeinsam haben

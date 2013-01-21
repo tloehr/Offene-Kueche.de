@@ -2,9 +2,7 @@ package events;
 
 import touch.TouchPanel;
 
-import javax.swing.text.JTextComponent;
 import java.util.EventObject;
-import java.util.List;
 
 /**
  * Dieses Ereignis dient der Kommunikation der TouchPanels mit dem aufrufenden FrmTouch. Da ich bei der

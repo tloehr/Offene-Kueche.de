@@ -973,15 +973,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                                 new String[] {
                                     "Title 1", "Title 2", "Title 3", "Title 4"
                                 }
-                            ) {
-                                Class<?>[] columnTypes = new Class<?>[] {
-                                    Object.class, Object.class, Object.class, Object.class
-                                };
-                                @Override
-                                public Class<?> getColumnClass(int columnIndex) {
-                                    return columnTypes[columnIndex];
-                                }
-                            });
+                            ));
                             tblVorrat.setAutoCreateRowSorter(true);
                             tblVorrat.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
                             tblVorrat.setRowHeight(20);
@@ -1265,15 +1257,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                             new String[] {
                                 "Title 1", "Title 2", "Title 3", "Title 4"
                             }
-                        ) {
-                            Class<?>[] columnTypes = new Class<?>[] {
-                                Object.class, Object.class, Object.class, Object.class
-                            };
-                            @Override
-                            public Class<?> getColumnClass(int columnIndex) {
-                                return columnTypes[columnIndex];
-                            }
-                        });
+                        ));
                         tblBuchungen.setAutoCreateRowSorter(true);
                         tblBuchungen.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
                         tblBuchungen.addPropertyChangeListener(new PropertyChangeListener() {

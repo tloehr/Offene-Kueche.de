@@ -1,11 +1,15 @@
 /* (swing1.1.1) */
 package tablemodels;
 
-import java.util.*;
-import java.awt.*;
 import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.event.*;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import java.awt.*;
+import java.util.EventObject;
 
 
 /**

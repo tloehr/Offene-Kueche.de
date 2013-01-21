@@ -5,7 +5,6 @@
 package tablerenderer;
 
 import printer.Printers;
-import tools.Const;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;

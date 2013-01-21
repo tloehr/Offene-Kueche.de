@@ -4,15 +4,13 @@
  */
 package tablerenderer;
 
-import java.awt.Component;
+import tablemodels.DeletableTableModel;
+
+import javax.swing.*;
+import javax.swing.table.TableCellEditor;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.AbstractCellEditor;
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.table.TableCellEditor;
-import tablemodels.DeletableTableModel;
 
 public class DelButtonEditor extends AbstractCellEditor
         implements TableCellEditor,

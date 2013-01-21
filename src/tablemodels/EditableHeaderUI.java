@@ -1,12 +1,12 @@
 /* (swing1.1.1) */
 package tablemodels;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.event.*;
-import javax.swing.plaf.basic.*;
+import javax.swing.event.MouseInputListener;
+import javax.swing.plaf.basic.BasicTableHeaderUI;
+import javax.swing.table.TableColumnModel;
+import java.awt.*;
+import java.awt.event.MouseEvent;
 
 
 /**
