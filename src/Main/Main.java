@@ -16,6 +16,7 @@ import tools.Tools;
 import touch.FrmTouch;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
@@ -36,6 +37,7 @@ public class Main {
     private static int mode;
 
     public static Logger logger;
+    private static EntityManagerFactory emf;
     private static EntityManager em1;
     public static Mitarbeiter currentUser;
     public static SortedProperties props = new SortedProperties();
@@ -53,6 +55,10 @@ public class Main {
      */
     public static HashMap cache;
 
+    public static EntityManagerFactory getEMF() {
+        return emf;
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -62,7 +68,7 @@ public class Main {
         mode = UNKNOWN;
         cache = new HashMap();
 
-        animation = true;
+        animation = false;
 
         // Das hier fängt alle ungefangenen Exceptions auf.
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -117,8 +123,8 @@ public class Main {
             props.put("startup", mode == DESKTOP ? "desktop" : "touch");
         }
 
-
-        em1 = Persistence.createEntityManagerFactory("KuechePU", props).createEntityManager();
+        emf = Persistence.createEntityManagerFactory("KuechePU", props);
+        em1 = emf.createEntityManager();
         printers = new Printers();
 
         logger.info(UIManager.getInstalledLookAndFeels());

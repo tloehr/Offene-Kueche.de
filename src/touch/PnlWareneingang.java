@@ -1520,9 +1520,9 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                 .addContainerGap()
                                 .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
                                     .addGroup(GroupLayout.Alignment.LEADING, panel1Layout.createSequentialGroup()
-                                        .addComponent(cmbEinheit, 0, 510, Short.MAX_VALUE)
+                                        .addComponent(cmbEinheit, GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(cmbLagerart, 0, 499, Short.MAX_VALUE))
+                                        .addComponent(cmbLagerart, GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE))
                                     .addGroup(GroupLayout.Alignment.LEADING, panel1Layout.createSequentialGroup()
                                         .addComponent(lbl1)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
@@ -2087,6 +2087,8 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
                 Tools.showSide(splitUpperRight, Tools.LEFT_UPPER_SIDE, speed);
                 Tools.showSide(splitMain, Tools.RIGHT_LOWER_SIDE, speed);
+
+
 
 
                 if (!refresh) {

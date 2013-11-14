@@ -14,6 +14,7 @@ import printer.Printers;
 import tablemodels.VorratTableModel2;
 import tablerenderer.UmbuchenRenderer;
 import threads.SoundProcessor;
+import tools.Const;
 import tools.Tools;
 
 import javax.persistence.Query;
@@ -60,7 +61,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
     private void txtSearchActionPerformed(ActionEvent e) {
         vorrat = VorratTools.findByIDORScanner(txtSearch.getText());
         if (vorrat != null) {
-            if (vorrat.isAusgebucht()) {
+            if (vorrat.isAusgebucht() && !cbZombieRevive.isSelected()) {
                 Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "Dieser Vorrat wurde bereits ausgebucht.");
                 Tools.fadeout(lblProdukt);
                 sp.error();
@@ -86,18 +87,63 @@ public class PnlUmbuchen extends DefaultTouchPanel {
     }
 
     private void umbuchen() {
-        vorrat.setLager(ziel);
-        if (lieferant != null) {
-            vorrat.setLieferant(lieferant);
+
+//        EntityManager em = Main.getEMF().createEntityManager();
+
+        try {
+            Main.getEM().getTransaction().begin();
+
+            Vorrat myVorrat = Main.getEM().merge(vorrat);
+
+            if (myVorrat.isAusgebucht()) {
+                myVorrat.setAusgang(Const.DATE_BIS_AUF_WEITERES);
+                myVorrat.setAnbruch(Const.DATE_BIS_AUF_WEITERES);
+
+
+                Query query = Main.getEM().createQuery("DELETE FROM Buchungen b WHERE b.vorrat = :vorrat AND b.status <> :butnotstatus");
+                query.setParameter("vorrat", myVorrat);
+                query.setParameter("butnotstatus", BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND);
+
+                query.executeUpdate();
+
+//                Collection<Buchungen> buchungen = myVorrat.getBuchungenCollection();
+//                for (Buchungen b : buchungen) {
+//                    Buchungen buchung = em.merge(b);
+//                    if (buchung.getStatus() != BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND) {
+//                        em.remove(buchung);
+//                    }
+//                }
+//                for (Buchungen b : buchungen) {
+//                    if (b.getStatus() != BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND) {
+//                        myVorrat.getBuchungenCollection().remove(b);
+//                    }
+//                }
+            }
+
+            myVorrat.setLager(Main.getEM().merge(ziel));
+            if (lieferant != null) {
+                myVorrat.setLieferant(Main.getEM().merge(lieferant));
+            }
+//            EntityTools.merge(vorrat);
+            Main.getEM().getTransaction().commit();
+
+            vorrat = myVorrat;
+
+            Tools.log(txtLog, myVorrat.getId(), myVorrat.getProdukt().getBezeichnung(), "umgebucht");
+            if (tblVorrat.getModel() instanceof VorratTableModel2) {
+                int row = ((VorratTableModel2) tblVorrat.getModel()).addVorrat(vorrat); // diese Methode fügt den Vorrat nur dann hinzu, wenn nötig.
+                Tools.scrollCellToVisible(tblVorrat, row, 1);
+                tblVorrat.getSelectionModel().setSelectionInterval(row, row);
+            }
+            sp.bell();
+
+        } catch (Exception ee) {
+            Main.getEM().getTransaction().rollback();
+            ee.printStackTrace();
+        } finally {
+//            em.close();
         }
-        EntityTools.merge(vorrat);
-        Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "umgebucht");
-        if (tblVorrat.getModel() instanceof VorratTableModel2) {
-            int row = ((VorratTableModel2) tblVorrat.getModel()).addVorrat(vorrat); // diese Methode fügt den Vorrat nur dann hinzu, wenn nötig.
-            Tools.scrollCellToVisible(tblVorrat, row, 1);
-            tblVorrat.getSelectionModel().setSelectionInterval(row, row);
-        }
-        sp.bell();
+
     }
 
     private void btnSofortUmbuchenItemStateChanged(ItemEvent e) {
@@ -328,6 +374,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         title1 = new JLabel();
         scrollPane2 = new JScrollPane();
         tblVorrat = new JTable();
+        cbZombieRevive = new JCheckBox();
         panel2 = new JPanel();
         btnLeftRight = new JToggleButton();
         btnClear = new JButton();
@@ -472,6 +519,11 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                         scrollPane2.setViewportView(tblVorrat);
                     }
                     panel4.add(scrollPane2, BorderLayout.CENTER);
+
+                    //---- cbZombieRevive ----
+                    cbZombieRevive.setText("Ausgebuchte wieder zur\u00fcck holen (revive Zombies)");
+                    cbZombieRevive.setFont(new Font("Arial", Font.PLAIN, 18));
+                    panel4.add(cbZombieRevive, BorderLayout.SOUTH);
                 }
                 splitMain.setRightComponent(panel4);
             }
@@ -647,6 +699,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
     private JLabel title1;
     private JScrollPane scrollPane2;
     private JTable tblVorrat;
+    private JCheckBox cbZombieRevive;
     private JPanel panel2;
     private JToggleButton btnLeftRight;
     private JButton btnClear;
