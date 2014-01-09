@@ -4,6 +4,7 @@
 
 package desktop;
 
+import Main.Main;
 import entity.Mitarbeiter;
 import entity.MitarbeiterTools;
 import threads.CardMonitor;
@@ -11,6 +12,7 @@ import threads.CardStateChangedEvent;
 import threads.CardStateListener;
 import tools.Tools;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
@@ -52,7 +54,7 @@ public class FrmUser extends JInternalFrame {
         userMode = false;
         currentMA = null;
 
-        cardmonitor = ((FrmDesktop) Main.Main.mainframe).getCardmonitor();
+        cardmonitor = ((FrmDesktop) Main.mainframe).getCardmonitor();
 
         csl = new CardStateListener() {
             @Override
@@ -84,13 +86,13 @@ public class FrmUser extends JInternalFrame {
         cardmonitor.setSuspended(true);
         while (!cardmonitor.isWaiting()) {
             try {
-                Main.Main.logger.debug("Waiting for CardMonitor to sleep");
+                Main.logger.debug("Waiting for CardMonitor to sleep");
                 Thread.currentThread().sleep(1000);
             } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
         }
-        Main.Main.logger.debug("CardMonitor sleeping");
+        Main.logger.debug("CardMonitor sleeping");
 
         try {
             card = cardmonitor.getTerminal().connect("T=0");
@@ -118,7 +120,8 @@ public class FrmUser extends JInternalFrame {
                 while (!cardIDisFree) {
                     newCardID = new Random().nextLong();
                     if (newCardID < Long.MAX_VALUE) {
-                        Query query = Main.Main.getEM().createNamedQuery("Mitarbeiter.findByCardID");
+                        EntityManager em = Main.getEMF().createEntityManager();
+                        Query query = em.createNamedQuery("Mitarbeiter.findByCardID");
                         query.setParameter("cardId", newCardID);
                         try {
                             query.getSingleResult();
@@ -126,6 +129,7 @@ public class FrmUser extends JInternalFrame {
                         } catch (Exception e1) {
                             cardIDisFree = true;
                         }
+                        em.close();
                     }
                 }
 
@@ -147,13 +151,16 @@ public class FrmUser extends JInternalFrame {
         // hier eine erneute Kontrolle.
         if (userMode) {
             Mitarbeiter karteninhaber;
-            Query query = Main.Main.getEM().createNamedQuery("Mitarbeiter.findByCardID");
+            EntityManager em = Main.getEMF().createEntityManager();
+            Query query = em.createNamedQuery("Mitarbeiter.findByCardID");
             query.setParameter("cardId", cardID);
             try {
                 karteninhaber = (Mitarbeiter) query.getSingleResult();
             } catch (Exception e1) {
                 karteninhaber = null;
             }
+            em.close();
+
             if (!currentMA.equals(karteninhaber)) { // Diese Karte gehört jemand anderem oder ist neu.
                 if (JOptionPane.showInternalConfirmDialog(this.getDesktopPane(),
                         (karteninhaber == null ? "Diese Karte gehört bisher noch niemandem.\n " : "Diese Karte gehört " + MitarbeiterTools.getUserString(karteninhaber) + ".\n ") +
@@ -166,16 +173,20 @@ public class FrmUser extends JInternalFrame {
                         karteninhaber.setCardId(0l);
                     }
                     currentMA.setCardId(cardID);
+
+                    em = Main.getEMF().createEntityManager();
                     try {
-                        Main.Main.getEM().getTransaction().begin();
+                        em.getTransaction().begin();
                         if (karteninhaber != null) {
-                            Main.Main.getEM().merge(karteninhaber);
+                            em.merge(karteninhaber);
                         }
-                        Main.Main.getEM().merge(currentMA);
-                        Main.Main.getEM().getTransaction().commit();
+                        em.merge(currentMA);
+                        em.getTransaction().commit();
                     } catch (Exception e1) {
                         // Pech
-                        Main.Main.getEM().getTransaction().rollback();
+                        em.getTransaction().rollback();
+                    } finally {
+                        em.close();
                     }
                 }
             }
@@ -187,10 +198,11 @@ public class FrmUser extends JInternalFrame {
     private void setUserList() {
         Query query = null;
 
+        EntityManager em = Main.getEMF().createEntityManager();
         if (cbArchiv.isSelected()) {
-            query = Main.Main.getEM().createNamedQuery("Mitarbeiter.findAllSorted");
+            query = em.createNamedQuery("Mitarbeiter.findAllSorted");
         } else {
-            query = Main.Main.getEM().createNamedQuery("Mitarbeiter.findActiveSorted");
+            query = em.createNamedQuery("Mitarbeiter.findActiveSorted");
         }
 
         try {
@@ -198,6 +210,8 @@ public class FrmUser extends JInternalFrame {
             listUser.setModel(Tools.newListModel(ma));
         } catch (Exception e1) { // nicht gefunden
             listUser.setModel(Tools.newListModel(null));
+        } finally {
+            em.close();
         }
         setFormMode(MODE_BROWSE);
     }
@@ -290,20 +304,23 @@ public class FrmUser extends JInternalFrame {
                 "Soll diese Kennung dauerhaft für den Zugriff gesperrt werden ?",
                 "Benutzerkonto sperren",
                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            EntityManager em = Main.getEMF().createEntityManager();
             try {
-                Main.Main.getEM().getTransaction().begin();
+                em.getTransaction().begin();
                 currentMA.setMd5Key(null);
                 currentMA.setCardId(0l);
                 currentMA.setAdmin(Boolean.FALSE);
-                Main.Main.getEM().merge(currentMA);
-                Main.Main.getEM().getTransaction().commit();
+                em.merge(currentMA);
+                em.getTransaction().commit();
                 JOptionPane.showInternalMessageDialog(this.getDesktopPane(),
                         "Kennung gesperrt.",
                         "Benutzerkonto sperren",
                         JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception e1) {
                 // Pech
-                Main.Main.getEM().getTransaction().rollback();
+                em.getTransaction().rollback();
+            } finally {
+                em.close();
             }
             setUserList();
         }
@@ -312,10 +329,12 @@ public class FrmUser extends JInternalFrame {
     private void btnSaveActionPerformed(ActionEvent e) {
 
         if (formMode == MODE_NEW || formMode == MODE_EDIT) {
-
-            Query query = Main.Main.getEM().createNamedQuery("Mitarbeiter.findByUsername");
+            EntityManager em = Main.getEMF().createEntityManager();
+            Query query = em.createNamedQuery("Mitarbeiter.findByUsername");
             query.setParameter("username", txtUsername.getText());
             java.util.List<Mitarbeiter> ma = query.getResultList();
+            em.close();
+
             if (ma.size() == 0 || formMode == MODE_NEW || (ma.size() == 1 && ma.get(0).equals(currentMA))) {
                 if (txtUsername.getText().equals("")) {
                     JOptionPane.showInternalMessageDialog(this.getDesktopPane(),
@@ -340,19 +359,23 @@ public class FrmUser extends JInternalFrame {
                     currentMA.setName(txtNachname.getText());
                     currentMA.setVorname(txtVorname.getText());
                     currentMA.setAdmin(new Boolean(cbIsAdmin.isSelected()));
+
+                    em = Main.getEMF().createEntityManager();
                     try {
-                        Main.Main.getEM().getTransaction().begin();
+                        em.getTransaction().begin();
                         if (formMode == MODE_NEW) {
-                            Main.Main.getEM().persist(currentMA);
+                            em.persist(currentMA);
                         } else {
-                            Main.Main.getEM().merge(currentMA);
+                            em.merge(currentMA);
                         }
 
-                        Main.Main.getEM().getTransaction().commit();
+                        em.getTransaction().commit();
                         cbArchiv.setSelected(true);
                     } catch (Exception e2) {
                         // Pech
-                        Main.Main.getEM().getTransaction().rollback();
+                        em.getTransaction().rollback();
+                    } finally {
+                        em.close();
                     }
                 }
             } else {
@@ -365,15 +388,18 @@ public class FrmUser extends JInternalFrame {
         } else { // Password
             if (!txtPassword.getText().equals("")) {
                 currentMA.setMd5Key(Tools.hashword(txtPassword.getText()));
+                EntityManager em = Main.getEMF().createEntityManager();
                 try {
-                    Main.Main.getEM().getTransaction().begin();
-                    Main.Main.getEM().merge(currentMA);
-                    Main.Main.getEM().getTransaction().commit();
+                    em.getTransaction().begin();
+                    em.merge(currentMA);
+                    em.getTransaction().commit();
                     cbArchiv.setSelected(true);
                 } catch (Exception e2) {
                     // Pech
-                    Main.Main.logger.debug(e2.getMessage(), e2);
-                    Main.Main.getEM().getTransaction().rollback();
+                    Main.logger.debug(e2.getMessage(), e2);
+                    em.getTransaction().rollback();
+                } finally {
+                    em.close();
                 }
             } else {
                 JOptionPane.showInternalMessageDialog(this.getDesktopPane(),

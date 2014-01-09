@@ -15,7 +15,6 @@ import tools.SortedProperties;
 import tools.Tools;
 import touch.FrmTouch;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.swing.*;
@@ -38,7 +37,7 @@ public class Main {
 
     public static Logger logger;
     private static EntityManagerFactory emf;
-    private static EntityManager em1;
+//    private static EntityManager em1;
     public static Mitarbeiter currentUser;
     public static SortedProperties props = new SortedProperties();
     public static SortedProperties appinfo = new SortedProperties();
@@ -124,7 +123,7 @@ public class Main {
         }
 
         emf = Persistence.createEntityManagerFactory("KuechePU", props);
-        em1 = emf.createEntityManager();
+//        em1 = emf.createEntityManager();
         printers = new Printers();
 
         logger.info(UIManager.getInstalledLookAndFeels());
@@ -208,9 +207,9 @@ public class Main {
         logger.fatal(msg);
     }
 
-    public static EntityManager getEM() {
-        return em1;
-    }
+//    public static EntityManager getEM() {
+//        return em1;
+//    }
 
     public static Logger getLogger() {
         return logger;

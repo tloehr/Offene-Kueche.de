@@ -4,11 +4,13 @@
  */
 package tablemodels;
 
+import Main.Main;
 import entity.Buchungen;
 import entity.BuchungenTools;
 import entity.Vorrat;
 import tools.Tools;
 
+import javax.persistence.EntityManager;
 import javax.swing.table.AbstractTableModel;
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -18,7 +20,6 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *
  * @author tloehr
  */
 public class BuchungenTableModel extends AbstractTableModel implements DeletableTableModel {
@@ -87,17 +88,21 @@ public class BuchungenTableModel extends AbstractTableModel implements Deletable
     }
 
     public void removeRow(int row) {
-        Main.Main.getEM().getTransaction().begin();
-        //Main.Main.logger.debug("removeRow: "+row);
-        Buchungen buchung = (Buchungen) data.get(row);
+        EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Main.Main.getEM().remove(buchung);
+            em.getTransaction().begin();
+            //Main.Main.logger.debug("removeRow: "+row);
+            Buchungen buchung = (Buchungen) data.get(row);
+
+            em.remove(buchung);
             data.remove(row);
-            Main.Main.getEM().getTransaction().commit();
+            em.getTransaction().commit();
             fireTableRowsDeleted(row, row);
         } catch (Exception e) {
-            Main.Main.logger.fatal(e.getMessage(), e);
-            Main.Main.getEM().getTransaction().rollback();
+            Main.logger.fatal(e.getMessage(), e);
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
     }
 
@@ -147,7 +152,7 @@ public class BuchungenTableModel extends AbstractTableModel implements Deletable
 
     public void addEmptyRow() {
         Buchungen buchungen = new Buchungen(BigDecimal.ZERO, new Date());
-        buchungen.setMitarbeiter(Main.Main.currentUser);
+        buchungen.setMitarbeiter(Main.currentUser);
         buchungen.setText("Manuelle Buchung");
         // Die gibt es immer
         Vorrat vorrat = ((Buchungen) data.get(0)).getVorrat();
@@ -158,19 +163,23 @@ public class BuchungenTableModel extends AbstractTableModel implements Deletable
     }
 
     public void saveRow(int row) {
-        Main.Main.getEM().getTransaction().begin();
-        Buchungen buchung = (Buchungen) data.get(row);
+        EntityManager em = Main.getEMF().createEntityManager();
+
         try {
+            em.getTransaction().begin();
+            Buchungen buchung = (Buchungen) data.get(row);
             if (buchung.getId() > 0) {
-                Main.Main.getEM().persist(buchung);
+                em.persist(buchung);
                 newRowMode = false;
             } else {
-                Main.Main.getEM().merge(buchung);
+                em.merge(buchung);
             }
-            Main.Main.getEM().getTransaction().commit();
+            em.getTransaction().commit();
         } catch (Exception e) {
-            Main.Main.logger.fatal(e.getMessage(), e);
-            Main.Main.getEM().getTransaction().rollback();
+            Main.logger.fatal(e.getMessage(), e);
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
     }
 

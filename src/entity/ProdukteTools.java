@@ -2,6 +2,7 @@ package entity;
 
 import Main.Main;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -53,21 +54,27 @@ public class ProdukteTools {
         List produkte = null;
         if (!search.equals("")) {
             if (isGTIN(search)) {
-                Query query = Main.getEM().createNamedQuery("Produkte.findByGtin");
+                EntityManager em = Main.getEMF().createEntityManager();
+                Query query = em.createNamedQuery("Produkte.findByGtin");
                 query.setParameter("gtin", getGTIN(search));
 
                 try {
                     produkte = query.getResultList();
                 } catch (Exception e1) { // nicht gefunden
                     produkte = null;
+                } finally {
+                    em.close();
                 }
             } else { // Falls die Suche NICHT nur aus Zahlen besteht, dann nach Namen suchen.
-                Query query = Main.getEM().createNamedQuery("Produkte.findByBezeichnungLike");
+                EntityManager em = Main.getEMF().createEntityManager();
+                Query query = em.createNamedQuery("Produkte.findByBezeichnungLike");
                 query.setParameter("bezeichnung", "%" + search + "%");
                 try {
                     produkte = query.getResultList();
                 } catch (Exception e1) { // nicht gefunden
                     produkte = null;
+                } finally {
+                    em.close();
                 }
             }
         }
@@ -124,7 +131,8 @@ public class ProdukteTools {
         if (Main.cache.containsKey(produkt)) {
             l = ((Lieferanten) Main.cache.get(produkt));
         } else {
-            Query query = Main.getEM().createQuery(
+            EntityManager em = Main.getEMF().createEntityManager();
+            Query query = em.createQuery(
                     " SELECT v FROM Vorrat v " +
                             " INNER JOIN v.produkt p " +
                             " WHERE v.produkt = :produkt" +
@@ -139,6 +147,8 @@ public class ProdukteTools {
             } catch (Exception e1) { // nicht gefunden
                 Main.logger.fatal(e1.getMessage(), e1);
                 l = null;
+            } finally {
+                em.close();
             }
         }
         Main.logger.debug(l.getFirma());
@@ -147,13 +157,16 @@ public class ProdukteTools {
 
     public static boolean isGTINinUse(String gtin) {
         boolean gtininuse = false;
-        Query query = Main.getEM().createNamedQuery("Produkte.findByGtin");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Produkte.findByGtin");
         query.setParameter("gtin", gtin.trim());
         try {
             query.getSingleResult();
             gtininuse = true;
         } catch (Exception e1) { // nicht gefunden
             gtininuse = true;
+        } finally {
+            em.close();
         }
         return gtininuse;
     }

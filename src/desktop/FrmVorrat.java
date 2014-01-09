@@ -24,6 +24,7 @@ import tools.Const;
 import tools.Pair;
 import tools.Tools;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.border.SoftBevelBorder;
@@ -113,20 +114,21 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         }
 
         try {
+            EntityManager em = Main.getEMF().createEntityManager();
             if (suche == null) {
-                query = Main.getEM().createNamedQuery("Buchungen.findSUMByAlle" + strQueryAddendum);
+                query = em.createNamedQuery("Buchungen.findSUMByAlle" + strQueryAddendum);
             } else if (suche.getFirst() == Const.DATUM) {
                 Date eingang = (Date) suche.getSecond();
-                query = Main.getEM().createNamedQuery("Buchungen.findSUMByVorratDatum" + strQueryAddendum);
+                query = em.createNamedQuery("Buchungen.findSUMByVorratDatum" + strQueryAddendum);
                 query.setParameter("eingang1", new Date(Tools.startOfDay(eingang)));
                 query.setParameter("eingang2", new Date(Tools.endOfDay(eingang)));
             } else if (suche.getFirst() == Const.PRODUKT) {
                 Produkte produkt = (Produkte) suche.getSecond();
-                query = Main.getEM().createNamedQuery("Buchungen.findSUMByProdukt" + strQueryAddendum);
+                query = em.createNamedQuery("Buchungen.findSUMByProdukt" + strQueryAddendum);
                 query.setParameter("produkt", produkt);
             } else if (suche.getFirst() == Const.VORRAT) {
                 Vorrat vorrat = (Vorrat) suche.getSecond();
-                query = Main.getEM().createNamedQuery("Buchungen.findSUMByVorrat" + strQueryAddendum);
+                query = em.createNamedQuery("Buchungen.findSUMByVorrat" + strQueryAddendum);
                 query.setParameter("vorrat", vorrat);
             } else if (suche.getFirst() == Const.LAGER) {
                 initphase = true;
@@ -134,7 +136,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                 cmbLieferant.setSelectedIndex(0);
                 initphase = false;
                 Lager lager = (Lager) suche.getSecond();
-                query = Main.getEM().createNamedQuery("Buchungen.findSUMByLager" + strQueryAddendum);
+                query = em.createNamedQuery("Buchungen.findSUMByLager" + strQueryAddendum);
                 query.setParameter("lager", lager);
             } else if (suche.getFirst() == Const.WARENGRUPPE) {
                 initphase = true;
@@ -142,7 +144,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                 cmbLieferant.setSelectedIndex(0);
                 initphase = false;
                 Warengruppe warengruppe = (Warengruppe) suche.getSecond();
-                query = Main.getEM().createNamedQuery("Buchungen.findSUMByWarengruppe" + strQueryAddendum);
+                query = em.createNamedQuery("Buchungen.findSUMByWarengruppe" + strQueryAddendum);
                 query.setParameter("warengruppe", warengruppe);
             } else if (suche.getFirst() == Const.LIEFERANT) {
                 initphase = true;
@@ -150,14 +152,14 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                 cmbWarengruppe.setSelectedIndex(0);
                 initphase = false;
                 Lieferanten lieferant = (Lieferanten) suche.getSecond();
-                query = Main.getEM().createNamedQuery("Buchungen.findSUMByLieferant" + strQueryAddendum);
+                query = em.createNamedQuery("Buchungen.findSUMByLieferant" + strQueryAddendum);
                 query.setParameter("lieferant", lieferant);
             } else if (suche.getFirst() == Const.PRODUKTNAME) {
-                query = Main.getEM().createNamedQuery("Buchungen.findSUMByProduktBezeichnung" + strQueryAddendum);
+                query = em.createNamedQuery("Buchungen.findSUMByProduktBezeichnung" + strQueryAddendum);
                 query.setParameter("bezeichnung", "%" + suche.getSecond().toString().trim() + "%");
             } else if (suche.getFirst() == Const.LAGERART) {
                 short lagerart = (Short) suche.getSecond();
-                query = Main.getEM().createNamedQuery("Buchungen.findSUMByLagerart" + strQueryAddendum);
+                query = em.createNamedQuery("Buchungen.findSUMByLagerart" + strQueryAddendum);
                 query.setParameter("lagerart", lagerart);
             }
 
@@ -224,10 +226,12 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
                 public void tableChanged(TableModelEvent e) {
                     // Summe in der Vorrat Tabelle korrigieren.
-                    javax.persistence.Query query = Main.getEM().createNamedQuery("Vorrat.Buchungen.summeBestand");
+                    EntityManager em = Main.getEMF().createEntityManager();
+                    javax.persistence.Query query = em.createNamedQuery("Vorrat.Buchungen.summeBestand");
                     query.setParameter("vorrat", vorrat);
                     ((Object[]) ((VorratTableModel) tblVorrat.getModel()).getData().get(tblVorrat.getSelectedRow()))[1] = (BigDecimal) query.getSingleResult();
                     ((VorratTableModel) tblVorrat.getModel()).fireTableCellUpdated(tblVorrat.getSelectedRow(), VorratTableModel.COL_RESTMENGE);
+                    em.close();
                 }
             };
 
@@ -250,17 +254,21 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
     }
 
     private void loadWarengruppe() {
-        Query query = Main.getEM().createNamedQuery("Warengruppe.findAllSorted");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Warengruppe.findAllSorted");
         java.util.List warengruppe = query.getResultList();
         warengruppe.add(0, "<html><i>nach Warengruppe</i></html>");
         cmbWarengruppe.setModel(tools.Tools.newComboboxModel(warengruppe));
+        em.close();
     }
 
     private void loadLager() {
-        Query query = Main.getEM().createNamedQuery("Lager.findAllSorted");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Lager.findAllSorted");
         java.util.List lager = query.getResultList();
         lager.add(0, "<html><i>nach Lager</i></html>");
         cmbLager.setModel(tools.Tools.newComboboxModel(lager));
+        em.close();
     }
 
     private void loadLagerart() {
@@ -271,10 +279,12 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
     }
 
     private void loadLieferanten() {
-        Query query = Main.getEM().createNamedQuery("Lieferanten.findAllSorted");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Lieferanten.findAllSorted");
         java.util.List lieferanten = query.getResultList();
         lieferanten.add(0, "<html><i>nach Lieferanten</i></html>");
         cmbLieferant.setModel(tools.Tools.newComboboxModel(lieferanten));
+        em.close();
     }
 
     private void pnlVorratComponentResized(ComponentEvent e) {
@@ -499,8 +509,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
     private void btnApply1ActionPerformed(ActionEvent e) {
         int[] rows = tblVorrat.getSelectedRows();
 
+        EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Main.getEM().getTransaction().begin();
+            em.getTransaction().begin();
             for (int r = 0; r < rows.length; r++) {
                 // Diese Zeile ist sehr wichtig, da sie die Auswahl in der Tabelle bzgl. einer Umsortierung berücksichtigt.
                 int row = tblVorrat.convertRowIndexToModel(rows[r]);
@@ -514,17 +525,19 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                     VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
                 } else if (laufendeVOperation == LAUFENDE_OPERATION_REAKTIVIERUNG) {
                     Main.logger.info("ZURÜCK BUCHEN VORRAT: " + vorrat.toString());
-                    VorratTools.reaktivieren(vorrat);
+                    VorratTools.reaktivieren(em, vorrat);
                 } else if (laufendeVOperation == LAUFENDE_OPERATION_KORREKTUR) {
                     Main.logger.info("ANFANGSBESTÄNDE KORRIGIEREN: " + vorrat.toString());
-                    VorratTools.korregiereAnfangsbestand(vorrat);
+                    VorratTools.korregiereAnfangsbestand(em, vorrat);
                 } else {
 
                 }
             }
-            Main.getEM().getTransaction().commit();
+            em.getTransaction().commit();
         } catch (Exception e1) {
-            Main.getEM().getTransaction().rollback();
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
         laufendeVOperation = LAUFENDE_OPERATION_NICHTS;
         textmessageTL.cancel();
@@ -549,13 +562,15 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
     private void txtSuchenActionPerformed(ActionEvent e) {
         suche = null;
+        EntityManager em = Main.getEMF().createEntityManager();
         try {
             String suchtext = txtSuchen.getText().trim();
             if (!suchtext.isEmpty()) {
                 // Was genau wird gesucht ?
+
                 if (suchtext.matches("^" + ProdukteTools.IN_STORE_PREFIX + "\\d{11}$")) { // VorratID in EAN 13 Kodiert mit in-store Präfix (z.B. 20)
                     // Ausschneiden der VorID aus dem EAN Code. IN-STORE-PREFIX und die Prüfsummenziffer weg.
-                    Vorrat vorrat = Main.getEM().find(Vorrat.class, Long.parseLong(suchtext.substring(2, 12)));
+                    Vorrat vorrat = em.find(Vorrat.class, Long.parseLong(suchtext.substring(2, 12)));
                     if (vorrat != null) {
                         suche = new Pair<Integer, Object>(Const.VORRAT, vorrat);
                     }
@@ -566,7 +581,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                         suche = new Pair<Integer, Object>(Const.PRODUKT, list.get(0));
                     }
                 } else if (suchtext.matches("^\\d+")) { // Nur Ziffern, dann kann das nur eine VorratID von Hand
-                    Vorrat vorrat = Main.getEM().find(Vorrat.class, Long.parseLong(suchtext));
+                    Vorrat vorrat = em.find(Vorrat.class, Long.parseLong(suchtext));
                     if (vorrat != null) {
                         suche = new Pair<Integer, Object>(Const.VORRAT, vorrat);
                     }
@@ -578,6 +593,8 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
             }
         } catch (Exception e1) {
             suche = null;
+        } finally {
+            em.close();
         }
         loadVorratTable();
     }
@@ -1490,22 +1507,27 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
     }
 
     private void loadCMB4Edit() {
-        Query query = Main.getEM().createNamedQuery("Lager.findAllSorted");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Lager.findAllSorted");
         try {
             java.util.List lager = query.getResultList();
             lager.add(0, "<html><i>ändern Lager</i></html>");
             cmbVEditLager.setModel(tools.Tools.newComboboxModel(lager));
         } catch (Exception e) { // nicht gefunden
             //
+        } finally {
+            em.close();
         }
-
-        query = Main.getEM().createNamedQuery("Lieferanten.findAllSorted");
+        em = Main.getEMF().createEntityManager();
+        query = em.createNamedQuery("Lieferanten.findAllSorted");
         try {
             java.util.List lieferant = query.getResultList();
             lieferant.add(0, "<html><i>ändern Lieferant</i></html>");
             cmbVEditLieferant.setModel(tools.Tools.newComboboxModel(lieferant));
         } catch (Exception e) { // nicht gefunden
             //
+        } finally {
+            em.close();
         }
     }
 

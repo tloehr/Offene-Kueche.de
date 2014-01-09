@@ -2,6 +2,7 @@ package entity;
 
 import Main.Main;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 /**
@@ -23,7 +24,8 @@ public class LagerTools {
 
     public static Lager add(String bezeichnung) {
         Lager lager = null;
-        Query query = Main.getEM().createNamedQuery("Lager.findByBezeichnung");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Lager.findByBezeichnung");
         query.setParameter("bezeichnung", bezeichnung.trim());
         if (query.getResultList().isEmpty()) {
             lager = new Lager(bezeichnung, LAGERART_TROCKENLAGER, "");
@@ -31,6 +33,7 @@ public class LagerTools {
         } else {
             lager = (Lager) query.getResultList().get(0);
         }
+        em.close();
         return lager;
     }
 
@@ -41,9 +44,11 @@ public class LagerTools {
      */
     public static Lager getUnbekannt(){
         Lager lager = null;
-        Query query = Main.getEM().createNamedQuery("Lager.findByLagerart");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Lager.findByLagerart");
         query.setParameter("lagerart", LAGERART_UNBEKANNT);
         lager = (Lager) query.getSingleResult();
+        em.close();
         return lager;
     }
 }

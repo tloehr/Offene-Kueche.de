@@ -17,6 +17,7 @@ import threads.SoundProcessor;
 import tools.Const;
 import tools.Tools;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -88,19 +89,19 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
     private void umbuchen() {
 
-//        EntityManager em = Main.getEMF().createEntityManager();
-
+        EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Main.getEM().getTransaction().begin();
+            
+            em.getTransaction().begin();
 
-            Vorrat myVorrat = Main.getEM().merge(vorrat);
+            Vorrat myVorrat = em.merge(vorrat);
 
             if (myVorrat.isAusgebucht()) {
                 myVorrat.setAusgang(Const.DATE_BIS_AUF_WEITERES);
                 myVorrat.setAnbruch(Const.DATE_BIS_AUF_WEITERES);
 
 
-                Query query = Main.getEM().createQuery("DELETE FROM Buchungen b WHERE b.vorrat = :vorrat AND b.status <> :butnotstatus");
+                Query query = em.createQuery("DELETE FROM Buchungen b WHERE b.vorrat = :vorrat AND b.status <> :butnotstatus");
                 query.setParameter("vorrat", myVorrat);
                 query.setParameter("butnotstatus", BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND);
 
@@ -120,12 +121,12 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 //                }
             }
 
-            myVorrat.setLager(Main.getEM().merge(ziel));
+            myVorrat.setLager(em.merge(ziel));
             if (lieferant != null) {
-                myVorrat.setLieferant(Main.getEM().merge(lieferant));
+                myVorrat.setLieferant(em.merge(lieferant));
             }
 //            EntityTools.merge(vorrat);
-            Main.getEM().getTransaction().commit();
+            em.getTransaction().commit();
 
             vorrat = myVorrat;
 
@@ -138,10 +139,10 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             sp.bell();
 
         } catch (Exception ee) {
-            Main.getEM().getTransaction().rollback();
+            em.getTransaction().rollback();
             ee.printStackTrace();
         } finally {
-//            em.close();
+            em.close();
         }
 
     }
@@ -168,8 +169,9 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
     private void loadVorratTable() {
         if (btnLeftRight.isSelected()) {
+            EntityManager em = Main.getEMF().createEntityManager();
             try {
-                Query query = Main.getEM().createNamedQuery("Buchungen.findSUMByLagerAktiv");
+                Query query = em.createNamedQuery("Buchungen.findSUMByLagerAktiv");
                 query.setParameter("lager", (Lager) cmbLager.getSelectedItem());
 
                 java.util.List list = query.getResultList();
@@ -185,6 +187,8 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             } catch (Exception e) { // nicht gefunden
                 Main.logger.fatal(e.getMessage(), e);
                 //e.printStackTrace();
+            } finally {
+                em.close();
             }
         } else {
             tblVorrat.setModel(new DefaultTableModel());
@@ -272,13 +276,16 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
 
     private void loadLieferant() {
-        Query query = Main.getEM().createNamedQuery("Lieferanten.findAllSorted");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Lieferanten.findAllSorted");
         try {
             java.util.List lieferant = query.getResultList();
             lieferant.add(0, "<html><i>Lieferant nicht &auml;ndern</i></html>");
             cmbLieferant.setModel(tools.Tools.newComboboxModel(lieferant));
         } catch (Exception e) { // nicht gefunden
             //
+        }  finally {
+            em.close();
         }
     }
 
@@ -321,8 +328,9 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             }
             Tools.log(txtLog, "================================================");
         } else {
+            EntityManager em = Main.getEMF().createEntityManager();
             try {
-                Main.getEM().getTransaction().begin();
+                em.getTransaction().begin();
                 int[] rows = tblVorrat.getSelectedRows();
 
                 for (int r = 0; r < rows.length; r++) {
@@ -339,9 +347,11 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                         VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
                     }
                 }
-                Main.getEM().getTransaction().commit();
+                em.getTransaction().commit();
             } catch (Exception e1) {
-                Main.getEM().getTransaction().rollback();
+                em.getTransaction().rollback();
+            } finally {
+                em.close();
             }
         }
         timeline.cancel();
@@ -401,8 +411,8 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             }
         });
         setLayout(new FormLayout(
-                "$rgap, $lcgap, default:grow, $lcgap, default, $lcgap, $rgap",
-                "$rgap, 4*($lgap, 30dlu), $lgap, fill:default:grow, $lgap, default, $lgap, $rgap"));
+            "$rgap, $lcgap, default:grow, $lcgap, default, $lcgap, $rgap",
+            "$rgap, 4*($lgap, 30dlu), $lgap, fill:default:grow, $lgap, default, $lgap, $rgap"));
 
         //---- txtSearch ----
         txtSearch.setFont(new Font("sansserif", Font.BOLD, 24));
@@ -417,7 +427,6 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             public void focusGained(FocusEvent e) {
                 txtSearchFocusGained(e);
             }
-
             @Override
             public void focusLost(FocusEvent e) {
                 txtSearchFocusLost(e);

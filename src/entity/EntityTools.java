@@ -2,6 +2,8 @@ package entity;
 
 import Main.Main;
 
+import javax.persistence.EntityManager;
+
 /**
  * Created by IntelliJ IDEA.
  * User: tloehr
@@ -13,13 +15,16 @@ public class EntityTools {
 
     public static boolean persist(Object entity) {
         boolean success = false;
+        EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Main.getEM().getTransaction().begin();
-            Main.getEM().persist(entity);
-            Main.getEM().getTransaction().commit();
+            em.getTransaction().begin();
+            em.persist(entity);
+            em.getTransaction().commit();
             success = true;
         } catch (Exception e) {
-            Main.getEM().getTransaction().rollback();
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
 
         return success;
@@ -27,32 +32,16 @@ public class EntityTools {
 
     public static boolean merge(Object entity) {
         boolean success = false;
-
+        EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Main.getEM().getTransaction().begin();
-            Main.getEM().merge(entity);
-            Main.getEM().getTransaction().commit();
+            em.getTransaction().begin();
+            em.merge(entity);
+            em.getTransaction().commit();
             success = true;
         } catch (Exception e) {
-            Main.getEM().getTransaction().rollback();
-        }
-        return success;
-    }
-
-    public static boolean store(Object entity) {
-        boolean success = false;
-
-        try {
-            Main.getEM().getTransaction().begin();
-            if (Main.getEM().contains(entity)) {
-                Main.getEM().merge(entity);
-            } else {
-                Main.getEM().persist(entity);
-            }
-            Main.getEM().getTransaction().commit();
-            success = true;
-        } catch (Exception e) {
-            Main.getEM().getTransaction().rollback();
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
         return success;
     }
@@ -60,15 +49,19 @@ public class EntityTools {
     public static boolean delete(Object entity) {
         boolean success = false;
 
+        EntityManager em = Main.getEMF().createEntityManager();
+
         try {
-            Main.getEM().getTransaction().begin();
-            if (Main.getEM().contains(entity)) {
-                Main.getEM().remove(entity);
+            em.getTransaction().begin();
+            if (em.contains(entity)) {
+                em.remove(entity);
             }
-            Main.getEM().getTransaction().commit();
+            em.getTransaction().commit();
             success = true;
         } catch (Exception e) {
-            Main.getEM().getTransaction().rollback();
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
         return success;
     }

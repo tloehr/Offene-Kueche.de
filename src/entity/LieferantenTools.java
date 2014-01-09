@@ -2,6 +2,7 @@ package entity;
 
 import Main.Main;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 /**
@@ -15,7 +16,8 @@ public class LieferantenTools {
 
     public static Lieferanten add(String firma) {
         Lieferanten lieferant = null;
-        Query query = Main.getEM().createNamedQuery("Lieferanten.findByFirma");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Lieferanten.findByFirma");
         query.setParameter("firma", firma.trim());
         if (query.getResultList().isEmpty()){
             lieferant = new Lieferanten(firma.trim());
@@ -23,6 +25,7 @@ public class LieferantenTools {
         } else {
             lieferant = (Lieferanten) query.getResultList().get(0);
         }
+        em.close();
         return lieferant;
     }
 }

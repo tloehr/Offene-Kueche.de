@@ -14,6 +14,7 @@ import threads.*;
 import tools.NoneSelectedButtonGroup;
 import tools.Tools;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
@@ -99,13 +100,16 @@ public class FrmTouch extends JFrame {
             @Override
             public void cardStateChanged(CardStateChangedEvent evt) {
                 if (evt.isCardPresent() && evt.isUserMode() && evt.getCardID() < Long.MAX_VALUE) {
-                    Query query = Main.getEM().createNamedQuery("Mitarbeiter.findByCardID");
+                    EntityManager em = Main.getEMF().createEntityManager();
+                    Query query = em.createNamedQuery("Mitarbeiter.findByCardID");
                     query.setParameter("cardId", evt.getCardID());
                     try {
                         Main.currentUser = (Mitarbeiter) query.getSingleResult();
                         login();
                     } catch (Exception e) {
                         logout();
+                    } finally {
+                        em.close();
                     }
                 } else {
                     logout();
@@ -128,7 +132,7 @@ public class FrmTouch extends JFrame {
     @Override
     public void dispose() {
         tools.Tools.saveProperties();
-        Main.getEM().close();
+        Main.getEMF().close();
         cm.removeCardEventListener(csl);
         cm.interrupt();
         hs.interrupt();

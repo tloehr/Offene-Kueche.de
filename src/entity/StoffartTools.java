@@ -2,6 +2,7 @@ package entity;
 
 import Main.Main;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
 
@@ -15,7 +16,8 @@ import javax.swing.*;
 public class StoffartTools {
     public static Stoffart add(String text, short einheit, Warengruppe warengruppe) {
         Stoffart stoffart = null;
-        Query query = Main.getEM().createNamedQuery("Stoffart.findByBezeichnung");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Stoffart.findByBezeichnung");
         query.setParameter("bezeichnung", text.trim());
         if (query.getResultList().isEmpty()){
             stoffart = new Stoffart(text.trim(), einheit, warengruppe);
@@ -23,16 +25,20 @@ public class StoffartTools {
         } else {
             stoffart = (Stoffart) query.getResultList().get(0);
         }
+        em.close();
         return stoffart;
     }
 
     public static void loadStoffarten(JComboBox cmb) {
-        Query query = Main.getEM().createNamedQuery("Stoffart.findAllSorted");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Stoffart.findAllSorted");
         try {
             java.util.List stoffarten = query.getResultList();
             cmb.setModel(tools.Tools.newComboboxModel(stoffarten));
         } catch (Exception e) { // nicht gefunden
             //
+        } finally {
+            em.close();
         }
     }
 }

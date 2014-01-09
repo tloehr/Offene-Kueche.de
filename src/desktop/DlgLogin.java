@@ -9,6 +9,7 @@ import threads.CardMonitor;
 import threads.CardStateChangedEvent;
 import threads.CardStateListener;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
 import java.awt.*;
@@ -48,7 +49,8 @@ public class DlgLogin extends JDialog {
             @Override
             public void cardStateChanged(CardStateChangedEvent evt) {
                 if (evt.isCardPresent() && evt.isUserMode() && evt.getCardID() < Long.MAX_VALUE) {
-                    Query query = Main.Main.getEM().createNamedQuery("Mitarbeiter.findByCardID");
+                    EntityManager em = Main.Main.getEMF().createEntityManager();
+                    Query query = em.createNamedQuery("Mitarbeiter.findByCardID");
                     query.setParameter("cardId", evt.getCardID());
                     try {
                         user = (Mitarbeiter) query.getSingleResult();
@@ -61,7 +63,10 @@ public class DlgLogin extends JDialog {
                         user = null;
                         success = false;
                         cardLogin = false;
+                    } finally {
+                        em.close();
                     }
+
                 }
 
             }
@@ -78,11 +83,11 @@ public class DlgLogin extends JDialog {
             lblTerminal.setText("Kein PC/SC Kartenterminal gefunden");
         }
 
-        if (Main.Main.props.containsKey("benutzer")){
+        if (Main.Main.props.containsKey("benutzer")) {
             txtUsername.setText(Main.Main.props.getProperty("benutzer"));
         }
 
-        if (Main.Main.props.containsKey("passwort")){
+        if (Main.Main.props.containsKey("passwort")) {
             txtPasswort.setText(Main.Main.props.getProperty("passwort"));
         }
 
@@ -120,7 +125,8 @@ public class DlgLogin extends JDialog {
         String username = txtUsername.getText().trim();
         char[] password = txtPasswort.getPassword();
 
-        Query query = Main.Main.getEM().createNamedQuery("Mitarbeiter.findForLogin");
+        EntityManager em = Main.Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Mitarbeiter.findForLogin");
         query.setParameter("username", username);
         query.setParameter("mD5Key", tools.Tools.hashword(new String(password)));
 
@@ -137,6 +143,8 @@ public class DlgLogin extends JDialog {
             user = null;
             success = false;
             cardLogin = false;
+        } finally {
+            em.close();
         }
     }
 
@@ -145,7 +153,7 @@ public class DlgLogin extends JDialog {
     }
 
     private void txtPasswortActionPerformed(ActionEvent e) {
-         btnLogin.doClick();
+        btnLogin.doClick();
     }
 
     private void txtUsernameFocusGained(FocusEvent e) {
@@ -250,48 +258,48 @@ public class DlgLogin extends JDialog {
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
-            contentPaneLayout.createParallelGroup()
-                .addGroup(contentPaneLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(contentPaneLayout.createParallelGroup()
-                        .addComponent(lblReply, GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE)
-                        .addComponent(lblTerminal, GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE)
+                contentPaneLayout.createParallelGroup()
                         .addGroup(contentPaneLayout.createSequentialGroup()
-                            .addGroup(contentPaneLayout.createParallelGroup()
-                                .addComponent(jLabel1)
-                                .addComponent(jLabel2, GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE))
-                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(contentPaneLayout.createParallelGroup()
-                                .addComponent(txtPasswort, GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
-                                .addComponent(txtUsername, GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)))
-                        .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
-                            .addComponent(btnCancel)
-                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btnLogin)))
-                    .addContainerGap())
+                                .addContainerGap()
+                                .addGroup(contentPaneLayout.createParallelGroup()
+                                        .addComponent(lblReply, GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE)
+                                        .addComponent(lblTerminal, GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE)
+                                        .addGroup(contentPaneLayout.createSequentialGroup()
+                                                .addGroup(contentPaneLayout.createParallelGroup()
+                                                        .addComponent(jLabel1)
+                                                        .addComponent(jLabel2, GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE))
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGroup(contentPaneLayout.createParallelGroup()
+                                                        .addComponent(txtPasswort, GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
+                                                        .addComponent(txtUsername, GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)))
+                                        .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
+                                                .addComponent(btnCancel)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(btnLogin)))
+                                .addContainerGap())
         );
         contentPaneLayout.setVerticalGroup(
-            contentPaneLayout.createParallelGroup()
-                .addGroup(contentPaneLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel1)
-                        .addComponent(txtUsername, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                        .addComponent(txtPasswort, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel2))
-                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(lblTerminal)
-                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(lblReply)
-                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnLogin)
-                        .addComponent(btnCancel))
-                    .addContainerGap(8, Short.MAX_VALUE))
+                contentPaneLayout.createParallelGroup()
+                        .addGroup(contentPaneLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel1)
+                                        .addComponent(txtUsername, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(txtPasswort, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel2))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(lblTerminal)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(lblReply)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(btnLogin)
+                                        .addComponent(btnCancel))
+                                .addContainerGap(8, Short.MAX_VALUE))
         );
-        contentPaneLayout.linkSize(SwingConstants.VERTICAL, new Component[] {txtPasswort, txtUsername});
+        contentPaneLayout.linkSize(SwingConstants.VERTICAL, new Component[]{txtPasswort, txtUsername});
         pack();
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents

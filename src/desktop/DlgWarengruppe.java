@@ -4,8 +4,10 @@
 
 package desktop;
 
+import Main.Main;
 import entity.Warengruppe;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -33,25 +35,32 @@ public class DlgWarengruppe extends JDialog {
     }
 
     private void txtWarengruppeCaretUpdate(CaretEvent e) {
-        Query query = Main.Main.getEM().createNamedQuery("Warengruppe.findByBezeichnung");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Warengruppe.findByBezeichnung");
         query.setParameter("bezeichnung", txtWarengruppe.getText());
         try {
             List warengruppen = query.getResultList();
             btnSave.setEnabled(!txtWarengruppe.getText().trim().equals("") && warengruppen.isEmpty());
         } catch (Exception e1) { // nicht gefunden
             //
+        } finally {
+            em.close();
         }
     }
 
     private void btnSaveActionPerformed(ActionEvent e) {
-        Main.Main.getEM().getTransaction().begin();
+        EntityManager em = Main.getEMF().createEntityManager();
+        em.getTransaction().begin();
         try {
+            em.getTransaction().begin();
             warengruppe = new Warengruppe(txtWarengruppe.getText());
-            Main.Main.getEM().persist(warengruppe);
-            Main.Main.getEM().getTransaction().commit();
+            em.persist(warengruppe);
+            em.getTransaction().commit();
         } catch (Exception e1) {
-            Main.Main.logger.fatal(e1.getMessage(), e1);
-            Main.Main.getEM().getTransaction().rollback();
+            Main.logger.fatal(e1.getMessage(), e1);
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
         dispose();
     }

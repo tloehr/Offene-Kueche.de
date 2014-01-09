@@ -19,6 +19,7 @@ import threads.SoundProcessor;
 import tools.Const;
 import tools.Tools;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -63,31 +64,37 @@ public class PnlAusbuchen extends DefaultTouchPanel {
                 id = Long.parseLong(suchtext);
             }
             if (id != 0) {
-                Query query1 = Main.getEM().createNamedQuery("Vorrat.findByIdActive");
+                EntityManager em = Main.getEMF().createEntityManager();
+                Query query1 = em.createNamedQuery("Vorrat.findByIdActive");
                 query1.setParameter("id", id);
                 java.util.List<Vorrat> vorraete = query1.getResultList();
+                em.close();
                 if (vorraete.size() == 1) {
                     vorrat = vorraete.get(0);
                     showVorrat();
                     if (btnSofortBuchen.isSelected()) {
+                        em = Main.getEMF().createEntityManager();
                         try {
-                            Main.getEM().getTransaction().begin();
+                            em.getTransaction().begin();
                             VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
-                            Main.getEM().getTransaction().commit();
+                            em.getTransaction().commit();
                             Tools.log(txtLog, "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" komplett ausgebucht");
                             sp.bell();
                             clearVorrat();
                         } catch (Exception e1) {
-                            Main.getEM().getTransaction().rollback();
+                            em.getTransaction().rollback();
                             Main.fatal(e1);
                             e1.printStackTrace();
+                        } finally {
+                            em.close();
                         }
                     }
                 } else {
                     clearVorrat();
                     vorrat = null;
                     try {
-                        Query query2 = Main.getEM().createNamedQuery("Vorrat.findById");
+                        em = Main.getEMF().createEntityManager();
+                        Query query2 = em.createNamedQuery("Vorrat.findById");
                         query2.setParameter("id", id);
                         Vorrat meinVorrat = (Vorrat) query2.getSingleResult();
                         Tools.log(txtLog, "[" + id + "] \"" + meinVorrat.getProdukt().getBezeichnung() + "\" wurde bereits ausgebucht");
@@ -95,6 +102,8 @@ public class PnlAusbuchen extends DefaultTouchPanel {
                     } catch (Exception e2) {
                         Tools.log(txtLog, "[" + id + "] Nicht gefunden");
                         sp.warning();
+                    } finally {
+                        em.close();
                     }
                 }
 
@@ -109,16 +118,19 @@ public class PnlAusbuchen extends DefaultTouchPanel {
     }
 
     private void btnKomplettAusbuchenActionPerformed(ActionEvent e) {
+        EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Main.getEM().getTransaction().begin();
+            em.getTransaction().begin();
             VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
-            Main.getEM().getTransaction().commit();
+            em.getTransaction().commit();
             Tools.log(txtLog, "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" komplett ausgebucht");
             sp.bell();
             clearVorrat();
         } catch (Exception ex) {
-            Main.getEM().getTransaction().rollback();
+            em.getTransaction().rollback();
             clearVorrat();
+        } finally {
+            em.close();
         }
     }
 
@@ -146,23 +158,27 @@ public class PnlAusbuchen extends DefaultTouchPanel {
     }
 
     private void btnHalbAusbuchenActionPerformed(ActionEvent e) {
+        EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Main.getEM().getTransaction().begin();
+            em.getTransaction().begin();
             VorratTools.ausbuchen(vorrat, menge.divide(new BigDecimal(2)), "Ausbuchung Hälfte");
-            Main.getEM().getTransaction().commit();
+            em.getTransaction().commit();
             Tools.log(txtLog, "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" zur Hälfte ausgebucht");
             sp.bell();
             clearVorrat();
             //success("Ausbuchung erfolgreich");
         } catch (Exception ex) {
-            Main.getEM().getTransaction().rollback();
+            em.getTransaction().rollback();
             clearVorrat();
+        } finally {
+            em.close();
         }
     }
 
     private void btnMengeAusbuchenActionPerformed(ActionEvent e) {
+        EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Main.getEM().getTransaction().begin();
+            em.getTransaction().begin();
             VorratTools.ausbuchen(vorrat, menge, "Ausbuchung");
             String message = "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" " + menge + " " + lblEinheit.getText() + " ausgebucht.";
             message += vorrat.isAusgebucht() ? " Vorrat damit abgeschlossen." : "";
@@ -170,14 +186,16 @@ public class PnlAusbuchen extends DefaultTouchPanel {
             Tools.log(txtLog, message);
             //Main.debug(">>" + vorrat.getProdukt().getBezeichnung() + "<< " + menge + " " + lblEinheit.getText() + " ausgebucht");
             clearVorrat();
-            Main.getEM().getTransaction().commit();
+            em.getTransaction().commit();
         } catch (OutOfRangeException ex) {
             clearVorrat();
             Tools.log(txtLog, "Menge falsch. Mindestens: " + format.format(ex.getValidMin()) + " Höchstens: " + format.format(ex.getValidMax()));
             sp.error();
-            Main.getEM().getTransaction().rollback();
+            em.getTransaction().rollback();
         } catch (Exception te) {
-            Main.getEM().getTransaction().rollback();
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
     }
 

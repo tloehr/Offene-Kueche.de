@@ -555,7 +555,7 @@ public class FrmDesktop extends JFrame {
     @Override
     public void dispose() {
         tools.Tools.saveProperties();
-        Main.getEM().close();
+        Main.getEMF().close();
         hs.interrupt();
         cardmonitor.interrupt();
         super.dispose();

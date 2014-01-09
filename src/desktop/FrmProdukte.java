@@ -19,6 +19,7 @@ import tools.Const;
 import tools.Pair;
 import tools.Tools;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -76,8 +77,10 @@ public class FrmProdukte extends JInternalFrame {
         List list = null;
 
         if (criteria.getFirst() == Const.ALLE) {
-            Query query = Main.getEM().createNamedQuery("Produkte.findAllSorted");
+            EntityManager em = Main.getEMF().createEntityManager();
+            Query query = em.createNamedQuery("Produkte.findAllSorted");
             list = query.getResultList();
+            em.close();
         } else if (criteria.getFirst() == Const.NAME_NR) {
             list = ProdukteTools.searchProdukte(criteria.getSecond().toString());
         }
@@ -178,19 +181,22 @@ public class FrmProdukte extends JInternalFrame {
     private void mergeUs() {
         int neu = tblProdukt.convertRowIndexToModel(target4Merge);
         Produkte neuesProdukt = ((ProdukteTableModel) tblProdukt.getModel()).getProdukt(neu);
+        EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Main.getEM().getTransaction().begin();
+            em.getTransaction().begin();
             for (int r = 0; r < mergeUs.length; r++) {
                 int alt = tblProdukt.convertRowIndexToModel(mergeUs[r]);
                 Produkte altesProdukt = ((ProdukteTableModel) tblProdukt.getModel()).getProdukt(alt);
-                VorratTools.tauscheProdukt(altesProdukt, neuesProdukt);
+                VorratTools.tauscheProdukt(em, altesProdukt, neuesProdukt);
                 Main.debug("Lösche Produkt (wegen Merge): " + altesProdukt + " (" + altesProdukt.getId() + ")");
-                Main.getEM().remove(altesProdukt);
+                em.remove(altesProdukt);
             }
-            Main.getEM().getTransaction().commit();
+            em.getTransaction().commit();
         } catch (Exception e) {
-            Main.getEM().getTransaction().rollback();
+            em.getTransaction().rollback();
             Main.fatal(e);
+        } finally {
+            em.close();
         }
 
         target4Merge = -1;
@@ -647,13 +653,17 @@ public class FrmProdukte extends JInternalFrame {
 
         int[] rows = tblProdukt.getSelectedRows();
 
-        Main.getEM().getTransaction().begin();
+        EntityManager em = Main.getEMF().createEntityManager();
+        em.getTransaction().begin();
 
         try {
+
+            em.getTransaction().begin();
+
             for (int r = 0; r < rows.length; r++) {
 
                 int row = tblProdukt.convertRowIndexToModel(rows[r]);
-                Produkte produkte = ((ProdukteTableModel) tblProdukt.getModel()).getProdukt(row);
+                Produkte produkte = em.merge(((ProdukteTableModel) tblProdukt.getModel()).getProdukt(row));
 
                 if (!zwischenProdukt.getBezeichnung().isEmpty()) {
                     produkte.setBezeichnung(zwischenProdukt.getBezeichnung());
@@ -665,7 +675,7 @@ public class FrmProdukte extends JInternalFrame {
 
                 if (zwischenProdukt.getPackGroesse().compareTo(BigDecimal.ZERO) >= 0) {
                     produkte.setPackGroesse(zwischenProdukt.getPackGroesse());
-                    VorratTools.setzePackungsgroesse(produkte);
+                    VorratTools.setzePackungsgroesse(em, produkte);
                 }
 
                 if (zwischenProdukt.getEinheit() >= 0) {
@@ -679,13 +689,11 @@ public class FrmProdukte extends JInternalFrame {
                 if (zwischenProdukt.getStoffart() != null) {
                     produkte.setStoffart(zwischenProdukt.getStoffart());
                 }
-
-                Main.getEM().merge(produkte);
             }
-            Main.getEM().getTransaction().commit();
+            em.getTransaction().commit();
         } catch (Exception e) {
             Main.debug(e);
-            Main.getEM().getTransaction().rollback();
+            em.getTransaction().rollback();
         }
     }
 

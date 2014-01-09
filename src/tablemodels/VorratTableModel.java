@@ -9,6 +9,7 @@ import entity.Vorrat;
 import entity.VorratTools;
 import tools.Const;
 
+import javax.persistence.EntityManager;
 import javax.swing.table.DefaultTableModel;
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -85,15 +86,18 @@ public class VorratTableModel extends DefaultTableModel implements DeletableTabl
     @Override
     public void removeRow(int row) {
         Vorrat vorrat = (Vorrat) ((Object[]) data.get(row))[0];
-        Main.getEM().getTransaction().begin();
+        EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Main.getEM().remove(vorrat);
+            em.getTransaction().begin();
+            em.remove(vorrat);
             data.remove(row);
-            Main.getEM().getTransaction().commit();
+            em.getTransaction().commit();
             fireTableRowsDeleted(row, row);
         } catch (Exception e) {
             Main.logger.fatal(e.getMessage(), e);
-            Main.getEM().getTransaction().rollback();
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
     }
 
@@ -184,25 +188,25 @@ public class VorratTableModel extends DefaultTableModel implements DeletableTabl
 //            Vorrat vorrat = (Vorrat) ((Object[]) data.get(row))[0];
 //            vorrat.setLager((Lager) aValue);
 //
-//            Main.Main.getEM().getTransaction().begin();
+//            Main.em.getTransaction().begin();
 //            try {
-//                Main.Main.getEM().merge(vorrat);
-//                Main.Main.getEM().getTransaction().commit();
+//                Main.em.merge(vorrat);
+//                Main.em.getTransaction().commit();
 //            } catch (Exception e) {
 //                Main.Main.logger.fatal(e.getMessage(), e);
-//                Main.Main.getEM().getTransaction().rollback();
+//                Main.em.getTransaction().rollback();
 //            }
 //        } else if (column == COL_LIEFERANT) {
 //            Vorrat vorrat = (Vorrat) ((Object[]) data.get(row))[0];
 //            vorrat.setLieferant((Lieferanten) aValue);
 //
-//            Main.Main.getEM().getTransaction().begin();
+//            Main.em.getTransaction().begin();
 //            try {
-//                Main.Main.getEM().merge(vorrat);
-//                Main.Main.getEM().getTransaction().commit();
+//                Main.em.merge(vorrat);
+//                Main.em.getTransaction().commit();
 //            } catch (Exception e) {
 //                Main.Main.logger.fatal(e.getMessage(), e);
-//                Main.Main.getEM().getTransaction().rollback();
+//                Main.em.getTransaction().rollback();
 //            }
 //        }
 //        fireTableCellUpdated(row, column);

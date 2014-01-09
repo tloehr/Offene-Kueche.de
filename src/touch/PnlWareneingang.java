@@ -20,6 +20,7 @@ import tools.Const;
 import tools.DlgException;
 import tools.Tools;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
@@ -310,7 +311,8 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 aktuelleBuchung.setMenge(aktuelleBuchung.getProdukt().getPackGroesse());
             }
 
-            Main.getEM().getTransaction().begin();
+            EntityManager em = Main.getEMF().createEntityManager();
+            em.getTransaction().begin();
             java.util.List<PrintListElement> printList = new ArrayList(aktuelleBuchung.getFaktor());
 
             try {
@@ -318,13 +320,13 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 // Für jedes "Paket" einen Vorrat anlegen und einbuchen.
                 for (int i = 1; i <= aktuelleBuchung.getFaktor(); i++) {
                     Vorrat vorrat = new Vorrat(aktuelleBuchung.getProdukt(), (Lieferanten) cmbLieferant.getSelectedItem(), (Lager) cmbLager.getSelectedItem());
-                    Main.getEM().persist(vorrat);
+                    em.persist(vorrat);
                     Buchungen buchungen = new Buchungen(aktuelleBuchung.getMenge(), vorrat.getEingang());
                     buchungen.setText("Anfangsbestand");
                     buchungen.setStatus(BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND);
                     buchungen.setVorrat(vorrat);
                     buchungen.setMitarbeiter(Main.getCurrentUser());
-                    Main.getEM().persist(buchungen);
+                    em.persist(buchungen);
 
                     if (btnEtiketten1.isSelected()) {
                         printList.add(new PrintListElement(vorrat, etiprinter1, form1, Main.getProps().getProperty("etiprinter1")));
@@ -335,7 +337,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                     }
                 }
 
-                Main.getEM().getTransaction().commit();
+                em.getTransaction().commit();
 
                 Tools.log(txtLog, "EINBUCHUNG " + aktuelleBuchung.getFaktor() + "x '" + aktuelleBuchung.getProdukt().getBezeichnung() + "' á " + aktuelleBuchung.getMenge() + " " + ProdukteTools.EINHEIT[aktuelleBuchung.getProdukt().getEinheit()]);
 
@@ -346,8 +348,10 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
             } catch (Exception e1) {
                 Main.logger.fatal(e1.getMessage(), e1);
-                Main.getEM().getTransaction().rollback();
+                em.getTransaction().rollback();
                 Tools.log(txtLog, e1.getMessage());
+            } finally {
+                em.close();
             }
 
             aktuelleBuchung = new Buchung(aktuelleBuchung.getProdukt(), aktuelleBuchung.getFaktor(), aktuelleBuchung.getMenge(),
@@ -679,16 +683,19 @@ public class PnlWareneingang extends DefaultTouchPanel {
     }
 
     private void btnReaktivierenActionPerformed(ActionEvent e) {
+        EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Main.getEM().getTransaction().begin();
-            VorratTools.reaktivieren(vorrat);
-            Main.getEM().getTransaction().commit();
+            em.getTransaction().begin();
+            VorratTools.reaktivieren(em, vorrat);
+            em.getTransaction().commit();
             long id = vorrat.getId();
             setPanelMode(MODE_WARENEINGANG, 700);
             Tools.fadeinout(lblProdukt, "Vorrat ["+id+"] wieder eingebucht.");
         } catch (Exception e1) {
             new DlgException(e1);
-            Main.getEM().getTransaction().rollback();
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
     }
 
@@ -2234,17 +2241,20 @@ public class PnlWareneingang extends DefaultTouchPanel {
     }
 
     private void loadWarengruppe() {
-        Query query = Main.getEM().createNamedQuery("Warengruppe.findAllSorted");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Warengruppe.findAllSorted");
         try {
             java.util.List warengruppe = query.getResultList();
             cmbWarengruppe.setModel(tools.Tools.newComboboxModel(warengruppe));
         } catch (Exception e) { // nicht gefunden
             //
+        } finally {
+            em.close();
         }
     }
 
 //    private void loadStoffarten() {
-//        Query query = Main.getEM().createNamedQuery("Stoffart.findAllSorted");
+//        Query query = em.createNamedQuery("Stoffart.findAllSorted");
 //        try {
 //            java.util.List stoffarten = query.getResultList();
 //            cmbStoffart.setModel(tools.Tools.newComboboxModel(stoffarten));

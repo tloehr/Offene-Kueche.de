@@ -12,6 +12,7 @@ import org.pushingpixels.trident.callback.TimelineCallback;
 import org.pushingpixels.trident.callback.TimelineCallbackAdapter;
 import org.pushingpixels.trident.ease.Spline;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.smartcardio.*;
 import javax.swing.*;
@@ -331,13 +332,18 @@ public class Tools {
 
 
     public static DefaultComboBoxModel newComboboxModel(String namedQuery, Object[]... params) {
-        Query query = Main.getEM().createNamedQuery(namedQuery);
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery(namedQuery);
         if (params != null) {
             for (Object[] param : params) {
                 query.setParameter(param[0].toString(), param[1]);
             }
         }
-        return newComboboxModel(query.getResultList());
+
+        DefaultComboBoxModel dcbm = newComboboxModel(query.getResultList());
+
+        em.close();
+        return dcbm;
     }
 
     public static DefaultComboBoxModel newComboboxModel(List list) {
@@ -891,6 +897,7 @@ public class Tools {
 
     /**
      * Setzt eine Split Pane (animiert oder nicht animiert) auf eine entsprechende Position (Prozentual zwischen 0 und 1)
+     *
      * @param split
      * @param pos
      * @param speedInMillis

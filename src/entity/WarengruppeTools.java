@@ -2,6 +2,7 @@ package entity;
 
 import Main.Main;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 /**
@@ -14,7 +15,8 @@ import javax.persistence.Query;
 public class WarengruppeTools {
     public static Warengruppe add(String text) {
         Warengruppe warengruppe = null;
-        Query query = Main.getEM().createNamedQuery("Warengruppe.findByBezeichnung");
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Warengruppe.findByBezeichnung");
         query.setParameter("bezeichnung", text.trim());
         if (query.getResultList().isEmpty()) {
             warengruppe = new Warengruppe(text.trim());
@@ -22,6 +24,7 @@ public class WarengruppeTools {
         } else {
             warengruppe = (Warengruppe) query.getResultList().get(0);
         }
+        em.close();
         return warengruppe;
     }
 }
