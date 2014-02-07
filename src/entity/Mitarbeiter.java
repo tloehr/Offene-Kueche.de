@@ -15,13 +15,13 @@ import javax.persistence.*;
         @NamedQuery(name = "Mitarbeiter.findById", query = "SELECT m FROM Mitarbeiter m WHERE m.id = :id"),
         @NamedQuery(name = "Mitarbeiter.findForLogin", query = "SELECT m FROM Mitarbeiter m WHERE m.username = :username AND m.md5Key = :mD5Key"),
         @NamedQuery(name = "Mitarbeiter.findAllSorted", query = "SELECT m FROM Mitarbeiter m ORDER BY m.name, m.vorname"),
-        @NamedQuery(name = "Mitarbeiter.findActiveSorted", query = "SELECT m FROM Mitarbeiter m WHERE (m.md5Key IS NOT null OR m.cardId IS NOT null) ORDER BY m.name, m.vorname"),
+        @NamedQuery(name = "Mitarbeiter.findActiveSorted", query = "SELECT m FROM Mitarbeiter m WHERE (m.md5Key IS NOT null OR m.pin IS NOT null) ORDER BY m.name, m.vorname"),
         @NamedQuery(name = "Mitarbeiter.findByUsername", query = "SELECT m FROM Mitarbeiter m WHERE m.username = :username"),
         @NamedQuery(name = "Mitarbeiter.findByName", query = "SELECT m FROM Mitarbeiter m WHERE m.name = :name"),
         @NamedQuery(name = "Mitarbeiter.findByVorname", query = "SELECT m FROM Mitarbeiter m WHERE m.vorname = :vorname"),
         @NamedQuery(name = "Mitarbeiter.findByIsAdmin", query = "SELECT m FROM Mitarbeiter m WHERE m.isAdmin = :isAdmin"),
-        @NamedQuery(name = "Mitarbeiter.findByMD5Key", query = "SELECT m FROM Mitarbeiter m WHERE m.md5Key = :md5Key"),
-        @NamedQuery(name = "Mitarbeiter.findByCardID", query = "SELECT m FROM Mitarbeiter m WHERE m.cardId = :cardId")})
+        @NamedQuery(name = "Mitarbeiter.findByMD5Key", query = "SELECT m FROM Mitarbeiter m WHERE m.md5Key = :md5Key")
+        })
 public class Mitarbeiter {
 
 
@@ -33,6 +33,7 @@ public class Mitarbeiter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     public long getId() {
         return id;
     }
@@ -101,16 +102,16 @@ public class Mitarbeiter {
         this.md5Key = md5Key;
     }
 
-    private long cardId;
+    private String pin;
 
-    @javax.persistence.Column(name = "CardID", nullable = true, insertable = true, updatable = true, length = 19, precision = 0)
+    @javax.persistence.Column(name = "pin", nullable = true, insertable = true, updatable = true, length = 10, precision = 0)
     @Basic
-    public long getCardId() {
-        return cardId;
+    public String getPin() {
+        return pin;
     }
 
-    public void setCardId(long cardId) {
-        this.cardId = cardId;
+    public void setPin(String pin) {
+        this.pin = pin;
     }
 
     @Override
@@ -120,11 +121,11 @@ public class Mitarbeiter {
 
         Mitarbeiter that = (Mitarbeiter) o;
 
-        if (cardId != that.cardId) return false;
         if (id != that.id) return false;
         if (isAdmin != that.isAdmin) return false;
         if (md5Key != null ? !md5Key.equals(that.md5Key) : that.md5Key != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (pin != null ? !pin.equals(that.pin) : that.pin != null) return false;
         if (username != null ? !username.equals(that.username) : that.username != null) return false;
         if (vorname != null ? !vorname.equals(that.vorname) : that.vorname != null) return false;
 
@@ -139,12 +140,13 @@ public class Mitarbeiter {
         result = 31 * result + (vorname != null ? vorname.hashCode() : 0);
         result = 31 * result + (isAdmin ? 1 : 0);
         result = 31 * result + (md5Key != null ? md5Key.hashCode() : 0);
-        result = 31 * result + (int) (cardId ^ (cardId >>> 32));
+        result = 31 * result + (pin != null ? pin.hashCode() : 0);
         return result;
     }
 
+
     @Override
     public String toString() {
-        return name + ", " + vorname + " ["+username+"]";
+        return name + ", " + vorname + " [" + username + "]";
     }
 }

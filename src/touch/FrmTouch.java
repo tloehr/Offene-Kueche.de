@@ -7,15 +7,12 @@ package touch;
 import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
-import entity.Mitarbeiter;
-import events.PanelSwitchEvent;
-import events.PanelSwitchListener;
-import threads.*;
+import threads.HeapStat;
+import threads.PrintProcessor;
+import threads.SoundProcessor;
 import tools.NoneSelectedButtonGroup;
 import tools.Tools;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.SoftBevelBorder;
@@ -31,10 +28,10 @@ public class FrmTouch extends JFrame {
 
     TouchPanel currentPanel;
     HeapStat hs;
-    CardMonitor cm;
+//    CardMonitor cm;
     PrintProcessor pp;
     SoundProcessor sp;
-    CardStateListener csl;
+//    CardStateListener csl;
     private NoneSelectedButtonGroup bg1;
 
     MouseAdapter ma = new MouseAdapter() {
@@ -51,23 +48,23 @@ public class FrmTouch extends JFrame {
     };
 
 
-    PanelSwitchListener psl = new PanelSwitchListener() {
-        @Override
-        public void panelSwitched(PanelSwitchEvent evt) {
-//            btnWareneingang.setEnabled(evt.isEnablePanelSelectButtons());
-//            btnWarenausgang.setEnabled(evt.isEnablePanelSelectButtons());
-//            currentPanel = evt.getSwitchTo();
-//            currentPanel.addTargetChangeListener(tl);
-//            currentPanel.addPanelSwitchListener(psl);
-//            if (currentPanel != null) {
-//                pnlCenter.remove((JPanel) currentPanel);
-//            }
-//            pnlCenter.add((JPanel) currentPanel);
-//            pack();
-//            //pnlCenter.getViewport().add((Component) currentPanel);
-//            currentPanel.startAction();
-        }
-    };
+//    PanelSwitchListener psl = new PanelSwitchListener() {
+//        @Override
+//        public void panelSwitched(PanelSwitchEvent evt) {
+////            btnWareneingang.setEnabled(evt.isEnablePanelSelectButtons());
+////            btnWarenausgang.setEnabled(evt.isEnablePanelSelectButtons());
+////            currentPanel = evt.getSwitchTo();
+////            currentPanel.addTargetChangeListener(tl);
+////            currentPanel.addPanelSwitchListener(psl);
+////            if (currentPanel != null) {
+////                pnlCenter.remove((JPanel) currentPanel);
+////            }
+////            pnlCenter.add((JPanel) currentPanel);
+////            pack();
+////            //pnlCenter.getViewport().add((Component) currentPanel);
+////            currentPanel.startAction();
+//        }
+//    };
 
     public FrmTouch() {
         initComponents();
@@ -94,37 +91,39 @@ public class FrmTouch extends JFrame {
         pp = new PrintProcessor(pbMain);
         pp.start();
 
-        cm = new CardMonitor();
-        csl = new CardStateListener() {
+//        cm = new CardMonitor();
+//        csl = new CardStateListener() {
+//
+//            @Override
+//            public void cardStateChanged(CardStateChangedEvent evt) {
+//                if (evt.isCardPresent() && evt.isUserMode() && evt.getCardID() < Long.MAX_VALUE) {
+//                    EntityManager em = Main.getEMF().createEntityManager();
+//                    Query query = em.createNamedQuery("Mitarbeiter.findByCardID");
+//                    query.setParameter("cardId", evt.getCardID());
+//                    try {
+//                        Main.currentUser = (Mitarbeiter) query.getSingleResult();
+//                        login();
+//                    } catch (Exception e) {
+//                        logout();
+//                    } finally {
+//                        em.close();
+//                    }
+//                } else {
+//                    logout();
+//                }
+//            }
+//        };
+//
+//        cm.addCardEventListener(csl);
+//        if (cm.getTerminal() == null) {
+//            lblUsername.setIcon(new javax.swing.ImageIcon(getClass().getResource("/artwork/16x16/redled.png")));
+//            lblUsername.setText("Kein PC/SC Kartenterminal gefunden");
+//            cm.interrupt();
+//        } else {
+//            cm.start();
+//        }
 
-            @Override
-            public void cardStateChanged(CardStateChangedEvent evt) {
-                if (evt.isCardPresent() && evt.isUserMode() && evt.getCardID() < Long.MAX_VALUE) {
-                    EntityManager em = Main.getEMF().createEntityManager();
-                    Query query = em.createNamedQuery("Mitarbeiter.findByCardID");
-                    query.setParameter("cardId", evt.getCardID());
-                    try {
-                        Main.currentUser = (Mitarbeiter) query.getSingleResult();
-                        login();
-                    } catch (Exception e) {
-                        logout();
-                    } finally {
-                        em.close();
-                    }
-                } else {
-                    logout();
-                }
-            }
-        };
-
-        cm.addCardEventListener(csl);
-        if (cm.getTerminal() == null) {
-            lblUsername.setIcon(new javax.swing.ImageIcon(getClass().getResource("/artwork/16x16/redled.png")));
-            lblUsername.setText("Kein PC/SC Kartenterminal gefunden");
-            cm.interrupt();
-        } else {
-            cm.start();
-        }
+        setCurrentPanelTo(new PnlPIN(new Closure));
 
         this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
     }
@@ -133,8 +132,8 @@ public class FrmTouch extends JFrame {
     public void dispose() {
         tools.Tools.saveProperties();
         Main.getEMF().close();
-        cm.removeCardEventListener(csl);
-        cm.interrupt();
+//        cm.removeCardEventListener(csl);
+//        cm.interrupt();
         hs.interrupt();
         pp.interrupt();
         super.dispose();
@@ -380,7 +379,7 @@ public class FrmTouch extends JFrame {
         }
 
         currentPanel = pnl;
-        currentPanel.addPanelSwitchListener(psl);
+//        currentPanel.addPanelSwitchListener(psl);
 
         pnlCenter.add((JPanel) currentPanel);
         currentPanel.startAction();

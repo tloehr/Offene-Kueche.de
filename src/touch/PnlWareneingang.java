@@ -45,7 +45,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private int currentMode;
     private final int MODE_EDIT_PRODUCT = 1;
     private final int MODE_WARENEINGANG = 2;
-    private final int MODE_VORRATREAKTIVIERUNG = 3;
+//    private final int MODE_VORRATREAKTIVIERUNG = 3;
     private Buchung aktuelleBuchung;
     private Produkte neuesProdukt;
     private Vorrat vorrat;
@@ -509,14 +509,14 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
         if (produkte == null || produkte.size() == 0) {
             vorrat = VorratTools.findByIDORScanner(txtSearch.getText());
-            if (vorrat == null || !vorrat.isAusgebucht()) {
+//            if (vorrat == null || !vorrat.isAusgebucht()) {
                 setPanelMode(MODE_WARENEINGANG, 700);
                 error("Kenn ich nicht", lblProdukt);
                 aktuelleBuchung.setProdukt(null);
                 setEinbuchenButton();
-            } else {
-                setPanelMode(MODE_VORRATREAKTIVIERUNG, 700);
-            }
+//            } else {
+//                setPanelMode(MODE_VORRATREAKTIVIERUNG, 700);
+//            }
             txtSearch.selectAll();
             txtSearch.requestFocus();
         } else if (produkte.size() == 1) {
@@ -709,7 +709,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
         listProdukte = new JList();
         lblProdInfo = new JLabel();
         btnNewProdukt = new JButton();
-        splitUpperRight = new JSplitPane();
         pnlUpperRight = new JPanel();
         lblProdukt = new JLabel();
         panel3 = new JPanel();
@@ -748,20 +747,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
         btnNoPrinter = new JToggleButton();
         btnEinbuchen = new JButton();
         btnSofortBuchen = new JToggleButton();
-        panel14 = new JPanel();
-        label1 = new JLabel();
-        lblVorrat = new JLabel();
-        label4 = new JLabel();
-        label3 = new JLabel();
-        label5 = new JLabel();
-        lblEinDatum = new JLabel();
-        lblEinMA = new JLabel();
-        label6 = new JLabel();
-        label7 = new JLabel();
-        label8 = new JLabel();
-        lblAusDatum = new JLabel();
-        lblAusMA = new JLabel();
-        btnReaktivieren = new JButton();
         pnlLower = new JPanel();
         panel1 = new JPanel();
         lbl1 = new JLabel();
@@ -821,7 +806,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
             {
                 pnlUpper.setLayout(new FormLayout(
                     "default, $lcgap, default:grow",
-                    "fill:default:grow"));
+                    "fill:default:grow, $lgap, default"));
 
                 //======== pnlUpperLeft ========
                 {
@@ -886,589 +871,493 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 }
                 pnlUpper.add(pnlUpperLeft, CC.xy(1, 1));
 
-                //======== splitUpperRight ========
+                //======== pnlUpperRight ========
                 {
-                    splitUpperRight.setDividerSize(0);
-                    splitUpperRight.setDividerLocation(500);
+                    pnlUpperRight.setLayout(new FormLayout(
+                        "$rgap, 2*($lcgap, default:grow), $lcgap, default, $lcgap, $rgap",
+                        "$rgap, $lgap, 20dlu, 4*($lgap, fill:default), $lgap, fill:default:grow, 2*($lgap, fill:default)"));
+                    ((FormLayout)pnlUpperRight.getLayout()).setColumnGroups(new int[][] {{3, 5}});
 
-                    //======== pnlUpperRight ========
+                    //---- lblProdukt ----
+                    lblProdukt.setText(" ");
+                    lblProdukt.setFont(new Font("sansserif", Font.BOLD, 24));
+                    lblProdukt.setHorizontalAlignment(SwingConstants.CENTER);
+                    lblProdukt.setBackground(new Color(204, 204, 255));
+                    lblProdukt.setOpaque(true);
+                    pnlUpperRight.add(lblProdukt, CC.xywh(3, 3, 5, 1));
+
+                    //======== panel3 ========
                     {
-                        pnlUpperRight.setLayout(new FormLayout(
-                            "$rgap, 2*($lcgap, default:grow), $lcgap, default, $lcgap, $rgap",
-                            "$rgap, $lgap, 20dlu, 4*($lgap, fill:default), $lgap, fill:default:grow, 2*($lgap, fill:default)"));
-                        ((FormLayout)pnlUpperRight.getLayout()).setColumnGroups(new int[][] {{3, 5}});
+                        panel3.setLayout(new BoxLayout(panel3, BoxLayout.X_AXIS));
 
-                        //---- lblProdukt ----
-                        lblProdukt.setText(" ");
-                        lblProdukt.setFont(new Font("sansserif", Font.BOLD, 24));
-                        lblProdukt.setHorizontalAlignment(SwingConstants.CENTER);
-                        lblProdukt.setBackground(new Color(204, 204, 255));
-                        lblProdukt.setOpaque(true);
-                        pnlUpperRight.add(lblProdukt, CC.xywh(3, 3, 5, 1));
-
-                        //======== panel3 ========
-                        {
-                            panel3.setLayout(new BoxLayout(panel3, BoxLayout.X_AXIS));
-
-                            //---- txtFaktor ----
-                            txtFaktor.setFont(new Font("sansserif", Font.PLAIN, 24));
-                            txtFaktor.setToolTipText("Anzahl bei verpackter Ware");
-                            txtFaktor.addFocusListener(new FocusAdapter() {
-                                @Override
-                                public void focusGained(FocusEvent e) {
-                                    txtFaktorFocusGained(e);
-                                }
-                                @Override
-                                public void focusLost(FocusEvent e) {
-                                    txtFaktorFocusLost(e);
-                                }
-                            });
-                            txtFaktor.addPropertyChangeListener(new PropertyChangeListener() {
-                                @Override
-                                public void propertyChange(PropertyChangeEvent e) {
-                                    txtFaktorPropertyChange(e);
-                                }
-                            });
-                            txtFaktor.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    txtFaktorActionPerformed(e);
-                                }
-                            });
-                            txtFaktor.addCaretListener(new CaretListener() {
-                                @Override
-                                public void caretUpdate(CaretEvent e) {
-                                    txtFaktorCaretUpdate(e);
-                                }
-                            });
-                            panel3.add(txtFaktor);
-
-                            //---- btn5 ----
-                            btn5.setText("5");
-                            btn5.setFont(new Font("sansserif", Font.BOLD, 20));
-                            btn5.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btn5ActionPerformed(e);
-                                }
-                            });
-                            panel3.add(btn5);
-
-                            //---- btn6 ----
-                            btn6.setText("6");
-                            btn6.setFont(new Font("sansserif", Font.BOLD, 20));
-                            btn6.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btn6ActionPerformed(e);
-                                }
-                            });
-                            panel3.add(btn6);
-
-                            //---- btn10 ----
-                            btn10.setText("10");
-                            btn10.setFont(new Font("sansserif", Font.BOLD, 20));
-                            btn10.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btn10ActionPerformed(e);
-                                }
-                            });
-                            panel3.add(btn10);
-
-                            //---- btn12 ----
-                            btn12.setText("12");
-                            btn12.setFont(new Font("sansserif", Font.BOLD, 20));
-                            btn12.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btn12ActionPerformed(e);
-                                }
-                            });
-                            panel3.add(btn12);
-
-                            //---- btn20 ----
-                            btn20.setText("20");
-                            btn20.setFont(new Font("sansserif", Font.BOLD, 20));
-                            btn20.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btn20ActionPerformed(e);
-                                }
-                            });
-                            panel3.add(btn20);
-
-                            //---- label2 ----
-                            label2.setText("x");
-                            label2.setFont(new Font("sansserif", Font.PLAIN, 24));
-                            panel3.add(label2);
-                        }
-                        pnlUpperRight.add(panel3, CC.xywh(3, 5, 5, 1));
-
-                        //======== panel10 ========
-                        {
-                            panel10.setLayout(new BoxLayout(panel10, BoxLayout.X_AXIS));
-
-                            //---- txtMenge ----
-                            txtMenge.setFont(new Font("Lucida Grande", Font.PLAIN, 24));
-                            txtMenge.setToolTipText("Menge bei looser Ware");
-                            txtMenge.addFocusListener(new FocusAdapter() {
-                                @Override
-                                public void focusGained(FocusEvent e) {
-                                    txtMengeFocusGained(e);
-                                }
-                                @Override
-                                public void focusLost(FocusEvent e) {
-                                    txtMengeFocusLost(e);
-                                }
-                            });
-                            txtMenge.addPropertyChangeListener(new PropertyChangeListener() {
-                                @Override
-                                public void propertyChange(PropertyChangeEvent e) {
-                                    txtMengePropertyChange(e);
-                                }
-                            });
-                            txtMenge.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    txtMengeActionPerformed(e);
-                                }
-                            });
-                            txtMenge.addCaretListener(new CaretListener() {
-                                @Override
-                                public void caretUpdate(CaretEvent e) {
-                                    txtMengeCaretUpdate(e);
-                                }
-                            });
-                            panel10.add(txtMenge);
-
-                            //---- lblEinheit ----
-                            lblEinheit.setText(" ");
-                            lblEinheit.setFont(new Font("Lucida Grande", Font.PLAIN, 24));
-                            panel10.add(lblEinheit);
-                        }
-                        pnlUpperRight.add(panel10, CC.xywh(3, 7, 5, 1));
-
-                        //======== splitLieferant ========
-                        {
-                            splitLieferant.setEnabled(false);
-                            splitLieferant.addComponentListener(new ComponentAdapter() {
-                                @Override
-                                public void componentResized(ComponentEvent e) {
-                                    splitLieferantComponentResized(e);
-                                }
-                            });
-
-                            //======== panel4 ========
-                            {
-                                panel4.setLayout(new BoxLayout(panel4, BoxLayout.X_AXIS));
-
-                                //---- cmbLieferant ----
-                                cmbLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                cmbLieferant.setModel(new DefaultComboBoxModel(new String[] {
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 1",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3"
-                                }));
-                                cmbLieferant.addFocusListener(new FocusAdapter() {
-                                    @Override
-                                    public void focusGained(FocusEvent e) {
-                                        cmbLieferantFocusGained(e);
-                                    }
-                                });
-                                cmbLieferant.addItemListener(new ItemListener() {
-                                    @Override
-                                    public void itemStateChanged(ItemEvent e) {
-                                        cmbLieferantItemStateChanged(e);
-                                    }
-                                });
-                                panel4.add(cmbLieferant);
-
-                                //---- btnAddLieferant ----
-                                btnAddLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                btnAddLieferant.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/edit_add.png")));
-                                btnAddLieferant.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        btnAddLieferantActionPerformed(e);
-                                    }
-                                });
-                                panel4.add(btnAddLieferant);
-                            }
-                            splitLieferant.setLeftComponent(panel4);
-
-                            //======== panel5 ========
-                            {
-                                panel5.setLayout(new BoxLayout(panel5, BoxLayout.X_AXIS));
-
-                                //---- txtNewLieferant ----
-                                txtNewLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                txtNewLieferant.setText(" ");
-                                txtNewLieferant.addCaretListener(new CaretListener() {
-                                    @Override
-                                    public void caretUpdate(CaretEvent e) {
-                                        txtNewLieferantCaretUpdate(e);
-                                    }
-                                });
-                                txtNewLieferant.addFocusListener(new FocusAdapter() {
-                                    @Override
-                                    public void focusGained(FocusEvent e) {
-                                        txtNewLieferantFocusGained(e);
-                                    }
-                                });
-                                txtNewLieferant.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        btnApplyLieferantActionPerformed(e);
-                                    }
-                                });
-                                panel5.add(txtNewLieferant);
-
-                                //---- btnApplyLieferant ----
-                                btnApplyLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                btnApplyLieferant.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/ok.png")));
-                                btnApplyLieferant.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        btnApplyLieferantActionPerformed(e);
-                                    }
-                                });
-                                panel5.add(btnApplyLieferant);
-
-                                //---- btnCancelLieferant ----
-                                btnCancelLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                btnCancelLieferant.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/cancel.png")));
-                                btnCancelLieferant.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        btnCancelLieferantActionPerformed(e);
-                                    }
-                                });
-                                panel5.add(btnCancelLieferant);
-                            }
-                            splitLieferant.setRightComponent(panel5);
-                        }
-                        pnlUpperRight.add(splitLieferant, CC.xywh(3, 9, 5, 1));
-
-                        //======== splitLager ========
-                        {
-                            splitLager.setEnabled(false);
-                            splitLager.addComponentListener(new ComponentAdapter() {
-                                @Override
-                                public void componentResized(ComponentEvent e) {
-                                    splitLagerComponentResized(e);
-                                }
-                            });
-
-                            //======== panel6 ========
-                            {
-                                panel6.setLayout(new BoxLayout(panel6, BoxLayout.X_AXIS));
-
-                                //---- cmbLager ----
-                                cmbLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                cmbLager.setModel(new DefaultComboBoxModel(new String[] {
-                                    "item 1",
-                                    "item 2",
-                                    "item 3"
-                                }));
-                                cmbLager.addFocusListener(new FocusAdapter() {
-                                    @Override
-                                    public void focusGained(FocusEvent e) {
-                                        cmbLagerFocusGained(e);
-                                    }
-                                });
-                                cmbLager.addItemListener(new ItemListener() {
-                                    @Override
-                                    public void itemStateChanged(ItemEvent e) {
-                                        cmbLagerItemStateChanged(e);
-                                    }
-                                });
-                                panel6.add(cmbLager);
-
-                                //---- btnAddLager ----
-                                btnAddLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                btnAddLager.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/edit_add.png")));
-                                btnAddLager.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        btnAddLagerActionPerformed(e);
-                                    }
-                                });
-                                panel6.add(btnAddLager);
-                            }
-                            splitLager.setLeftComponent(panel6);
-
-                            //======== panel7 ========
-                            {
-                                panel7.setLayout(new BoxLayout(panel7, BoxLayout.X_AXIS));
-
-                                //---- txtNewLager ----
-                                txtNewLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                txtNewLager.setText(" ");
-                                txtNewLager.addCaretListener(new CaretListener() {
-                                    @Override
-                                    public void caretUpdate(CaretEvent e) {
-                                        txtNewLagerCaretUpdate(e);
-                                    }
-                                });
-                                txtNewLager.addFocusListener(new FocusAdapter() {
-                                    @Override
-                                    public void focusGained(FocusEvent e) {
-                                        txtNewLagerFocusGained(e);
-                                    }
-                                });
-                                txtNewLager.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        btnApplyLagerActionPerformed(e);
-                                    }
-                                });
-                                panel7.add(txtNewLager);
-
-                                //---- btnApplyLager ----
-                                btnApplyLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                btnApplyLager.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/ok.png")));
-                                btnApplyLager.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        btnApplyLagerActionPerformed(e);
-                                    }
-                                });
-                                panel7.add(btnApplyLager);
-
-                                //---- btnCancelLager ----
-                                btnCancelLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                btnCancelLager.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/cancel.png")));
-                                btnCancelLager.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        btnCancelLagerActionPerformed(e);
-                                    }
-                                });
-                                panel7.add(btnCancelLager);
-                            }
-                            splitLager.setRightComponent(panel7);
-                        }
-                        pnlUpperRight.add(splitLager, CC.xywh(3, 11, 5, 1));
-
-                        //======== scrollPane2 ========
-                        {
-
-                            //---- txtLog ----
-                            txtLog.setForeground(Color.black);
-                            txtLog.setFont(new Font("sansserif", Font.PLAIN, 18));
-                            txtLog.setEditable(false);
-                            txtLog.setBackground(Color.lightGray);
-                            txtLog.setPreferredSize(new Dimension(12, 70));
-                            scrollPane2.setViewportView(txtLog);
-                        }
-                        pnlUpperRight.add(scrollPane2, CC.xywh(3, 13, 5, 1));
-
-                        //======== panel11 ========
-                        {
-                            panel11.setLayout(new GridLayout());
-
-                            //---- btnEtiketten1 ----
-                            btnEtiketten1.setText("1");
-                            btnEtiketten1.setFont(new Font("sansserif", Font.BOLD, 18));
-                            btnEtiketten1.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/labelprinter2.png")));
-                            btnEtiketten1.addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    btnEtiketten1ItemStateChanged(e);
-                                }
-                            });
-                            panel11.add(btnEtiketten1);
-
-                            //---- btnEtiketten2 ----
-                            btnEtiketten2.setText("2");
-                            btnEtiketten2.setFont(new Font("sansserif", Font.BOLD, 18));
-                            btnEtiketten2.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/labelprinter2.png")));
-                            btnEtiketten2.addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    btnEtiketten2ItemStateChanged(e);
-                                }
-                            });
-                            panel11.add(btnEtiketten2);
-
-                            //---- btnPagePrinter ----
-                            btnPagePrinter.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/printer.png")));
-                            btnPagePrinter.addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    btnPagePrinterItemStateChanged(e);
-                                }
-                            });
-                            panel11.add(btnPagePrinter);
-
-                            //---- btnNoPrinter ----
-                            btnNoPrinter.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/noprinter.png")));
-                            btnNoPrinter.setSelected(true);
-                            btnNoPrinter.addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    btnNoPrinterItemStateChanged(e);
-                                }
-                            });
-                            panel11.add(btnNoPrinter);
-                        }
-                        pnlUpperRight.add(panel11, CC.xywh(3, 15, 5, 1));
-
-                        //---- btnEinbuchen ----
-                        btnEinbuchen.setText("Einbuchen");
-                        btnEinbuchen.setFont(new Font("sansserif", Font.PLAIN, 24));
-                        btnEinbuchen.setBackground(new Color(255, 102, 102));
-                        btnEinbuchen.addActionListener(new ActionListener() {
+                        //---- txtFaktor ----
+                        txtFaktor.setFont(new Font("sansserif", Font.PLAIN, 24));
+                        txtFaktor.setToolTipText("Anzahl bei verpackter Ware");
+                        txtFaktor.addFocusListener(new FocusAdapter() {
                             @Override
-                            public void actionPerformed(ActionEvent e) {
-                                btnEinbuchenActionPerformed(e);
+                            public void focusGained(FocusEvent e) {
+                                txtFaktorFocusGained(e);
+                            }
+                            @Override
+                            public void focusLost(FocusEvent e) {
+                                txtFaktorFocusLost(e);
                             }
                         });
-                        pnlUpperRight.add(btnEinbuchen, CC.xywh(3, 17, 3, 1));
+                        txtFaktor.addPropertyChangeListener(new PropertyChangeListener() {
+                            @Override
+                            public void propertyChange(PropertyChangeEvent e) {
+                                txtFaktorPropertyChange(e);
+                            }
+                        });
+                        txtFaktor.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                txtFaktorActionPerformed(e);
+                            }
+                        });
+                        txtFaktor.addCaretListener(new CaretListener() {
+                            @Override
+                            public void caretUpdate(CaretEvent e) {
+                                txtFaktorCaretUpdate(e);
+                            }
+                        });
+                        panel3.add(txtFaktor);
 
-                        //---- btnSofortBuchen ----
-                        btnSofortBuchen.setToolTipText("Sofort Buchen wenn m\u00f6glich");
-                        btnSofortBuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/agt_member.png")));
-                        btnSofortBuchen.addItemListener(new ItemListener() {
+                        //---- btn5 ----
+                        btn5.setText("5");
+                        btn5.setFont(new Font("sansserif", Font.BOLD, 20));
+                        btn5.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                btn5ActionPerformed(e);
+                            }
+                        });
+                        panel3.add(btn5);
+
+                        //---- btn6 ----
+                        btn6.setText("6");
+                        btn6.setFont(new Font("sansserif", Font.BOLD, 20));
+                        btn6.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                btn6ActionPerformed(e);
+                            }
+                        });
+                        panel3.add(btn6);
+
+                        //---- btn10 ----
+                        btn10.setText("10");
+                        btn10.setFont(new Font("sansserif", Font.BOLD, 20));
+                        btn10.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                btn10ActionPerformed(e);
+                            }
+                        });
+                        panel3.add(btn10);
+
+                        //---- btn12 ----
+                        btn12.setText("12");
+                        btn12.setFont(new Font("sansserif", Font.BOLD, 20));
+                        btn12.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                btn12ActionPerformed(e);
+                            }
+                        });
+                        panel3.add(btn12);
+
+                        //---- btn20 ----
+                        btn20.setText("20");
+                        btn20.setFont(new Font("sansserif", Font.BOLD, 20));
+                        btn20.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                btn20ActionPerformed(e);
+                            }
+                        });
+                        panel3.add(btn20);
+
+                        //---- label2 ----
+                        label2.setText("x");
+                        label2.setFont(new Font("sansserif", Font.PLAIN, 24));
+                        panel3.add(label2);
+                    }
+                    pnlUpperRight.add(panel3, CC.xywh(3, 5, 5, 1));
+
+                    //======== panel10 ========
+                    {
+                        panel10.setLayout(new BoxLayout(panel10, BoxLayout.X_AXIS));
+
+                        //---- txtMenge ----
+                        txtMenge.setFont(new Font("Lucida Grande", Font.PLAIN, 24));
+                        txtMenge.setToolTipText("Menge bei looser Ware");
+                        txtMenge.addFocusListener(new FocusAdapter() {
+                            @Override
+                            public void focusGained(FocusEvent e) {
+                                txtMengeFocusGained(e);
+                            }
+                            @Override
+                            public void focusLost(FocusEvent e) {
+                                txtMengeFocusLost(e);
+                            }
+                        });
+                        txtMenge.addPropertyChangeListener(new PropertyChangeListener() {
+                            @Override
+                            public void propertyChange(PropertyChangeEvent e) {
+                                txtMengePropertyChange(e);
+                            }
+                        });
+                        txtMenge.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                txtMengeActionPerformed(e);
+                            }
+                        });
+                        txtMenge.addCaretListener(new CaretListener() {
+                            @Override
+                            public void caretUpdate(CaretEvent e) {
+                                txtMengeCaretUpdate(e);
+                            }
+                        });
+                        panel10.add(txtMenge);
+
+                        //---- lblEinheit ----
+                        lblEinheit.setText(" ");
+                        lblEinheit.setFont(new Font("Lucida Grande", Font.PLAIN, 24));
+                        panel10.add(lblEinheit);
+                    }
+                    pnlUpperRight.add(panel10, CC.xywh(3, 7, 5, 1));
+
+                    //======== splitLieferant ========
+                    {
+                        splitLieferant.setEnabled(false);
+                        splitLieferant.addComponentListener(new ComponentAdapter() {
+                            @Override
+                            public void componentResized(ComponentEvent e) {
+                                splitLieferantComponentResized(e);
+                            }
+                        });
+
+                        //======== panel4 ========
+                        {
+                            panel4.setLayout(new BoxLayout(panel4, BoxLayout.X_AXIS));
+
+                            //---- cmbLieferant ----
+                            cmbLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                            cmbLieferant.setModel(new DefaultComboBoxModel(new String[] {
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 1",
+                                "item 1",
+                                "item 2",
+                                "item 3"
+                            }));
+                            cmbLieferant.addFocusListener(new FocusAdapter() {
+                                @Override
+                                public void focusGained(FocusEvent e) {
+                                    cmbLieferantFocusGained(e);
+                                }
+                            });
+                            cmbLieferant.addItemListener(new ItemListener() {
+                                @Override
+                                public void itemStateChanged(ItemEvent e) {
+                                    cmbLieferantItemStateChanged(e);
+                                }
+                            });
+                            panel4.add(cmbLieferant);
+
+                            //---- btnAddLieferant ----
+                            btnAddLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                            btnAddLieferant.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/edit_add.png")));
+                            btnAddLieferant.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    btnAddLieferantActionPerformed(e);
+                                }
+                            });
+                            panel4.add(btnAddLieferant);
+                        }
+                        splitLieferant.setLeftComponent(panel4);
+
+                        //======== panel5 ========
+                        {
+                            panel5.setLayout(new BoxLayout(panel5, BoxLayout.X_AXIS));
+
+                            //---- txtNewLieferant ----
+                            txtNewLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                            txtNewLieferant.setText(" ");
+                            txtNewLieferant.addCaretListener(new CaretListener() {
+                                @Override
+                                public void caretUpdate(CaretEvent e) {
+                                    txtNewLieferantCaretUpdate(e);
+                                }
+                            });
+                            txtNewLieferant.addFocusListener(new FocusAdapter() {
+                                @Override
+                                public void focusGained(FocusEvent e) {
+                                    txtNewLieferantFocusGained(e);
+                                }
+                            });
+                            txtNewLieferant.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    btnApplyLieferantActionPerformed(e);
+                                }
+                            });
+                            panel5.add(txtNewLieferant);
+
+                            //---- btnApplyLieferant ----
+                            btnApplyLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                            btnApplyLieferant.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/ok.png")));
+                            btnApplyLieferant.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    btnApplyLieferantActionPerformed(e);
+                                }
+                            });
+                            panel5.add(btnApplyLieferant);
+
+                            //---- btnCancelLieferant ----
+                            btnCancelLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                            btnCancelLieferant.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/cancel.png")));
+                            btnCancelLieferant.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    btnCancelLieferantActionPerformed(e);
+                                }
+                            });
+                            panel5.add(btnCancelLieferant);
+                        }
+                        splitLieferant.setRightComponent(panel5);
+                    }
+                    pnlUpperRight.add(splitLieferant, CC.xywh(3, 9, 5, 1));
+
+                    //======== splitLager ========
+                    {
+                        splitLager.setEnabled(false);
+                        splitLager.addComponentListener(new ComponentAdapter() {
+                            @Override
+                            public void componentResized(ComponentEvent e) {
+                                splitLagerComponentResized(e);
+                            }
+                        });
+
+                        //======== panel6 ========
+                        {
+                            panel6.setLayout(new BoxLayout(panel6, BoxLayout.X_AXIS));
+
+                            //---- cmbLager ----
+                            cmbLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                            cmbLager.setModel(new DefaultComboBoxModel(new String[] {
+                                "item 1",
+                                "item 2",
+                                "item 3"
+                            }));
+                            cmbLager.addFocusListener(new FocusAdapter() {
+                                @Override
+                                public void focusGained(FocusEvent e) {
+                                    cmbLagerFocusGained(e);
+                                }
+                            });
+                            cmbLager.addItemListener(new ItemListener() {
+                                @Override
+                                public void itemStateChanged(ItemEvent e) {
+                                    cmbLagerItemStateChanged(e);
+                                }
+                            });
+                            panel6.add(cmbLager);
+
+                            //---- btnAddLager ----
+                            btnAddLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                            btnAddLager.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/edit_add.png")));
+                            btnAddLager.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    btnAddLagerActionPerformed(e);
+                                }
+                            });
+                            panel6.add(btnAddLager);
+                        }
+                        splitLager.setLeftComponent(panel6);
+
+                        //======== panel7 ========
+                        {
+                            panel7.setLayout(new BoxLayout(panel7, BoxLayout.X_AXIS));
+
+                            //---- txtNewLager ----
+                            txtNewLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                            txtNewLager.setText(" ");
+                            txtNewLager.addCaretListener(new CaretListener() {
+                                @Override
+                                public void caretUpdate(CaretEvent e) {
+                                    txtNewLagerCaretUpdate(e);
+                                }
+                            });
+                            txtNewLager.addFocusListener(new FocusAdapter() {
+                                @Override
+                                public void focusGained(FocusEvent e) {
+                                    txtNewLagerFocusGained(e);
+                                }
+                            });
+                            txtNewLager.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    btnApplyLagerActionPerformed(e);
+                                }
+                            });
+                            panel7.add(txtNewLager);
+
+                            //---- btnApplyLager ----
+                            btnApplyLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                            btnApplyLager.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/ok.png")));
+                            btnApplyLager.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    btnApplyLagerActionPerformed(e);
+                                }
+                            });
+                            panel7.add(btnApplyLager);
+
+                            //---- btnCancelLager ----
+                            btnCancelLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                            btnCancelLager.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/cancel.png")));
+                            btnCancelLager.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    btnCancelLagerActionPerformed(e);
+                                }
+                            });
+                            panel7.add(btnCancelLager);
+                        }
+                        splitLager.setRightComponent(panel7);
+                    }
+                    pnlUpperRight.add(splitLager, CC.xywh(3, 11, 5, 1));
+
+                    //======== scrollPane2 ========
+                    {
+
+                        //---- txtLog ----
+                        txtLog.setForeground(Color.black);
+                        txtLog.setFont(new Font("sansserif", Font.PLAIN, 18));
+                        txtLog.setEditable(false);
+                        txtLog.setBackground(Color.lightGray);
+                        txtLog.setPreferredSize(new Dimension(12, 70));
+                        scrollPane2.setViewportView(txtLog);
+                    }
+                    pnlUpperRight.add(scrollPane2, CC.xywh(3, 13, 5, 1));
+
+                    //======== panel11 ========
+                    {
+                        panel11.setLayout(new GridLayout());
+
+                        //---- btnEtiketten1 ----
+                        btnEtiketten1.setText("1");
+                        btnEtiketten1.setFont(new Font("sansserif", Font.BOLD, 18));
+                        btnEtiketten1.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/labelprinter2.png")));
+                        btnEtiketten1.addItemListener(new ItemListener() {
                             @Override
                             public void itemStateChanged(ItemEvent e) {
-                                btnSofortBuchenItemStateChanged(e);
+                                btnEtiketten1ItemStateChanged(e);
                             }
                         });
-                        pnlUpperRight.add(btnSofortBuchen, CC.xy(7, 17));
-                    }
-                    splitUpperRight.setLeftComponent(pnlUpperRight);
+                        panel11.add(btnEtiketten1);
 
-                    //======== panel14 ========
-                    {
-                        panel14.setLayout(new FormLayout(
-                            "default, 2*($lcgap, default:grow), $lcgap, default",
-                            "$rgap, 2*($lgap, default), 12dlu, 2*(default, $lgap), default, 12dlu, 3*(default, $lgap), fill:default:grow, $lgap, default"));
-
-                        //---- label1 ----
-                        label1.setText("Ausgebuchter Vorrat");
-                        label1.setFont(new Font("sansserif", Font.BOLD, 24));
-                        label1.setHorizontalAlignment(SwingConstants.CENTER);
-                        label1.setBackground(Color.orange);
-                        label1.setOpaque(true);
-                        panel14.add(label1, CC.xywh(3, 3, 3, 1));
-
-                        //---- lblVorrat ----
-                        lblVorrat.setText("text");
-                        lblVorrat.setFont(new Font("sansserif", Font.PLAIN, 24));
-                        lblVorrat.setBackground(new Color(204, 204, 255));
-                        lblVorrat.setOpaque(true);
-                        lblVorrat.setHorizontalAlignment(SwingConstants.CENTER);
-                        panel14.add(lblVorrat, CC.xywh(3, 5, 3, 1));
-
-                        //---- label4 ----
-                        label4.setText("Eingebucht:");
-                        label4.setBackground(Color.pink);
-                        label4.setOpaque(true);
-                        label4.setFont(new Font("sansserif", Font.PLAIN, 24));
-                        panel14.add(label4, CC.xywh(3, 7, 3, 1));
-
-                        //---- label3 ----
-                        label3.setText("Am / um");
-                        label3.setFont(new Font("sansserif", Font.PLAIN, 24));
-                        panel14.add(label3, CC.xy(3, 9));
-
-                        //---- label5 ----
-                        label5.setText("Von");
-                        label5.setFont(new Font("sansserif", Font.PLAIN, 24));
-                        panel14.add(label5, CC.xy(5, 9));
-
-                        //---- lblEinDatum ----
-                        lblEinDatum.setText("text");
-                        lblEinDatum.setFont(new Font("sansserif", Font.BOLD, 24));
-                        panel14.add(lblEinDatum, CC.xy(3, 11));
-
-                        //---- lblEinMA ----
-                        lblEinMA.setText("text");
-                        lblEinMA.setFont(new Font("sansserif", Font.BOLD, 24));
-                        panel14.add(lblEinMA, CC.xy(5, 11));
-
-                        //---- label6 ----
-                        label6.setText("Ausgebucht:");
-                        label6.setBackground(Color.pink);
-                        label6.setOpaque(true);
-                        label6.setFont(new Font("sansserif", Font.PLAIN, 24));
-                        panel14.add(label6, CC.xywh(3, 13, 3, 1));
-
-                        //---- label7 ----
-                        label7.setText("Am / um");
-                        label7.setFont(new Font("sansserif", Font.PLAIN, 24));
-                        panel14.add(label7, CC.xy(3, 15));
-
-                        //---- label8 ----
-                        label8.setText("Von");
-                        label8.setFont(new Font("sansserif", Font.PLAIN, 24));
-                        panel14.add(label8, CC.xy(5, 15));
-
-                        //---- lblAusDatum ----
-                        lblAusDatum.setText("text");
-                        lblAusDatum.setFont(new Font("sansserif", Font.BOLD, 24));
-                        panel14.add(lblAusDatum, CC.xy(3, 17));
-
-                        //---- lblAusMA ----
-                        lblAusMA.setText("text");
-                        lblAusMA.setFont(new Font("sansserif", Font.BOLD, 24));
-                        panel14.add(lblAusMA, CC.xy(5, 17));
-
-                        //---- btnReaktivieren ----
-                        btnReaktivieren.setText("Wieder einbuchen");
-                        btnReaktivieren.setFont(new Font("sansserif", Font.PLAIN, 24));
-                        btnReaktivieren.addActionListener(new ActionListener() {
+                        //---- btnEtiketten2 ----
+                        btnEtiketten2.setText("2");
+                        btnEtiketten2.setFont(new Font("sansserif", Font.BOLD, 18));
+                        btnEtiketten2.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/labelprinter2.png")));
+                        btnEtiketten2.addItemListener(new ItemListener() {
                             @Override
-                            public void actionPerformed(ActionEvent e) {
-                                btnReaktivierenActionPerformed(e);
+                            public void itemStateChanged(ItemEvent e) {
+                                btnEtiketten2ItemStateChanged(e);
                             }
                         });
-                        panel14.add(btnReaktivieren, CC.xywh(3, 21, 3, 1));
+                        panel11.add(btnEtiketten2);
+
+                        //---- btnPagePrinter ----
+                        btnPagePrinter.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/printer.png")));
+                        btnPagePrinter.addItemListener(new ItemListener() {
+                            @Override
+                            public void itemStateChanged(ItemEvent e) {
+                                btnPagePrinterItemStateChanged(e);
+                            }
+                        });
+                        panel11.add(btnPagePrinter);
+
+                        //---- btnNoPrinter ----
+                        btnNoPrinter.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/noprinter.png")));
+                        btnNoPrinter.setSelected(true);
+                        btnNoPrinter.addItemListener(new ItemListener() {
+                            @Override
+                            public void itemStateChanged(ItemEvent e) {
+                                btnNoPrinterItemStateChanged(e);
+                            }
+                        });
+                        panel11.add(btnNoPrinter);
                     }
-                    splitUpperRight.setRightComponent(panel14);
+                    pnlUpperRight.add(panel11, CC.xywh(3, 15, 5, 1));
+
+                    //---- btnEinbuchen ----
+                    btnEinbuchen.setText("Einbuchen");
+                    btnEinbuchen.setFont(new Font("sansserif", Font.PLAIN, 24));
+                    btnEinbuchen.setBackground(new Color(255, 102, 102));
+                    btnEinbuchen.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            btnEinbuchenActionPerformed(e);
+                        }
+                    });
+                    pnlUpperRight.add(btnEinbuchen, CC.xywh(3, 17, 3, 1));
+
+                    //---- btnSofortBuchen ----
+                    btnSofortBuchen.setToolTipText("Sofort Buchen wenn m\u00f6glich");
+                    btnSofortBuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/agt_member.png")));
+                    btnSofortBuchen.addItemListener(new ItemListener() {
+                        @Override
+                        public void itemStateChanged(ItemEvent e) {
+                            btnSofortBuchenItemStateChanged(e);
+                        }
+                    });
+                    pnlUpperRight.add(btnSofortBuchen, CC.xy(7, 17));
                 }
-                pnlUpper.add(splitUpperRight, CC.xy(3, 1));
+                pnlUpper.add(pnlUpperRight, CC.xy(3, 1));
             }
             splitMain.setTopComponent(pnlUpper);
 
@@ -1527,13 +1416,13 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                 .addContainerGap()
                                 .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
                                     .addGroup(GroupLayout.Alignment.LEADING, panel1Layout.createSequentialGroup()
-                                        .addComponent(cmbEinheit, GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
+                                        .addComponent(cmbEinheit, GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(cmbLagerart, GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE))
+                                        .addComponent(cmbLagerart, GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE))
                                     .addGroup(GroupLayout.Alignment.LEADING, panel1Layout.createSequentialGroup()
                                         .addComponent(lbl1)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(txtProdBezeichnung, GroupLayout.DEFAULT_SIZE, 910, Short.MAX_VALUE)))
+                                        .addComponent(txtProdBezeichnung, GroupLayout.DEFAULT_SIZE, 924, Short.MAX_VALUE)))
                                 .addContainerGap())
                     );
                     panel1Layout.setVerticalGroup(
@@ -1650,7 +1539,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                         .addGap(10, 10, 10)
                                         .addGroup(pnlVerpacktLayout.createParallelGroup()
                                             .addGroup(pnlVerpacktLayout.createSequentialGroup()
-                                                .addComponent(btnVerpackteWare, GroupLayout.DEFAULT_SIZE, 1012, Short.MAX_VALUE)
+                                                .addComponent(btnVerpackteWare, GroupLayout.DEFAULT_SIZE, 1015, Short.MAX_VALUE)
                                                 .addContainerGap())
                                             .addGroup(pnlVerpacktLayout.createSequentialGroup()
                                                 .addGroup(pnlVerpacktLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
@@ -1659,10 +1548,10 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                                 .addGroup(pnlVerpacktLayout.createParallelGroup()
                                                     .addGroup(pnlVerpacktLayout.createSequentialGroup()
-                                                        .addComponent(txtPackGroesse, GroupLayout.DEFAULT_SIZE, 687, Short.MAX_VALUE)
+                                                        .addComponent(txtPackGroesse, GroupLayout.DEFAULT_SIZE, 695, Short.MAX_VALUE)
                                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                                         .addComponent(lblEinheit1, GroupLayout.PREFERRED_SIZE, 126, GroupLayout.PREFERRED_SIZE))
-                                                    .addComponent(txtGTIN, GroupLayout.DEFAULT_SIZE, 823, Short.MAX_VALUE))
+                                                    .addComponent(txtGTIN, GroupLayout.DEFAULT_SIZE, 827, Short.MAX_VALUE))
                                                 .addGap(12, 12, 12))))
                             );
                             pnlVerpacktLayout.setVerticalGroup(
@@ -1870,17 +1759,17 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                     .addGroup(pnlProduktLowerLayout.createSequentialGroup()
                                         .addGroup(pnlProduktLowerLayout.createParallelGroup()
                                             .addGroup(pnlProduktLowerLayout.createSequentialGroup()
-                                                .addComponent(btnAcceptProd, GroupLayout.DEFAULT_SIZE, 932, Short.MAX_VALUE)
+                                                .addComponent(btnAcceptProd, GroupLayout.DEFAULT_SIZE, 936, Short.MAX_VALUE)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(btnCancelNeuProd, GroupLayout.PREFERRED_SIZE, 83, GroupLayout.PREFERRED_SIZE))
                                             .addGroup(pnlProduktLowerLayout.createSequentialGroup()
                                                 .addGap(2, 2, 2)
                                                 .addGroup(pnlProduktLowerLayout.createParallelGroup()
-                                                    .addComponent(splitWarengruppe, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 1017, Short.MAX_VALUE)
-                                                    .addComponent(splitStoffart, GroupLayout.DEFAULT_SIZE, 1017, Short.MAX_VALUE)))
+                                                    .addComponent(splitWarengruppe, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 1023, Short.MAX_VALUE)
+                                                    .addComponent(splitStoffart, GroupLayout.DEFAULT_SIZE, 1023, Short.MAX_VALUE)))
                                             .addGroup(pnlProduktLowerLayout.createSequentialGroup()
                                                 .addContainerGap()
-                                                .addComponent(lblMessageLower, GroupLayout.DEFAULT_SIZE, 1009, Short.MAX_VALUE)))
+                                                .addComponent(lblMessageLower, GroupLayout.DEFAULT_SIZE, 1019, Short.MAX_VALUE)))
                                         .addContainerGap())
                             );
                             pnlProduktLowerLayout.setVerticalGroup(
@@ -1890,7 +1779,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(splitWarengruppe, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(lblMessageLower, GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE)
+                                        .addComponent(lblMessageLower, GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addGroup(pnlProduktLowerLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
                                             .addComponent(btnCancelNeuProd, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1927,7 +1816,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private JList listProdukte;
     private JLabel lblProdInfo;
     private JButton btnNewProdukt;
-    private JSplitPane splitUpperRight;
     private JPanel pnlUpperRight;
     private JLabel lblProdukt;
     private JPanel panel3;
@@ -1966,20 +1854,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private JToggleButton btnNoPrinter;
     private JButton btnEinbuchen;
     private JToggleButton btnSofortBuchen;
-    private JPanel panel14;
-    private JLabel label1;
-    private JLabel lblVorrat;
-    private JLabel label4;
-    private JLabel label3;
-    private JLabel label5;
-    private JLabel lblEinDatum;
-    private JLabel lblEinMA;
-    private JLabel label6;
-    private JLabel label7;
-    private JLabel label8;
-    private JLabel lblAusDatum;
-    private JLabel lblAusMA;
-    private JButton btnReaktivieren;
     private JPanel pnlLower;
     private JPanel panel1;
     private JLabel lbl1;
@@ -2061,17 +1935,17 @@ public class PnlWareneingang extends DefaultTouchPanel {
             case MODE_WARENEINGANG: {
 
                 Tools.showSide(splitMain, Tools.LEFT_UPPER_SIDE, speed);
-                Tools.showSide(splitUpperRight, Tools.LEFT_UPPER_SIDE, speed);
+//                Tools.showSide(splitUpperRight, Tools.LEFT_UPPER_SIDE, speed);
 
                 if (!refresh) {
 
                     vorrat = null;
 
-                    lblVorrat.setText("");
-                    lblEinMA.setText("");
-                    lblAusMA.setText("");
-                    lblEinDatum.setText("");
-                    lblAusDatum.setText("");
+//                    lblVorrat.setText("");
+//                    lblEinMA.setText("");
+//                    lblAusMA.setText("");
+//                    lblEinDatum.setText("");
+//                    lblAusDatum.setText("");
 
                     btnNewProdukt.setEnabled(true);
                     btnVerpackteWare.setSelected(false);
@@ -2092,7 +1966,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 splitStoffart.setDividerLocation(1.0d);
                 splitNeuProd.setDividerLocation(0.0d);
 
-                Tools.showSide(splitUpperRight, Tools.LEFT_UPPER_SIDE, speed);
+//                Tools.showSide(splitUpperRight, Tools.LEFT_UPPER_SIDE, speed);
                 Tools.showSide(splitMain, Tools.RIGHT_LOWER_SIDE, speed);
 
 
@@ -2126,24 +2000,24 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 }
                 break;
             }
-            case MODE_VORRATREAKTIVIERUNG: {
-                Tools.showSide(splitUpperRight, Tools.RIGHT_LOWER_SIDE, speed);
-                Tools.showSide(splitMain, Tools.LEFT_UPPER_SIDE, speed);
-
-                if (!refresh) {
-                    btnNewProdukt.setEnabled(false);
-
-
-                    lblVorrat.setText("[" + vorrat.getId() + "] " + vorrat.getProdukt().getBezeichnung());
-
-                    lblEinDatum.setText(df.format(vorrat.getEingang()) + ", " + tf.format(vorrat.getEingang()));
-                    lblAusDatum.setText(df.format(vorrat.getAusgang()) + ", " + tf.format(vorrat.getAusgang()));
-
-                    lblEinMA.setText(MitarbeiterTools.getUserString(VorratTools.getEingangMA(vorrat)));
-                    lblAusMA.setText(MitarbeiterTools.getUserString(VorratTools.getAusgangMA(vorrat)));
-                }
-                break;
-            }
+//            case MODE_VORRATREAKTIVIERUNG: {
+//                Tools.showSide(splitUpperRight, Tools.RIGHT_LOWER_SIDE, speed);
+//                Tools.showSide(splitMain, Tools.LEFT_UPPER_SIDE, speed);
+//
+//                if (!refresh) {
+//                    btnNewProdukt.setEnabled(false);
+//
+//
+//                    lblVorrat.setText("[" + vorrat.getId() + "] " + vorrat.getProdukt().getBezeichnung());
+//
+//                    lblEinDatum.setText(df.format(vorrat.getEingang()) + ", " + tf.format(vorrat.getEingang()));
+//                    lblAusDatum.setText(df.format(vorrat.getAusgang()) + ", " + tf.format(vorrat.getAusgang()));
+//
+//                    lblEinMA.setText(MitarbeiterTools.getUserString(VorratTools.getEingangMA(vorrat)));
+//                    lblAusMA.setText(MitarbeiterTools.getUserString(VorratTools.getAusgangMA(vorrat)));
+//                }
+//                break;
+//            }
             default: {
 
             }
