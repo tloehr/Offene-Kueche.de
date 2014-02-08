@@ -7,6 +7,8 @@ package touch;
 import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
+import entity.Mitarbeiter;
+import org.apache.commons.collections.Closure;
 import threads.HeapStat;
 import threads.PrintProcessor;
 import threads.SoundProcessor;
@@ -28,10 +30,10 @@ public class FrmTouch extends JFrame {
 
     TouchPanel currentPanel;
     HeapStat hs;
-//    CardMonitor cm;
+    //    CardMonitor cm;
     PrintProcessor pp;
     SoundProcessor sp;
-//    CardStateListener csl;
+    //    CardStateListener csl;
     private NoneSelectedButtonGroup bg1;
 
     MouseAdapter ma = new MouseAdapter() {
@@ -70,8 +72,8 @@ public class FrmTouch extends JFrame {
         initComponents();
 
         String title = "Touchscreen";
-        if (Main.isDebug()){
-            title += " ("+Main.getProps().getProperty("javax.persistence.jdbc.url")+")";
+        if (Main.isDebug()) {
+            title += " (" + Main.getProps().getProperty("javax.persistence.jdbc.url") + ")";
         }
 
         setTitle(tools.Tools.getWindowTitle(title));
@@ -91,39 +93,7 @@ public class FrmTouch extends JFrame {
         pp = new PrintProcessor(pbMain);
         pp.start();
 
-//        cm = new CardMonitor();
-//        csl = new CardStateListener() {
-//
-//            @Override
-//            public void cardStateChanged(CardStateChangedEvent evt) {
-//                if (evt.isCardPresent() && evt.isUserMode() && evt.getCardID() < Long.MAX_VALUE) {
-//                    EntityManager em = Main.getEMF().createEntityManager();
-//                    Query query = em.createNamedQuery("Mitarbeiter.findByCardID");
-//                    query.setParameter("cardId", evt.getCardID());
-//                    try {
-//                        Main.currentUser = (Mitarbeiter) query.getSingleResult();
-//                        login();
-//                    } catch (Exception e) {
-//                        logout();
-//                    } finally {
-//                        em.close();
-//                    }
-//                } else {
-//                    logout();
-//                }
-//            }
-//        };
-//
-//        cm.addCardEventListener(csl);
-//        if (cm.getTerminal() == null) {
-//            lblUsername.setIcon(new javax.swing.ImageIcon(getClass().getResource("/artwork/16x16/redled.png")));
-//            lblUsername.setText("Kein PC/SC Kartenterminal gefunden");
-//            cm.interrupt();
-//        } else {
-//            cm.start();
-//        }
-
-        setCurrentPanelTo(new PnlPIN(new Closure));
+        setPinPanel();
 
         this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
     }
@@ -161,8 +131,8 @@ public class FrmTouch extends JFrame {
     }
 
     private void btnLogoutActionPerformed(ActionEvent e) {
-        dispose();
-        System.exit(0);
+        if (Main.getCurrentUser() == null) return;
+        logout();
     }
 
     private void thisComponentResized(ComponentEvent e) {
@@ -196,12 +166,12 @@ public class FrmTouch extends JFrame {
         pnlCenter = new JPanel();
         pnlLower = new JPanel();
         btnWareneingang = new JToggleButton();
+        btnQuit = new JButton();
         panel1 = new JPanel();
         pbMain = new JProgressBar();
         pbHeap = new JProgressBar();
         lblUsername = new JLabel();
         btnSound = new JToggleButton();
-        btnQuit = new JButton();
         lblClock = new JLabel();
         btnWarenausgang = new JToggleButton();
         btnUmbuchen = new JToggleButton();
@@ -232,8 +202,8 @@ public class FrmTouch extends JFrame {
         {
             pnlLower.setBackground(new Color(214, 217, 223));
             pnlLower.setLayout(new FormLayout(
-                "default, $lcgap, default:grow, $lcgap, 100dlu",
-                "fill:default, $lgap, default, $lgap, fill:default"));
+                    "2*(default, $lcgap), default:grow, $lcgap, 100dlu",
+                    "fill:default, $lgap, default, $lgap, fill:default"));
 
             //---- btnWareneingang ----
             btnWareneingang.setFont(new Font("sansserif", Font.BOLD, 24));
@@ -249,12 +219,23 @@ public class FrmTouch extends JFrame {
             });
             pnlLower.add(btnWareneingang, CC.xy(1, 1));
 
+            //---- btnQuit ----
+            btnQuit.setFont(new Font("Lucida Grande", Font.BOLD, 36));
+            btnQuit.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/switchuser.png")));
+            btnQuit.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    btnLogoutActionPerformed(e);
+                }
+            });
+            pnlLower.add(btnQuit, CC.xywh(3, 1, 1, 5));
+
             //======== panel1 ========
             {
                 panel1.setBorder(new EtchedBorder());
                 panel1.setLayout(new FormLayout(
-                    "default:grow, default",
-                    "2*($lgap), 3*(fill:default, $rgap), fill:default:grow"));
+                        "default:grow, default",
+                        "2*($lgap), 3*(fill:default, $rgap), fill:default:grow"));
 
                 //---- pbMain ----
                 pbMain.setStringPainted(true);
@@ -282,25 +263,14 @@ public class FrmTouch extends JFrame {
                         btnSoundItemStateChanged(e);
                     }
                 });
-                panel1.add(btnSound, CC.xy(1, 9));
-
-                //---- btnQuit ----
-                btnQuit.setFont(new Font("Lucida Grande", Font.BOLD, 36));
-                btnQuit.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/exit.png")));
-                btnQuit.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        btnLogoutActionPerformed(e);
-                    }
-                });
-                panel1.add(btnQuit, CC.xy(2, 9));
+                panel1.add(btnSound, CC.xywh(1, 9, 2, 1));
             }
-            pnlLower.add(panel1, CC.xywh(5, 1, 1, 5));
+            pnlLower.add(panel1, CC.xywh(7, 1, 1, 5));
 
             //---- lblClock ----
             lblClock.setText("08:01 Uhr");
             lblClock.setHorizontalAlignment(SwingConstants.CENTER);
-            pnlLower.add(lblClock, CC.xywh(3, 1, 1, 5));
+            pnlLower.add(lblClock, CC.xywh(5, 1, 1, 5));
 
             //---- btnWarenausgang ----
             btnWarenausgang.setFont(new Font("sansserif", Font.BOLD, 24));
@@ -334,22 +304,22 @@ public class FrmTouch extends JFrame {
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
-            contentPaneLayout.createParallelGroup()
-                .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                        .addComponent(pnlCenter, GroupLayout.Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 1096, Short.MAX_VALUE)
-                        .addComponent(pnlLower, GroupLayout.Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 1096, Short.MAX_VALUE))
-                    .addContainerGap())
+                contentPaneLayout.createParallelGroup()
+                        .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                                        .addComponent(pnlCenter, GroupLayout.Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 1106, Short.MAX_VALUE)
+                                        .addComponent(pnlLower, GroupLayout.Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 1106, Short.MAX_VALUE))
+                                .addContainerGap())
         );
         contentPaneLayout.setVerticalGroup(
-            contentPaneLayout.createParallelGroup()
-                .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(pnlCenter, GroupLayout.DEFAULT_SIZE, 559, Short.MAX_VALUE)
-                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(pnlLower, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap())
+                contentPaneLayout.createParallelGroup()
+                        .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(pnlCenter, GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(pnlLower, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())
         );
         pack();
         setLocationRelativeTo(getOwner());
@@ -360,12 +330,12 @@ public class FrmTouch extends JFrame {
     private JPanel pnlCenter;
     private JPanel pnlLower;
     private JToggleButton btnWareneingang;
+    private JButton btnQuit;
     private JPanel panel1;
     private JProgressBar pbMain;
     private JProgressBar pbHeap;
     private JLabel lblUsername;
     private JToggleButton btnSound;
-    private JButton btnQuit;
     private JLabel lblClock;
     private JToggleButton btnWarenausgang;
     private JToggleButton btnUmbuchen;
@@ -389,16 +359,18 @@ public class FrmTouch extends JFrame {
 
     private void login() {
         lblUsername.setIcon(new javax.swing.ImageIcon(getClass().getResource("/artwork/16x16/greenled.png")));
-        lblUsername.setText(Main.currentUser.getName() + ", " + Main.currentUser.getVorname());
+        lblUsername.setText(Main.getCurrentUser().getName() + ", " + Main.getCurrentUser().getVorname());
         setButtons(true);
+        setCurrentPanelTo(new DefaultTouchPanel());
     }
 
     private void logout() {
-        lblUsername.setIcon(new javax.swing.ImageIcon(getClass().getResource("/artwork/16x16/yellowled.png")));
-        lblUsername.setText("Niemand angemeldet.");
+//        lblUsername.setIcon(new javax.swing.ImageIcon(getClass().getResource("/artwork/16x16/yellowled.png")));
+//        lblUsername.setText("Niemand angemeldet.");
+
         setButtons(false);
         bg1.clearSelection();
-        setCurrentPanelTo(new DefaultTouchPanel());
+        setPinPanel();
     }
 
     private void setButtons(boolean enabled) {
@@ -414,5 +386,18 @@ public class FrmTouch extends JFrame {
             pnlCenter.repaint();
             currentPanel = null;
         }
+    }
+
+    private void setPinPanel() {
+        lblUsername.setIcon(new javax.swing.ImageIcon(getClass().getResource("/artwork/16x16/yellowled.png")));
+        lblUsername.setText("Niemand angemeldet.");
+
+        setCurrentPanelTo(new PnlPIN(new Closure() {
+            @Override
+            public void execute(Object o) {
+                Main.setCurrentUser((Mitarbeiter) o);
+                login();
+            }
+        }));
     }
 }

@@ -152,7 +152,7 @@ public class BuchungenTableModel extends AbstractTableModel implements Deletable
 
     public void addEmptyRow() {
         Buchungen buchungen = new Buchungen(BigDecimal.ZERO, new Date());
-        buchungen.setMitarbeiter(Main.currentUser);
+        buchungen.setMitarbeiter(Main.getCurrentUser());
         buchungen.setText("Manuelle Buchung");
         // Die gibt es immer
         Vorrat vorrat = ((Buchungen) data.get(0)).getVorrat();

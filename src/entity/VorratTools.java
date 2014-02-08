@@ -69,7 +69,7 @@ public class VorratTools {
 
         Buchungen buchungen = new Buchungen(menge.negate(), ausgang);
         buchungen.setVorrat(vorrat);
-        buchungen.setMitarbeiter(Main.currentUser);
+        buchungen.setMitarbeiter(Main.getCurrentUser());
         buchungen.setText(buchungstext);
 
         if (summe.compareTo(menge) == 0) {

@@ -5,7 +5,11 @@
 package desktop;
 
 import Main.Main;
-import threads.*;
+import entity.Mitarbeiter;
+import org.apache.commons.collections.Closure;
+import threads.HeapStat;
+import threads.PrintProcessor;
+import threads.SoundProcessor;
 import tools.Tools;
 import touch.*;
 
@@ -30,8 +34,8 @@ public class FrmDesktop extends JFrame {
     // FrmPrinterSelection drucker = null;
     FrmUser user = null;
     HeapStat hs;
-    CardMonitor cardmonitor;
-    CardStateListener csl;
+    //    CardMonitor cardmonitor;
+//    CardStateListener csl;
     WindowAdapter wa;
     DlgLogin dlg;
 
@@ -44,9 +48,9 @@ public class FrmDesktop extends JFrame {
     SoundProcessor sp;
 
 
-    public CardMonitor getCardmonitor() {
-        return cardmonitor;
-    }
+//    public CardMonitor getCardmonitor() {
+//        return cardmonitor;
+//    }
 
     private MyFrameListener myFrameListener;
 
@@ -60,8 +64,8 @@ public class FrmDesktop extends JFrame {
         myFrameListener = new MyFrameListener();
         hs = new HeapStat(pbHeap, null);
         hs.start();
-        cardmonitor = new CardMonitor();
-        cardmonitor.start();
+//        cardmonitor = new CardMonitor();
+//        cardmonitor.start();
         pp = new PrintProcessor(pbPrint);
         pp.start();
         sp = new SoundProcessor();
@@ -73,32 +77,9 @@ public class FrmDesktop extends JFrame {
     }
 
     private void loginDlgClosing(java.awt.event.WindowEvent evt) {
-        if (dlg.isSuccess()) {
-            Main.currentUser = dlg.getUser();
-            stammdatenMenu.setEnabled(true);
-            aktionenMenu.setEnabled(true);
-            systemMenu.setEnabled(true);
-            logoutMenuItem.setEnabled(!dlg.isCardLogin());
-            lblUsername.setText(dlg.getUser().getName() + ", " + dlg.getUser().getVorname() + (dlg.isCardLogin() ? " (mit Karte)" : ""));
-            if (dlg.isCardLogin()) {
-                csl = new CardStateListener() {
-                    @Override
-                    public void cardStateChanged(CardStateChangedEvent evt) {
-                        if (!evt.isCardPresent()) {
-                            logout();
-                            loginMode();
-                        }
-                    }
-                };
-                cardmonitor.addCardEventListener(csl);
-            }
-            // Die Benutzerverwaltung braucht einen freien Kartenleser.
-            userMenuItem.setEnabled(ADMIN && !dlg.isCardLogin());
-        } else {
-            Main.currentUser = null;
+        if (Main.getCurrentUser() == null) {
             dispose();
         }
-
     }
 
     private void loginMode() {
@@ -107,7 +88,19 @@ public class FrmDesktop extends JFrame {
         aktionenMenu.setEnabled(false);
         stammdatenMenu.setEnabled(false);
         systemMenu.setEnabled(false);
-        dlg = new DlgLogin(JOptionPane.getFrameForComponent(this), this);
+        dlg = new DlgLogin(JOptionPane.getFrameForComponent(this), this, new Closure() {
+            @Override
+            public void execute(Object o) {
+                Main.setCurrentUser((Mitarbeiter) o);
+                stammdatenMenu.setEnabled(true);
+                aktionenMenu.setEnabled(true);
+                systemMenu.setEnabled(true);
+                logoutMenuItem.setEnabled(true);
+                lblUsername.setText(Main.getCurrentUser().getName() + ", " + Main.getCurrentUser().getVorname());
+                userMenuItem.setEnabled(ADMIN);
+                dlg.dispose();
+            }
+        });
         wa = new java.awt.event.WindowAdapter() {
 
             public void windowClosed(WindowEvent e) {
@@ -125,7 +118,8 @@ public class FrmDesktop extends JFrame {
     }
 
     private void logout() {
-        cardmonitor.removeCardEventListener(csl);
+//        cardmonitor.removeCardEventListener(csl);
+        Main.setCurrentUser(null);
         myDispose(einbuchen);
         myDispose(vorrat);
         //myDispose(drucker);
@@ -557,7 +551,7 @@ public class FrmDesktop extends JFrame {
         tools.Tools.saveProperties();
         Main.getEMF().close();
         hs.interrupt();
-        cardmonitor.interrupt();
+//        cardmonitor.interrupt();
         super.dispose();
         System.exit(0);
     }

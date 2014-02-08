@@ -14,7 +14,6 @@ import org.pushingpixels.trident.ease.Spline;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.smartcardio.*;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.swing.table.DefaultTableColumnModel;
@@ -32,6 +31,8 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.List;
+
+//import javax.smartcardio.*;
 
 /**
  * @author tloehr
@@ -764,123 +765,123 @@ public class Tools {
     public static final int APDU_SWITCH_TO_USERMODE = 3;
     public static final int APDU_GET_USERMODE = 4;
 
-    /**
-     * APDU - Application Protocol Data Unit
-     * Sample Cards:
-     * CSC0 = aah aah aah aah
-     * CSC1 = 11h 11h 11h 11h
-     * CSC2 = 22h 22h 22h 22h
-     *
-     * @param command
-     * @return
-     */
-    public static byte[] command_apdu(Card card, int command, byte[] data) throws CardException {
-        // cla = Instruction Class
-        // ins = Instruction Code
-        // p1 = Parameter 1
-        // p2 = Parameter 2
-        // Lengthin =
-        // Length expected
-        // Data In
-        //
-        // Issuer Area
-        // Mode Bits:
-        // Address 04. Bits 31 and 31.
-        // 01b - issuer mode
-        // 10b - user mode (locked)
-        // Can only be modified in personalization phase (issuer mode)
-
-        int[] response;
-        CardChannel channel = card.getBasicChannel();
-
-
-        int cla, ins, p1, p2, le;
-        switch (command) {
-            case APDU_VERIFY: {
-                cla = (int) 0x00;
-                ins = (int) 0x20;
-                p1 = (int) 0x00;
-                p2 = (int) 0x07;
-                le = (int) 0x04;
-                if (data == null) {
-                    // Standard Passwort, CSC0
-                    data = new byte[]{(byte) 0xAA, (byte) 0xAA, (byte) 0xAA, (byte) 0xAA};
-                }
-                break;
-            }
-            case APDU_UPDATE: {
-
-                // Data for Updates must be Little Endian (LSB)
-
-                cla = (int) 0x80;
-                ins = (int) 0xDE;
-                p1 = (int) 0x00;
-                p2 = (int) 0x01; // nur für den Issuer Bereich
-                le = (int) 0x08;
-                if (data == null) {
-                    // Standard Passwort, CSC0
-                    throw new CardException("Can't Update Issuer Area without Data");
-                }
-                break;
-            }
-            case APDU_READ: {
-                cla = (int) 0x80;
-                ins = (int) 0xBE;
-                p1 = (int) 0x00;
-                p2 = (int) 0x01; // nur für den Issuer Bereich
-                le = (int) 0x08;
-                data = null;
-                break;
-            }
-            case APDU_SWITCH_TO_USERMODE: {
-                cla = (int) 0x80;
-                ins = (int) 0xDE;
-                p1 = (int) 0x00;
-                p2 = (int) 0x04;
-                le = (int) 0x04;
-                data = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x80};
-                break;
-            }
-            case APDU_GET_USERMODE: {
-                cla = (int) 0x80;
-                ins = (int) 0xBE;
-                p1 = (int) 0x00;
-                p2 = (int) 0x04; // nur für den Issuer Bereich
-                le = (int) 0x04;
-                data = null;
-                break;
-            }
-            default: {
-                throw new CardException("Unknown Command");
-            }
-        }
-
-//        int[] baCommandAPDU;
-//        if (data == null){
-//            baCommandAPDU = new int[]{cla, ins, p1, p2, le};
-//        } else {
+//    /**
+//     * APDU - Application Protocol Data Unit
+//     * Sample Cards:
+//     * CSC0 = aah aah aah aah
+//     * CSC1 = 11h 11h 11h 11h
+//     * CSC2 = 22h 22h 22h 22h
+//     *
+//     * @param command
+//     * @return
+//     */
+//    public static byte[] command_apdu(Card card, int command, byte[] data) throws CardException {
+//        // cla = Instruction Class
+//        // ins = Instruction Code
+//        // p1 = Parameter 1
+//        // p2 = Parameter 2
+//        // Lengthin =
+//        // Length expected
+//        // Data In
+//        //
+//        // Issuer Area
+//        // Mode Bits:
+//        // Address 04. Bits 31 and 31.
+//        // 01b - issuer mode
+//        // 10b - user mode (locked)
+//        // Can only be modified in personalization phase (issuer mode)
 //
-//            baCommandAPDU = new int[]{cla, ins, p1, p2, le, (int) 0xAA, (int) 0xAA, (int) 0xAA, (int) 0xAA};
+//        int[] response;
+//        CardChannel channel = card.getBasicChannel();
+//
+//
+//        int cla, ins, p1, p2, le;
+//        switch (command) {
+//            case APDU_VERIFY: {
+//                cla = (int) 0x00;
+//                ins = (int) 0x20;
+//                p1 = (int) 0x00;
+//                p2 = (int) 0x07;
+//                le = (int) 0x04;
+//                if (data == null) {
+//                    // Standard Passwort, CSC0
+//                    data = new byte[]{(byte) 0xAA, (byte) 0xAA, (byte) 0xAA, (byte) 0xAA};
+//                }
+//                break;
+//            }
+//            case APDU_UPDATE: {
+//
+//                // Data for Updates must be Little Endian (LSB)
+//
+//                cla = (int) 0x80;
+//                ins = (int) 0xDE;
+//                p1 = (int) 0x00;
+//                p2 = (int) 0x01; // nur für den Issuer Bereich
+//                le = (int) 0x08;
+//                if (data == null) {
+//                    // Standard Passwort, CSC0
+//                    throw new CardException("Can't Update Issuer Area without Data");
+//                }
+//                break;
+//            }
+//            case APDU_READ: {
+//                cla = (int) 0x80;
+//                ins = (int) 0xBE;
+//                p1 = (int) 0x00;
+//                p2 = (int) 0x01; // nur für den Issuer Bereich
+//                le = (int) 0x08;
+//                data = null;
+//                break;
+//            }
+//            case APDU_SWITCH_TO_USERMODE: {
+//                cla = (int) 0x80;
+//                ins = (int) 0xDE;
+//                p1 = (int) 0x00;
+//                p2 = (int) 0x04;
+//                le = (int) 0x04;
+//                data = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x80};
+//                break;
+//            }
+//            case APDU_GET_USERMODE: {
+//                cla = (int) 0x80;
+//                ins = (int) 0xBE;
+//                p1 = (int) 0x00;
+//                p2 = (int) 0x04; // nur für den Issuer Bereich
+//                le = (int) 0x04;
+//                data = null;
+//                break;
+//            }
+//            default: {
+//                throw new CardException("Unknown Command");
+//            }
 //        }
-
-        CommandAPDU cmd;
-
-        if (data == null) {
-            cmd = new CommandAPDU(cla, ins, p1, p2, le);
-        } else {
-            cmd = new CommandAPDU(cla, ins, p1, p2, data);
-        }
-
-        ResponseAPDU r = channel.transmit(cmd);
-
-        if (command == APDU_SWITCH_TO_USERMODE) {
-            Main.logger.debug("Card disconnected");
-            //card.disconnect(true); // Reset Card. Locks MemoCard permanently to UserMode.
-        }
-
-        return r.getBytes();
-
-    }
+//
+////        int[] baCommandAPDU;
+////        if (data == null){
+////            baCommandAPDU = new int[]{cla, ins, p1, p2, le};
+////        } else {
+////
+////            baCommandAPDU = new int[]{cla, ins, p1, p2, le, (int) 0xAA, (int) 0xAA, (int) 0xAA, (int) 0xAA};
+////        }
+//
+//        CommandAPDU cmd;
+//
+//        if (data == null) {
+//            cmd = new CommandAPDU(cla, ins, p1, p2, le);
+//        } else {
+//            cmd = new CommandAPDU(cla, ins, p1, p2, data);
+//        }
+//
+//        ResponseAPDU r = channel.transmit(cmd);
+//
+//        if (command == APDU_SWITCH_TO_USERMODE) {
+//            Main.logger.debug("Card disconnected");
+//            //card.disconnect(true); // Reset Card. Locks MemoCard permanently to UserMode.
+//        }
+//
+//        return r.getBytes();
+//
+//    }
 
     public static double showSide(JSplitPane split, boolean leftUpper) {
         return showSide(split, leftUpper, 0);

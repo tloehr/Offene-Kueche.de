@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?> 
-<java version="1.6.0_26" class="java.beans.XMLDecoder"> 
+<java version="1.6.0_33" class="java.beans.XMLDecoder"> 
  <object class="com.jformdesigner.model.FormModel"> 
   <void property="contentType"> 
    <string>form/swing</string> 
@@ -13,11 +13,11 @@
        <class>org.jdesktop.layout.GroupLayout</class> 
        <void method="setProperty"> 
         <string>$horizontalGroup</string> 
-        <string>par l {seq t {space :::p, par t {comp pnlCenter::l::1096:x, comp pnlLower::l::1096:x:1}, space :::p}}</string> 
+        <string>par l {seq t {space :::p, par t {comp pnlCenter::l::1106:x, comp pnlLower::l::1106:x:1}, space :::p}}</string> 
        </void> 
        <void method="setProperty"> 
         <string>$verticalGroup</string> 
-        <string>par l {seq t {space :::p, comp pnlCenter::::559:x:2, space :::p, comp pnlLower:::p::p, space :::p}}</string> 
+        <string>par l {seq t {space :::p, comp pnlCenter::::567:x:2, space :::p, comp pnlLower:::p::p, space :::p}}</string> 
        </void> 
       </object> 
       <void method="setProperty"> 
@@ -68,7 +68,7 @@
          <class>com.jgoodies.forms.layout.FormLayout</class> 
          <void method="setProperty"> 
           <string>$columnSpecs</string> 
-          <string>default, labelcompgap, default:grow, labelcompgap, 100dlu</string> 
+          <string>default, labelcompgap, default, labelcompgap, default:grow, labelcompgap, 100dlu</string> 
          </void> 
          <void method="setProperty"> 
           <string>$rowSpecs</string> 
@@ -134,6 +134,48 @@
           <void method="setProperty"> 
            <string>gridX</string> 
            <int>1</int> 
+          </void> 
+         </object> 
+        </void> 
+        <void method="add"> 
+         <object class="com.jformdesigner.model.FormComponent"> 
+          <string>javax.swing.JButton</string> 
+          <void method="setProperty"> 
+           <string>font</string> 
+           <object class="java.awt.Font"> 
+            <string>Lucida Grande</string> 
+            <int>1</int> 
+            <int>36</int> 
+           </object> 
+          </void> 
+          <void method="setProperty"> 
+           <string>icon</string> 
+           <object class="com.jformdesigner.model.SwingIcon"> 
+            <int>0</int> 
+            <string>/artwork/64x64/switchuser.png</string> 
+           </object> 
+          </void> 
+          <void property="name"> 
+           <string>btnQuit</string> 
+          </void> 
+          <void method="addEvent"> 
+           <object class="com.jformdesigner.model.FormEvent"> 
+            <string>java.awt.event.ActionListener</string> 
+            <string>actionPerformed</string> 
+            <string>btnLogoutActionPerformed</string> 
+            <boolean>true</boolean> 
+           </object> 
+          </void> 
+         </object> 
+         <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+          <class>com.jgoodies.forms.layout.CellConstraints</class> 
+          <void method="setProperty"> 
+           <string>gridX</string> 
+           <int>3</int> 
+          </void> 
+          <void method="setProperty"> 
+           <string>gridHeight</string> 
+           <int>5</int> 
           </void> 
          </object> 
         </void> 
@@ -295,53 +337,11 @@
            <object class="com.jformdesigner.model.FormLayoutConstraints"> 
             <class>com.jgoodies.forms.layout.CellConstraints</class> 
             <void method="setProperty"> 
-             <string>gridX</string> 
-             <int>1</int> 
-            </void> 
-            <void method="setProperty"> 
-             <string>gridY</string> 
-             <int>9</int> 
-            </void> 
-           </object> 
-          </void> 
-          <void method="add"> 
-           <object class="com.jformdesigner.model.FormComponent"> 
-            <string>javax.swing.JButton</string> 
-            <void method="setProperty"> 
-             <string>font</string> 
-             <object class="java.awt.Font"> 
-              <string>Lucida Grande</string> 
-              <int>1</int> 
-              <int>36</int> 
-             </object> 
-            </void> 
-            <void method="setProperty"> 
-             <string>icon</string> 
-             <object class="com.jformdesigner.model.SwingIcon"> 
-              <int>0</int> 
-              <string>/artwork/32x32/exit.png</string> 
-             </object> 
-            </void> 
-            <void property="name"> 
-             <string>btnQuit</string> 
-            </void> 
-            <void method="addEvent"> 
-             <object class="com.jformdesigner.model.FormEvent"> 
-              <string>java.awt.event.ActionListener</string> 
-              <string>actionPerformed</string> 
-              <string>btnLogoutActionPerformed</string> 
-              <boolean>true</boolean> 
-             </object> 
-            </void> 
-           </object> 
-           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
-            <class>com.jgoodies.forms.layout.CellConstraints</class> 
-            <void method="setProperty"> 
              <string>gridY</string> 
              <int>9</int> 
             </void> 
             <void method="setProperty"> 
-             <string>gridX</string> 
+             <string>gridWidth</string> 
              <int>2</int> 
             </void> 
            </object> 
@@ -351,7 +351,7 @@
           <class>com.jgoodies.forms.layout.CellConstraints</class> 
           <void method="setProperty"> 
            <string>gridX</string> 
-           <int>5</int> 
+           <int>7</int> 
           </void> 
           <void method="setProperty"> 
            <string>gridHeight</string> 
@@ -378,7 +378,7 @@
           <class>com.jgoodies.forms.layout.CellConstraints</class> 
           <void method="setProperty"> 
            <string>gridX</string> 
-           <int>3</int> 
+           <int>5</int> 
           </void> 
           <void method="setProperty"> 
            <string>gridHeight</string> 

@@ -38,7 +38,7 @@ public class Main {
     public static Logger logger;
     private static EntityManagerFactory emf;
 //    private static EntityManager em1;
-    public static Mitarbeiter currentUser;
+    private static Mitarbeiter currentUser;
     public static SortedProperties props = new SortedProperties();
     public static SortedProperties appinfo = new SortedProperties();
     public static Printers printers;
@@ -188,6 +188,10 @@ public class Main {
         }
 
         checkForDefaultProps();
+    }
+
+    public static void setCurrentUser(Mitarbeiter currentUser) {
+        Main.currentUser = currentUser;
     }
 
     public static void debug(Object msg) {
