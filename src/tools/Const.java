@@ -26,6 +26,7 @@
  */
 package tools;
 
+import javax.swing.*;
 import java.awt.*;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -128,5 +129,9 @@ public class Const {
     public static final int ALLE = 11;
     public static final int NAME_NR = 12;
     public static final int LAGERART = 13;
+
+
+    public static final Icon icon22Pageprinter = new ImageIcon(Const.class.getResource("/artwork/24x24/printer.png"));
+    public static final Icon icon22labelPrinter2 = new ImageIcon(Const.class.getResource("/artwork/24x24/labelprinter2.png"));
 
 }

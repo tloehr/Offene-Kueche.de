@@ -16,7 +16,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -50,7 +49,13 @@ public class PnlPIN extends DefaultTouchPanel {
 
     @Override
     public void startAction() {
-        passwordField1.requestFocus();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                passwordField1.requestFocus();
+            }
+        });
+
     }
 
     @Override
@@ -64,40 +69,6 @@ public class PnlPIN extends DefaultTouchPanel {
     }
 
     private void passwordField1CaretUpdate(CaretEvent e) {
-
-        if (passwordField1.getPassword().length < 4) return;
-
-        EntityManager em = Main.Main.getEMF().createEntityManager();
-        Query query = em.createQuery("SELECT m FROM Mitarbeiter m WHERE m.pin = :pin");
-        query.setParameter("pin", new String(passwordField1.getPassword()));
-
-        try {
-            Mitarbeiter user = (Mitarbeiter) query.getSingleResult();
-            Main.Main.logger.info(user.getName() + ", " + user.getVorname() + " angemeldet.");
-
-            loginAction.execute(user);
-
-            //            user = (Mitarbeiter) query.getSingleResult();
-            //            success = true;
-            //            cardLogin = false;
-            //            dispose();
-        } catch (Exception e1) {
-            Main.Main.logger.warn(e1.getMessage(), e1);
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    passwordField1.setText(null);
-                }
-            });
-            lblReply.setText("falsche PIN");
-
-//            passwordField1.requestFocus();
-            //            user = null;
-            //            success = false;
-            //            cardLogin = false;
-        } finally {
-            em.close();
-        }
 
 
     }
@@ -151,11 +122,52 @@ public class PnlPIN extends DefaultTouchPanel {
         numButtonActionPerformed(e);
     }
 
-    private void numButtonActionPerformed(ActionEvent e){
+    private void numButtonActionPerformed(ActionEvent e) {
         String num = ((JButton) e.getSource()).getText().trim();
         String currentPW = Tools.catchNull(new String(passwordField1.getPassword()));
-        passwordField1.setText(currentPW+num);
+        passwordField1.setText(currentPW + num);
         passwordField1.requestFocus();
+    }
+
+    private void passwordField1ActionPerformed(ActionEvent e) {
+
+        if (passwordField1.getPassword().length < 4) return;
+
+        EntityManager em = Main.Main.getEMF().createEntityManager();
+        Query query = em.createQuery("SELECT m FROM Mitarbeiter m WHERE m.pin = :pin");
+        query.setParameter("pin", new String(passwordField1.getPassword()));
+
+        try {
+            Mitarbeiter user = (Mitarbeiter) query.getSingleResult();
+            Main.Main.logger.info(user.getName() + ", " + user.getVorname() + " angemeldet.");
+
+            loginAction.execute(user);
+
+            //            user = (Mitarbeiter) query.getSingleResult();
+            //            success = true;
+            //            cardLogin = false;
+            //            dispose();
+        } catch (Exception e1) {
+            Main.Main.logger.warn(e1.getMessage(), e1);
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    passwordField1.setText(null);
+                }
+            });
+            lblReply.setText("falsche PIN");
+
+//            passwordField1.requestFocus();
+            //            user = null;
+            //            success = false;
+            //            cardLogin = false;
+        } finally {
+            em.close();
+        }
+    }
+
+    private void btnEnterActionPerformed(ActionEvent e) {
+        passwordField1ActionPerformed(e);
     }
 
     private void initComponents() {
@@ -164,22 +176,23 @@ public class PnlPIN extends DefaultTouchPanel {
         passwordField1 = new JPasswordField();
         btnClear = new JButton();
         lblReply = new JLabel();
-        button07 = new JButton();
-        button08 = new JButton();
-        button09 = new JButton();
-        button04 = new JButton();
-        button05 = new JButton();
-        button06 = new JButton();
         button01 = new JButton();
         button02 = new JButton();
         button03 = new JButton();
-        button0 = new JButton();
+        button04 = new JButton();
+        button05 = new JButton();
+        button06 = new JButton();
+        button07 = new JButton();
+        button08 = new JButton();
+        button09 = new JButton();
         btnExit = new JButton();
+        button0 = new JButton();
+        btnEnter = new JButton();
 
         //======== this ========
         setLayout(new FormLayout(
             "default:grow, $lcgap, 2*(87dlu, $ugap), 87dlu, $lcgap, default:grow",
-            "default:grow, $lgap, 49dlu, $ugap, 32dlu, 4*($ugap, 82dlu), $lgap, default:grow"));
+            "default:grow, $lgap, 49dlu, $ugap, 34dlu, 4*($ugap, 82dlu), $lgap, default:grow"));
 
         //======== panel1 ========
         {
@@ -187,10 +200,10 @@ public class PnlPIN extends DefaultTouchPanel {
 
             //---- passwordField1 ----
             passwordField1.setFont(new Font("Arial", Font.BOLD, 48));
-            passwordField1.addCaretListener(new CaretListener() {
+            passwordField1.addActionListener(new ActionListener() {
                 @Override
-                public void caretUpdate(CaretEvent e) {
-                    passwordField1CaretUpdate(e);
+                public void actionPerformed(ActionEvent e) {
+                    passwordField1ActionPerformed(e);
                 }
             });
             panel1.add(passwordField1);
@@ -209,43 +222,44 @@ public class PnlPIN extends DefaultTouchPanel {
         add(panel1, CC.xywh(3, 3, 5, 1, CC.FILL, CC.FILL));
 
         //---- lblReply ----
-        lblReply.setText("--");
+        lblReply.setText(null);
         lblReply.setFont(new Font("Arial", Font.PLAIN, 48));
         lblReply.setHorizontalAlignment(SwingConstants.CENTER);
+        lblReply.setForeground(Color.red);
         add(lblReply, CC.xywh(3, 5, 5, 1));
 
-        //---- button07 ----
-        button07.setText("7");
-        button07.setFont(new Font("Arial", button07.getFont().getStyle(), 62));
-        button07.addActionListener(new ActionListener() {
+        //---- button01 ----
+        button01.setText("1");
+        button01.setFont(new Font("Arial", button01.getFont().getStyle(), 62));
+        button01.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                button07ActionPerformed(e);
+                button01ActionPerformed(e);
             }
         });
-        add(button07, CC.xy(3, 7, CC.FILL, CC.FILL));
+        add(button01, CC.xy(3, 7, CC.FILL, CC.FILL));
 
-        //---- button08 ----
-        button08.setText("8");
-        button08.setFont(new Font("Arial", button08.getFont().getStyle(), 62));
-        button08.addActionListener(new ActionListener() {
+        //---- button02 ----
+        button02.setText("2");
+        button02.setFont(new Font("Arial", button02.getFont().getStyle(), 62));
+        button02.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                button08ActionPerformed(e);
+                button02ActionPerformed(e);
             }
         });
-        add(button08, CC.xy(5, 7, CC.FILL, CC.FILL));
+        add(button02, CC.xy(5, 7, CC.FILL, CC.FILL));
 
-        //---- button09 ----
-        button09.setText("9");
-        button09.setFont(new Font("Arial", button09.getFont().getStyle(), 62));
-        button09.addActionListener(new ActionListener() {
+        //---- button03 ----
+        button03.setText("3");
+        button03.setFont(new Font("Arial", button03.getFont().getStyle(), 62));
+        button03.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                button09ActionPerformed(e);
+                button03ActionPerformed(e);
             }
         });
-        add(button09, CC.xy(7, 7, CC.FILL, CC.FILL));
+        add(button03, CC.xy(7, 7, CC.FILL, CC.FILL));
 
         //---- button04 ----
         button04.setText("4");
@@ -280,49 +294,38 @@ public class PnlPIN extends DefaultTouchPanel {
         });
         add(button06, CC.xy(7, 9, CC.FILL, CC.FILL));
 
-        //---- button01 ----
-        button01.setText("1");
-        button01.setFont(new Font("Arial", button01.getFont().getStyle(), 62));
-        button01.addActionListener(new ActionListener() {
+        //---- button07 ----
+        button07.setText("7");
+        button07.setFont(new Font("Arial", button07.getFont().getStyle(), 62));
+        button07.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                button01ActionPerformed(e);
+                button07ActionPerformed(e);
             }
         });
-        add(button01, CC.xy(3, 11, CC.FILL, CC.FILL));
+        add(button07, CC.xy(3, 11, CC.FILL, CC.FILL));
 
-        //---- button02 ----
-        button02.setText("2");
-        button02.setFont(new Font("Arial", button02.getFont().getStyle(), 62));
-        button02.addActionListener(new ActionListener() {
+        //---- button08 ----
+        button08.setText("8");
+        button08.setFont(new Font("Arial", button08.getFont().getStyle(), 62));
+        button08.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                button02ActionPerformed(e);
+                button08ActionPerformed(e);
             }
         });
-        add(button02, CC.xy(5, 11, CC.FILL, CC.FILL));
+        add(button08, CC.xy(5, 11, CC.FILL, CC.FILL));
 
-        //---- button03 ----
-        button03.setText("3");
-        button03.setFont(new Font("Arial", button03.getFont().getStyle(), 62));
-        button03.addActionListener(new ActionListener() {
+        //---- button09 ----
+        button09.setText("9");
+        button09.setFont(new Font("Arial", button09.getFont().getStyle(), 62));
+        button09.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                button03ActionPerformed(e);
+                button09ActionPerformed(e);
             }
         });
-        add(button03, CC.xy(7, 11, CC.FILL, CC.FILL));
-
-        //---- button0 ----
-        button0.setText("0");
-        button0.setFont(new Font("Arial", button0.getFont().getStyle(), 62));
-        button0.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                button0ActionPerformed(e);
-            }
-        });
-        add(button0, CC.xy(3, 13, CC.FILL, CC.FILL));
+        add(button09, CC.xy(7, 11, CC.FILL, CC.FILL));
 
         //---- btnExit ----
         btnExit.setText(null);
@@ -334,7 +337,30 @@ public class PnlPIN extends DefaultTouchPanel {
                 btnExitActionPerformed(e);
             }
         });
-        add(btnExit, CC.xywh(5, 13, 3, 1, CC.FILL, CC.FILL));
+        add(btnExit, CC.xy(3, 13, CC.FILL, CC.FILL));
+
+        //---- button0 ----
+        button0.setText("0");
+        button0.setFont(new Font("Arial", button0.getFont().getStyle(), 62));
+        button0.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                button0ActionPerformed(e);
+            }
+        });
+        add(button0, CC.xy(5, 13, CC.FILL, CC.FILL));
+
+        //---- btnEnter ----
+        btnEnter.setText(null);
+        btnEnter.setFont(new Font("Arial", Font.PLAIN, 24));
+        btnEnter.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/newline.png")));
+        btnEnter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnEnterActionPerformed(e);
+            }
+        });
+        add(btnEnter, CC.xy(7, 13, CC.FILL, CC.FILL));
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
@@ -343,16 +369,17 @@ public class PnlPIN extends DefaultTouchPanel {
     private JPasswordField passwordField1;
     private JButton btnClear;
     private JLabel lblReply;
-    private JButton button07;
-    private JButton button08;
-    private JButton button09;
-    private JButton button04;
-    private JButton button05;
-    private JButton button06;
     private JButton button01;
     private JButton button02;
     private JButton button03;
-    private JButton button0;
+    private JButton button04;
+    private JButton button05;
+    private JButton button06;
+    private JButton button07;
+    private JButton button08;
+    private JButton button09;
     private JButton btnExit;
+    private JButton button0;
+    private JButton btnEnter;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

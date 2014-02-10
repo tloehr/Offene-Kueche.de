@@ -5,7 +5,7 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 			"$columnSpecs": "default:grow, labelcompgap, 87dlu, unrelgap, 87dlu, unrelgap, 87dlu, labelcompgap, default:grow"
-			"$rowSpecs": "default:grow, linegap, 49dlu, unrelgap, 32dlu, unrelgap, 82dlu, unrelgap, 82dlu, unrelgap, 82dlu, unrelgap, 82dlu, linegap, default:grow"
+			"$rowSpecs": "default:grow, linegap, 49dlu, unrelgap, 34dlu, unrelgap, 82dlu, unrelgap, 82dlu, unrelgap, 82dlu, unrelgap, 82dlu, linegap, default:grow"
 		} ) {
 			name: "this"
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
@@ -13,7 +13,7 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JPasswordField" ) {
 					name: "passwordField1"
 					"font": new java.awt.Font( "Arial", 1, 48 )
-					addEvent( new FormEvent( "javax.swing.event.CaretListener", "caretUpdate", "passwordField1CaretUpdate", true ) )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "passwordField1ActionPerformed", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "btnClear"
@@ -30,19 +30,20 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "lblReply"
-				"text": "--"
+				"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
 				"font": new java.awt.Font( "Arial", 0, 48 )
 				"horizontalAlignment": 0
+				"foreground": sfield java.awt.Color red
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
 				"gridY": 5
 				"gridWidth": 5
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
-				name: "button07"
-				"text": "7"
+				name: "button01"
+				"text": "1"
 				"font": &SwingDerivedFont0 new com.jformdesigner.model.SwingDerivedFont( "Arial", 0, 62, true )
-				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button07ActionPerformed", true ) )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button01ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
 				"gridY": 7
@@ -50,10 +51,10 @@ new FormModel {
 				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
-				name: "button08"
-				"text": "8"
+				name: "button02"
+				"text": "2"
 				"font": #SwingDerivedFont0
-				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button08ActionPerformed", true ) )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button02ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 5
 				"gridY": 7
@@ -61,10 +62,10 @@ new FormModel {
 				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
-				name: "button09"
-				"text": "9"
+				name: "button03"
+				"text": "3"
 				"font": #SwingDerivedFont0
-				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button09ActionPerformed", true ) )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button03ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 7
 				"gridY": 7
@@ -105,10 +106,10 @@ new FormModel {
 				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
-				name: "button01"
-				"text": "1"
+				name: "button07"
+				"text": "7"
 				"font": #SwingDerivedFont0
-				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button01ActionPerformed", true ) )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button07ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
 				"gridY": 11
@@ -116,10 +117,10 @@ new FormModel {
 				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
-				name: "button02"
-				"text": "2"
+				name: "button08"
+				"text": "8"
 				"font": #SwingDerivedFont0
-				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button02ActionPerformed", true ) )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button08ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 5
 				"gridY": 11
@@ -127,13 +128,25 @@ new FormModel {
 				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
-				name: "button03"
-				"text": "3"
+				name: "button09"
+				"text": "9"
 				"font": #SwingDerivedFont0
-				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button03ActionPerformed", true ) )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button09ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 7
 				"gridY": 11
+				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
+				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "btnExit"
+				"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
+				"font": &Font0 new java.awt.Font( "Arial", 0, 24 )
+				"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/64x64/exit.png" )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnExitActionPerformed", true ) )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"gridY": 13
 				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 			} )
@@ -143,23 +156,22 @@ new FormModel {
 				"font": #SwingDerivedFont0
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button0ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
+				"gridX": 5
 				"gridY": 13
 				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
-				name: "btnExit"
+				name: "btnEnter"
 				"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
-				"font": new java.awt.Font( "Arial", 0, 24 )
-				"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/64x64/exit.png" )
-				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnExitActionPerformed", true ) )
+				"font": #Font0
+				"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/64x64/newline.png" )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnEnterActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 5
 				"gridY": 13
-				"gridWidth": 3
 				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
+				"gridX": 7
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )

@@ -12,12 +12,14 @@ import com.jgoodies.forms.factories.DefaultComponentFactory;
 import com.jgoodies.forms.layout.FormLayout;
 import com.toedter.calendar.JDateChooser;
 import entity.*;
-import org.jdesktop.swingx.*;
+import org.jdesktop.swingx.JXSearchField;
+import org.jdesktop.swingx.JXTaskPane;
+import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.jdesktop.swingx.VerticalLayout;
+import org.jdesktop.swingx.prompt.PromptSupport;
 import org.pushingpixels.trident.Timeline;
 import printer.Form;
 import printer.Printer;
-import printer.TableModelHTMLConverter;
-import tablemodels.BuchungenTableModel;
 import tablemodels.VorratTableModel;
 import threads.PrintProcessor;
 import tools.Const;
@@ -28,15 +30,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.border.SoftBevelBorder;
-import javax.swing.event.*;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -47,12 +49,12 @@ import java.util.List;
  * @author Torsten Löhr
  */
 public class FrmVorrat extends javax.swing.JInternalFrame {
-
+    private JPopupMenu menu;
     private Object[] spaltenVorrat = new Object[]{"Vorrat Nr.", "Bezeichnung", "Lagerort", "Lieferant", "GTIN", "Eingangsmenge", "Restmenge", "Stoffart", "Warengruppe", "Eingang", "Anbruch", "Ausgang"};
     private Object[] spaltenBuchungen = new Object[]{"Datum", "Text", "Menge", "MitarbeiterIn"};
     private TableModelListener tml;
-    private double splitMainDL, splitLeftButtonsMainDL, splitLBMLeftDL, splitVorratDL;
-    private int vmode, bmode, laufendeVOperation;
+    //    private double splitMainDL, splitLeftButtonsMainDL, splitLBMLeftDL, splitVorratDL;
+//    private int vmode, bmode, laufendeVOperation;
     private Timeline textmessageTL;
 
     private Printer pageprinter, etiprinter1, etiprinter2;
@@ -63,22 +65,22 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
     private boolean initphase;
     //private final Color searchColor = new Color(255, 0, 51);
 
-    private ListSelectionListener vlsl, blsl;
+//    private ListSelectionListener vlsl, blsl;
 
     private Pair<Integer, Object> suche = null;
 
-    private final int MODE_VORRAT_BROWSE = 0;
-    private final int MODE_VORRAT_EDIT = 1;
-    private final int MODE_VORRAT_OTHER_OPERATION = 2;
-
-    private final int LAUFENDE_OPERATION_NICHTS = 0;
-    private final int LAUFENDE_OPERATION_LOESCHEN = 1;
-    private final int LAUFENDE_OPERATION_AUSBUCHEN = 2;
-    private final int LAUFENDE_OPERATION_REAKTIVIERUNG = 3;
-    private final int LAUFENDE_OPERATION_KORREKTUR = 4;
-
-    private final int MODE_BUCHUNG_INVISIBLE = 0;
-    private final int MODE_BUCHUNG_BROWSING = 1;
+//    private final int MODE_VORRAT_BROWSE = 0;
+//    private final int MODE_VORRAT_EDIT = 1;
+//    private final int MODE_VORRAT_OTHER_OPERATION = 2;
+//
+//    private final int LAUFENDE_OPERATION_NICHTS = 0;
+//    private final int LAUFENDE_OPERATION_LOESCHEN = 1;
+//    private final int LAUFENDE_OPERATION_AUSBUCHEN = 2;
+//    private final int LAUFENDE_OPERATION_REAKTIVIERUNG = 3;
+//    private final int LAUFENDE_OPERATION_KORREKTUR = 4;
+//
+//    private final int MODE_BUCHUNG_INVISIBLE = 0;
+//    private final int MODE_BUCHUNG_BROWSING = 1;
 
     public FrmVorrat() {
         initphase = true;
@@ -92,19 +94,19 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
     private void loadVorratTable() {
 
-        // Alle evtl. laufenden Edits werden sofort gecancelt.
-        if (vmode == MODE_VORRAT_EDIT) {
-            btnEditVorrat.setSelected(false);
-        }
-
-        if (laufendeVOperation != LAUFENDE_OPERATION_NICHTS) {
-            btnCancel1.doClick();
-        }
+//        // Alle evtl. laufenden Edits werden sofort gecancelt.
+//        if (vmode == MODE_VORRAT_EDIT) {
+//            btnEditVorrat.setSelected(false);
+//        }
+//
+//        if (laufendeVOperation != LAUFENDE_OPERATION_NICHTS) {
+//            btnCancel1.doClick();
+//        }
 
         //splitMainDividerLocation = Tools.showSide(splitMain, Tools.LEFT_UPPER_SIDE, 400);
         Query query = null;
 
-        Tools.resetBackground(pnlSuche);
+//        Tools.resetBackground(pnlSuche);
 
         String strQueryAddendum = "Alle";
         if (btnAktiv.isSelected()) {
@@ -168,12 +170,12 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
                 List list = query.getResultList();
 
-                if (!initphase) {
-                    tblVorrat.getSelectionModel().removeListSelectionListener(vlsl);
-                }
+//                if (!initphase) {
+//                    tblVorrat.getSelectionModel().removeListSelectionListener(vlsl);
+//                }
 
                 tblVorrat.setModel(new VorratTableModel(list, spaltenVorrat));
-                tblVorrat.getSelectionModel().addListSelectionListener(vlsl);
+//                tblVorrat.getSelectionModel().addListSelectionListener(vlsl);
 
                 TableRowSorter sorter = new TableRowSorter(tblVorrat.getModel());
                 sorter.setComparator(VorratTableModel.COL_LAGER, new Comparator<Lager>() {
@@ -190,12 +192,12 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
                 //btnDeleteVorrat.setEnabled(false);
                 //btnAusbuchen.setEnabled(false);
-                btnPrintEti1.setEnabled(false);
-                btnPrintEti2.setEnabled(false);
-                btnPageprinter.setEnabled(false);
-                btnEditVorrat.setEnabled(false);
-
-                btnShowRightSide.setEnabled(false);
+//                btnPrintEti1.setEnabled(false);
+//                btnPrintEti2.setEnabled(false);
+//                btnPageprinter.setEnabled(false);
+//                btnEditVorrat.setEnabled(false);
+//
+//                btnShowRightSide.setEnabled(false);
 
 
             }
@@ -206,41 +208,41 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
     }
 
     private void initBuchungenTable() {
-        if (btnShowRightSide.isSelected() && tblVorrat.getSelectedRow() >= 0) {
-
-//            // erst alte Eingabe rückgängig machen
-//            if (btnCancelBuchung.isEnabled()) {
-//                btnCancelBuchung.doClick();
+//        if (btnShowRightSide.isSelected() && tblVorrat.getSelectedRow() >= 0) {
+//
+////            // erst alte Eingabe rückgängig machen
+////            if (btnCancelBuchung.isEnabled()) {
+////                btnCancelBuchung.doClick();
+////            }
+//
+//            final Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getVorrat(tblVorrat.getSelectedRow());
+//            tblBuchungen.setModel(new BuchungenTableModel((List) vorrat.getBuchungenCollection(), spaltenBuchungen));
+//            //tblBuchungen.getColumnModel().getColumn(BuchungenTableModel.COL_DATUM).getCellEditor().getTableCellEditorComponent(tblVorrat, ui, isSelected, WIDTH, WIDTH);
+//
+//            tblBuchungen.setRowSorter(null);
+//            // Damit die Anzeige auf der anderen Seite aktualisiert wird.
+//            if (tml != null) {
+//                tblBuchungen.getModel().removeTableModelListener(tml);
 //            }
-
-            final Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getVorrat(tblVorrat.getSelectedRow());
-            tblBuchungen.setModel(new BuchungenTableModel((List) vorrat.getBuchungenCollection(), spaltenBuchungen));
-            //tblBuchungen.getColumnModel().getColumn(BuchungenTableModel.COL_DATUM).getCellEditor().getTableCellEditorComponent(tblVorrat, ui, isSelected, WIDTH, WIDTH);
-
-            tblBuchungen.setRowSorter(null);
-            // Damit die Anzeige auf der anderen Seite aktualisiert wird.
-            if (tml != null) {
-                tblBuchungen.getModel().removeTableModelListener(tml);
-            }
-            tml = new TableModelListener() {
-
-                public void tableChanged(TableModelEvent e) {
-                    // Summe in der Vorrat Tabelle korrigieren.
-                    EntityManager em = Main.getEMF().createEntityManager();
-                    javax.persistence.Query query = em.createNamedQuery("Vorrat.Buchungen.summeBestand");
-                    query.setParameter("vorrat", vorrat);
-                    ((Object[]) ((VorratTableModel) tblVorrat.getModel()).getData().get(tblVorrat.getSelectedRow()))[1] = (BigDecimal) query.getSingleResult();
-                    ((VorratTableModel) tblVorrat.getModel()).fireTableCellUpdated(tblVorrat.getSelectedRow(), VorratTableModel.COL_RESTMENGE);
-                    em.close();
-                }
-            };
-
-            tblBuchungen.getModel().addTableModelListener(tml);
-            //pnlBuchungenComponentResized(null);
-
-        } else {
-            tblBuchungen.setModel(new DefaultTableModel());
-        }
+//            tml = new TableModelListener() {
+//
+//                public void tableChanged(TableModelEvent e) {
+//                    // Summe in der Vorrat Tabelle korrigieren.
+//                    EntityManager em = Main.getEMF().createEntityManager();
+//                    javax.persistence.Query query = em.createNamedQuery("Vorrat.Buchungen.summeBestand");
+//                    query.setParameter("vorrat", vorrat);
+//                    ((Object[]) ((VorratTableModel) tblVorrat.getModel()).getData().get(tblVorrat.getSelectedRow()))[1] = (BigDecimal) query.getSingleResult();
+//                    ((VorratTableModel) tblVorrat.getModel()).fireTableCellUpdated(tblVorrat.getSelectedRow(), VorratTableModel.COL_RESTMENGE);
+//                    em.close();
+//                }
+//            };
+//
+//            tblBuchungen.getModel().addTableModelListener(tml);
+//            //pnlBuchungenComponentResized(null);
+//
+//        } else {
+//            tblBuchungen.setModel(new DefaultTableModel());
+//        }
 
 
     }
@@ -298,40 +300,6 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         Tools.packTable(tblVorrat, 0);
     }
 
-    private void pnlBuchungenComponentResized(ComponentEvent e) {
-        if (tblBuchungen.getRowCount() > 0) {
-            Dimension dim = pnlBuchungen.getSize();
-            int[] width = new int[]{86, 0, 70, 80};
-            int textWidth = dim.width - Tools.sum(width) - 10;
-            if (textWidth > 0) {
-                width[1] = textWidth;
-                Tools.setTableColumnPreferredWidth(tblBuchungen, width);
-            }
-        }
-    }
-
-    private void tblBuchungenPropertyChange(PropertyChangeEvent e) {
-//        if (e.getPropertyName().equalsIgnoreCase("model")) {
-//            btnAddBuchung.setEnabled(((TableModel) e.getNewValue()).getRowCount() > 0);
-//        }
-    }
-
-    private void btnAddBuchungActionPerformed(ActionEvent e) {
-        if (initphase) return;
-        ((BuchungenTableModel) tblBuchungen.getModel()).addEmptyRow();
-        btnAddBuchung.setEnabled(false);
-        btnSaveBuchung.setEnabled(true);
-        btnCancelBuchung.setEnabled(true);
-        tblBuchungen.editCellAt(tblBuchungen.getRowCount() - 1, 0);
-        Component editor = tblBuchungen.getEditorComponent();
-        ((JTextComponent) editor).selectAll();
-    }
-
-    private void btnPrintEti1ActionPerformed(ActionEvent e) {
-        print(etiprinter1, form1, Main.getProps().getProperty("etiprinter1"));
-
-    }
-
     private void print(Printer printer, Form form, String printername) {
 
         java.util.List<PrintListElement> printList = new ArrayList(tblVorrat.getRowCount());
@@ -350,29 +318,29 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
     }
 
-    private void btnSaveBuchungActionPerformed(ActionEvent e) {
-        if (initphase) return;
-        ((BuchungenTableModel) tblBuchungen.getModel()).saveRow(tblBuchungen.getRowCount() - 1);
-        btnAddBuchung.setEnabled(true);
-        btnSaveBuchung.setEnabled(false);
-        btnCancelBuchung.setEnabled(false);
-    }
-
-    private void btnCancelBuchungActionPerformed(ActionEvent e) {
-        if (initphase) return;
-        ((BuchungenTableModel) tblBuchungen.getModel()).cancelNewRow();
-        btnAddBuchung.setEnabled(true);
-        btnSaveBuchung.setEnabled(false);
-        btnCancelBuchung.setEnabled(false);
-    }
-
-    private void btnGesamtBestandActionPerformed(ActionEvent e) {
-        pnlZeit.setCollapsed(true);
-        pnlSpezial.setCollapsed(true);
-
-        splitMain.setDividerLocation(0);
-        //Tools.showSide(splitMain, splitMainDividerLocation, 3000);
-    }
+//    private void btnSaveBuchungActionPerformed(ActionEvent e) {
+//        if (initphase) return;
+//        ((BuchungenTableModel) tblBuchungen.getModel()).saveRow(tblBuchungen.getRowCount() - 1);
+//        btnAddBuchung.setEnabled(true);
+//        btnSaveBuchung.setEnabled(false);
+//        btnCancelBuchung.setEnabled(false);
+//    }
+//
+//    private void btnCancelBuchungActionPerformed(ActionEvent e) {
+//        if (initphase) return;
+//        ((BuchungenTableModel) tblBuchungen.getModel()).cancelNewRow();
+//        btnAddBuchung.setEnabled(true);
+//        btnSaveBuchung.setEnabled(false);
+//        btnCancelBuchung.setEnabled(false);
+//    }
+//
+//    private void btnGesamtBestandActionPerformed(ActionEvent e) {
+//        pnlZeit.setCollapsed(true);
+//        pnlSpezial.setCollapsed(true);
+//
+//        splitMain.setDividerLocation(0);
+//        //Tools.showSide(splitMain, splitMainDividerLocation, 3000);
+//    }
 
     private void thisComponentResized(ComponentEvent e) {
 
@@ -389,7 +357,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         cmbLieferant.setSelectedIndex(0);
         cmbWarengruppe.setSelectedIndex(0);
         txtSuchen.setText("");
-        pnlSpezial.setCollapsed(true);
+        tpSpezial.setCollapsed(true);
         initphase = false;
         suche = new Pair<Integer, Object>(Const.DATUM, jdcEinbuchen.getDate());
         loadVorratTable();
@@ -397,7 +365,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
     private void cmbWarengruppeItemStateChanged(ItemEvent e) {
         if (initphase) return;
-        pnlZeit.setCollapsed(true);
+        tpZeit.setCollapsed(true);
         if (e.getStateChange() == ItemEvent.SELECTED) {
             suche = new Pair<Integer, Object>(Const.WARENGRUPPE, cmbWarengruppe.getSelectedItem());
             loadVorratTable();
@@ -406,159 +374,159 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
     private void cmbLagerItemStateChanged(ItemEvent e) {
         if (initphase) return;
-        pnlZeit.setCollapsed(true);
+        tpZeit.setCollapsed(true);
         if (e.getStateChange() == ItemEvent.SELECTED) {
             suche = new Pair<Integer, Object>(Const.LAGER, cmbLager.getSelectedItem());
             loadVorratTable();
         }
     }
 
-    private void btnShowRightSideItemStateChanged(ItemEvent e) {
-        btnShowRightSide.setToolTipText(btnShowRightSide.isSelected() ? "Buchungen ausblenden" : "Buchungen einblenden");
-        splitMainDL = btnShowRightSide.isSelected() ? 0.65d : 1.0d;
-        Tools.showSide(splitMain, splitMainDL, 400);
-        initBuchungenTable();
-    }
+//    private void btnShowRightSideItemStateChanged(ItemEvent e) {
+//        btnShowRightSide.setToolTipText(btnShowRightSide.isSelected() ? "Buchungen ausblenden" : "Buchungen einblenden");
+//        splitMainDL = btnShowRightSide.isSelected() ? 0.65d : 1.0d;
+//        Tools.showSide(splitMain, splitMainDL, 400);
+//        initBuchungenTable();
+//    }
 
     private void cmbLieferantItemStateChanged(ItemEvent e) {
         if (initphase) return;
-        pnlZeit.setCollapsed(true);
+        tpZeit.setCollapsed(true);
         if (e.getStateChange() == ItemEvent.SELECTED) {
             suche = new Pair<Integer, Object>(Const.LIEFERANT, cmbLieferant.getSelectedItem());
             loadVorratTable();
         }
     }
 
-    private void splitLeftButtonsMainComponentResized(ComponentEvent e) {
-        splitLeftButtonsMain.setDividerLocation(splitLeftButtonsMainDL);
-    }
-
-    private void splitLBMLeftComponentResized(ComponentEvent e) {
-        splitLBMLeft.setDividerLocation(splitLBMLeftDL);
-    }
-
-    private void splitMainComponentResized(ComponentEvent e) {
-        splitMain.setDividerLocation(splitMainDL);
-    }
-
-    private void splitVorratComponentResized(ComponentEvent e) {
-        splitVorrat.setDividerLocation(splitVorratDL);
-    }
-
-    private void btnEditVorratItemStateChanged(ItemEvent e) {
-        if (btnEditVorrat.isSelected()) {
-            vmode = MODE_VORRAT_EDIT;
-            splitVorratDL = Tools.showSide(splitVorrat, 0.75d, 400);
-            splitLBMLeftDL = Tools.showSide(splitLBMLeft, Tools.RIGHT_LOWER_SIDE, 400);
-
-            if (tblVorrat.getSelectedRowCount() == 1) {
-                Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getVorrat(tblVorrat.getSelectedRow());
-                cmbVEditLager.setSelectedItem(vorrat.getLager());
-                cmbVEditLieferant.setSelectedItem(vorrat.getLieferant());
-            } else {
-                cmbVEditLager.setSelectedIndex(0);
-                cmbVEditLieferant.setSelectedIndex(0);
-            }
-
-        } else {
-            vmode = MODE_VORRAT_BROWSE;
-            splitVorratDL = Tools.showSide(splitVorrat, Tools.LEFT_UPPER_SIDE, 400);
-            splitLBMLeftDL = Tools.showSide(splitLBMLeft, Tools.LEFT_UPPER_SIDE, 400);
-        }
-    }
-
-    private void btnSaveVEditActionPerformed(ActionEvent e) {
-        int[] rows = tblVorrat.getSelectedRows();
-
-        for (int r = 0; r < rows.length; r++) {
-            int row = tblVorrat.convertRowIndexToModel(rows[r]);
-            Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getVorrat(row);
-            if (cmbVEditLager.getSelectedIndex() > 0) {
-                vorrat.setLager((Lager) cmbVEditLager.getSelectedItem());
-            }
-            if (cmbVEditLieferant.getSelectedIndex() > 0) {
-                vorrat.setLieferant((Lieferanten) cmbVEditLieferant.getSelectedItem());
-            }
-            EntityTools.merge(vorrat);
-        }
-
-        btnEditVorrat.setSelected(false);
-        loadVorratTable();
-    }
-
-    private void btnCancelVEditActionPerformed(ActionEvent e) {
-        btnEditVorrat.setSelected(false);
-    }
+//    private void splitLeftButtonsMainComponentResized(ComponentEvent e) {
+//        splitLeftButtonsMain.setDividerLocation(splitLeftButtonsMainDL);
+//    }
+//
+//    private void splitLBMLeftComponentResized(ComponentEvent e) {
+//        splitLBMLeft.setDividerLocation(splitLBMLeftDL);
+//    }
+//
+//    private void splitMainComponentResized(ComponentEvent e) {
+//        splitMain.setDividerLocation(splitMainDL);
+//    }
+//
+//    private void splitVorratComponentResized(ComponentEvent e) {
+//        splitVorrat.setDividerLocation(splitVorratDL);
+//    }
+//
+//    private void btnEditVorratItemStateChanged(ItemEvent e) {
+//        if (btnEditVorrat.isSelected()) {
+//            vmode = MODE_VORRAT_EDIT;
+//            splitVorratDL = Tools.showSide(splitVorrat, 0.75d, 400);
+//            splitLBMLeftDL = Tools.showSide(splitLBMLeft, Tools.RIGHT_LOWER_SIDE, 400);
+//
+//            if (tblVorrat.getSelectedRowCount() == 1) {
+//                Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getVorrat(tblVorrat.getSelectedRow());
+//                cmbVEditLager.setSelectedItem(vorrat.getLager());
+//                cmbVEditLieferant.setSelectedItem(vorrat.getLieferant());
+//            } else {
+//                cmbVEditLager.setSelectedIndex(0);
+//                cmbVEditLieferant.setSelectedIndex(0);
+//            }
+//
+//        } else {
+//            vmode = MODE_VORRAT_BROWSE;
+//            splitVorratDL = Tools.showSide(splitVorrat, Tools.LEFT_UPPER_SIDE, 400);
+//            splitLBMLeftDL = Tools.showSide(splitLBMLeft, Tools.LEFT_UPPER_SIDE, 400);
+//        }
+//    }
+//
+//    private void btnSaveVEditActionPerformed(ActionEvent e) {
+//        int[] rows = tblVorrat.getSelectedRows();
+//
+//        for (int r = 0; r < rows.length; r++) {
+//            int row = tblVorrat.convertRowIndexToModel(rows[r]);
+//            Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getVorrat(row);
+//            if (cmbVEditLager.getSelectedIndex() > 0) {
+//                vorrat.setLager((Lager) cmbVEditLager.getSelectedItem());
+//            }
+//            if (cmbVEditLieferant.getSelectedIndex() > 0) {
+//                vorrat.setLieferant((Lieferanten) cmbVEditLieferant.getSelectedItem());
+//            }
+//            EntityTools.merge(vorrat);
+//        }
+//
+//        btnEditVorrat.setSelected(false);
+//        loadVorratTable();
+//    }
+//
+//    private void btnCancelVEditActionPerformed(ActionEvent e) {
+//        btnEditVorrat.setSelected(false);
+//    }
 
     private void pnlWarenbestandComponentResized(ComponentEvent e) {
 
     }
 
-    private void btnDeleteVorratActionPerformed(ActionEvent e) {
-        laufendeVOperation = LAUFENDE_OPERATION_LOESCHEN;
-        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.RIGHT_LOWER_SIDE, 400);
-        showVEditMessage("markierte Vorräte wirklich löschen ?");
-    }
+//    private void btnDeleteVorratActionPerformed(ActionEvent e) {
+//        laufendeVOperation = LAUFENDE_OPERATION_LOESCHEN;
+//        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.RIGHT_LOWER_SIDE, 400);
+//        showVEditMessage("markierte Vorräte wirklich löschen ?");
+//    }
+//
+//    private void btnCancel1ActionPerformed(ActionEvent e) {
+//        textmessageTL.cancel();
+//        laufendeVOperation = LAUFENDE_OPERATION_NICHTS;
+//        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.LEFT_UPPER_SIDE, 400);
+//    }
 
-    private void btnCancel1ActionPerformed(ActionEvent e) {
-        textmessageTL.cancel();
-        laufendeVOperation = LAUFENDE_OPERATION_NICHTS;
-        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.LEFT_UPPER_SIDE, 400);
-    }
+//    private void btnApply1ActionPerformed(ActionEvent e) {
+//        int[] rows = tblVorrat.getSelectedRows();
+//
+//        EntityManager em = Main.getEMF().createEntityManager();
+//        try {
+//            em.getTransaction().begin();
+//            for (int r = 0; r < rows.length; r++) {
+//                // Diese Zeile ist sehr wichtig, da sie die Auswahl in der Tabelle bzgl. einer Umsortierung berücksichtigt.
+//                int row = tblVorrat.convertRowIndexToModel(rows[r]);
+//
+//                Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getVorrat(row);
+//                if (laufendeVOperation == LAUFENDE_OPERATION_LOESCHEN) {
+//                    Main.logger.info("DELETE VORRAT: " + vorrat.toString());
+//                    EntityTools.delete(vorrat);
+//                } else if (laufendeVOperation == LAUFENDE_OPERATION_AUSBUCHEN) {
+//                    Main.logger.info("AUSBUCHEN VORRAT: " + vorrat.toString());
+//                    VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
+//                } else if (laufendeVOperation == LAUFENDE_OPERATION_REAKTIVIERUNG) {
+//                    Main.logger.info("ZURÜCK BUCHEN VORRAT: " + vorrat.toString());
+//                    VorratTools.reaktivieren(em, vorrat);
+//                } else if (laufendeVOperation == LAUFENDE_OPERATION_KORREKTUR) {
+//                    Main.logger.info("ANFANGSBESTÄNDE KORRIGIEREN: " + vorrat.toString());
+//                    VorratTools.korregiereAnfangsbestand(em, vorrat);
+//                } else {
+//
+//                }
+//            }
+//            em.getTransaction().commit();
+//        } catch (Exception e1) {
+//            em.getTransaction().rollback();
+//        } finally {
+//            em.close();
+//        }
+//        laufendeVOperation = LAUFENDE_OPERATION_NICHTS;
+//        textmessageTL.cancel();
+//        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.LEFT_UPPER_SIDE, 400);
+//
+//        loadVorratTable();
+//    }
 
-    private void btnApply1ActionPerformed(ActionEvent e) {
-        int[] rows = tblVorrat.getSelectedRows();
-
-        EntityManager em = Main.getEMF().createEntityManager();
-        try {
-            em.getTransaction().begin();
-            for (int r = 0; r < rows.length; r++) {
-                // Diese Zeile ist sehr wichtig, da sie die Auswahl in der Tabelle bzgl. einer Umsortierung berücksichtigt.
-                int row = tblVorrat.convertRowIndexToModel(rows[r]);
-
-                Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getVorrat(row);
-                if (laufendeVOperation == LAUFENDE_OPERATION_LOESCHEN) {
-                    Main.logger.info("DELETE VORRAT: " + vorrat.toString());
-                    EntityTools.delete(vorrat);
-                } else if (laufendeVOperation == LAUFENDE_OPERATION_AUSBUCHEN) {
-                    Main.logger.info("AUSBUCHEN VORRAT: " + vorrat.toString());
-                    VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
-                } else if (laufendeVOperation == LAUFENDE_OPERATION_REAKTIVIERUNG) {
-                    Main.logger.info("ZURÜCK BUCHEN VORRAT: " + vorrat.toString());
-                    VorratTools.reaktivieren(em, vorrat);
-                } else if (laufendeVOperation == LAUFENDE_OPERATION_KORREKTUR) {
-                    Main.logger.info("ANFANGSBESTÄNDE KORRIGIEREN: " + vorrat.toString());
-                    VorratTools.korregiereAnfangsbestand(em, vorrat);
-                } else {
-
-                }
-            }
-            em.getTransaction().commit();
-        } catch (Exception e1) {
-            em.getTransaction().rollback();
-        } finally {
-            em.close();
-        }
-        laufendeVOperation = LAUFENDE_OPERATION_NICHTS;
-        textmessageTL.cancel();
-        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.LEFT_UPPER_SIDE, 400);
-
-        loadVorratTable();
-    }
-
-    private void btnAusbuchenActionPerformed(ActionEvent e) {
-        laufendeVOperation = LAUFENDE_OPERATION_AUSBUCHEN;
-        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.RIGHT_LOWER_SIDE, 400);
-        showVEditMessage("markierte Vorräte wirklich ausbuchen ?");
-    }
-
-    private void btnPrintEti2ActionPerformed(ActionEvent e) {
-        print(etiprinter2, form2, Main.getProps().getProperty("etiprinter2"));
-    }
-
-    private void btnPageprinterActionPerformed(ActionEvent e) {
-        print(pageprinter, null, Main.getProps().getProperty("pageprinter"));
-    }
+//    private void btnAusbuchenActionPerformed(ActionEvent e) {
+//        laufendeVOperation = LAUFENDE_OPERATION_AUSBUCHEN;
+//        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.RIGHT_LOWER_SIDE, 400);
+//        showVEditMessage("markierte Vorräte wirklich ausbuchen ?");
+//    }
+//
+//    private void btnPrintEti2ActionPerformed(ActionEvent e) {
+//        print(etiprinter2, form2, Main.getProps().getProperty("etiprinter2"));
+//    }
+//
+//    private void btnPageprinterActionPerformed(ActionEvent e) {
+//        print(pageprinter, null, Main.getProps().getProperty("pageprinter"));
+//    }
 
     private void txtSuchenActionPerformed(ActionEvent e) {
         suche = null;
@@ -606,7 +574,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         cmbLieferant.setSelectedIndex(0);
         cmbWarengruppe.setSelectedIndex(0);
         txtSuchen.setText("");
-        pnlZeit.setCollapsed(true);
+        tpZeit.setCollapsed(true);
         suche = null;
         initphase = false;
         loadVorratTable();
@@ -626,23 +594,23 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         }
     }
 
-    private void btnReopenActionPerformed(ActionEvent e) {
-        if (laufendeVOperation != LAUFENDE_OPERATION_NICHTS || !btnInaktiv.isSelected()) return;
-        laufendeVOperation = LAUFENDE_OPERATION_REAKTIVIERUNG;
-        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.RIGHT_LOWER_SIDE, 400);
-        showVEditMessage("markierte Vorräte wirklich zurückbuchen ?");
-    }
-
-    private void btnAnfangKorrigierenActionPerformed(ActionEvent e) {
-        if (laufendeVOperation != LAUFENDE_OPERATION_NICHTS) return;
-        laufendeVOperation = LAUFENDE_OPERATION_KORREKTUR;
-        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.RIGHT_LOWER_SIDE, 400);
-        showVEditMessage("markierte Vorräte wirklich korrigieren ?");
-    }
+//    private void btnReopenActionPerformed(ActionEvent e) {
+//        if (laufendeVOperation != LAUFENDE_OPERATION_NICHTS || !btnInaktiv.isSelected()) return;
+//        laufendeVOperation = LAUFENDE_OPERATION_REAKTIVIERUNG;
+//        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.RIGHT_LOWER_SIDE, 400);
+//        showVEditMessage("markierte Vorräte wirklich zurückbuchen ?");
+//    }
+//
+//    private void btnAnfangKorrigierenActionPerformed(ActionEvent e) {
+//        if (laufendeVOperation != LAUFENDE_OPERATION_NICHTS) return;
+//        laufendeVOperation = LAUFENDE_OPERATION_KORREKTUR;
+//        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.RIGHT_LOWER_SIDE, 400);
+//        showVEditMessage("markierte Vorräte wirklich korrigieren ?");
+//    }
 
     private void cmbLagerartItemStateChanged(ItemEvent e) {
         if (initphase) return;
-        pnlZeit.setCollapsed(true);
+        tpZeit.setCollapsed(true);
         if (e.getStateChange() == ItemEvent.SELECTED) {
             suche = new Pair<Integer, Object>(Const.LAGERART, (short) cmbLagerart.getSelectedIndex());
             loadVorratTable();
@@ -653,21 +621,182 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         btnSum.setText(btnSum.isSelected() ? "Restsummen anzeigen" : "Summe bei Einbuchung");
     }
 
+    private void tblVorratMousePressed(MouseEvent evt) {
+        Point p = evt.getPoint();
+        ListSelectionModel lsm = tblVorrat.getSelectionModel();
+        Point p2 = evt.getPoint();
+        SwingUtilities.convertPointToScreen(p2, tblVorrat);
+        final Point screenposition = p2;
+
+        boolean singleRowSelected = lsm.getMaxSelectionIndex() == lsm.getMinSelectionIndex();
+
+        final int row = tblVorrat.rowAtPoint(p);
+        final int col = tblVorrat.columnAtPoint(p);
+        if (singleRowSelected) {
+            lsm.setSelectionInterval(row, row);
+        }
+
+        final VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+
+        if (SwingUtilities.isRightMouseButton(evt)) {
+            DefaultComponentFactory compFactory = DefaultComponentFactory.getInstance();
+            Tools.unregisterListeners(menu);
+            menu = new JPopupMenu();
+
+            menu.add(compFactory.createSeparator("Operationen", SwingConstants.CENTER));
+            JMenuItem itemAusbuchen = new JMenuItem("Ausbuchen");
+            menu.add(itemAusbuchen);
+            JMenuItem itemLoeschen = new JMenuItem("Löschen");
+            menu.add(itemLoeschen);
+            JMenuItem itemWiederOeffnen = new JMenuItem("wieder öffnen");
+            menu.add(itemWiederOeffnen);
+            JMenuItem itemAnfangKorrektur = new JMenuItem("Anfangsbestände korrigieren");
+            menu.add(itemAnfangKorrektur);
+
+
+            menu.add(compFactory.createSeparator("Zuordnungen", SwingConstants.CENTER));
+            JMenu lager = new JMenu("Lager");
+            lager.add(new JMenuItem("Kühlhaus"));
+            lager.add(new JMenuItem("Truhe 1"));
+
+            menu.add(lager);
+
+
+            JMenu lieferanten = new JMenu("Lieferanten");
+            lieferanten.add(new JMenuItem("Sohnius"));
+            lieferanten.add(new JMenuItem("Aldi"));
+            menu.add(lieferanten);
+
+            menu.add(compFactory.createSeparator("Etiketten-Druck", SwingConstants.CENTER));
+
+            // Printer
+            JMenuItem itemPrinter1 = new JMenuItem("Drucker 1", Const.icon22labelPrinter2);
+            itemPrinter1.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    print(etiprinter1, form1, Main.getProps().getProperty("etiprinter1"));
+                }
+            });
+            menu.add(itemPrinter1);
+
+            JMenuItem itemPrinter2 = new JMenuItem("Drucker 2", Const.icon22labelPrinter2);
+            itemPrinter2.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    print(etiprinter2, form2, Main.getProps().getProperty("etiprinter2"));
+                }
+            });
+            menu.add(itemPrinter2);
+
+            JMenuItem itemPrinter3 = new JMenuItem("Seitendrucker", Const.icon22Pageprinter);
+            itemPrinter3.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    print(pageprinter, null, Main.getProps().getProperty("pageprinter"));
+                }
+            });
+            menu.add(itemPrinter3);
+
+
+//            if (col == TMSYSFiles.COL_DESCRIPTION && OPDE.getAppInfo().isAllowedTo(InternalClassACL.UPDATE, internalClassID)) {
+//
+//                final JMenuItem itemPopupEdit = new JMenuItem(OPDE.lang.getString("misc.commands.edit"), SYSConst.icon22edit3);
+//                itemPopupEdit.addActionListener(new java.awt.event.ActionListener() {
+//                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+//
+//                        final JidePopup popup = new JidePopup();
+//                        popup.setMovable(false);
+//                        popup.getContentPane().setLayout(new BoxLayout(popup.getContentPane(), BoxLayout.LINE_AXIS));
+//
+//                        final JComponent editor = new JTextArea(sysfile.getBeschreibung(), 10, 40);
+//                        ((JTextArea) editor).setLineWrap(true);
+//                        ((JTextArea) editor).setWrapStyleWord(true);
+//                        ((JTextArea) editor).setEditable(true);
+//
+//                        popup.getContentPane().add(new JScrollPane(editor));
+//                        final JButton saveButton = new JButton(SYSConst.icon22apply);
+//                        saveButton.addActionListener(new ActionListener() {
+//                            @Override
+//                            public void actionPerformed(ActionEvent actionEvent) {
+//                                EntityManager em = OPDE.createEM();
+//                                try {
+//                                    em.getTransaction().begin();
+//                                    popup.hidePopup();
+//                                    SYSFiles mySysfile = em.merge(sysfile);
+//                                    mySysfile.setBeschreibung(((JTextArea) editor).getText().trim());
+//                                    em.getTransaction().commit();
+//                                    tm.setSYSFile(row, mySysfile);
+//                                } catch (Exception e) {
+//                                    em.getTransaction().rollback();
+//                                    OPDE.fatal(e);
+//                                } finally {
+//                                    em.close();
+//                                }
+//
+//                            }
+//                        });
+//
+//                        saveButton.setHorizontalAlignment(SwingConstants.RIGHT);
+//                        JPanel pnl = new JPanel(new BorderLayout(10, 10));
+//                        JScrollPane pnlEditor = new JScrollPane(editor);
+//
+//                        pnl.add(pnlEditor, BorderLayout.CENTER);
+//                        JPanel buttonPanel = new JPanel();
+//                        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+//                        buttonPanel.add(saveButton);
+//                        pnl.setBorder(new EmptyBorder(10, 10, 10, 10));
+//                        pnl.add(buttonPanel, BorderLayout.SOUTH);
+//
+//                        popup.setOwner(tblFiles);
+//                        popup.removeExcludedComponent(tblFiles);
+//                        popup.getContentPane().add(pnl);
+//                        popup.setDefaultFocusComponent(editor);
+//
+//                        popup.showPopup(screenposition.x, screenposition.y);
+//
+//                    }
+//                });
+//                menu.add(itemPopupEdit);
+//            }
+
+
+//            if (OPDE.getAppInfo().isAllowedTo(InternalClassACL.DELETE, internalClassID)) {
+//                JMenuItem itemPopupDelete = new JMenuItem(OPDE.lang.getString("misc.commands.delete"), SYSConst.icon22delete);
+//                itemPopupDelete.addActionListener(new java.awt.event.ActionListener() {
+//
+//                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+//
+//                        new DlgYesNo(OPDE.lang.getString("misc.questions.delete1") + "<br/><b>" + sysfile.getFilename() + "</b><br/>" + OPDE.lang.getString("misc.questions.delete2"), new ImageIcon(getClass().getResource("/artwork/48x48/bw/trashcan_empty.png")), new Closure() {
+//                            @Override
+//                            public void execute(Object o) {
+//                                if (o.equals(JOptionPane.YES_OPTION)) {
+//                                    SYSFilesTools.deleteFile(sysfile);
+//                                    reloadTable();
+//                                }
+//                            }
+//                        });
+//
+//                    }
+//                });
+//                menu.add(itemPopupDelete);
+//                itemPopupDelete.setEnabled(singleRowSelected);
+//            }
+
+            menu.show(evt.getComponent(), (int) p.getX(), (int) p.getY());
+        }
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         DefaultComponentFactory compFactory = DefaultComponentFactory.getInstance();
         pnlMain = new JPanel();
-        pnlSuche = new JPanel();
-        jspSuche = new JScrollPane();
-        tskSuche = new JXTaskPaneContainer();
+        jspSearch = new JScrollPane();
+        tpcSearch = new JXTaskPaneContainer();
         separator1 = compFactory.createSeparator("Suchen", SwingConstants.CENTER);
-        pnlGesamt = new JXTaskPane();
+        tpGesamt = new JXTaskPane();
         btnAktiv = new JToggleButton();
         btnInaktiv = new JToggleButton();
         btnGesamt = new JToggleButton();
-        pnlZeit = new JXTaskPane();
+        tpZeit = new JXTaskPane();
         jdcEinbuchen = new JDateChooser();
-        pnlSpezial = new JXTaskPane();
+        tpSpezial = new JXTaskPane();
         cmbWarengruppe = new JComboBox();
         cmbLager = new JComboBox();
         cmbLagerart = new JComboBox();
@@ -675,47 +804,10 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         txtSuchen = new JXSearchField();
         btnSum = new JToggleButton();
         btnNoFilter = new JButton();
-        separator2 = compFactory.createSeparator("Befehle", SwingConstants.CENTER);
-        pnlMisc = new JXTaskPane();
-        splitMain = new JSplitPane();
         pnlWarenbestand = new JPanel();
         lblWarenbestand = new JLabel();
-        splitVorrat = new JSplitPane();
         pnlVorrat = new JScrollPane();
         tblVorrat = new JTable();
-        panel1 = new JPanel();
-        cmbVEditLager = new JComboBox();
-        cmbVEditLieferant = new JComboBox();
-        btnDeleteVorrat = new JButton();
-        btnAusbuchen = new JButton();
-        btnReopen = new JButton();
-        btnAnfangKorrigieren = new JButton();
-        splitLeftButtonsMain = new JSplitPane();
-        splitLBMLeft = new JSplitPane();
-        pnlLBVorgangOps = new JPanel();
-        btnEditVorrat = new JToggleButton();
-        btnPrintEti1 = new JButton();
-        btnPrintEti2 = new JButton();
-        btnPageprinter = new JButton();
-        hSpacer1 = new JPanel(null);
-        btnShowRightSide = new JToggleButton();
-        pnlLBMLower = new JPanel();
-        btnSaveVEdit = new JButton();
-        btnCancelVEdit = new JButton();
-        pnlLBMYesNo = new JPanel();
-        btnApply1 = new JXButton();
-        hSpacer2 = new JPanel(null);
-        lblApply1 = new JLabel();
-        hSpacer3 = new JPanel(null);
-        btnCancel1 = new JButton();
-        pnlEinzelbuchung = new JPanel();
-        jLabel2 = new JLabel();
-        pnlBuchungen = new JScrollPane();
-        tblBuchungen = new JTable();
-        pnlRightButtons = new JPanel();
-        btnAddBuchung = new JButton();
-        btnSaveBuchung = new JButton();
-        btnCancelBuchung = new JButton();
 
         //======== this ========
         setClosable(true);
@@ -734,643 +826,235 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         //======== pnlMain ========
         {
             pnlMain.setBorder(new SoftBevelBorder(SoftBevelBorder.RAISED));
+            pnlMain.setLayout(new FormLayout(
+                    "default, $lcgap, default:grow",
+                    "fill:default:grow"));
 
-            //======== pnlSuche ========
+            //======== jspSearch ========
             {
 
-                //======== jspSuche ========
+                //======== tpcSearch ========
                 {
+                    tpcSearch.add(separator1);
 
-                    //======== tskSuche ========
+                    //======== tpGesamt ========
                     {
-                        tskSuche.setPaintBorderInsets(false);
-                        tskSuche.setOpaque(false);
-                        tskSuche.add(separator1);
+                        tpGesamt.setTitle("Vorratauswahl");
+                        tpGesamt.setLayout(new VerticalLayout(10));
 
-                        //======== pnlGesamt ========
-                        {
-                            pnlGesamt.setTitle("Vorratsauswahl");
-                            Container pnlGesamtContentPane = pnlGesamt.getContentPane();
-                            pnlGesamtContentPane.setLayout(new VerticalLayout(10));
+                        //---- btnAktiv ----
+                        btnAktiv.setText("Aktive");
+                        btnAktiv.setSelected(true);
+                        btnAktiv.addItemListener(new ItemListener() {
+                            @Override
+                            public void itemStateChanged(ItemEvent e) {
+                                btnAuswahlItemStateChanged(e);
+                            }
+                        });
+                        tpGesamt.add(btnAktiv);
 
-                            //---- btnAktiv ----
-                            btnAktiv.setText("Aktive");
-                            btnAktiv.setSelected(true);
-                            btnAktiv.addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    btnAuswahlItemStateChanged(e);
-                                }
-                            });
-                            pnlGesamtContentPane.add(btnAktiv);
+                        //---- btnInaktiv ----
+                        btnInaktiv.setText("Ausgebuchte ");
+                        btnInaktiv.addItemListener(new ItemListener() {
+                            @Override
+                            public void itemStateChanged(ItemEvent e) {
+                                btnAuswahlItemStateChanged(e);
+                            }
+                        });
+                        tpGesamt.add(btnInaktiv);
 
-                            //---- btnInaktiv ----
-                            btnInaktiv.setText("Ausgebuchte ");
-                            btnInaktiv.addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    btnAuswahlItemStateChanged(e);
-                                }
-                            });
-                            pnlGesamtContentPane.add(btnInaktiv);
+                        //---- btnGesamt ----
+                        btnGesamt.setText("Alle");
+                        btnGesamt.addItemListener(new ItemListener() {
+                            @Override
+                            public void itemStateChanged(ItemEvent e) {
+                                btnAuswahlItemStateChanged(e);
+                            }
+                        });
+                        tpGesamt.add(btnGesamt);
+                    }
+                    tpcSearch.add(tpGesamt);
 
-                            //---- btnGesamt ----
-                            btnGesamt.setText("Alle");
-                            btnGesamt.addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    btnAuswahlItemStateChanged(e);
-                                }
-                            });
-                            pnlGesamtContentPane.add(btnGesamt);
-                        }
-                        tskSuche.add(pnlGesamt);
+                    //======== tpZeit ========
+                    {
+                        tpZeit.setTitle("Einbuchung");
+                        tpZeit.setLayout(new VerticalLayout(10));
 
-                        //======== pnlZeit ========
-                        {
-                            pnlZeit.setTitle("nach Einbuchungszeit");
-                            pnlZeit.addPropertyChangeListener("collapsed", new PropertyChangeListener() {
-                                @Override
-                                public void propertyChange(PropertyChangeEvent e) {
-                                    pnlZeitPropertyChange(e);
-                                }
-                            });
-                            Container pnlZeitContentPane = pnlZeit.getContentPane();
-                            pnlZeitContentPane.setLayout(new VerticalLayout(10));
+                        //---- jdcEinbuchen ----
+                        jdcEinbuchen.setToolTipText("nach Einbuchungsdatum");
+                        jdcEinbuchen.addPropertyChangeListener("date", new PropertyChangeListener() {
+                            @Override
+                            public void propertyChange(PropertyChangeEvent e) {
+                                jdcEinbuchenPropertyChange(e);
+                            }
+                        });
+                        tpZeit.add(jdcEinbuchen);
+                    }
+                    tpcSearch.add(tpZeit);
 
-                            //---- jdcEinbuchen ----
-                            jdcEinbuchen.setToolTipText("nach Einbuchungsdatum");
-                            jdcEinbuchen.addPropertyChangeListener("date", new PropertyChangeListener() {
-                                @Override
-                                public void propertyChange(PropertyChangeEvent e) {
-                                    jdcEinbuchenPropertyChange(e);
-                                }
-                            });
-                            pnlZeitContentPane.add(jdcEinbuchen);
-                        }
-                        tskSuche.add(pnlZeit);
+                    //======== tpSpezial ========
+                    {
+                        tpSpezial.setTitle("andere Kriterien");
+                        tpSpezial.setLayout(new VerticalLayout(10));
 
-                        //======== pnlSpezial ========
-                        {
-                            pnlSpezial.setTitle("nach anderen Kriterien");
-                            pnlSpezial.setCollapsed(true);
-                            Container pnlSpezialContentPane = pnlSpezial.getContentPane();
-                            pnlSpezialContentPane.setLayout(new VerticalLayout(10));
-
-                            //---- cmbWarengruppe ----
-                            cmbWarengruppe.setModel(new DefaultComboBoxModel(new String[] {
+                        //---- cmbWarengruppe ----
+                        cmbWarengruppe.setModel(new DefaultComboBoxModel(new String[]{
                                 "nach Warengruppe",
                                 "Gefl\u00fcgel"
-                            }));
-                            cmbWarengruppe.addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    cmbWarengruppeItemStateChanged(e);
-                                }
-                            });
-                            pnlSpezialContentPane.add(cmbWarengruppe);
+                        }));
+                        cmbWarengruppe.addItemListener(new ItemListener() {
+                            @Override
+                            public void itemStateChanged(ItemEvent e) {
+                                cmbWarengruppeItemStateChanged(e);
+                            }
+                        });
+                        tpSpezial.add(cmbWarengruppe);
 
-                            //---- cmbLager ----
-                            cmbLager.setModel(new DefaultComboBoxModel(new String[] {
+                        //---- cmbLager ----
+                        cmbLager.setModel(new DefaultComboBoxModel(new String[]{
                                 "<html><i>nach Lager</i></html>",
                                 "Lager 1"
-                            }));
-                            cmbLager.addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    cmbLagerItemStateChanged(e);
-                                }
-                            });
-                            pnlSpezialContentPane.add(cmbLager);
+                        }));
+                        cmbLager.addItemListener(new ItemListener() {
+                            @Override
+                            public void itemStateChanged(ItemEvent e) {
+                                cmbLagerItemStateChanged(e);
+                            }
+                        });
+                        tpSpezial.add(cmbLager);
 
-                            //---- cmbLagerart ----
-                            cmbLagerart.addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    cmbLagerartItemStateChanged(e);
-                                }
-                            });
-                            pnlSpezialContentPane.add(cmbLagerart);
+                        //---- cmbLagerart ----
+                        cmbLagerart.addItemListener(new ItemListener() {
+                            @Override
+                            public void itemStateChanged(ItemEvent e) {
+                                cmbLagerartItemStateChanged(e);
+                            }
+                        });
+                        tpSpezial.add(cmbLagerart);
 
-                            //---- cmbLieferant ----
-                            cmbLieferant.addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    cmbLieferantItemStateChanged(e);
-                                }
-                            });
-                            pnlSpezialContentPane.add(cmbLieferant);
+                        //---- cmbLieferant ----
+                        cmbLieferant.addItemListener(new ItemListener() {
+                            @Override
+                            public void itemStateChanged(ItemEvent e) {
+                                cmbLieferantItemStateChanged(e);
+                            }
+                        });
+                        tpSpezial.add(cmbLieferant);
 
-                            //---- txtSuchen ----
-                            txtSuchen.setToolTipText("Suchen1");
-                            txtSuchen.setPrompt("nach Text, GTIN, Bestand");
-                            txtSuchen.setFocusBehavior(org.jdesktop.swingx.prompt.PromptSupport.FocusBehavior.HIGHLIGHT_PROMPT);
-                            txtSuchen.setSearchMode(org.jdesktop.swingx.JXSearchField.SearchMode.REGULAR);
-                            txtSuchen.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    txtSuchenActionPerformed(e);
-                                }
-                            });
-                            txtSuchen.addCaretListener(new CaretListener() {
-                                @Override
-                                public void caretUpdate(CaretEvent e) {
-                                    txtSuchenCaretUpdate(e);
-                                }
-                            });
-                            pnlSpezialContentPane.add(txtSuchen);
+                        //---- txtSuchen ----
+                        txtSuchen.setToolTipText("Suchen1");
+                        txtSuchen.setPrompt("nach Text, GTIN, Bestand");
+                        txtSuchen.setFocusBehavior(PromptSupport.FocusBehavior.HIGHLIGHT_PROMPT);
+                        txtSuchen.setSearchMode(JXSearchField.SearchMode.REGULAR);
+                        txtSuchen.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                txtSuchenActionPerformed(e);
+                            }
+                        });
+                        txtSuchen.addCaretListener(new CaretListener() {
+                            @Override
+                            public void caretUpdate(CaretEvent e) {
+                                txtSuchenCaretUpdate(e);
+                            }
+                        });
+                        tpSpezial.add(txtSuchen);
 
-                            //---- btnSum ----
-                            btnSum.setText("Restsummen anzeigen");
-                            btnSum.setSelected(true);
-                            btnSum.addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    btnSumItemStateChanged(e);
-                                }
-                            });
-                            pnlSpezialContentPane.add(btnSum);
+                        //---- btnSum ----
+                        btnSum.setText("Restsummen anzeigen");
+                        btnSum.setSelected(true);
+                        btnSum.addItemListener(new ItemListener() {
+                            @Override
+                            public void itemStateChanged(ItemEvent e) {
+                                btnSumItemStateChanged(e);
+                            }
+                        });
+                        tpSpezial.add(btnSum);
 
-                            //---- btnNoFilter ----
-                            btnNoFilter.setText("ohne Einschr\u00e4nkung");
-                            btnNoFilter.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btnNoFilterActionPerformed(e);
-                                }
-                            });
-                            pnlSpezialContentPane.add(btnNoFilter);
-                        }
-                        tskSuche.add(pnlSpezial);
-                        tskSuche.add(separator2);
-
-                        //======== pnlMisc ========
-                        {
-                            pnlMisc.setSpecial(true);
-                            pnlMisc.setTitle("Verschiedenes");
-                            Container pnlMiscContentPane = pnlMisc.getContentPane();
-                            pnlMiscContentPane.setLayout(new BoxLayout(pnlMiscContentPane, BoxLayout.X_AXIS));
-                        }
-                        tskSuche.add(pnlMisc);
+                        //---- btnNoFilter ----
+                        btnNoFilter.setText("ohne Einschr\u00e4nkung");
+                        btnNoFilter.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                btnNoFilterActionPerformed(e);
+                            }
+                        });
+                        tpSpezial.add(btnNoFilter);
                     }
-                    jspSuche.setViewportView(tskSuche);
+                    tpcSearch.add(tpSpezial);
                 }
-
-                GroupLayout pnlSucheLayout = new GroupLayout(pnlSuche);
-                pnlSuche.setLayout(pnlSucheLayout);
-                pnlSucheLayout.setHorizontalGroup(
-                    pnlSucheLayout.createParallelGroup()
-                        .addComponent(jspSuche, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
-                );
-                pnlSucheLayout.setVerticalGroup(
-                    pnlSucheLayout.createParallelGroup()
-                        .addComponent(jspSuche, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 658, Short.MAX_VALUE)
-                );
+                jspSearch.setViewportView(tpcSearch);
             }
+            pnlMain.add(jspSearch, CC.xy(1, 1));
 
-            //======== splitMain ========
+            //======== pnlWarenbestand ========
             {
-                splitMain.setDividerLocation(700);
-                splitMain.setEnabled(false);
-                splitMain.addComponentListener(new ComponentAdapter() {
+                pnlWarenbestand.addComponentListener(new ComponentAdapter() {
                     @Override
                     public void componentResized(ComponentEvent e) {
-                        splitMainComponentResized(e);
+                        pnlWarenbestandComponentResized(e);
                     }
                 });
+                pnlWarenbestand.setLayout(new FormLayout(
+                        "left:default:grow",
+                        "fill:default, fill:default:grow"));
 
-                //======== pnlWarenbestand ========
+                //---- lblWarenbestand ----
+                lblWarenbestand.setBackground(Color.blue);
+                lblWarenbestand.setFont(new Font("Lucida Grande", Font.BOLD, 18));
+                lblWarenbestand.setForeground(Color.white);
+                lblWarenbestand.setHorizontalAlignment(SwingConstants.CENTER);
+                lblWarenbestand.setText("Warenbestand");
+                lblWarenbestand.setOpaque(true);
+                pnlWarenbestand.add(lblWarenbestand, CC.xy(1, 1, CC.FILL, CC.DEFAULT));
+
+                //======== pnlVorrat ========
                 {
-                    pnlWarenbestand.addComponentListener(new ComponentAdapter() {
+                    pnlVorrat.setPreferredSize(new Dimension(454, 500));
+                    pnlVorrat.addComponentListener(new ComponentAdapter() {
                         @Override
                         public void componentResized(ComponentEvent e) {
-                            pnlWarenbestandComponentResized(e);
+                            pnlVorratComponentResized(e);
                         }
                     });
 
-                    //---- lblWarenbestand ----
-                    lblWarenbestand.setBackground(Color.blue);
-                    lblWarenbestand.setFont(new Font("Lucida Grande", Font.BOLD, 18));
-                    lblWarenbestand.setForeground(Color.white);
-                    lblWarenbestand.setHorizontalAlignment(SwingConstants.CENTER);
-                    lblWarenbestand.setText("Warenbestand");
-                    lblWarenbestand.setOpaque(true);
-
-                    //======== splitVorrat ========
-                    {
-                        splitVorrat.setOrientation(JSplitPane.VERTICAL_SPLIT);
-                        splitVorrat.setEnabled(false);
-                        splitVorrat.setDividerSize(1);
-                        splitVorrat.setDividerLocation(250);
-                        splitVorrat.addComponentListener(new ComponentAdapter() {
-                            @Override
-                            public void componentResized(ComponentEvent e) {
-                                splitVorratComponentResized(e);
-                            }
-                        });
-
-                        //======== pnlVorrat ========
-                        {
-                            pnlVorrat.setPreferredSize(new Dimension(454, 500));
-                            pnlVorrat.addComponentListener(new ComponentAdapter() {
-                                @Override
-                                public void componentResized(ComponentEvent e) {
-                                    pnlVorratComponentResized(e);
-                                }
-                            });
-
-                            //---- tblVorrat ----
-                            tblVorrat.setModel(new DefaultTableModel(
-                                new Object[][] {
+                    //---- tblVorrat ----
+                    tblVorrat.setModel(new DefaultTableModel(
+                            new Object[][]{
                                     {null, null, null, null},
                                     {null, null, null, null},
                                     {null, null, null, null},
                                     {null, null, null, null},
-                                },
-                                new String[] {
-                                    "Title 1", "Title 2", "Title 3", "Title 4"
-                                }
-                            ));
-                            tblVorrat.setAutoCreateRowSorter(true);
-                            tblVorrat.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-                            tblVorrat.setRowHeight(20);
-                            pnlVorrat.setViewportView(tblVorrat);
-                        }
-                        splitVorrat.setTopComponent(pnlVorrat);
-
-                        //======== panel1 ========
-                        {
-                            panel1.setPreferredSize(new Dimension(70, 80));
-                            panel1.setLayout(new FormLayout(
-                                "$rgap, 2*(default:grow, $lcgap), $rgap",
-                                "2*($rgap, fill:20dlu), $lgap, 20dlu"));
-                            ((FormLayout)panel1.getLayout()).setColumnGroups(new int[][] {{2, 4}});
-
-                            //---- cmbVEditLager ----
-                            cmbVEditLager.setFont(new Font("sansserif", Font.PLAIN, 18));
-                            panel1.add(cmbVEditLager, CC.xy(2, 2));
-
-                            //---- cmbVEditLieferant ----
-                            cmbVEditLieferant.setFont(new Font("sansserif", Font.PLAIN, 18));
-                            panel1.add(cmbVEditLieferant, CC.xy(4, 2));
-
-                            //---- btnDeleteVorrat ----
-                            btnDeleteVorrat.setIcon(null);
-                            btnDeleteVorrat.setEnabled(false);
-                            btnDeleteVorrat.setText("l\u00f6schen");
-                            btnDeleteVorrat.setFont(new Font("sansserif", Font.PLAIN, 18));
-                            btnDeleteVorrat.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btnDeleteVorratActionPerformed(e);
-                                }
-                            });
-                            panel1.add(btnDeleteVorrat, CC.xy(2, 4));
-
-                            //---- btnAusbuchen ----
-                            btnAusbuchen.setIcon(null);
-                            btnAusbuchen.setText("ausbuchen");
-                            btnAusbuchen.setFont(new Font("sansserif", Font.PLAIN, 18));
-                            btnAusbuchen.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btnAusbuchenActionPerformed(e);
-                                }
-                            });
-                            panel1.add(btnAusbuchen, CC.xy(4, 4));
-
-                            //---- btnReopen ----
-                            btnReopen.setText("wieder \u00f6ffnen");
-                            btnReopen.setFont(new Font("sansserif", Font.PLAIN, 18));
-                            btnReopen.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btnReopenActionPerformed(e);
-                                }
-                            });
-                            panel1.add(btnReopen, CC.xy(2, 6));
-
-                            //---- btnAnfangKorrigieren ----
-                            btnAnfangKorrigieren.setText("Anfangsbest\u00e4nde korrigieren");
-                            btnAnfangKorrigieren.setFont(new Font("sansserif", Font.PLAIN, 18));
-                            btnAnfangKorrigieren.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btnAnfangKorrigierenActionPerformed(e);
-                                }
-                            });
-                            panel1.add(btnAnfangKorrigieren, CC.xy(4, 6));
-                        }
-                        splitVorrat.setBottomComponent(panel1);
-                    }
-
-                    //======== splitLeftButtonsMain ========
-                    {
-                        splitLeftButtonsMain.setPreferredSize(new Dimension(491, 45));
-                        splitLeftButtonsMain.setEnabled(false);
-                        splitLeftButtonsMain.setDividerSize(1);
-                        splitLeftButtonsMain.setDividerLocation(400);
-                        splitLeftButtonsMain.addComponentListener(new ComponentAdapter() {
-                            @Override
-                            public void componentResized(ComponentEvent e) {
-                                splitLeftButtonsMainComponentResized(e);
-                            }
-                        });
-
-                        //======== splitLBMLeft ========
-                        {
-                            splitLBMLeft.setOrientation(JSplitPane.VERTICAL_SPLIT);
-                            splitLBMLeft.setDividerSize(1);
-                            splitLBMLeft.setEnabled(false);
-                            splitLBMLeft.setDividerLocation(40);
-                            splitLBMLeft.addComponentListener(new ComponentAdapter() {
-                                @Override
-                                public void componentResized(ComponentEvent e) {
-                                    splitLBMLeftComponentResized(e);
-                                }
-                            });
-
-                            //======== pnlLBVorgangOps ========
-                            {
-                                pnlLBVorgangOps.setMinimumSize(new Dimension(0, 0));
-                                pnlLBVorgangOps.setLayout(new BoxLayout(pnlLBVorgangOps, BoxLayout.X_AXIS));
-
-                                //---- btnEditVorrat ----
-                                btnEditVorrat.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit.png")));
-                                btnEditVorrat.setEnabled(false);
-                                btnEditVorrat.addItemListener(new ItemListener() {
-                                    @Override
-                                    public void itemStateChanged(ItemEvent e) {
-                                        btnEditVorratItemStateChanged(e);
-                                    }
-                                });
-                                pnlLBVorgangOps.add(btnEditVorrat);
-
-                                //---- btnPrintEti1 ----
-                                btnPrintEti1.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/labelprinter2.png")));
-                                btnPrintEti1.setToolTipText("Drucken auf Etikett 1");
-                                btnPrintEti1.setEnabled(false);
-                                btnPrintEti1.setText("1");
-                                btnPrintEti1.setFont(new Font("sansserif", Font.BOLD, 18));
-                                btnPrintEti1.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        btnPrintEti1ActionPerformed(e);
-                                    }
-                                });
-                                pnlLBVorgangOps.add(btnPrintEti1);
-
-                                //---- btnPrintEti2 ----
-                                btnPrintEti2.setText("2");
-                                btnPrintEti2.setFont(new Font("sansserif", Font.BOLD, 18));
-                                btnPrintEti2.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/labelprinter2.png")));
-                                btnPrintEti2.setToolTipText("Drucken auf Etikett 2");
-                                btnPrintEti2.setEnabled(false);
-                                btnPrintEti2.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        btnPrintEti2ActionPerformed(e);
-                                    }
-                                });
-                                pnlLBVorgangOps.add(btnPrintEti2);
-
-                                //---- btnPageprinter ----
-                                btnPageprinter.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/printer.png")));
-                                btnPageprinter.setToolTipText("DIN A4 Vorratszettel drucken");
-                                btnPageprinter.setEnabled(false);
-                                btnPageprinter.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        btnPageprinterActionPerformed(e);
-                                    }
-                                });
-                                pnlLBVorgangOps.add(btnPageprinter);
-                                pnlLBVorgangOps.add(hSpacer1);
-
-                                //---- btnShowRightSide ----
-                                btnShowRightSide.setToolTipText("Buchungen einblenden");
-                                btnShowRightSide.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/2leftarrow.png")));
-                                btnShowRightSide.setSelectedIcon(new ImageIcon(getClass().getResource("/artwork/24x24/2rightarrow.png")));
-                                btnShowRightSide.setRolloverEnabled(false);
-                                btnShowRightSide.setEnabled(false);
-                                btnShowRightSide.addItemListener(new ItemListener() {
-                                    @Override
-                                    public void itemStateChanged(ItemEvent e) {
-                                        btnShowRightSideItemStateChanged(e);
-                                    }
-                                });
-                                pnlLBVorgangOps.add(btnShowRightSide);
-                            }
-                            splitLBMLeft.setTopComponent(pnlLBVorgangOps);
-
-                            //======== pnlLBMLower ========
-                            {
-                                pnlLBMLower.setLayout(new BoxLayout(pnlLBMLower, BoxLayout.X_AXIS));
-
-                                //---- btnSaveVEdit ----
-                                btnSaveVEdit.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/filesave3.png")));
-                                btnSaveVEdit.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        btnSaveVEditActionPerformed(e);
-                                    }
-                                });
-                                pnlLBMLower.add(btnSaveVEdit);
-
-                                //---- btnCancelVEdit ----
-                                btnCancelVEdit.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/cancel.png")));
-                                btnCancelVEdit.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
-                                        btnCancelVEditActionPerformed(e);
-                                    }
-                                });
-                                pnlLBMLower.add(btnCancelVEdit);
-                            }
-                            splitLBMLeft.setBottomComponent(pnlLBMLower);
-                        }
-                        splitLeftButtonsMain.setLeftComponent(splitLBMLeft);
-
-                        //======== pnlLBMYesNo ========
-                        {
-                            pnlLBMYesNo.setLayout(new BoxLayout(pnlLBMYesNo, BoxLayout.X_AXIS));
-
-                            //---- btnApply1 ----
-                            btnApply1.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/ok.png")));
-                            btnApply1.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btnApply1ActionPerformed(e);
-                                }
-                            });
-                            pnlLBMYesNo.add(btnApply1);
-                            pnlLBMYesNo.add(hSpacer2);
-
-                            //---- lblApply1 ----
-                            lblApply1.setText("text");
-                            lblApply1.setFont(new Font("sansserif", Font.PLAIN, 26));
-                            pnlLBMYesNo.add(lblApply1);
-                            pnlLBMYesNo.add(hSpacer3);
-
-                            //---- btnCancel1 ----
-                            btnCancel1.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/cancel.png")));
-                            btnCancel1.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btnCancel1ActionPerformed(e);
-                                }
-                            });
-                            pnlLBMYesNo.add(btnCancel1);
-                        }
-                        splitLeftButtonsMain.setRightComponent(pnlLBMYesNo);
-                    }
-
-                    GroupLayout pnlWarenbestandLayout = new GroupLayout(pnlWarenbestand);
-                    pnlWarenbestand.setLayout(pnlWarenbestandLayout);
-                    pnlWarenbestandLayout.setHorizontalGroup(
-                        pnlWarenbestandLayout.createParallelGroup()
-                            .addComponent(lblWarenbestand, GroupLayout.DEFAULT_SIZE, 623, Short.MAX_VALUE)
-                            .addComponent(splitVorrat, GroupLayout.DEFAULT_SIZE, 623, Short.MAX_VALUE)
-                            .addComponent(splitLeftButtonsMain, GroupLayout.DEFAULT_SIZE, 623, Short.MAX_VALUE)
-                    );
-                    pnlWarenbestandLayout.setVerticalGroup(
-                        pnlWarenbestandLayout.createParallelGroup()
-                            .addGroup(pnlWarenbestandLayout.createSequentialGroup()
-                                .addComponent(lblWarenbestand)
-                                .addComponent(splitVorrat)
-                                .addComponent(splitLeftButtonsMain, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addGap(6, 6, 6))
-                    );
-                }
-                splitMain.setLeftComponent(pnlWarenbestand);
-
-                //======== pnlEinzelbuchung ========
-                {
-
-                    //---- jLabel2 ----
-                    jLabel2.setBackground(Color.green);
-                    jLabel2.setFont(new Font("Lucida Grande", Font.BOLD, 18));
-                    jLabel2.setHorizontalAlignment(SwingConstants.CENTER);
-                    jLabel2.setText("Einzelbuchungen");
-                    jLabel2.setOpaque(true);
-
-                    //======== pnlBuchungen ========
-                    {
-                        pnlBuchungen.addComponentListener(new ComponentAdapter() {
-                            @Override
-                            public void componentResized(ComponentEvent e) {
-                                pnlBuchungenComponentResized(e);
-                            }
-                        });
-
-                        //---- tblBuchungen ----
-                        tblBuchungen.setModel(new DefaultTableModel(
-                            new Object[][] {
-                                {null, null, null, null},
-                                {null, null, null, null},
-                                {null, null, null, null},
-                                {null, null, null, null},
                             },
-                            new String[] {
-                                "Title 1", "Title 2", "Title 3", "Title 4"
+                            new String[]{
+                                    "Title 1", "Title 2", "Title 3", "Title 4"
                             }
-                        ));
-                        tblBuchungen.setAutoCreateRowSorter(true);
-                        tblBuchungen.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-                        tblBuchungen.addPropertyChangeListener(new PropertyChangeListener() {
-                            @Override
-                            public void propertyChange(PropertyChangeEvent e) {
-                                tblBuchungenPropertyChange(e);
-                            }
-                        });
-                        pnlBuchungen.setViewportView(tblBuchungen);
-                    }
-
-                    //======== pnlRightButtons ========
-                    {
-                        pnlRightButtons.setMinimumSize(new Dimension(0, 0));
-                        pnlRightButtons.setLayout(new BoxLayout(pnlRightButtons, BoxLayout.X_AXIS));
-
-                        //---- btnAddBuchung ----
-                        btnAddBuchung.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit_add.png")));
-                        btnAddBuchung.setEnabled(false);
-                        btnAddBuchung.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                btnAddBuchungActionPerformed(e);
-                            }
-                        });
-                        pnlRightButtons.add(btnAddBuchung);
-
-                        //---- btnSaveBuchung ----
-                        btnSaveBuchung.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/ok.png")));
-                        btnSaveBuchung.setEnabled(false);
-                        btnSaveBuchung.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                btnSaveBuchungActionPerformed(e);
-                            }
-                        });
-                        pnlRightButtons.add(btnSaveBuchung);
-
-                        //---- btnCancelBuchung ----
-                        btnCancelBuchung.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/cancel.png")));
-                        btnCancelBuchung.setEnabled(false);
-                        btnCancelBuchung.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                btnCancelBuchungActionPerformed(e);
-                            }
-                        });
-                        pnlRightButtons.add(btnCancelBuchung);
-                    }
-
-                    GroupLayout pnlEinzelbuchungLayout = new GroupLayout(pnlEinzelbuchung);
-                    pnlEinzelbuchung.setLayout(pnlEinzelbuchungLayout);
-                    pnlEinzelbuchungLayout.setHorizontalGroup(
-                        pnlEinzelbuchungLayout.createParallelGroup()
-                            .addComponent(jLabel2, GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
-                            .addComponent(pnlBuchungen, GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
-                            .addComponent(pnlRightButtons, GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
-                    );
-                    pnlEinzelbuchungLayout.setVerticalGroup(
-                        pnlEinzelbuchungLayout.createParallelGroup()
-                            .addGroup(pnlEinzelbuchungLayout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(pnlBuchungen, GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(pnlRightButtons, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                    );
+                    ));
+                    tblVorrat.setAutoCreateRowSorter(true);
+                    tblVorrat.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                    tblVorrat.setRowHeight(20);
+                    tblVorrat.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            tblVorratMousePressed(e);
+                        }
+                    });
+                    pnlVorrat.setViewportView(tblVorrat);
                 }
-                splitMain.setRightComponent(pnlEinzelbuchung);
+                pnlWarenbestand.add(pnlVorrat, CC.xy(1, 2, CC.FILL, CC.FILL));
             }
-
-            GroupLayout pnlMainLayout = new GroupLayout(pnlMain);
-            pnlMain.setLayout(pnlMainLayout);
-            pnlMainLayout.setHorizontalGroup(
-                pnlMainLayout.createParallelGroup()
-                    .addGroup(pnlMainLayout.createSequentialGroup()
-                        .addComponent(pnlSuche, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(splitMain, GroupLayout.DEFAULT_SIZE, 803, Short.MAX_VALUE))
-            );
-            pnlMainLayout.setVerticalGroup(
-                pnlMainLayout.createParallelGroup()
-                    .addComponent(pnlSuche, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(splitMain, GroupLayout.DEFAULT_SIZE, 658, Short.MAX_VALUE)
-            );
+            pnlMain.add(pnlWarenbestand, CC.xy(3, 1));
         }
 
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
-            contentPaneLayout.createParallelGroup()
-                .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                contentPaneLayout.createParallelGroup()
+                        .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 1313, Short.MAX_VALUE)
         );
         contentPaneLayout.setVerticalGroup(
-            contentPaneLayout.createParallelGroup()
-                .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                contentPaneLayout.createParallelGroup()
+                        .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 671, Short.MAX_VALUE)
         );
 
         //---- buttonGroup1 ----
@@ -1389,18 +1073,18 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         loadTimeSearches();
 
 
-        pnlMisc.add(new AbstractAction() {
-            {
-                putValue(Action.NAME, "Liste drucken");
-                putValue(Action.SMALL_ICON, new ImageIcon(getClass().getResource("/artwork/24x24/printer.png")));
-                putValue(Action.SHORT_DESCRIPTION, "Druckt eine Gesamtliste der markierten VorrÃ¤te");
-            }
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Main.printers.print(thisComponent, TableModelHTMLConverter.convert(tblVorrat), false);
-            }
-        });
+//        pnlMisc.add(new AbstractAction() {
+//            {
+//                putValue(Action.NAME, "Liste drucken");
+//                putValue(Action.SMALL_ICON, new ImageIcon(getClass().getResource("/artwork/24x24/printer.png")));
+//                putValue(Action.SHORT_DESCRIPTION, "Druckt eine Gesamtliste der markierten VorrÃ¤te");
+//            }
+//
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                Main.printers.print(thisComponent, TableModelHTMLConverter.convert(tblVorrat), false);
+//            }
+//        });
 
     }
 
@@ -1416,7 +1100,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
             final Date day = Tools.addDate(new Date(), -days);
 
-            pnlZeit.add(new AbstractAction() {
+            tpZeit.add(new AbstractAction() {
                 {
                     String dayname = "";
                     if (d == 0) {
@@ -1452,41 +1136,41 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         form1 = etiprinter1.getForms().get(Main.getProps().getProperty("etiform1"));
         form2 = etiprinter2.getForms().get(Main.getProps().getProperty("etiform2"));
 
-        laufendeVOperation = LAUFENDE_OPERATION_NICHTS;
-
-        vmode = MODE_VORRAT_BROWSE;
-        bmode = MODE_BUCHUNG_INVISIBLE;
-
-        vlsl = new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    // wenn nur eine Zeile gewählt wurde,
-                    // dann kann die rechte Seite mit den Einzelbuchungen angezeigt werden.
-
-                    int rowcount = tblVorrat.getSelectedRowCount();
-
-                    if (btnEditVorrat.isSelected()) {
-                        btnCancelVEdit.doClick();
-                    }
-
-                    // btnDeleteVorrat.setEnabled(rowcount > 0);
-                    //btnAusbuchen.setEnabled(rowcount > 0);
-                    btnPrintEti1.setEnabled(rowcount > 0);
-                    btnPrintEti2.setEnabled(rowcount > 0);
-                    btnPageprinter.setEnabled(rowcount > 0);
-                    btnEditVorrat.setEnabled(rowcount > 0);
-
-//                    if (rowcount <= 1 && btnShowRightSide.isSelected()) {
-//                        btnShowRightSide.setSelected(false);
+//        laufendeVOperation = LAUFENDE_OPERATION_NICHTS;
+//
+//        vmode = MODE_VORRAT_BROWSE;
+//        bmode = MODE_BUCHUNG_INVISIBLE;
+//
+//        vlsl = new ListSelectionListener() {
+//            @Override
+//            public void valueChanged(ListSelectionEvent e) {
+//                if (!e.getValueIsAdjusting()) {
+//                    // wenn nur eine Zeile gewählt wurde,
+//                    // dann kann die rechte Seite mit den Einzelbuchungen angezeigt werden.
+//
+//                    int rowcount = tblVorrat.getSelectedRowCount();
+//
+//                    if (btnEditVorrat.isSelected()) {
+//                        btnCancelVEdit.doClick();
 //                    }
-
-                    //btnShowRightSide.setEnabled(false);
-                    //btnShowRightSide.setEnabled(rowcount == 1);
-
-                }
-            }
-        };
+//
+//                    // btnDeleteVorrat.setEnabled(rowcount > 0);
+//                    //btnAusbuchen.setEnabled(rowcount > 0);
+//                    btnPrintEti1.setEnabled(rowcount > 0);
+//                    btnPrintEti2.setEnabled(rowcount > 0);
+//                    btnPageprinter.setEnabled(rowcount > 0);
+//                    btnEditVorrat.setEnabled(rowcount > 0);
+//
+////                    if (rowcount <= 1 && btnShowRightSide.isSelected()) {
+////                        btnShowRightSide.setSelected(false);
+////                    }
+//
+//                    //btnShowRightSide.setEnabled(false);
+//                    //btnShowRightSide.setEnabled(rowcount == 1);
+//
+//                }
+//            }
+//        };
 
         prepareSearchArea();
         loadVorratTable();
@@ -1494,10 +1178,6 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
         loadCMB4Edit();
 
-        setDividerTo(1.0d);
-        splitLBMLeftDL = 1.0d;
-        splitLeftButtonsMainDL = 1.0d;
-        splitVorratDL = 1.0d;
 
         //btnPrintLabels.setEnabled(Main.props.containsKey("labelPrinter") && Main.props.containsKey("receiptPrinter"));
 
@@ -1507,57 +1187,43 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
     }
 
     private void loadCMB4Edit() {
-        EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Lager.findAllSorted");
-        try {
-            java.util.List lager = query.getResultList();
-            lager.add(0, "<html><i>ändern Lager</i></html>");
-            cmbVEditLager.setModel(tools.Tools.newComboboxModel(lager));
-        } catch (Exception e) { // nicht gefunden
-            //
-        } finally {
-            em.close();
-        }
-        em = Main.getEMF().createEntityManager();
-        query = em.createNamedQuery("Lieferanten.findAllSorted");
-        try {
-            java.util.List lieferant = query.getResultList();
-            lieferant.add(0, "<html><i>ändern Lieferant</i></html>");
-            cmbVEditLieferant.setModel(tools.Tools.newComboboxModel(lieferant));
-        } catch (Exception e) { // nicht gefunden
-            //
-        } finally {
-            em.close();
-        }
+//        EntityManager em = Main.getEMF().createEntityManager();
+//        Query query = em.createNamedQuery("Lager.findAllSorted");
+//        try {
+//            java.util.List lager = query.getResultList();
+//            lager.add(0, "<html><i>ändern Lager</i></html>");
+//            cmbVEditLager.setModel(tools.Tools.newComboboxModel(lager));
+//        } catch (Exception e) { // nicht gefunden
+//            //
+//        } finally {
+//            em.close();
+//        }
+//        em = Main.getEMF().createEntityManager();
+//        query = em.createNamedQuery("Lieferanten.findAllSorted");
+//        try {
+//            java.util.List lieferant = query.getResultList();
+//            lieferant.add(0, "<html><i>ändern Lieferant</i></html>");
+//            cmbVEditLieferant.setModel(tools.Tools.newComboboxModel(lieferant));
+//        } catch (Exception e) { // nicht gefunden
+//            //
+//        } finally {
+//            em.close();
+//        }
     }
 
-    private void setDividerTo(double d) {
-        splitMainDL = d;
-        splitMain.setDividerLocation(splitMainDL);
-    }
-
-    private void showVEditMessage(String text) {
-        lblApply1.setText(text);
-        textmessageTL = new Timeline(lblApply1);
-        textmessageTL.addPropertyToInterpolate("foreground", lblApply1.getForeground(), Color.red);
-        textmessageTL.setDuration(600);
-        textmessageTL.playLoop(Timeline.RepeatBehavior.REVERSE);
-
-    }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     private JPanel pnlMain;
-    private JPanel pnlSuche;
-    private JScrollPane jspSuche;
-    private JXTaskPaneContainer tskSuche;
+    private JScrollPane jspSearch;
+    private JXTaskPaneContainer tpcSearch;
     private JComponent separator1;
-    private JXTaskPane pnlGesamt;
+    private JXTaskPane tpGesamt;
     private JToggleButton btnAktiv;
     private JToggleButton btnInaktiv;
     private JToggleButton btnGesamt;
-    private JXTaskPane pnlZeit;
+    private JXTaskPane tpZeit;
     private JDateChooser jdcEinbuchen;
-    private JXTaskPane pnlSpezial;
+    private JXTaskPane tpSpezial;
     private JComboBox cmbWarengruppe;
     private JComboBox cmbLager;
     private JComboBox cmbLagerart;
@@ -1565,46 +1231,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
     private JXSearchField txtSuchen;
     private JToggleButton btnSum;
     private JButton btnNoFilter;
-    private JComponent separator2;
-    private JXTaskPane pnlMisc;
-    private JSplitPane splitMain;
     private JPanel pnlWarenbestand;
     private JLabel lblWarenbestand;
-    private JSplitPane splitVorrat;
     private JScrollPane pnlVorrat;
     private JTable tblVorrat;
-    private JPanel panel1;
-    private JComboBox cmbVEditLager;
-    private JComboBox cmbVEditLieferant;
-    private JButton btnDeleteVorrat;
-    private JButton btnAusbuchen;
-    private JButton btnReopen;
-    private JButton btnAnfangKorrigieren;
-    private JSplitPane splitLeftButtonsMain;
-    private JSplitPane splitLBMLeft;
-    private JPanel pnlLBVorgangOps;
-    private JToggleButton btnEditVorrat;
-    private JButton btnPrintEti1;
-    private JButton btnPrintEti2;
-    private JButton btnPageprinter;
-    private JPanel hSpacer1;
-    private JToggleButton btnShowRightSide;
-    private JPanel pnlLBMLower;
-    private JButton btnSaveVEdit;
-    private JButton btnCancelVEdit;
-    private JPanel pnlLBMYesNo;
-    private JXButton btnApply1;
-    private JPanel hSpacer2;
-    private JLabel lblApply1;
-    private JPanel hSpacer3;
-    private JButton btnCancel1;
-    private JPanel pnlEinzelbuchung;
-    private JLabel jLabel2;
-    private JScrollPane pnlBuchungen;
-    private JTable tblBuchungen;
-    private JPanel pnlRightButtons;
-    private JButton btnAddBuchung;
-    private JButton btnSaveBuchung;
-    private JButton btnCancelBuchung;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

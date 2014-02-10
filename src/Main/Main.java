@@ -5,6 +5,7 @@ package Main;
  * and open the template in the editor.
  */
 
+import com.jidesoft.utils.Lm;
 import desktop.FrmDesktop;
 import entity.Mitarbeiter;
 import org.apache.commons.cli.*;
@@ -62,6 +63,8 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
+
+        Lm.verifyLicense("Torsten Loehr", "Open-Pflege.de", "G9F4JW:Bm44t62pqLzp5woAD4OCSUAr2");
 
         currentUser = null;
         mode = UNKNOWN;
