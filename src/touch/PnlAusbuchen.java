@@ -76,7 +76,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
                         em = Main.getEMF().createEntityManager();
                         try {
                             em.getTransaction().begin();
-                            VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
+                            VorratTools.ausbuchen(em, vorrat, "Abschlussbuchung");
                             em.getTransaction().commit();
                             Tools.log(txtLog, "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" komplett ausgebucht");
                             sp.bell();
@@ -121,7 +121,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         EntityManager em = Main.getEMF().createEntityManager();
         try {
             em.getTransaction().begin();
-            VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
+            VorratTools.ausbuchen(em, vorrat, "Abschlussbuchung");
             em.getTransaction().commit();
             Tools.log(txtLog, "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" komplett ausgebucht");
             sp.bell();
@@ -161,7 +161,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         EntityManager em = Main.getEMF().createEntityManager();
         try {
             em.getTransaction().begin();
-            VorratTools.ausbuchen(vorrat, menge.divide(new BigDecimal(2)), "Ausbuchung Hälfte");
+            VorratTools.ausbuchen(em, vorrat, menge.divide(new BigDecimal(2)), "Ausbuchung Hälfte");
             em.getTransaction().commit();
             Tools.log(txtLog, "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" zur Hälfte ausgebucht");
             sp.bell();
@@ -179,7 +179,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         EntityManager em = Main.getEMF().createEntityManager();
         try {
             em.getTransaction().begin();
-            VorratTools.ausbuchen(vorrat, menge, "Ausbuchung");
+            VorratTools.ausbuchen(em, vorrat, menge, "Ausbuchung");
             String message = "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" " + menge + " " + lblEinheit.getText() + " ausgebucht.";
             message += vorrat.isAusgebucht() ? " Vorrat damit abgeschlossen." : "";
             sp.bell();
@@ -268,8 +268,8 @@ public class PnlAusbuchen extends DefaultTouchPanel {
 
         //======== this ========
         setLayout(new FormLayout(
-                "default, $lcgap, default:grow, $lcgap, default, $lcgap, pref, $lcgap, default",
-                "default, 4*($lgap, fill:50dlu), $lgap, fill:default:grow, $lgap, fill:50dlu, $lgap, default"));
+            "default, $lcgap, default:grow, $lcgap, default, $lcgap, pref, $lcgap, default",
+            "default, 4*($lgap, fill:50dlu), $lgap, fill:default:grow, $lgap, fill:50dlu, $lgap, default"));
 
         //---- txtSearch ----
         txtSearch.setFont(new Font("sansserif", Font.BOLD, 36));

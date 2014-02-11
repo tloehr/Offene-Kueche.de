@@ -131,7 +131,26 @@ public class Const {
     public static final int LAGERART = 13;
 
 
-    public static final Icon icon22Pageprinter = new ImageIcon(Const.class.getResource("/artwork/24x24/printer.png"));
-    public static final Icon icon22labelPrinter2 = new ImageIcon(Const.class.getResource("/artwork/24x24/labelprinter2.png"));
+    public static final Icon icon24truck = new ImageIcon(Const.class.getResource("/artwork/24x24/truck.png"));
+    public static final Icon icon24box = new ImageIcon(Const.class.getResource("/artwork/24x24/ark.png"));
+    public static final Icon icon242rightarrow = new ImageIcon(Const.class.getResource("/artwork/24x24/2rightarrow.png"));
+    public static final Icon icon24reload = new ImageIcon(Const.class.getResource("/artwork/24x24/reload.png"));
+    public static final Icon icon24remove = new ImageIcon(Const.class.getResource("/artwork/24x24/editdelete.png"));
+    public static final Icon icon24stop = new ImageIcon(Const.class.getResource("/artwork/24x24/player_stop.png"));
+    public static final Icon icon24undo = new ImageIcon(Const.class.getResource("/artwork/24x24/undo.png"));
+    public static final Icon icon24start = new ImageIcon(Const.class.getResource("/artwork/24x24/player_start.png"));
+    public static final Icon icon24games = new ImageIcon(Const.class.getResource("/artwork/24x24/games.png"));
+    public static final Icon icon24Pageprinter = new ImageIcon(Const.class.getResource("/artwork/24x24/printer.png"));
+    public static final Icon icon24labelPrinter2 = new ImageIcon(Const.class.getResource("/artwork/24x24/labelprinter2.png"));
+
+    public static final Icon icon48box = new ImageIcon(Const.class.getResource("/artwork/48x48/ark.png"));
+    public static final Icon icon48remove = new ImageIcon(Const.class.getResource("/artwork/48x48/editdelete.png"));
+    public static final Icon icon48stop = new ImageIcon(Const.class.getResource("/artwork/48x48/player_stop.png"));
+    public static final Icon icon48undo = new ImageIcon(Const.class.getResource("/artwork/48x48/undo.png"));
+    public static final Icon icon48start = new ImageIcon(Const.class.getResource("/artwork/48x48/player_start.png"));
+
+
+    public static final Icon icon48games = new ImageIcon(Const.class.getResource("/artwork/48x48/games.png"));
+    public static final Icon icon64games = new ImageIcon(Const.class.getResource("/artwork/64x64/games.png"));
 
 }

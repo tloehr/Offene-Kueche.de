@@ -17,7 +17,6 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
 import org.jdesktop.swingx.prompt.PromptSupport;
-import org.pushingpixels.trident.Timeline;
 import printer.Form;
 import printer.Printer;
 import tablemodels.VorratTableModel;
@@ -32,7 +31,6 @@ import javax.swing.*;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
@@ -52,10 +50,6 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
     private JPopupMenu menu;
     private Object[] spaltenVorrat = new Object[]{"Vorrat Nr.", "Bezeichnung", "Lagerort", "Lieferant", "GTIN", "Eingangsmenge", "Restmenge", "Stoffart", "Warengruppe", "Eingang", "Anbruch", "Ausgang"};
     private Object[] spaltenBuchungen = new Object[]{"Datum", "Text", "Menge", "MitarbeiterIn"};
-    private TableModelListener tml;
-    //    private double splitMainDL, splitLeftButtonsMainDL, splitLBMLeftDL, splitVorratDL;
-//    private int vmode, bmode, laufendeVOperation;
-    private Timeline textmessageTL;
 
     private Printer pageprinter, etiprinter1, etiprinter2;
     private Form form1, form2;
@@ -63,24 +57,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
     private JComponent thisComponent;
 
     private boolean initphase;
-    //private final Color searchColor = new Color(255, 0, 51);
-
-//    private ListSelectionListener vlsl, blsl;
 
     private Pair<Integer, Object> suche = null;
 
-//    private final int MODE_VORRAT_BROWSE = 0;
-//    private final int MODE_VORRAT_EDIT = 1;
-//    private final int MODE_VORRAT_OTHER_OPERATION = 2;
-//
-//    private final int LAUFENDE_OPERATION_NICHTS = 0;
-//    private final int LAUFENDE_OPERATION_LOESCHEN = 1;
-//    private final int LAUFENDE_OPERATION_AUSBUCHEN = 2;
-//    private final int LAUFENDE_OPERATION_REAKTIVIERUNG = 3;
-//    private final int LAUFENDE_OPERATION_KORREKTUR = 4;
-//
-//    private final int MODE_BUCHUNG_INVISIBLE = 0;
-//    private final int MODE_BUCHUNG_BROWSING = 1;
 
     public FrmVorrat() {
         initphase = true;
@@ -290,13 +269,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
     }
 
     private void pnlVorratComponentResized(ComponentEvent e) {
-//        Dimension dim = pnlVorrat.getSize();
-//        int[] width = new int[]{70, 0, 215, 215, 100, 60, 60, 110, 110, 90, 90, 90};
-//        int textWidth = dim.width - Tools.sum(width) - 10;
-//        if (textWidth > 0) {
-//            width[VorratTableModel.COL_BEZEICHNUNG] = textWidth;
-//            Tools.setTableColumnPreferredWidth(tblVorrat, width);
-//        }
+
         Tools.packTable(tblVorrat, 0);
     }
 
@@ -318,36 +291,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
     }
 
-//    private void btnSaveBuchungActionPerformed(ActionEvent e) {
-//        if (initphase) return;
-//        ((BuchungenTableModel) tblBuchungen.getModel()).saveRow(tblBuchungen.getRowCount() - 1);
-//        btnAddBuchung.setEnabled(true);
-//        btnSaveBuchung.setEnabled(false);
-//        btnCancelBuchung.setEnabled(false);
-//    }
-//
-//    private void btnCancelBuchungActionPerformed(ActionEvent e) {
-//        if (initphase) return;
-//        ((BuchungenTableModel) tblBuchungen.getModel()).cancelNewRow();
-//        btnAddBuchung.setEnabled(true);
-//        btnSaveBuchung.setEnabled(false);
-//        btnCancelBuchung.setEnabled(false);
-//    }
-//
-//    private void btnGesamtBestandActionPerformed(ActionEvent e) {
-//        pnlZeit.setCollapsed(true);
-//        pnlSpezial.setCollapsed(true);
-//
-//        splitMain.setDividerLocation(0);
-//        //Tools.showSide(splitMain, splitMainDividerLocation, 3000);
-//    }
 
     private void thisComponentResized(ComponentEvent e) {
 
-    }
-
-    private void pnlZeitPropertyChange(PropertyChangeEvent e) {
-        Main.debug(e.getPropertyName());
     }
 
     private void jdcEinbuchenPropertyChange(PropertyChangeEvent e) {
@@ -381,13 +327,6 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         }
     }
 
-//    private void btnShowRightSideItemStateChanged(ItemEvent e) {
-//        btnShowRightSide.setToolTipText(btnShowRightSide.isSelected() ? "Buchungen ausblenden" : "Buchungen einblenden");
-//        splitMainDL = btnShowRightSide.isSelected() ? 0.65d : 1.0d;
-//        Tools.showSide(splitMain, splitMainDL, 400);
-//        initBuchungenTable();
-//    }
-
     private void cmbLieferantItemStateChanged(ItemEvent e) {
         if (initphase) return;
         tpZeit.setCollapsed(true);
@@ -397,136 +336,6 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         }
     }
 
-//    private void splitLeftButtonsMainComponentResized(ComponentEvent e) {
-//        splitLeftButtonsMain.setDividerLocation(splitLeftButtonsMainDL);
-//    }
-//
-//    private void splitLBMLeftComponentResized(ComponentEvent e) {
-//        splitLBMLeft.setDividerLocation(splitLBMLeftDL);
-//    }
-//
-//    private void splitMainComponentResized(ComponentEvent e) {
-//        splitMain.setDividerLocation(splitMainDL);
-//    }
-//
-//    private void splitVorratComponentResized(ComponentEvent e) {
-//        splitVorrat.setDividerLocation(splitVorratDL);
-//    }
-//
-//    private void btnEditVorratItemStateChanged(ItemEvent e) {
-//        if (btnEditVorrat.isSelected()) {
-//            vmode = MODE_VORRAT_EDIT;
-//            splitVorratDL = Tools.showSide(splitVorrat, 0.75d, 400);
-//            splitLBMLeftDL = Tools.showSide(splitLBMLeft, Tools.RIGHT_LOWER_SIDE, 400);
-//
-//            if (tblVorrat.getSelectedRowCount() == 1) {
-//                Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getVorrat(tblVorrat.getSelectedRow());
-//                cmbVEditLager.setSelectedItem(vorrat.getLager());
-//                cmbVEditLieferant.setSelectedItem(vorrat.getLieferant());
-//            } else {
-//                cmbVEditLager.setSelectedIndex(0);
-//                cmbVEditLieferant.setSelectedIndex(0);
-//            }
-//
-//        } else {
-//            vmode = MODE_VORRAT_BROWSE;
-//            splitVorratDL = Tools.showSide(splitVorrat, Tools.LEFT_UPPER_SIDE, 400);
-//            splitLBMLeftDL = Tools.showSide(splitLBMLeft, Tools.LEFT_UPPER_SIDE, 400);
-//        }
-//    }
-//
-//    private void btnSaveVEditActionPerformed(ActionEvent e) {
-//        int[] rows = tblVorrat.getSelectedRows();
-//
-//        for (int r = 0; r < rows.length; r++) {
-//            int row = tblVorrat.convertRowIndexToModel(rows[r]);
-//            Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getVorrat(row);
-//            if (cmbVEditLager.getSelectedIndex() > 0) {
-//                vorrat.setLager((Lager) cmbVEditLager.getSelectedItem());
-//            }
-//            if (cmbVEditLieferant.getSelectedIndex() > 0) {
-//                vorrat.setLieferant((Lieferanten) cmbVEditLieferant.getSelectedItem());
-//            }
-//            EntityTools.merge(vorrat);
-//        }
-//
-//        btnEditVorrat.setSelected(false);
-//        loadVorratTable();
-//    }
-//
-//    private void btnCancelVEditActionPerformed(ActionEvent e) {
-//        btnEditVorrat.setSelected(false);
-//    }
-
-    private void pnlWarenbestandComponentResized(ComponentEvent e) {
-
-    }
-
-//    private void btnDeleteVorratActionPerformed(ActionEvent e) {
-//        laufendeVOperation = LAUFENDE_OPERATION_LOESCHEN;
-//        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.RIGHT_LOWER_SIDE, 400);
-//        showVEditMessage("markierte Vorräte wirklich löschen ?");
-//    }
-//
-//    private void btnCancel1ActionPerformed(ActionEvent e) {
-//        textmessageTL.cancel();
-//        laufendeVOperation = LAUFENDE_OPERATION_NICHTS;
-//        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.LEFT_UPPER_SIDE, 400);
-//    }
-
-//    private void btnApply1ActionPerformed(ActionEvent e) {
-//        int[] rows = tblVorrat.getSelectedRows();
-//
-//        EntityManager em = Main.getEMF().createEntityManager();
-//        try {
-//            em.getTransaction().begin();
-//            for (int r = 0; r < rows.length; r++) {
-//                // Diese Zeile ist sehr wichtig, da sie die Auswahl in der Tabelle bzgl. einer Umsortierung berücksichtigt.
-//                int row = tblVorrat.convertRowIndexToModel(rows[r]);
-//
-//                Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getVorrat(row);
-//                if (laufendeVOperation == LAUFENDE_OPERATION_LOESCHEN) {
-//                    Main.logger.info("DELETE VORRAT: " + vorrat.toString());
-//                    EntityTools.delete(vorrat);
-//                } else if (laufendeVOperation == LAUFENDE_OPERATION_AUSBUCHEN) {
-//                    Main.logger.info("AUSBUCHEN VORRAT: " + vorrat.toString());
-//                    VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
-//                } else if (laufendeVOperation == LAUFENDE_OPERATION_REAKTIVIERUNG) {
-//                    Main.logger.info("ZURÜCK BUCHEN VORRAT: " + vorrat.toString());
-//                    VorratTools.reaktivieren(em, vorrat);
-//                } else if (laufendeVOperation == LAUFENDE_OPERATION_KORREKTUR) {
-//                    Main.logger.info("ANFANGSBESTÄNDE KORRIGIEREN: " + vorrat.toString());
-//                    VorratTools.korregiereAnfangsbestand(em, vorrat);
-//                } else {
-//
-//                }
-//            }
-//            em.getTransaction().commit();
-//        } catch (Exception e1) {
-//            em.getTransaction().rollback();
-//        } finally {
-//            em.close();
-//        }
-//        laufendeVOperation = LAUFENDE_OPERATION_NICHTS;
-//        textmessageTL.cancel();
-//        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.LEFT_UPPER_SIDE, 400);
-//
-//        loadVorratTable();
-//    }
-
-//    private void btnAusbuchenActionPerformed(ActionEvent e) {
-//        laufendeVOperation = LAUFENDE_OPERATION_AUSBUCHEN;
-//        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.RIGHT_LOWER_SIDE, 400);
-//        showVEditMessage("markierte Vorräte wirklich ausbuchen ?");
-//    }
-//
-//    private void btnPrintEti2ActionPerformed(ActionEvent e) {
-//        print(etiprinter2, form2, Main.getProps().getProperty("etiprinter2"));
-//    }
-//
-//    private void btnPageprinterActionPerformed(ActionEvent e) {
-//        print(pageprinter, null, Main.getProps().getProperty("pageprinter"));
-//    }
 
     private void txtSuchenActionPerformed(ActionEvent e) {
         suche = null;
@@ -594,19 +403,6 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         }
     }
 
-//    private void btnReopenActionPerformed(ActionEvent e) {
-//        if (laufendeVOperation != LAUFENDE_OPERATION_NICHTS || !btnInaktiv.isSelected()) return;
-//        laufendeVOperation = LAUFENDE_OPERATION_REAKTIVIERUNG;
-//        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.RIGHT_LOWER_SIDE, 400);
-//        showVEditMessage("markierte Vorräte wirklich zurückbuchen ?");
-//    }
-//
-//    private void btnAnfangKorrigierenActionPerformed(ActionEvent e) {
-//        if (laufendeVOperation != LAUFENDE_OPERATION_NICHTS) return;
-//        laufendeVOperation = LAUFENDE_OPERATION_KORREKTUR;
-//        splitLeftButtonsMainDL = Tools.showSide(splitLeftButtonsMain, Tools.RIGHT_LOWER_SIDE, 400);
-//        showVEditMessage("markierte Vorräte wirklich korrigieren ?");
-//    }
 
     private void cmbLagerartItemStateChanged(ItemEvent e) {
         if (initphase) return;
@@ -644,33 +440,179 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
             menu = new JPopupMenu();
 
             menu.add(compFactory.createSeparator("Operationen", SwingConstants.CENTER));
-            JMenuItem itemAusbuchen = new JMenuItem("Ausbuchen");
+            JMenuItem itemAusbuchen = new JMenuItem("Ausbuchen", Const.icon24stop);
+            itemAusbuchen.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (JOptionPane.showConfirmDialog(thisComponent, "Wirklich ?", "Ausbuchen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48stop) == JOptionPane.YES_OPTION) {
+                        int[] rows = tblVorrat.getSelectedRows();
+                        VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+                        EntityManager em = Main.getEMF().createEntityManager();
+                        try {
+                            em.getTransaction().begin();
+                            for (int r = 0; r < rows.length; r++) {
+                                int row = tblVorrat.convertRowIndexToModel(rows[r]);
+                                Vorrat vorrat = em.merge(tm.getVorrat(row));
+                                VorratTools.ausbuchen(em, vorrat, "Abschlussbuchung");
+                            }
+                            em.getTransaction().commit();
+                            loadVorratTable();
+                        } catch (Exception e1) {
+                            em.getTransaction().rollback();
+                        } finally {
+                            em.close();
+                        }
+                    }
+                }
+            });
+
             menu.add(itemAusbuchen);
-            JMenuItem itemLoeschen = new JMenuItem("Löschen");
+            JMenuItem itemLoeschen = new JMenuItem("Löschen", Const.icon24remove);
+            itemLoeschen.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+                        int[] rows = tblVorrat.getSelectedRows();
+                        VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+                        EntityManager em = Main.getEMF().createEntityManager();
+                        try {
+                            em.getTransaction().begin();
+                            for (int r = 0; r < rows.length; r++) {
+                                int row = tblVorrat.convertRowIndexToModel(rows[r]);
+                                Vorrat vorrat = em.merge(tm.getVorrat(row));
+                                em.remove(vorrat);
+                            }
+                            em.getTransaction().commit();
+                            loadVorratTable();
+                        } catch (Exception e1) {
+                            em.getTransaction().rollback();
+                        } finally {
+                            em.close();
+                        }
+                    }
+                }
+            });
             menu.add(itemLoeschen);
-            JMenuItem itemWiederOeffnen = new JMenuItem("wieder öffnen");
+            menu.setEnabled(Main.getCurrentUser().isAdmin());
+
+
+            JMenuItem itemWiederOeffnen = new JMenuItem("wieder öffnen", Const.icon24undo);
+            itemWiederOeffnen.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (JOptionPane.showConfirmDialog(thisComponent, "Sicher ?", "wieder öffnen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48undo) == JOptionPane.YES_OPTION) {
+                        int[] rows = tblVorrat.getSelectedRows();
+                        VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+                        EntityManager em = Main.getEMF().createEntityManager();
+                        try {
+                            em.getTransaction().begin();
+                            for (int r = 0; r < rows.length; r++) {
+                                int row = tblVorrat.convertRowIndexToModel(rows[r]);
+                                Vorrat vorrat = em.merge(tm.getVorrat(row));
+                                VorratTools.reaktivieren(em, vorrat);
+                            }
+                            em.getTransaction().commit();
+                            loadVorratTable();
+                        } catch (Exception e1) {
+                            em.getTransaction().rollback();
+                        } finally {
+                            em.close();
+                        }
+                    }
+                }
+            });
             menu.add(itemWiederOeffnen);
-            JMenuItem itemAnfangKorrektur = new JMenuItem("Anfangsbestände korrigieren");
-            menu.add(itemAnfangKorrektur);
+
+            menu.add(compFactory.createSeparator("Zuweisen", SwingConstants.CENTER));
+            JMenu menuLager = new JMenu("Lager");
+            menuLager.setIcon(Const.icon24box);
+
+            EntityManager em = Main.getEMF().createEntityManager();
+            Query query = em.createNamedQuery("Lager.findAllSorted");
+            try {
+                for (final Lager lager : new ArrayList<Lager>(query.getResultList())) {
+                    JMenuItem mi = new JMenuItem(lager.getBezeichnung());
+                    mi.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            if (JOptionPane.showConfirmDialog(thisComponent, "Zuweisen ins Lager: " + lager.getBezeichnung() + " ?", "Lagerort ändern", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48box) == JOptionPane.YES_OPTION) {
+                                int[] rows = tblVorrat.getSelectedRows();
+                                VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+                                EntityManager em = Main.getEMF().createEntityManager();
+                                try {
+                                    em.getTransaction().begin();
+                                    Lager myLager = em.merge(lager);
+                                    for (int r = 0; r < rows.length; r++) {
+                                        int row = tblVorrat.convertRowIndexToModel(rows[r]);
+                                        Vorrat vorrat = em.merge(tm.getVorrat(row));
+                                        vorrat.setLager(myLager);
+                                    }
+                                    em.getTransaction().commit();
+                                    loadVorratTable();
+                                } catch (Exception e1) {
+                                    em.getTransaction().rollback();
+                                } finally {
+                                    em.close();
+                                }
+                            }
+                        }
+                    });
+                    menuLager.add(mi);
+                }
+            } catch (Exception e) { // nicht gefunden
+                Main.fatal(e);
+            } finally {
+                em.close();
+            }
+            menu.add(menuLager);
 
 
-            menu.add(compFactory.createSeparator("Zuordnungen", SwingConstants.CENTER));
-            JMenu lager = new JMenu("Lager");
-            lager.add(new JMenuItem("Kühlhaus"));
-            lager.add(new JMenuItem("Truhe 1"));
+            JMenu menuLieferanten = new JMenu("Lieferanten");
+            menuLieferanten.setIcon(Const.icon24truck);
 
-            menu.add(lager);
-
-
-            JMenu lieferanten = new JMenu("Lieferanten");
-            lieferanten.add(new JMenuItem("Sohnius"));
-            lieferanten.add(new JMenuItem("Aldi"));
-            menu.add(lieferanten);
+            em = Main.getEMF().createEntityManager();
+            query = em.createNamedQuery("Lieferanten.findAllSorted");
+            try {
+                for (final Lieferanten lieferant : new ArrayList<Lieferanten>(query.getResultList())) {
+                    JMenuItem mi = new JMenuItem(lieferant.getFirma() + Tools.catchNull(lieferant.getOrt(), ", ", ""));
+                    mi.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            if (JOptionPane.showConfirmDialog(thisComponent, "Erhalten von Lieferant: " + lieferant.getFirma() + " ?", "Lieferant ändern", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48box) == JOptionPane.YES_OPTION) {
+                                int[] rows = tblVorrat.getSelectedRows();
+                                VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+                                EntityManager em = Main.getEMF().createEntityManager();
+                                try {
+                                    em.getTransaction().begin();
+                                    Lieferanten myLieferant = em.merge(lieferant);
+                                    for (int r = 0; r < rows.length; r++) {
+                                        int row = tblVorrat.convertRowIndexToModel(rows[r]);
+                                        Vorrat vorrat = em.merge(tm.getVorrat(row));
+                                        vorrat.setLieferant(myLieferant);
+                                    }
+                                    em.getTransaction().commit();
+                                    loadVorratTable();
+                                } catch (Exception e1) {
+                                    em.getTransaction().rollback();
+                                } finally {
+                                    em.close();
+                                }
+                            }
+                        }
+                    });
+                    menuLieferanten.add(mi);
+                }
+            } catch (Exception e) { // nicht gefunden
+                Main.fatal(e);
+            } finally {
+                em.close();
+            }
+            menu.add(menuLieferanten);
 
             menu.add(compFactory.createSeparator("Etiketten-Druck", SwingConstants.CENTER));
 
             // Printer
-            JMenuItem itemPrinter1 = new JMenuItem("Drucker 1", Const.icon22labelPrinter2);
+            JMenuItem itemPrinter1 = new JMenuItem("Drucker 1", Const.icon24labelPrinter2);
             itemPrinter1.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     print(etiprinter1, form1, Main.getProps().getProperty("etiprinter1"));
@@ -678,7 +620,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
             });
             menu.add(itemPrinter1);
 
-            JMenuItem itemPrinter2 = new JMenuItem("Drucker 2", Const.icon22labelPrinter2);
+            JMenuItem itemPrinter2 = new JMenuItem("Drucker 2", Const.icon24labelPrinter2);
             itemPrinter2.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     print(etiprinter2, form2, Main.getProps().getProperty("etiprinter2"));
@@ -686,7 +628,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
             });
             menu.add(itemPrinter2);
 
-            JMenuItem itemPrinter3 = new JMenuItem("Seitendrucker", Const.icon22Pageprinter);
+            JMenuItem itemPrinter3 = new JMenuItem("Seitendrucker", Const.icon24Pageprinter);
             itemPrinter3.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     print(pageprinter, null, Main.getProps().getProperty("pageprinter"));
@@ -695,92 +637,12 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
             menu.add(itemPrinter3);
 
 
-//            if (col == TMSYSFiles.COL_DESCRIPTION && OPDE.getAppInfo().isAllowedTo(InternalClassACL.UPDATE, internalClassID)) {
-//
-//                final JMenuItem itemPopupEdit = new JMenuItem(OPDE.lang.getString("misc.commands.edit"), SYSConst.icon22edit3);
-//                itemPopupEdit.addActionListener(new java.awt.event.ActionListener() {
-//                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-//
-//                        final JidePopup popup = new JidePopup();
-//                        popup.setMovable(false);
-//                        popup.getContentPane().setLayout(new BoxLayout(popup.getContentPane(), BoxLayout.LINE_AXIS));
-//
-//                        final JComponent editor = new JTextArea(sysfile.getBeschreibung(), 10, 40);
-//                        ((JTextArea) editor).setLineWrap(true);
-//                        ((JTextArea) editor).setWrapStyleWord(true);
-//                        ((JTextArea) editor).setEditable(true);
-//
-//                        popup.getContentPane().add(new JScrollPane(editor));
-//                        final JButton saveButton = new JButton(SYSConst.icon22apply);
-//                        saveButton.addActionListener(new ActionListener() {
-//                            @Override
-//                            public void actionPerformed(ActionEvent actionEvent) {
-//                                EntityManager em = OPDE.createEM();
-//                                try {
-//                                    em.getTransaction().begin();
-//                                    popup.hidePopup();
-//                                    SYSFiles mySysfile = em.merge(sysfile);
-//                                    mySysfile.setBeschreibung(((JTextArea) editor).getText().trim());
-//                                    em.getTransaction().commit();
-//                                    tm.setSYSFile(row, mySysfile);
-//                                } catch (Exception e) {
-//                                    em.getTransaction().rollback();
-//                                    OPDE.fatal(e);
-//                                } finally {
-//                                    em.close();
-//                                }
-//
-//                            }
-//                        });
-//
-//                        saveButton.setHorizontalAlignment(SwingConstants.RIGHT);
-//                        JPanel pnl = new JPanel(new BorderLayout(10, 10));
-//                        JScrollPane pnlEditor = new JScrollPane(editor);
-//
-//                        pnl.add(pnlEditor, BorderLayout.CENTER);
-//                        JPanel buttonPanel = new JPanel();
-//                        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-//                        buttonPanel.add(saveButton);
-//                        pnl.setBorder(new EmptyBorder(10, 10, 10, 10));
-//                        pnl.add(buttonPanel, BorderLayout.SOUTH);
-//
-//                        popup.setOwner(tblFiles);
-//                        popup.removeExcludedComponent(tblFiles);
-//                        popup.getContentPane().add(pnl);
-//                        popup.setDefaultFocusComponent(editor);
-//
-//                        popup.showPopup(screenposition.x, screenposition.y);
-//
-//                    }
-//                });
-//                menu.add(itemPopupEdit);
-//            }
-
-
-//            if (OPDE.getAppInfo().isAllowedTo(InternalClassACL.DELETE, internalClassID)) {
-//                JMenuItem itemPopupDelete = new JMenuItem(OPDE.lang.getString("misc.commands.delete"), SYSConst.icon22delete);
-//                itemPopupDelete.addActionListener(new java.awt.event.ActionListener() {
-//
-//                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-//
-//                        new DlgYesNo(OPDE.lang.getString("misc.questions.delete1") + "<br/><b>" + sysfile.getFilename() + "</b><br/>" + OPDE.lang.getString("misc.questions.delete2"), new ImageIcon(getClass().getResource("/artwork/48x48/bw/trashcan_empty.png")), new Closure() {
-//                            @Override
-//                            public void execute(Object o) {
-//                                if (o.equals(JOptionPane.YES_OPTION)) {
-//                                    SYSFilesTools.deleteFile(sysfile);
-//                                    reloadTable();
-//                                }
-//                            }
-//                        });
-//
-//                    }
-//                });
-//                menu.add(itemPopupDelete);
-//                itemPopupDelete.setEnabled(singleRowSelected);
-//            }
-
             menu.show(evt.getComponent(), (int) p.getX(), (int) p.getY());
         }
+    }
+
+    private void pnlWarenbestandComponentResized(ComponentEvent e) {
+        // TODO add your code here
     }
 
     private void initComponents() {
@@ -827,8 +689,8 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         {
             pnlMain.setBorder(new SoftBevelBorder(SoftBevelBorder.RAISED));
             pnlMain.setLayout(new FormLayout(
-                    "default, $lcgap, default:grow",
-                    "fill:default:grow"));
+                "default, $lcgap, default:grow",
+                "fill:default:grow"));
 
             //======== jspSearch ========
             {
@@ -898,9 +760,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                         tpSpezial.setLayout(new VerticalLayout(10));
 
                         //---- cmbWarengruppe ----
-                        cmbWarengruppe.setModel(new DefaultComboBoxModel(new String[]{
-                                "nach Warengruppe",
-                                "Gefl\u00fcgel"
+                        cmbWarengruppe.setModel(new DefaultComboBoxModel(new String[] {
+                            "nach Warengruppe",
+                            "Gefl\u00fcgel"
                         }));
                         cmbWarengruppe.addItemListener(new ItemListener() {
                             @Override
@@ -911,9 +773,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                         tpSpezial.add(cmbWarengruppe);
 
                         //---- cmbLager ----
-                        cmbLager.setModel(new DefaultComboBoxModel(new String[]{
-                                "<html><i>nach Lager</i></html>",
-                                "Lager 1"
+                        cmbLager.setModel(new DefaultComboBoxModel(new String[] {
+                            "<html><i>nach Lager</i></html>",
+                            "Lager 1"
                         }));
                         cmbLager.addItemListener(new ItemListener() {
                             @Override
@@ -996,8 +858,8 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                     }
                 });
                 pnlWarenbestand.setLayout(new FormLayout(
-                        "left:default:grow",
-                        "fill:default, fill:default:grow"));
+                    "left:default:grow",
+                    "fill:default, fill:default:grow"));
 
                 //---- lblWarenbestand ----
                 lblWarenbestand.setBackground(Color.blue);
@@ -1020,15 +882,15 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
                     //---- tblVorrat ----
                     tblVorrat.setModel(new DefaultTableModel(
-                            new Object[][]{
-                                    {null, null, null, null},
-                                    {null, null, null, null},
-                                    {null, null, null, null},
-                                    {null, null, null, null},
-                            },
-                            new String[]{
-                                    "Title 1", "Title 2", "Title 3", "Title 4"
-                            }
+                        new Object[][] {
+                            {null, null, null, null},
+                            {null, null, null, null},
+                            {null, null, null, null},
+                            {null, null, null, null},
+                        },
+                        new String[] {
+                            "Title 1", "Title 2", "Title 3", "Title 4"
+                        }
                     ));
                     tblVorrat.setAutoCreateRowSorter(true);
                     tblVorrat.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -1049,12 +911,12 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
-                contentPaneLayout.createParallelGroup()
-                        .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 1313, Short.MAX_VALUE)
+            contentPaneLayout.createParallelGroup()
+                .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 1313, Short.MAX_VALUE)
         );
         contentPaneLayout.setVerticalGroup(
-                contentPaneLayout.createParallelGroup()
-                        .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 671, Short.MAX_VALUE)
+            contentPaneLayout.createParallelGroup()
+                .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 671, Short.MAX_VALUE)
         );
 
         //---- buttonGroup1 ----
@@ -1136,47 +998,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         form1 = etiprinter1.getForms().get(Main.getProps().getProperty("etiform1"));
         form2 = etiprinter2.getForms().get(Main.getProps().getProperty("etiform2"));
 
-//        laufendeVOperation = LAUFENDE_OPERATION_NICHTS;
-//
-//        vmode = MODE_VORRAT_BROWSE;
-//        bmode = MODE_BUCHUNG_INVISIBLE;
-//
-//        vlsl = new ListSelectionListener() {
-//            @Override
-//            public void valueChanged(ListSelectionEvent e) {
-//                if (!e.getValueIsAdjusting()) {
-//                    // wenn nur eine Zeile gewählt wurde,
-//                    // dann kann die rechte Seite mit den Einzelbuchungen angezeigt werden.
-//
-//                    int rowcount = tblVorrat.getSelectedRowCount();
-//
-//                    if (btnEditVorrat.isSelected()) {
-//                        btnCancelVEdit.doClick();
-//                    }
-//
-//                    // btnDeleteVorrat.setEnabled(rowcount > 0);
-//                    //btnAusbuchen.setEnabled(rowcount > 0);
-//                    btnPrintEti1.setEnabled(rowcount > 0);
-//                    btnPrintEti2.setEnabled(rowcount > 0);
-//                    btnPageprinter.setEnabled(rowcount > 0);
-//                    btnEditVorrat.setEnabled(rowcount > 0);
-//
-////                    if (rowcount <= 1 && btnShowRightSide.isSelected()) {
-////                        btnShowRightSide.setSelected(false);
-////                    }
-//
-//                    //btnShowRightSide.setEnabled(false);
-//                    //btnShowRightSide.setEnabled(rowcount == 1);
-//
-//                }
-//            }
-//        };
-
         prepareSearchArea();
         loadVorratTable();
         initBuchungenTable();
-
-        loadCMB4Edit();
 
 
         //btnPrintLabels.setEnabled(Main.props.containsKey("labelPrinter") && Main.props.containsKey("receiptPrinter"));
@@ -1184,31 +1008,6 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         //tblBuchungen.setRowHeight(32);
 
 
-    }
-
-    private void loadCMB4Edit() {
-//        EntityManager em = Main.getEMF().createEntityManager();
-//        Query query = em.createNamedQuery("Lager.findAllSorted");
-//        try {
-//            java.util.List lager = query.getResultList();
-//            lager.add(0, "<html><i>ändern Lager</i></html>");
-//            cmbVEditLager.setModel(tools.Tools.newComboboxModel(lager));
-//        } catch (Exception e) { // nicht gefunden
-//            //
-//        } finally {
-//            em.close();
-//        }
-//        em = Main.getEMF().createEntityManager();
-//        query = em.createNamedQuery("Lieferanten.findAllSorted");
-//        try {
-//            java.util.List lieferant = query.getResultList();
-//            lieferant.add(0, "<html><i>ändern Lieferant</i></html>");
-//            cmbVEditLieferant.setModel(tools.Tools.newComboboxModel(lieferant));
-//        } catch (Exception e) { // nicht gefunden
-//            //
-//        } finally {
-//            em.close();
-//        }
     }
 
 

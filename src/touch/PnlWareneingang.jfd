@@ -39,18 +39,10 @@
       </void> 
       <void method="add"> 
        <object class="com.jformdesigner.model.FormContainer"> 
-        <string>javax.swing.JSplitPane</string> 
+        <string>javax.swing.JPanel</string> 
         <object class="com.jformdesigner.model.FormLayoutManager"> 
-         <class>javax.swing.JSplitPane</class> 
+         <class>java.awt.CardLayout</class> 
         </object> 
-        <void method="setProperty"> 
-         <string>orientation</string> 
-         <int>0</int> 
-        </void> 
-        <void method="setProperty"> 
-         <string>dividerLocation</string> 
-         <int>500</int> 
-        </void> 
         <void method="setProperty"> 
          <string>enabled</string> 
          <boolean>false</boolean> 
@@ -83,7 +75,7 @@
            </void> 
            <void method="setProperty"> 
             <string>$rowSpecs</string> 
-            <string>fill:default:grow, linegap, default</string> 
+            <string>fill:default:grow</string> 
            </void> 
           </object> 
           <void property="name"> 
@@ -1344,6 +1336,10 @@
                   <int>70</int> 
                  </object> 
                 </void> 
+                <void method="setProperty"> 
+                 <string>lineWrap</string> 
+                 <boolean>true</boolean> 
+                </void> 
                 <void property="name"> 
                  <string>txtLog</string> 
                 </void> 
@@ -1640,7 +1636,7 @@
           <class>java.lang.String</class> 
           <void method="setProperty"> 
            <string>value</string> 
-           <string>left</string> 
+           <string>card1</string> 
           </void> 
          </object> 
         </void> 
@@ -1648,151 +1644,413 @@
          <object class="com.jformdesigner.model.FormContainer"> 
           <string>javax.swing.JPanel</string> 
           <object class="com.jformdesigner.model.FormLayoutManager"> 
-           <class>javax.swing.BoxLayout</class> 
+           <class>com.jgoodies.forms.layout.FormLayout</class> 
            <void method="setProperty"> 
-            <string>axis</string> 
-            <int>3</int> 
+            <string>$columnSpecs</string> 
+            <string>default, labelcompgap, default:grow, labelcompgap, default</string> 
+           </void> 
+           <void method="setProperty"> 
+            <string>$rowSpecs</string> 
+            <string>fill:default, relgap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default</string> 
            </void> 
           </object> 
           <void property="name"> 
            <string>pnlLower</string> 
           </void> 
           <void method="add"> 
-           <object class="com.jformdesigner.model.FormContainer"> 
-            <string>javax.swing.JPanel</string> 
-            <object class="com.jformdesigner.model.FormLayoutManager"> 
-             <class>org.jdesktop.layout.GroupLayout</class> 
-             <void method="setProperty"> 
-              <string>$horizontalGroup</string> 
-              <string>par l {seq {space :::p, par t {seq l {comp cmbEinheit::::513:x, space :::p, comp cmbLagerart::::502:x}, seq l {comp lbl1:::p::p, space :::p, comp txtProdBezeichnung::::924:x}}, space :::p}}</string> 
-             </void> 
-             <void method="setProperty"> 
-              <string>$verticalGroup</string> 
-              <string>par l {seq {space :::p, par l {seq l {space :p:6:p, comp lbl1:::p::p}, comp txtProdBezeichnung::l:p::p}, space u:p::p, par l {comp cmbLagerart:::::x:1, comp cmbEinheit::l:p::p:1}, space :::p}}</string> 
-             </void> 
-            </object> 
+           <object class="com.jformdesigner.model.FormComponent"> 
+            <string>javax.swing.JLabel</string> 
+            <void method="setProperty"> 
+             <string>labelFor</string> 
+             <object class="com.jformdesigner.model.FormReference"> 
+              <string>txtProdBezeichnung</string> 
+             </object> 
+            </void> 
+            <void method="setProperty"> 
+             <string>text</string> 
+             <string>Produkt </string> 
+            </void> 
+            <void method="setProperty"> 
+             <string>font</string> 
+             <object class="java.awt.Font"> 
+              <string>sansserif</string> 
+              <int>0</int> 
+              <int>24</int> 
+             </object> 
+            </void> 
             <void property="name"> 
-             <string>panel1</string> 
+             <string>lbl1</string> 
             </void> 
-            <void method="add"> 
-             <object class="com.jformdesigner.model.FormComponent"> 
-              <string>javax.swing.JLabel</string> 
-              <void method="setProperty"> 
-               <string>labelFor</string> 
-               <object class="com.jformdesigner.model.FormReference"> 
-                <string>txtProdBezeichnung</string> 
-               </object> 
-              </void> 
-              <void method="setProperty"> 
-               <string>text</string> 
-               <string>Produkt</string> 
-              </void> 
-              <void method="setProperty"> 
-               <string>font</string> 
-               <object class="java.awt.Font"> 
-                <string>sansserif</string> 
-                <int>0</int> 
-                <int>24</int> 
-               </object> 
-              </void> 
-              <void property="name"> 
-               <string>lbl1</string> 
-              </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormComponent"> 
+            <string>javax.swing.JTextField</string> 
+            <void method="setProperty"> 
+             <string>font</string> 
+             <object class="java.awt.Font"> 
+              <string>sansserif</string> 
+              <int>0</int> 
+              <int>24</int> 
              </object> 
             </void> 
-            <void method="add"> 
-             <object class="com.jformdesigner.model.FormComponent"> 
-              <string>javax.swing.JTextField</string> 
-              <void method="setProperty"> 
-               <string>font</string> 
-               <object class="java.awt.Font"> 
-                <string>sansserif</string> 
-                <int>0</int> 
-                <int>24</int> 
-               </object> 
-              </void> 
-              <void property="name"> 
-               <string>txtProdBezeichnung</string> 
-              </void> 
-              <void method="addEvent"> 
-               <object class="com.jformdesigner.model.FormEvent"> 
-                <string>java.awt.event.FocusListener</string> 
-                <string>focusGained</string> 
-                <string>txtProdBezeichnungFocusGained</string> 
-                <boolean>true</boolean> 
-               </object> 
-              </void> 
-              <void method="addEvent"> 
-               <object class="com.jformdesigner.model.FormEvent"> 
-                <string>javax.swing.event.CaretListener</string> 
-                <string>caretUpdate</string> 
-                <string>txtProdBezeichnungCaretUpdate</string> 
-                <boolean>true</boolean> 
-               </object> 
-              </void> 
+            <void property="name"> 
+             <string>txtProdBezeichnung</string> 
+            </void> 
+            <void method="addEvent"> 
+             <object class="com.jformdesigner.model.FormEvent"> 
+              <string>java.awt.event.FocusListener</string> 
+              <string>focusGained</string> 
+              <string>txtProdBezeichnungFocusGained</string> 
+              <boolean>true</boolean> 
              </object> 
             </void> 
-            <void method="add"> 
-             <object class="com.jformdesigner.model.FormComponent"> 
-              <string>javax.swing.JComboBox</string> 
-              <void method="setProperty"> 
-               <string>font</string> 
-               <object class="java.awt.Font"> 
-                <string>sansserif</string> 
-                <int>0</int> 
-                <int>24</int> 
-               </object> 
-              </void> 
-              <void method="setProperty"> 
-               <string>preferredSize</string> 
-               <object class="java.awt.Dimension"> 
-                <int>70</int> 
-                <int>45</int> 
-               </object> 
-              </void> 
-              <void property="name"> 
-               <string>cmbEinheit</string> 
-              </void> 
-              <void method="addEvent"> 
-               <object class="com.jformdesigner.model.FormEvent"> 
-                <string>java.awt.event.ItemListener</string> 
-                <string>itemStateChanged</string> 
-                <string>cmbEinheitItemStateChanged</string> 
-                <boolean>true</boolean> 
-               </object> 
-              </void> 
+            <void method="addEvent"> 
+             <object class="com.jformdesigner.model.FormEvent"> 
+              <string>javax.swing.event.CaretListener</string> 
+              <string>caretUpdate</string> 
+              <string>txtProdBezeichnungCaretUpdate</string> 
+              <boolean>true</boolean> 
              </object> 
             </void> 
-            <void method="add"> 
-             <object class="com.jformdesigner.model.FormComponent"> 
-              <string>javax.swing.JComboBox</string> 
-              <void method="setProperty"> 
-               <string>font</string> 
-               <object class="java.awt.Font"> 
-                <string>sansserif</string> 
-                <int>0</int> 
-                <int>24</int> 
-               </object> 
-              </void> 
-              <void method="setProperty"> 
-               <string>preferredSize</string> 
-               <object class="java.awt.Dimension"> 
-                <int>70</int> 
-                <int>45</int> 
-               </object> 
-              </void> 
-              <void property="name"> 
-               <string>cmbLagerart</string> 
-              </void> 
-              <void method="addEvent"> 
-               <object class="com.jformdesigner.model.FormEvent"> 
-                <string>java.awt.event.ItemListener</string> 
-                <string>itemStateChanged</string> 
-                <string>cmbLagerartItemStateChanged</string> 
-                <boolean>true</boolean> 
-               </object> 
-              </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridX</string> 
+             <int>3</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>gridWidth</string> 
+             <int>3</int> 
+            </void> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormComponent"> 
+            <string>javax.swing.JComboBox</string> 
+            <void method="setProperty"> 
+             <string>font</string> 
+             <object class="java.awt.Font"> 
+              <string>sansserif</string> 
+              <int>0</int> 
+              <int>24</int> 
              </object> 
+            </void> 
+            <void method="setProperty"> 
+             <string>preferredSize</string> 
+             <object class="java.awt.Dimension"> 
+              <int>70</int> 
+              <int>45</int> 
+             </object> 
+            </void> 
+            <void property="name"> 
+             <string>cmbEinheit</string> 
+            </void> 
+            <void method="addEvent"> 
+             <object class="com.jformdesigner.model.FormEvent"> 
+              <string>java.awt.event.ItemListener</string> 
+              <string>itemStateChanged</string> 
+              <string>cmbEinheitItemStateChanged</string> 
+              <boolean>true</boolean> 
+             </object> 
+            </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridY</string> 
+             <int>3</int> 
+            </void> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormComponent"> 
+            <string>javax.swing.JComboBox</string> 
+            <void method="setProperty"> 
+             <string>font</string> 
+             <object class="java.awt.Font"> 
+              <string>sansserif</string> 
+              <int>0</int> 
+              <int>24</int> 
+             </object> 
+            </void> 
+            <void method="setProperty"> 
+             <string>preferredSize</string> 
+             <object class="java.awt.Dimension"> 
+              <int>70</int> 
+              <int>45</int> 
+             </object> 
+            </void> 
+            <void property="name"> 
+             <string>cmbLagerart</string> 
+            </void> 
+            <void method="addEvent"> 
+             <object class="com.jformdesigner.model.FormEvent"> 
+              <string>java.awt.event.ItemListener</string> 
+              <string>itemStateChanged</string> 
+              <string>cmbLagerartItemStateChanged</string> 
+              <boolean>true</boolean> 
+             </object> 
+            </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridX</string> 
+             <int>3</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>gridY</string> 
+             <int>3</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>gridWidth</string> 
+             <int>3</int> 
+            </void> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormComponent"> 
+            <string>javax.swing.JToggleButton</string> 
+            <void method="setProperty"> 
+             <string>text</string> 
+             <string>Verpackte Ware</string> 
+            </void> 
+            <void method="setProperty"> 
+             <string>font</string> 
+             <object class="java.awt.Font"> 
+              <string>sansserif</string> 
+              <int>0</int> 
+              <int>24</int> 
+             </object> 
+            </void> 
+            <void method="setProperty"> 
+             <string>icon</string> 
+             <object class="com.jformdesigner.model.SwingIcon"> 
+              <int>0</int> 
+              <string>/artwork/32x32/ark.png</string> 
+             </object> 
+            </void> 
+            <void property="name"> 
+             <string>btnVerpackteWare</string> 
+            </void> 
+            <void method="addEvent"> 
+             <object class="com.jformdesigner.model.FormEvent"> 
+              <string>java.awt.event.ItemListener</string> 
+              <string>itemStateChanged</string> 
+              <string>btnVerpackteWareItemStateChanged</string> 
+              <boolean>true</boolean> 
+             </object> 
+            </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridWidth</string> 
+             <int>5</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>gridY</string> 
+             <int>5</int> 
+            </void> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormComponent"> 
+            <string>javax.swing.JLabel</string> 
+            <void method="setProperty"> 
+             <string>labelFor</string> 
+             <object class="com.jformdesigner.model.FormReference"> 
+              <string>txtGTIN</string> 
+             </object> 
+            </void> 
+            <void method="setProperty"> 
+             <string>text</string> 
+             <string>Strichcode</string> 
+            </void> 
+            <void method="setProperty"> 
+             <string>font</string> 
+             <object class="java.awt.Font"> 
+              <string>sansserif</string> 
+              <int>0</int> 
+              <int>24</int> 
+             </object> 
+            </void> 
+            <void property="name"> 
+             <string>lblStrichcode</string> 
+            </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridY</string> 
+             <int>7</int> 
+            </void> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormComponent"> 
+            <string>javax.swing.JTextField</string> 
+            <void method="setProperty"> 
+             <string>font</string> 
+             <object id="Font2" class="java.awt.Font"> 
+              <string>sansserif</string> 
+              <int>0</int> 
+              <int>24</int> 
+             </object> 
+            </void> 
+            <void property="name"> 
+             <string>txtGTIN</string> 
+            </void> 
+            <void method="addEvent"> 
+             <object class="com.jformdesigner.model.FormEvent"> 
+              <string>java.awt.event.ActionListener</string> 
+              <string>actionPerformed</string> 
+              <string>txtGTINActionPerformed</string> 
+              <boolean>true</boolean> 
+             </object> 
+            </void> 
+            <void method="addEvent"> 
+             <object class="com.jformdesigner.model.FormEvent"> 
+              <string>java.awt.event.FocusListener</string> 
+              <string>focusGained</string> 
+              <string>txtGTINFocusGained</string> 
+              <boolean>true</boolean> 
+             </object> 
+            </void> 
+            <void method="addEvent"> 
+             <object class="com.jformdesigner.model.FormEvent"> 
+              <string>java.awt.event.FocusListener</string> 
+              <string>focusLost</string> 
+              <string>txtGTINFocusLost</string> 
+              <boolean>true</boolean> 
+             </object> 
+            </void> 
+            <void method="addEvent"> 
+             <object class="com.jformdesigner.model.FormEvent"> 
+              <string>javax.swing.event.CaretListener</string> 
+              <string>caretUpdate</string> 
+              <string>txtGTINCaretUpdate</string> 
+              <boolean>true</boolean> 
+             </object> 
+            </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridX</string> 
+             <int>3</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>gridY</string> 
+             <int>7</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>gridWidth</string> 
+             <int>3</int> 
+            </void> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormComponent"> 
+            <string>javax.swing.JLabel</string> 
+            <void method="setProperty"> 
+             <string>labelFor</string> 
+             <object class="com.jformdesigner.model.FormReference"> 
+              <string>txtPackGroesse</string> 
+             </object> 
+            </void> 
+            <void method="setProperty"> 
+             <string>text</string> 
+             <string>Packungsgröße</string> 
+            </void> 
+            <void method="setProperty"> 
+             <string>font</string> 
+             <object idref="Font2"/> 
+            </void> 
+            <void property="name"> 
+             <string>lbl4</string> 
+            </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridY</string> 
+             <int>9</int> 
+            </void> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormComponent"> 
+            <string>javax.swing.JTextField</string> 
+            <void method="setProperty"> 
+             <string>font</string> 
+             <object idref="Font2"/> 
+            </void> 
+            <void property="name"> 
+             <string>txtPackGroesse</string> 
+            </void> 
+            <void method="addEvent"> 
+             <object class="com.jformdesigner.model.FormEvent"> 
+              <string>javax.swing.event.CaretListener</string> 
+              <string>caretUpdate</string> 
+              <string>txtPackGroesseCaretUpdate</string> 
+              <boolean>true</boolean> 
+             </object> 
+            </void> 
+            <void method="addEvent"> 
+             <object class="com.jformdesigner.model.FormEvent"> 
+              <string>java.awt.event.FocusListener</string> 
+              <string>focusGained</string> 
+              <string>txtPackGroesseFocusGained</string> 
+              <boolean>true</boolean> 
+             </object> 
+            </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridX</string> 
+             <int>3</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>gridY</string> 
+             <int>9</int> 
+            </void> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormComponent"> 
+            <string>javax.swing.JLabel</string> 
+            <void method="setProperty"> 
+             <string>text</string> 
+             <string>text</string> 
+            </void> 
+            <void method="setProperty"> 
+             <string>font</string> 
+             <object class="java.awt.Font"> 
+              <string>sansserif</string> 
+              <int>0</int> 
+              <int>24</int> 
+             </object> 
+            </void> 
+            <void property="name"> 
+             <string>lblEinheit1</string> 
+            </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridX</string> 
+             <int>5</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>gridY</string> 
+             <int>9</int> 
             </void> 
            </object> 
           </void> 
@@ -1800,732 +2058,479 @@
            <object class="com.jformdesigner.model.FormContainer"> 
             <string>javax.swing.JPanel</string> 
             <object class="com.jformdesigner.model.FormLayoutManager"> 
-             <class>javax.swing.BoxLayout</class> 
+             <class>java.awt.CardLayout</class> 
             </object> 
             <void property="name"> 
-             <string>panel2</string> 
+             <string>pnlStoffart</string> 
             </void> 
             <void method="add"> 
              <object class="com.jformdesigner.model.FormContainer"> 
-              <string>javax.swing.JSplitPane</string> 
+              <string>javax.swing.JPanel</string> 
               <object class="com.jformdesigner.model.FormLayoutManager"> 
-               <class>javax.swing.JSplitPane</class> 
+               <class>javax.swing.BoxLayout</class> 
               </object> 
-              <void method="setProperty"> 
-               <string>orientation</string> 
-               <int>0</int> 
-              </void> 
-              <void method="setProperty"> 
-               <string>dividerLocation</string> 
-               <int>250</int> 
-              </void> 
-              <void method="setProperty"> 
-               <string>minimumSize</string> 
-               <object class="java.awt.Dimension"> 
-                <int>358</int> 
-                <int>100</int> 
-               </object> 
-              </void> 
-              <void method="setProperty"> 
-               <string>preferredSize</string> 
-               <object class="java.awt.Dimension"> 
-                <int>954</int> 
-                <int>100</int> 
-               </object> 
-              </void> 
-              <void method="setProperty"> 
-               <string>dividerSize</string> 
-               <int>0</int> 
-              </void> 
-              <void method="addEvent"> 
-               <object class="com.jformdesigner.model.FormEvent"> 
-                <string>java.awt.event.ComponentListener</string> 
-                <string>componentResized</string> 
-                <string>splitNeuProdComponentResized</string> 
-                <boolean>true</boolean> 
-               </object> 
-              </void> 
               <void property="name"> 
-               <string>splitNeuProd</string> 
+               <string>pnlSelStoffart</string> 
               </void> 
               <void method="add"> 
-               <object class="com.jformdesigner.model.FormContainer"> 
-                <string>javax.swing.JPanel</string> 
-                <object class="com.jformdesigner.model.FormLayoutManager"> 
-                 <class>org.jdesktop.layout.GroupLayout</class> 
-                 <void method="setProperty"> 
-                  <string>$horizontalGroup</string> 
-                  <string>par l {seq l {space :p:10:p, par l {seq l {comp btnVerpackteWare::::1015:x, space :::p}, seq l {par l:::p {comp lblStrichcode:::::x:1, comp lbl4::l:::x:1}, space :p::p, par l {seq {comp txtPackGroesse::::695:x, space :::p, comp lblEinheit1:::p:126:p}, comp txtGTIN::l::827:x}, space :p:12:p}}}}</string> 
-                 </void> 
-                 <void method="setProperty"> 
-                  <string>$verticalGroup</string> 
-                  <string>par l {seq l {space :::p, comp btnVerpackteWare:::p::p, space s:::p, par b {comp lblStrichcode::b:p:40:p, comp txtGTIN::b:p::p}, space :p:20:p, par b {comp lbl4::b:p:38:p, comp txtPackGroesse::b:p::p, comp lblEinheit1::b:p:34:p}}}</string> 
-                 </void> 
-                </object> 
+               <object class="com.jformdesigner.model.FormComponent"> 
+                <string>javax.swing.JComboBox</string> 
                 <void method="setProperty"> 
-                 <string>minimumSize</string> 
-                 <object class="java.awt.Dimension"> 
-                  <int>230</int> 
-                  <int>50</int> 
-                 </object> 
+                 <string>font</string> 
+                 <object idref="Font1"/> 
                 </void> 
                 <void method="setProperty"> 
-                 <string>preferredSize</string> 
-                 <object class="java.awt.Dimension"> 
-                  <int>952</int> 
-                  <int>50</int> 
-                 </object> 
+                 <string>model</string> 
+                 <object idref="DefaultComboBoxModel0"/> 
                 </void> 
                 <void property="name"> 
-                 <string>pnlVerpackt</string> 
+                 <string>cmbStoffart</string> 
                 </void> 
-                <void method="add"> 
-                 <object class="com.jformdesigner.model.FormComponent"> 
-                  <string>javax.swing.JToggleButton</string> 
-                  <void method="setProperty"> 
-                   <string>text</string> 
-                   <string>Verpackte Ware</string> 
-                  </void> 
-                  <void method="setProperty"> 
-                   <string>font</string> 
-                   <object class="java.awt.Font"> 
-                    <string>sansserif</string> 
-                    <int>0</int> 
-                    <int>24</int> 
-                   </object> 
-                  </void> 
-                  <void method="setProperty"> 
-                   <string>icon</string> 
-                   <object class="com.jformdesigner.model.SwingIcon"> 
-                    <int>0</int> 
-                    <string>/artwork/32x32/ark.png</string> 
-                   </object> 
-                  </void> 
-                  <void property="name"> 
-                   <string>btnVerpackteWare</string> 
-                  </void> 
-                  <void method="addEvent"> 
-                   <object class="com.jformdesigner.model.FormEvent"> 
-                    <string>java.awt.event.ItemListener</string> 
-                    <string>itemStateChanged</string> 
-                    <string>btnVerpackteWareItemStateChanged</string> 
-                    <boolean>true</boolean> 
-                   </object> 
-                  </void> 
+                <void method="addEvent"> 
+                 <object class="com.jformdesigner.model.FormEvent"> 
+                  <string>java.awt.event.ItemListener</string> 
+                  <string>itemStateChanged</string> 
+                  <string>cmbStoffartItemStateChanged</string> 
+                  <boolean>true</boolean> 
                  </object> 
-                </void> 
-                <void method="add"> 
-                 <object class="com.jformdesigner.model.FormComponent"> 
-                  <string>javax.swing.JLabel</string> 
-                  <void method="setProperty"> 
-                   <string>labelFor</string> 
-                   <object class="com.jformdesigner.model.FormReference"> 
-                    <string>txtGTIN</string> 
-                   </object> 
-                  </void> 
-                  <void method="setProperty"> 
-                   <string>text</string> 
-                   <string>Strichcode</string> 
-                  </void> 
-                  <void method="setProperty"> 
-                   <string>font</string> 
-                   <object class="java.awt.Font"> 
-                    <string>sansserif</string> 
-                    <int>0</int> 
-                    <int>24</int> 
-                   </object> 
-                  </void> 
-                  <void property="name"> 
-                   <string>lblStrichcode</string> 
-                  </void> 
-                 </object> 
-                </void> 
-                <void method="add"> 
-                 <object class="com.jformdesigner.model.FormComponent"> 
-                  <string>javax.swing.JTextField</string> 
-                  <void method="setProperty"> 
-                   <string>font</string> 
-                   <object id="Font2" class="java.awt.Font"> 
-                    <string>sansserif</string> 
-                    <int>0</int> 
-                    <int>24</int> 
-                   </object> 
-                  </void> 
-                  <void property="name"> 
-                   <string>txtGTIN</string> 
-                  </void> 
-                  <void method="addEvent"> 
-                   <object class="com.jformdesigner.model.FormEvent"> 
-                    <string>java.awt.event.ActionListener</string> 
-                    <string>actionPerformed</string> 
-                    <string>txtGTINActionPerformed</string> 
-                    <boolean>true</boolean> 
-                   </object> 
-                  </void> 
-                  <void method="addEvent"> 
-                   <object class="com.jformdesigner.model.FormEvent"> 
-                    <string>java.awt.event.FocusListener</string> 
-                    <string>focusGained</string> 
-                    <string>txtGTINFocusGained</string> 
-                    <boolean>true</boolean> 
-                   </object> 
-                  </void> 
-                  <void method="addEvent"> 
-                   <object class="com.jformdesigner.model.FormEvent"> 
-                    <string>java.awt.event.FocusListener</string> 
-                    <string>focusLost</string> 
-                    <string>txtGTINFocusLost</string> 
-                    <boolean>true</boolean> 
-                   </object> 
-                  </void> 
-                  <void method="addEvent"> 
-                   <object class="com.jformdesigner.model.FormEvent"> 
-                    <string>javax.swing.event.CaretListener</string> 
-                    <string>caretUpdate</string> 
-                    <string>txtGTINCaretUpdate</string> 
-                    <boolean>true</boolean> 
-                   </object> 
-                  </void> 
-                 </object> 
-                </void> 
-                <void method="add"> 
-                 <object class="com.jformdesigner.model.FormComponent"> 
-                  <string>javax.swing.JTextField</string> 
-                  <void method="setProperty"> 
-                   <string>font</string> 
-                   <object idref="Font2"/> 
-                  </void> 
-                  <void property="name"> 
-                   <string>txtPackGroesse</string> 
-                  </void> 
-                  <void method="addEvent"> 
-                   <object class="com.jformdesigner.model.FormEvent"> 
-                    <string>javax.swing.event.CaretListener</string> 
-                    <string>caretUpdate</string> 
-                    <string>txtPackGroesseCaretUpdate</string> 
-                    <boolean>true</boolean> 
-                   </object> 
-                  </void> 
-                  <void method="addEvent"> 
-                   <object class="com.jformdesigner.model.FormEvent"> 
-                    <string>java.awt.event.FocusListener</string> 
-                    <string>focusGained</string> 
-                    <string>txtPackGroesseFocusGained</string> 
-                    <boolean>true</boolean> 
-                   </object> 
-                  </void> 
-                 </object> 
-                </void> 
-                <void method="add"> 
-                 <object class="com.jformdesigner.model.FormComponent"> 
-                  <string>javax.swing.JLabel</string> 
-                  <void method="setProperty"> 
-                   <string>labelFor</string> 
-                   <object class="com.jformdesigner.model.FormReference"> 
-                    <string>txtPackGroesse</string> 
-                   </object> 
-                  </void> 
-                  <void method="setProperty"> 
-                   <string>text</string> 
-                   <string>Packungsgröße</string> 
-                  </void> 
-                  <void method="setProperty"> 
-                   <string>font</string> 
-                   <object idref="Font2"/> 
-                  </void> 
-                  <void property="name"> 
-                   <string>lbl4</string> 
-                  </void> 
-                 </object> 
-                </void> 
-                <void method="add"> 
-                 <object class="com.jformdesigner.model.FormComponent"> 
-                  <string>javax.swing.JLabel</string> 
-                  <void method="setProperty"> 
-                   <string>text</string> 
-                   <string>text</string> 
-                  </void> 
-                  <void method="setProperty"> 
-                   <string>font</string> 
-                   <object class="java.awt.Font"> 
-                    <string>sansserif</string> 
-                    <int>0</int> 
-                    <int>24</int> 
-                   </object> 
-                  </void> 
-                  <void property="name"> 
-                   <string>lblEinheit1</string> 
-                  </void> 
-                 </object> 
-                </void> 
-               </object> 
-               <object class="com.jformdesigner.model.FormLayoutConstraints"> 
-                <class>java.lang.String</class> 
-                <void method="setProperty"> 
-                 <string>value</string> 
-                 <string>left</string> 
                 </void> 
                </object> 
               </void> 
               <void method="add"> 
-               <object class="com.jformdesigner.model.FormContainer"> 
-                <string>javax.swing.JPanel</string> 
-                <object class="com.jformdesigner.model.FormLayoutManager"> 
-                 <class>org.jdesktop.layout.GroupLayout</class> 
-                 <void method="setProperty"> 
-                  <string>$horizontalGroup</string> 
-                  <string>par l {seq {par l {seq l {comp btnAcceptProd::::936:x, space :p::p, comp btnCancelNeuProd:::p:83:p}, seq l {space :p:2:p, par l {comp splitWarengruppe::t::1023:x, comp splitStoffart::l::1023:x}}, seq l {space :::p, comp lblMessageLower::::1019:x}}, space :::p}}</string> 
-                 </void> 
-                 <void method="setProperty"> 
-                  <string>$verticalGroup</string> 
-                  <string>par l {seq l {comp splitStoffart:::p:46:p, space :::p, comp splitWarengruppe:::p:46:p, space :::p, comp lblMessageLower::::98:x, space u:::p, par l:::p {comp btnCancelNeuProd:3::::x:1, comp btnAcceptProd:3:l:p::p:1}, space :::p}}</string> 
-                 </void> 
-                </object> 
+               <object class="com.jformdesigner.model.FormComponent"> 
+                <string>javax.swing.JButton</string> 
                 <void method="setProperty"> 
-                 <string>preferredSize</string> 
-                 <object class="java.awt.Dimension"> 
-                  <int>952</int> 
-                  <int>182</int> 
+                 <string>font</string> 
+                 <object idref="Font1"/> 
+                </void> 
+                <void method="setProperty"> 
+                 <string>icon</string> 
+                 <object class="com.jformdesigner.model.SwingIcon"> 
+                  <int>0</int> 
+                  <string>/artwork/32x32/edit_add.png</string> 
                  </object> 
                 </void> 
                 <void property="name"> 
-                 <string>pnlProduktLower</string> 
+                 <string>btnAddStoffart</string> 
                 </void> 
-                <void method="add"> 
-                 <object class="com.jformdesigner.model.FormContainer"> 
-                  <string>javax.swing.JSplitPane</string> 
-                  <object class="com.jformdesigner.model.FormLayoutManager"> 
-                   <class>javax.swing.JSplitPane</class> 
-                  </object> 
-                  <void method="setProperty"> 
-                   <string>enabled</string> 
-                   <boolean>false</boolean> 
-                  </void> 
-                  <void property="name"> 
-                   <string>splitStoffart</string> 
-                  </void> 
-                  <void method="add"> 
-                   <object class="com.jformdesigner.model.FormContainer"> 
-                    <string>javax.swing.JPanel</string> 
-                    <object class="com.jformdesigner.model.FormLayoutManager"> 
-                     <class>javax.swing.BoxLayout</class> 
-                    </object> 
-                    <void property="name"> 
-                     <string>panel12</string> 
-                    </void> 
-                    <void method="add"> 
-                     <object class="com.jformdesigner.model.FormComponent"> 
-                      <string>javax.swing.JComboBox</string> 
-                      <void method="setProperty"> 
-                       <string>font</string> 
-                       <object idref="Font1"/> 
-                      </void> 
-                      <void method="setProperty"> 
-                       <string>model</string> 
-                       <object idref="DefaultComboBoxModel0"/> 
-                      </void> 
-                      <void property="name"> 
-                       <string>cmbStoffart</string> 
-                      </void> 
-                      <void method="addEvent"> 
-                       <object class="com.jformdesigner.model.FormEvent"> 
-                        <string>java.awt.event.ItemListener</string> 
-                        <string>itemStateChanged</string> 
-                        <string>cmbStoffartItemStateChanged</string> 
-                        <boolean>true</boolean> 
-                       </object> 
-                      </void> 
-                     </object> 
-                    </void> 
-                    <void method="add"> 
-                     <object class="com.jformdesigner.model.FormComponent"> 
-                      <string>javax.swing.JButton</string> 
-                      <void method="setProperty"> 
-                       <string>font</string> 
-                       <object idref="Font1"/> 
-                      </void> 
-                      <void method="setProperty"> 
-                       <string>icon</string> 
-                       <object class="com.jformdesigner.model.SwingIcon"> 
-                        <int>0</int> 
-                        <string>/artwork/32x32/edit_add.png</string> 
-                       </object> 
-                      </void> 
-                      <void property="name"> 
-                       <string>btnAddStoffart</string> 
-                      </void> 
-                      <void method="addEvent"> 
-                       <object class="com.jformdesigner.model.FormEvent"> 
-                        <string>java.awt.event.ActionListener</string> 
-                        <string>actionPerformed</string> 
-                        <string>btnAddStoffartActionPerformed</string> 
-                        <boolean>true</boolean> 
-                       </object> 
-                      </void> 
-                     </object> 
-                    </void> 
-                   </object> 
-                   <object class="com.jformdesigner.model.FormLayoutConstraints"> 
-                    <class>java.lang.String</class> 
-                    <void method="setProperty"> 
-                     <string>value</string> 
-                     <string>left</string> 
-                    </void> 
-                   </object> 
-                  </void> 
-                  <void method="add"> 
-                   <object class="com.jformdesigner.model.FormContainer"> 
-                    <string>javax.swing.JPanel</string> 
-                    <object class="com.jformdesigner.model.FormLayoutManager"> 
-                     <class>javax.swing.BoxLayout</class> 
-                    </object> 
-                    <void property="name"> 
-                     <string>panel13</string> 
-                    </void> 
-                    <void method="add"> 
-                     <object class="com.jformdesigner.model.FormComponent"> 
-                      <string>javax.swing.JTextField</string> 
-                      <void method="setProperty"> 
-                       <string>font</string> 
-                       <object idref="Font1"/> 
-                      </void> 
-                      <void method="setProperty"> 
-                       <string>text</string> 
-                       <string> </string> 
-                      </void> 
-                      <void property="name"> 
-                       <string>txtNewStoffart</string> 
-                      </void> 
-                      <void method="addEvent"> 
-                       <object class="com.jformdesigner.model.FormEvent"> 
-                        <string>java.awt.event.FocusListener</string> 
-                        <string>focusGained</string> 
-                        <string>txtNewStoffartFocusGained</string> 
-                        <boolean>true</boolean> 
-                       </object> 
-                      </void> 
-                     </object> 
-                    </void> 
-                    <void method="add"> 
-                     <object class="com.jformdesigner.model.FormComponent"> 
-                      <string>javax.swing.JButton</string> 
-                      <void method="setProperty"> 
-                       <string>font</string> 
-                       <object idref="Font1"/> 
-                      </void> 
-                      <void method="setProperty"> 
-                       <string>icon</string> 
-                       <object idref="SwingIcon1"/> 
-                      </void> 
-                      <void property="name"> 
-                       <string>btnApplyStoffart</string> 
-                      </void> 
-                      <void method="addEvent"> 
-                       <object class="com.jformdesigner.model.FormEvent"> 
-                        <string>java.awt.event.ActionListener</string> 
-                        <string>actionPerformed</string> 
-                        <string>btnApplyStoffartActionPerformed</string> 
-                        <boolean>true</boolean> 
-                       </object> 
-                      </void> 
-                     </object> 
-                    </void> 
-                    <void method="add"> 
-                     <object class="com.jformdesigner.model.FormComponent"> 
-                      <string>javax.swing.JButton</string> 
-                      <void method="setProperty"> 
-                       <string>font</string> 
-                       <object idref="Font1"/> 
-                      </void> 
-                      <void method="setProperty"> 
-                       <string>icon</string> 
-                       <object idref="SwingIcon2"/> 
-                      </void> 
-                      <void property="name"> 
-                       <string>btnCancelStoffart</string> 
-                      </void> 
-                      <void method="addEvent"> 
-                       <object class="com.jformdesigner.model.FormEvent"> 
-                        <string>java.awt.event.ActionListener</string> 
-                        <string>actionPerformed</string> 
-                        <string>btnCancelStoffartActionPerformed</string> 
-                        <boolean>true</boolean> 
-                       </object> 
-                      </void> 
-                     </object> 
-                    </void> 
-                   </object> 
-                   <object class="com.jformdesigner.model.FormLayoutConstraints"> 
-                    <class>java.lang.String</class> 
-                    <void method="setProperty"> 
-                     <string>value</string> 
-                     <string>right</string> 
-                    </void> 
-                   </object> 
-                  </void> 
+                <void method="addEvent"> 
+                 <object class="com.jformdesigner.model.FormEvent"> 
+                  <string>java.awt.event.ActionListener</string> 
+                  <string>actionPerformed</string> 
+                  <string>btnAddStoffartActionPerformed</string> 
+                  <boolean>true</boolean> 
                  </object> 
-                </void> 
-                <void method="add"> 
-                 <object class="com.jformdesigner.model.FormComponent"> 
-                  <string>javax.swing.JButton</string> 
-                  <void method="setProperty"> 
-                   <string>text</string> 
-                   <string>Produkt hinzufügen</string> 
-                  </void> 
-                  <void method="setProperty"> 
-                   <string>font</string> 
-                   <object class="java.awt.Font"> 
-                    <string>sansserif</string> 
-                    <int>0</int> 
-                    <int>24</int> 
-                   </object> 
-                  </void> 
-                  <void method="setProperty"> 
-                   <string>background</string> 
-                   <object class="java.awt.Color"> 
-                    <int>255</int> 
-                    <int>102</int> 
-                    <int>102</int> 
-                    <int>255</int> 
-                   </object> 
-                  </void> 
-                  <void property="name"> 
-                   <string>btnAcceptProd</string> 
-                  </void> 
-                  <void method="addEvent"> 
-                   <object class="com.jformdesigner.model.FormEvent"> 
-                    <string>java.awt.event.ActionListener</string> 
-                    <string>actionPerformed</string> 
-                    <string>btnAcceptProdActionPerformed</string> 
-                    <boolean>true</boolean> 
-                   </object> 
-                  </void> 
-                 </object> 
-                </void> 
-                <void method="add"> 
-                 <object class="com.jformdesigner.model.FormComponent"> 
-                  <string>javax.swing.JButton</string> 
-                  <void method="setProperty"> 
-                   <string>icon</string> 
-                   <object class="com.jformdesigner.model.SwingIcon"> 
-                    <int>0</int> 
-                    <string>/artwork/32x32/cancel.png</string> 
-                   </object> 
-                  </void> 
-                  <void property="name"> 
-                   <string>btnCancelNeuProd</string> 
-                  </void> 
-                  <void method="addEvent"> 
-                   <object class="com.jformdesigner.model.FormEvent"> 
-                    <string>java.awt.event.ActionListener</string> 
-                    <string>actionPerformed</string> 
-                    <string>btnCancelNeuProdActionPerformed</string> 
-                    <boolean>true</boolean> 
-                   </object> 
-                  </void> 
-                 </object> 
-                </void> 
-                <void method="add"> 
-                 <object class="com.jformdesigner.model.FormContainer"> 
-                  <string>javax.swing.JSplitPane</string> 
-                  <object class="com.jformdesigner.model.FormLayoutManager"> 
-                   <class>javax.swing.JSplitPane</class> 
-                  </object> 
-                  <void method="setProperty"> 
-                   <string>enabled</string> 
-                   <boolean>false</boolean> 
-                  </void> 
-                  <void property="name"> 
-                   <string>splitWarengruppe</string> 
-                  </void> 
-                  <void method="add"> 
-                   <object class="com.jformdesigner.model.FormContainer"> 
-                    <string>javax.swing.JPanel</string> 
-                    <object class="com.jformdesigner.model.FormLayoutManager"> 
-                     <class>javax.swing.BoxLayout</class> 
-                    </object> 
-                    <void property="name"> 
-                     <string>panel8</string> 
-                    </void> 
-                    <void method="add"> 
-                     <object class="com.jformdesigner.model.FormComponent"> 
-                      <string>javax.swing.JComboBox</string> 
-                      <void method="setProperty"> 
-                       <string>font</string> 
-                       <object idref="Font1"/> 
-                      </void> 
-                      <void method="setProperty"> 
-                       <string>model</string> 
-                       <object idref="DefaultComboBoxModel0"/> 
-                      </void> 
-                      <void property="name"> 
-                       <string>cmbWarengruppe</string> 
-                      </void> 
-                      <void method="addEvent"> 
-                       <object class="com.jformdesigner.model.FormEvent"> 
-                        <string>java.awt.event.ItemListener</string> 
-                        <string>itemStateChanged</string> 
-                        <string>cmbWarengruppeItemStateChanged</string> 
-                        <boolean>true</boolean> 
-                       </object> 
-                      </void> 
-                     </object> 
-                    </void> 
-                    <void method="add"> 
-                     <object class="com.jformdesigner.model.FormComponent"> 
-                      <string>javax.swing.JButton</string> 
-                      <void method="setProperty"> 
-                       <string>font</string> 
-                       <object idref="Font1"/> 
-                      </void> 
-                      <void method="setProperty"> 
-                       <string>icon</string> 
-                       <object idref="SwingIcon0"/> 
-                      </void> 
-                      <void property="name"> 
-                       <string>btnAddWarengruppe</string> 
-                      </void> 
-                      <void method="addEvent"> 
-                       <object class="com.jformdesigner.model.FormEvent"> 
-                        <string>java.awt.event.ActionListener</string> 
-                        <string>actionPerformed</string> 
-                        <string>btnAddWarengruppeActionPerformed</string> 
-                        <boolean>true</boolean> 
-                       </object> 
-                      </void> 
-                     </object> 
-                    </void> 
-                   </object> 
-                   <object class="com.jformdesigner.model.FormLayoutConstraints"> 
-                    <class>java.lang.String</class> 
-                    <void method="setProperty"> 
-                     <string>value</string> 
-                     <string>left</string> 
-                    </void> 
-                   </object> 
-                  </void> 
-                  <void method="add"> 
-                   <object class="com.jformdesigner.model.FormContainer"> 
-                    <string>javax.swing.JPanel</string> 
-                    <object class="com.jformdesigner.model.FormLayoutManager"> 
-                     <class>javax.swing.BoxLayout</class> 
-                    </object> 
-                    <void property="name"> 
-                     <string>panel9</string> 
-                    </void> 
-                    <void method="add"> 
-                     <object class="com.jformdesigner.model.FormComponent"> 
-                      <string>javax.swing.JTextField</string> 
-                      <void method="setProperty"> 
-                       <string>font</string> 
-                       <object idref="Font1"/> 
-                      </void> 
-                      <void method="setProperty"> 
-                       <string>text</string> 
-                       <string> </string> 
-                      </void> 
-                      <void property="name"> 
-                       <string>txtNewWarengruppe</string> 
-                      </void> 
-                      <void method="addEvent"> 
-                       <object class="com.jformdesigner.model.FormEvent"> 
-                        <string>java.awt.event.FocusListener</string> 
-                        <string>focusGained</string> 
-                        <string>txtNewWarengruppeFocusGained</string> 
-                        <boolean>true</boolean> 
-                       </object> 
-                      </void> 
-                     </object> 
-                    </void> 
-                    <void method="add"> 
-                     <object class="com.jformdesigner.model.FormComponent"> 
-                      <string>javax.swing.JButton</string> 
-                      <void method="setProperty"> 
-                       <string>font</string> 
-                       <object idref="Font1"/> 
-                      </void> 
-                      <void method="setProperty"> 
-                       <string>icon</string> 
-                       <object idref="SwingIcon1"/> 
-                      </void> 
-                      <void property="name"> 
-                       <string>btnApplyWarengruppe</string> 
-                      </void> 
-                      <void method="addEvent"> 
-                       <object class="com.jformdesigner.model.FormEvent"> 
-                        <string>java.awt.event.ActionListener</string> 
-                        <string>actionPerformed</string> 
-                        <string>btnApplyWarengruppeActionPerformed</string> 
-                        <boolean>true</boolean> 
-                       </object> 
-                      </void> 
-                     </object> 
-                    </void> 
-                    <void method="add"> 
-                     <object class="com.jformdesigner.model.FormComponent"> 
-                      <string>javax.swing.JButton</string> 
-                      <void method="setProperty"> 
-                       <string>font</string> 
-                       <object idref="Font1"/> 
-                      </void> 
-                      <void method="setProperty"> 
-                       <string>icon</string> 
-                       <object idref="SwingIcon2"/> 
-                      </void> 
-                      <void property="name"> 
-                       <string>btnCancelWarengruppe</string> 
-                      </void> 
-                      <void method="addEvent"> 
-                       <object class="com.jformdesigner.model.FormEvent"> 
-                        <string>java.awt.event.ActionListener</string> 
-                        <string>actionPerformed</string> 
-                        <string>btnCancelWarengruppeActionPerformed</string> 
-                        <boolean>true</boolean> 
-                       </object> 
-                      </void> 
-                     </object> 
-                    </void> 
-                   </object> 
-                   <object class="com.jformdesigner.model.FormLayoutConstraints"> 
-                    <class>java.lang.String</class> 
-                    <void method="setProperty"> 
-                     <string>value</string> 
-                     <string>right</string> 
-                    </void> 
-                   </object> 
-                  </void> 
-                 </object> 
-                </void> 
-                <void method="add"> 
-                 <object class="com.jformdesigner.model.FormComponent"> 
-                  <string>javax.swing.JLabel</string> 
-                  <void method="setProperty"> 
-                   <string>font</string> 
-                   <object class="java.awt.Font"> 
-                    <string>sansserif</string> 
-                    <int>1</int> 
-                    <int>24</int> 
-                   </object> 
-                  </void> 
-                  <void method="setProperty"> 
-                   <string>horizontalAlignment</string> 
-                   <int>0</int> 
-                  </void> 
-                  <void property="name"> 
-                   <string>lblMessageLower</string> 
-                  </void> 
-                 </object> 
-                </void> 
-               </object> 
-               <object class="com.jformdesigner.model.FormLayoutConstraints"> 
-                <class>java.lang.String</class> 
-                <void method="setProperty"> 
-                 <string>value</string> 
-                 <string>right</string> 
                 </void> 
                </object> 
               </void> 
              </object> 
+             <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+              <class>java.lang.String</class> 
+              <void method="setProperty"> 
+               <string>value</string> 
+               <string>card1</string> 
+              </void> 
+             </object> 
+            </void> 
+            <void method="add"> 
+             <object class="com.jformdesigner.model.FormContainer"> 
+              <string>javax.swing.JPanel</string> 
+              <object class="com.jformdesigner.model.FormLayoutManager"> 
+               <class>javax.swing.BoxLayout</class> 
+              </object> 
+              <void property="name"> 
+               <string>pnlEditStoffart</string> 
+              </void> 
+              <void method="add"> 
+               <object class="com.jformdesigner.model.FormComponent"> 
+                <string>javax.swing.JTextField</string> 
+                <void method="setProperty"> 
+                 <string>font</string> 
+                 <object idref="Font1"/> 
+                </void> 
+                <void method="setProperty"> 
+                 <string>text</string> 
+                 <string> </string> 
+                </void> 
+                <void property="name"> 
+                 <string>txtNewStoffart</string> 
+                </void> 
+                <void method="addEvent"> 
+                 <object class="com.jformdesigner.model.FormEvent"> 
+                  <string>java.awt.event.FocusListener</string> 
+                  <string>focusGained</string> 
+                  <string>txtNewStoffartFocusGained</string> 
+                  <boolean>true</boolean> 
+                 </object> 
+                </void> 
+               </object> 
+              </void> 
+              <void method="add"> 
+               <object class="com.jformdesigner.model.FormComponent"> 
+                <string>javax.swing.JButton</string> 
+                <void method="setProperty"> 
+                 <string>font</string> 
+                 <object idref="Font1"/> 
+                </void> 
+                <void method="setProperty"> 
+                 <string>icon</string> 
+                 <object idref="SwingIcon1"/> 
+                </void> 
+                <void property="name"> 
+                 <string>btnApplyStoffart</string> 
+                </void> 
+                <void method="addEvent"> 
+                 <object class="com.jformdesigner.model.FormEvent"> 
+                  <string>java.awt.event.ActionListener</string> 
+                  <string>actionPerformed</string> 
+                  <string>btnApplyStoffartActionPerformed</string> 
+                  <boolean>true</boolean> 
+                 </object> 
+                </void> 
+               </object> 
+              </void> 
+              <void method="add"> 
+               <object class="com.jformdesigner.model.FormComponent"> 
+                <string>javax.swing.JButton</string> 
+                <void method="setProperty"> 
+                 <string>font</string> 
+                 <object idref="Font1"/> 
+                </void> 
+                <void method="setProperty"> 
+                 <string>icon</string> 
+                 <object idref="SwingIcon2"/> 
+                </void> 
+                <void property="name"> 
+                 <string>btnCancelStoffart</string> 
+                </void> 
+                <void method="addEvent"> 
+                 <object class="com.jformdesigner.model.FormEvent"> 
+                  <string>java.awt.event.ActionListener</string> 
+                  <string>actionPerformed</string> 
+                  <string>btnCancelStoffartActionPerformed</string> 
+                  <boolean>true</boolean> 
+                 </object> 
+                </void> 
+               </object> 
+              </void> 
+             </object> 
+             <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+              <class>java.lang.String</class> 
+              <void method="setProperty"> 
+               <string>value</string> 
+               <string>card2</string> 
+              </void> 
+             </object> 
+            </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridY</string> 
+             <int>11</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>gridWidth</string> 
+             <int>5</int> 
+            </void> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormContainer"> 
+            <string>javax.swing.JPanel</string> 
+            <object class="com.jformdesigner.model.FormLayoutManager"> 
+             <class>java.awt.CardLayout</class> 
+            </object> 
+            <void method="setProperty"> 
+             <string>enabled</string> 
+             <boolean>false</boolean> 
+            </void> 
+            <void property="name"> 
+             <string>pnlWarengruppe</string> 
+            </void> 
+            <void method="add"> 
+             <object class="com.jformdesigner.model.FormContainer"> 
+              <string>javax.swing.JPanel</string> 
+              <object class="com.jformdesigner.model.FormLayoutManager"> 
+               <class>javax.swing.BoxLayout</class> 
+              </object> 
+              <void property="name"> 
+               <string>pnlSelWarengruppe</string> 
+              </void> 
+              <void method="add"> 
+               <object class="com.jformdesigner.model.FormComponent"> 
+                <string>javax.swing.JComboBox</string> 
+                <void method="setProperty"> 
+                 <string>font</string> 
+                 <object idref="Font1"/> 
+                </void> 
+                <void method="setProperty"> 
+                 <string>model</string> 
+                 <object idref="DefaultComboBoxModel0"/> 
+                </void> 
+                <void property="name"> 
+                 <string>cmbWarengruppe</string> 
+                </void> 
+                <void method="addEvent"> 
+                 <object class="com.jformdesigner.model.FormEvent"> 
+                  <string>java.awt.event.ItemListener</string> 
+                  <string>itemStateChanged</string> 
+                  <string>cmbWarengruppeItemStateChanged</string> 
+                  <boolean>true</boolean> 
+                 </object> 
+                </void> 
+               </object> 
+              </void> 
+              <void method="add"> 
+               <object class="com.jformdesigner.model.FormComponent"> 
+                <string>javax.swing.JButton</string> 
+                <void method="setProperty"> 
+                 <string>font</string> 
+                 <object idref="Font1"/> 
+                </void> 
+                <void method="setProperty"> 
+                 <string>icon</string> 
+                 <object idref="SwingIcon0"/> 
+                </void> 
+                <void property="name"> 
+                 <string>btnAddWarengruppe</string> 
+                </void> 
+                <void method="addEvent"> 
+                 <object class="com.jformdesigner.model.FormEvent"> 
+                  <string>java.awt.event.ActionListener</string> 
+                  <string>actionPerformed</string> 
+                  <string>btnAddWarengruppeActionPerformed</string> 
+                  <boolean>true</boolean> 
+                 </object> 
+                </void> 
+               </object> 
+              </void> 
+             </object> 
+             <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+              <class>java.lang.String</class> 
+              <void method="setProperty"> 
+               <string>value</string> 
+               <string>card1</string> 
+              </void> 
+             </object> 
+            </void> 
+            <void method="add"> 
+             <object class="com.jformdesigner.model.FormContainer"> 
+              <string>javax.swing.JPanel</string> 
+              <object class="com.jformdesigner.model.FormLayoutManager"> 
+               <class>javax.swing.BoxLayout</class> 
+              </object> 
+              <void property="name"> 
+               <string>pnlEditWarengruppe</string> 
+              </void> 
+              <void method="add"> 
+               <object class="com.jformdesigner.model.FormComponent"> 
+                <string>javax.swing.JTextField</string> 
+                <void method="setProperty"> 
+                 <string>font</string> 
+                 <object idref="Font1"/> 
+                </void> 
+                <void method="setProperty"> 
+                 <string>text</string> 
+                 <string> </string> 
+                </void> 
+                <void property="name"> 
+                 <string>txtNewWarengruppe</string> 
+                </void> 
+                <void method="addEvent"> 
+                 <object class="com.jformdesigner.model.FormEvent"> 
+                  <string>java.awt.event.FocusListener</string> 
+                  <string>focusGained</string> 
+                  <string>txtNewWarengruppeFocusGained</string> 
+                  <boolean>true</boolean> 
+                 </object> 
+                </void> 
+               </object> 
+              </void> 
+              <void method="add"> 
+               <object class="com.jformdesigner.model.FormComponent"> 
+                <string>javax.swing.JButton</string> 
+                <void method="setProperty"> 
+                 <string>font</string> 
+                 <object idref="Font1"/> 
+                </void> 
+                <void method="setProperty"> 
+                 <string>icon</string> 
+                 <object idref="SwingIcon1"/> 
+                </void> 
+                <void property="name"> 
+                 <string>btnApplyWarengruppe</string> 
+                </void> 
+                <void method="addEvent"> 
+                 <object class="com.jformdesigner.model.FormEvent"> 
+                  <string>java.awt.event.ActionListener</string> 
+                  <string>actionPerformed</string> 
+                  <string>btnApplyWarengruppeActionPerformed</string> 
+                  <boolean>true</boolean> 
+                 </object> 
+                </void> 
+               </object> 
+              </void> 
+              <void method="add"> 
+               <object class="com.jformdesigner.model.FormComponent"> 
+                <string>javax.swing.JButton</string> 
+                <void method="setProperty"> 
+                 <string>font</string> 
+                 <object idref="Font1"/> 
+                </void> 
+                <void method="setProperty"> 
+                 <string>icon</string> 
+                 <object idref="SwingIcon2"/> 
+                </void> 
+                <void property="name"> 
+                 <string>btnCancelWarengruppe</string> 
+                </void> 
+                <void method="addEvent"> 
+                 <object class="com.jformdesigner.model.FormEvent"> 
+                  <string>java.awt.event.ActionListener</string> 
+                  <string>actionPerformed</string> 
+                  <string>btnCancelWarengruppeActionPerformed</string> 
+                  <boolean>true</boolean> 
+                 </object> 
+                </void> 
+               </object> 
+              </void> 
+             </object> 
+             <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+              <class>java.lang.String</class> 
+              <void method="setProperty"> 
+               <string>value</string> 
+               <string>card2</string> 
+              </void> 
+             </object> 
+            </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridY</string> 
+             <int>13</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>gridWidth</string> 
+             <int>5</int> 
+            </void> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormComponent"> 
+            <string>javax.swing.JButton</string> 
+            <void method="setProperty"> 
+             <string>text</string> 
+             <string>Produkt hinzufügen</string> 
+            </void> 
+            <void method="setProperty"> 
+             <string>font</string> 
+             <object class="java.awt.Font"> 
+              <string>sansserif</string> 
+              <int>0</int> 
+              <int>24</int> 
+             </object> 
+            </void> 
+            <void method="setProperty"> 
+             <string>background</string> 
+             <object class="java.awt.Color"> 
+              <int>255</int> 
+              <int>102</int> 
+              <int>102</int> 
+              <int>255</int> 
+             </object> 
+            </void> 
+            <void property="name"> 
+             <string>btnAcceptProd</string> 
+            </void> 
+            <void method="addEvent"> 
+             <object class="com.jformdesigner.model.FormEvent"> 
+              <string>java.awt.event.ActionListener</string> 
+              <string>actionPerformed</string> 
+              <string>btnAcceptProdActionPerformed</string> 
+              <boolean>true</boolean> 
+             </object> 
+            </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridY</string> 
+             <int>15</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>gridWidth</string> 
+             <int>3</int> 
+            </void> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormComponent"> 
+            <string>javax.swing.JLabel</string> 
+            <void method="setProperty"> 
+             <string>font</string> 
+             <object class="java.awt.Font"> 
+              <string>sansserif</string> 
+              <int>1</int> 
+              <int>24</int> 
+             </object> 
+            </void> 
+            <void method="setProperty"> 
+             <string>horizontalAlignment</string> 
+             <int>0</int> 
+            </void> 
+            <void property="name"> 
+             <string>lblMessageLower</string> 
+            </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridY</string> 
+             <int>15</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>gridWidth</string> 
+             <int>3</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>vAlign</string> 
+             <object class="com.jgoodies.forms.layout.CellConstraints" field="FILL"/> 
+            </void> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormComponent"> 
+            <string>javax.swing.JButton</string> 
+            <void method="setProperty"> 
+             <string>icon</string> 
+             <object class="com.jformdesigner.model.SwingIcon"> 
+              <int>0</int> 
+              <string>/artwork/32x32/cancel.png</string> 
+             </object> 
+            </void> 
+            <void property="name"> 
+             <string>btnCancelNeuProd</string> 
+            </void> 
+            <void method="addEvent"> 
+             <object class="com.jformdesigner.model.FormEvent"> 
+              <string>java.awt.event.ActionListener</string> 
+              <string>actionPerformed</string> 
+              <string>btnCancelNeuProdActionPerformed</string> 
+              <boolean>true</boolean> 
+             </object> 
+            </void> 
+           </object> 
+           <object class="com.jformdesigner.model.FormLayoutConstraints"> 
+            <class>com.jgoodies.forms.layout.CellConstraints</class> 
+            <void method="setProperty"> 
+             <string>gridY</string> 
+             <int>15</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>gridX</string> 
+             <int>5</int> 
             </void> 
            </object> 
           </void> 
@@ -2534,7 +2539,7 @@
           <class>java.lang.String</class> 
           <void method="setProperty"> 
            <string>value</string> 
-           <string>right</string> 
+           <string>card2</string> 
           </void> 
          </object> 
         </void> 
@@ -2554,7 +2559,7 @@
        <string>size</string> 
        <object class="java.awt.Dimension"> 
         <int>1035</int> 
-        <int>1130</int> 
+        <int>810</int> 
        </object> 
       </void> 
      </object> 

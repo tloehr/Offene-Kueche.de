@@ -54,7 +54,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
     private Printer pageprinter, etiprinter1, etiprinter2;
     private Form form1, form2;
-    private double splitLiefADouble, splitLagerADouble;
+//    private double splitLiefADouble, splitLagerADouble;
 
     private DateFormat df, tf;
 
@@ -79,11 +79,12 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
     private void btnVerpackteWareItemStateChanged(ItemEvent e) {
 
+        txtGTIN.setEnabled(btnVerpackteWare.isSelected());
+        txtPackGroesse.setEnabled(btnVerpackteWare.isSelected());
+
         if (btnVerpackteWare.isSelected()) {
-            Tools.showSide(splitNeuProd, 0.3d, 500);
             txtGTIN.requestFocus();
         } else {
-            Tools.showSide(splitNeuProd, 0.08d, 500);
             txtProdBezeichnung.requestFocus();
             txtGTIN.setText("");
             neuesProdukt.setGtin(null);
@@ -701,7 +702,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-        splitMain = new JSplitPane();
+        splitMain = new JPanel();
         pnlUpper = new JPanel();
         pnlUpperLeft = new JPanel();
         txtSearch = new JTextField();
@@ -748,40 +749,35 @@ public class PnlWareneingang extends DefaultTouchPanel {
         btnEinbuchen = new JButton();
         btnSofortBuchen = new JToggleButton();
         pnlLower = new JPanel();
-        panel1 = new JPanel();
         lbl1 = new JLabel();
         txtProdBezeichnung = new JTextField();
         cmbEinheit = new JComboBox();
         cmbLagerart = new JComboBox();
-        panel2 = new JPanel();
-        splitNeuProd = new JSplitPane();
-        pnlVerpackt = new JPanel();
         btnVerpackteWare = new JToggleButton();
         lblStrichcode = new JLabel();
         txtGTIN = new JTextField();
-        txtPackGroesse = new JTextField();
         lbl4 = new JLabel();
+        txtPackGroesse = new JTextField();
         lblEinheit1 = new JLabel();
-        pnlProduktLower = new JPanel();
-        splitStoffart = new JSplitPane();
-        panel12 = new JPanel();
+        pnlStoffart = new JPanel();
+        pnlSelStoffart = new JPanel();
         cmbStoffart = new JComboBox();
         btnAddStoffart = new JButton();
-        panel13 = new JPanel();
+        pnlEditStoffart = new JPanel();
         txtNewStoffart = new JTextField();
         btnApplyStoffart = new JButton();
         btnCancelStoffart = new JButton();
-        btnAcceptProd = new JButton();
-        btnCancelNeuProd = new JButton();
-        splitWarengruppe = new JSplitPane();
-        panel8 = new JPanel();
+        pnlWarengruppe = new JPanel();
+        pnlSelWarengruppe = new JPanel();
         cmbWarengruppe = new JComboBox();
         btnAddWarengruppe = new JButton();
-        panel9 = new JPanel();
+        pnlEditWarengruppe = new JPanel();
         txtNewWarengruppe = new JTextField();
         btnApplyWarengruppe = new JButton();
         btnCancelWarengruppe = new JButton();
+        btnAcceptProd = new JButton();
         lblMessageLower = new JLabel();
+        btnCancelNeuProd = new JButton();
 
         //======== this ========
         setMinimumSize(new Dimension(500, 300));
@@ -796,17 +792,16 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
         //======== splitMain ========
         {
-            splitMain.setOrientation(JSplitPane.VERTICAL_SPLIT);
-            splitMain.setDividerLocation(500);
             splitMain.setEnabled(false);
             splitMain.setMinimumSize(new Dimension(500, 400));
             splitMain.setPreferredSize(new Dimension(500, 400));
+            splitMain.setLayout(new CardLayout());
 
             //======== pnlUpper ========
             {
                 pnlUpper.setLayout(new FormLayout(
                     "default, $lcgap, default:grow",
-                    "fill:default:grow, $lgap, default"));
+                    "fill:default:grow"));
 
                 //======== pnlUpperLeft ========
                 {
@@ -1279,6 +1274,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         txtLog.setEditable(false);
                         txtLog.setBackground(Color.lightGray);
                         txtLog.setPreferredSize(new Dimension(12, 70));
+                        txtLog.setLineWrap(true);
                         scrollPane2.setViewportView(txtLog);
                     }
                     pnlUpperRight.add(scrollPane2, CC.xywh(3, 13, 5, 1));
@@ -1359,442 +1355,312 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 }
                 pnlUpper.add(pnlUpperRight, CC.xy(3, 1));
             }
-            splitMain.setTopComponent(pnlUpper);
+            splitMain.add(pnlUpper, "card1");
 
             //======== pnlLower ========
             {
-                pnlLower.setLayout(new BoxLayout(pnlLower, BoxLayout.PAGE_AXIS));
+                pnlLower.setLayout(new FormLayout(
+                    "default, $lcgap, default:grow, $lcgap, default",
+                    "fill:default, $rgap, 6*(default, $lgap), default"));
 
-                //======== panel1 ========
+                //---- lbl1 ----
+                lbl1.setLabelFor(txtProdBezeichnung);
+                lbl1.setText("Produkt ");
+                lbl1.setFont(new Font("sansserif", Font.PLAIN, 24));
+                pnlLower.add(lbl1, CC.xy(1, 1));
+
+                //---- txtProdBezeichnung ----
+                txtProdBezeichnung.setFont(new Font("sansserif", Font.PLAIN, 24));
+                txtProdBezeichnung.addFocusListener(new FocusAdapter() {
+                    @Override
+                    public void focusGained(FocusEvent e) {
+                        txtProdBezeichnungFocusGained(e);
+                    }
+                });
+                txtProdBezeichnung.addCaretListener(new CaretListener() {
+                    @Override
+                    public void caretUpdate(CaretEvent e) {
+                        txtProdBezeichnungCaretUpdate(e);
+                    }
+                });
+                pnlLower.add(txtProdBezeichnung, CC.xywh(3, 1, 3, 1));
+
+                //---- cmbEinheit ----
+                cmbEinheit.setFont(new Font("sansserif", Font.PLAIN, 24));
+                cmbEinheit.setPreferredSize(new Dimension(70, 45));
+                cmbEinheit.addItemListener(new ItemListener() {
+                    @Override
+                    public void itemStateChanged(ItemEvent e) {
+                        cmbEinheitItemStateChanged(e);
+                    }
+                });
+                pnlLower.add(cmbEinheit, CC.xy(1, 3));
+
+                //---- cmbLagerart ----
+                cmbLagerart.setFont(new Font("sansserif", Font.PLAIN, 24));
+                cmbLagerart.setPreferredSize(new Dimension(70, 45));
+                cmbLagerart.addItemListener(new ItemListener() {
+                    @Override
+                    public void itemStateChanged(ItemEvent e) {
+                        cmbLagerartItemStateChanged(e);
+                    }
+                });
+                pnlLower.add(cmbLagerart, CC.xywh(3, 3, 3, 1));
+
+                //---- btnVerpackteWare ----
+                btnVerpackteWare.setText("Verpackte Ware");
+                btnVerpackteWare.setFont(new Font("sansserif", Font.PLAIN, 24));
+                btnVerpackteWare.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/ark.png")));
+                btnVerpackteWare.addItemListener(new ItemListener() {
+                    @Override
+                    public void itemStateChanged(ItemEvent e) {
+                        btnVerpackteWareItemStateChanged(e);
+                    }
+                });
+                pnlLower.add(btnVerpackteWare, CC.xywh(1, 5, 5, 1));
+
+                //---- lblStrichcode ----
+                lblStrichcode.setLabelFor(txtGTIN);
+                lblStrichcode.setText("Strichcode");
+                lblStrichcode.setFont(new Font("sansserif", Font.PLAIN, 24));
+                pnlLower.add(lblStrichcode, CC.xy(1, 7));
+
+                //---- txtGTIN ----
+                txtGTIN.setFont(new Font("sansserif", Font.PLAIN, 24));
+                txtGTIN.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        txtGTINActionPerformed(e);
+                    }
+                });
+                txtGTIN.addFocusListener(new FocusAdapter() {
+                    @Override
+                    public void focusGained(FocusEvent e) {
+                        txtGTINFocusGained(e);
+                    }
+                    @Override
+                    public void focusLost(FocusEvent e) {
+                        txtGTINFocusLost(e);
+                    }
+                });
+                txtGTIN.addCaretListener(new CaretListener() {
+                    @Override
+                    public void caretUpdate(CaretEvent e) {
+                        txtGTINCaretUpdate(e);
+                    }
+                });
+                pnlLower.add(txtGTIN, CC.xywh(3, 7, 3, 1));
+
+                //---- lbl4 ----
+                lbl4.setLabelFor(txtPackGroesse);
+                lbl4.setText("Packungsgr\u00f6\u00dfe");
+                lbl4.setFont(new Font("sansserif", Font.PLAIN, 24));
+                pnlLower.add(lbl4, CC.xy(1, 9));
+
+                //---- txtPackGroesse ----
+                txtPackGroesse.setFont(new Font("sansserif", Font.PLAIN, 24));
+                txtPackGroesse.addCaretListener(new CaretListener() {
+                    @Override
+                    public void caretUpdate(CaretEvent e) {
+                        txtPackGroesseCaretUpdate(e);
+                    }
+                });
+                txtPackGroesse.addFocusListener(new FocusAdapter() {
+                    @Override
+                    public void focusGained(FocusEvent e) {
+                        txtPackGroesseFocusGained(e);
+                    }
+                });
+                pnlLower.add(txtPackGroesse, CC.xy(3, 9));
+
+                //---- lblEinheit1 ----
+                lblEinheit1.setText("text");
+                lblEinheit1.setFont(new Font("sansserif", Font.PLAIN, 24));
+                pnlLower.add(lblEinheit1, CC.xy(5, 9));
+
+                //======== pnlStoffart ========
                 {
+                    pnlStoffart.setLayout(new CardLayout());
 
-                    //---- lbl1 ----
-                    lbl1.setLabelFor(txtProdBezeichnung);
-                    lbl1.setText("Produkt");
-                    lbl1.setFont(new Font("sansserif", Font.PLAIN, 24));
-
-                    //---- txtProdBezeichnung ----
-                    txtProdBezeichnung.setFont(new Font("sansserif", Font.PLAIN, 24));
-                    txtProdBezeichnung.addFocusListener(new FocusAdapter() {
-                        @Override
-                        public void focusGained(FocusEvent e) {
-                            txtProdBezeichnungFocusGained(e);
-                        }
-                    });
-                    txtProdBezeichnung.addCaretListener(new CaretListener() {
-                        @Override
-                        public void caretUpdate(CaretEvent e) {
-                            txtProdBezeichnungCaretUpdate(e);
-                        }
-                    });
-
-                    //---- cmbEinheit ----
-                    cmbEinheit.setFont(new Font("sansserif", Font.PLAIN, 24));
-                    cmbEinheit.setPreferredSize(new Dimension(70, 45));
-                    cmbEinheit.addItemListener(new ItemListener() {
-                        @Override
-                        public void itemStateChanged(ItemEvent e) {
-                            cmbEinheitItemStateChanged(e);
-                        }
-                    });
-
-                    //---- cmbLagerart ----
-                    cmbLagerart.setFont(new Font("sansserif", Font.PLAIN, 24));
-                    cmbLagerart.setPreferredSize(new Dimension(70, 45));
-                    cmbLagerart.addItemListener(new ItemListener() {
-                        @Override
-                        public void itemStateChanged(ItemEvent e) {
-                            cmbLagerartItemStateChanged(e);
-                        }
-                    });
-
-                    GroupLayout panel1Layout = new GroupLayout(panel1);
-                    panel1.setLayout(panel1Layout);
-                    panel1Layout.setHorizontalGroup(
-                        panel1Layout.createParallelGroup()
-                            .addGroup(panel1Layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                                    .addGroup(GroupLayout.Alignment.LEADING, panel1Layout.createSequentialGroup()
-                                        .addComponent(cmbEinheit, GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
-                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(cmbLagerart, GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE))
-                                    .addGroup(GroupLayout.Alignment.LEADING, panel1Layout.createSequentialGroup()
-                                        .addComponent(lbl1)
-                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(txtProdBezeichnung, GroupLayout.DEFAULT_SIZE, 924, Short.MAX_VALUE)))
-                                .addContainerGap())
-                    );
-                    panel1Layout.setVerticalGroup(
-                        panel1Layout.createParallelGroup()
-                            .addGroup(panel1Layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(panel1Layout.createParallelGroup()
-                                    .addGroup(panel1Layout.createSequentialGroup()
-                                        .addGap(6, 6, 6)
-                                        .addComponent(lbl1))
-                                    .addComponent(txtProdBezeichnung, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(panel1Layout.createParallelGroup()
-                                    .addComponent(cmbLagerart, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(cmbEinheit, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap())
-                    );
-                }
-                pnlLower.add(panel1);
-
-                //======== panel2 ========
-                {
-                    panel2.setLayout(new BoxLayout(panel2, BoxLayout.X_AXIS));
-
-                    //======== splitNeuProd ========
+                    //======== pnlSelStoffart ========
                     {
-                        splitNeuProd.setOrientation(JSplitPane.VERTICAL_SPLIT);
-                        splitNeuProd.setDividerLocation(250);
-                        splitNeuProd.setMinimumSize(new Dimension(358, 100));
-                        splitNeuProd.setPreferredSize(new Dimension(954, 100));
-                        splitNeuProd.setDividerSize(0);
-                        splitNeuProd.addComponentListener(new ComponentAdapter() {
+                        pnlSelStoffart.setLayout(new BoxLayout(pnlSelStoffart, BoxLayout.X_AXIS));
+
+                        //---- cmbStoffart ----
+                        cmbStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                        cmbStoffart.setModel(new DefaultComboBoxModel(new String[] {
+                            "item 1",
+                            "item 2",
+                            "item 3"
+                        }));
+                        cmbStoffart.addItemListener(new ItemListener() {
                             @Override
-                            public void componentResized(ComponentEvent e) {
-                                splitNeuProdComponentResized(e);
+                            public void itemStateChanged(ItemEvent e) {
+                                cmbStoffartItemStateChanged(e);
                             }
                         });
+                        pnlSelStoffart.add(cmbStoffart);
 
-                        //======== pnlVerpackt ========
-                        {
-                            pnlVerpackt.setMinimumSize(new Dimension(230, 50));
-                            pnlVerpackt.setPreferredSize(new Dimension(952, 50));
-
-                            //---- btnVerpackteWare ----
-                            btnVerpackteWare.setText("Verpackte Ware");
-                            btnVerpackteWare.setFont(new Font("sansserif", Font.PLAIN, 24));
-                            btnVerpackteWare.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/ark.png")));
-                            btnVerpackteWare.addItemListener(new ItemListener() {
-                                @Override
-                                public void itemStateChanged(ItemEvent e) {
-                                    btnVerpackteWareItemStateChanged(e);
-                                }
-                            });
-
-                            //---- lblStrichcode ----
-                            lblStrichcode.setLabelFor(txtGTIN);
-                            lblStrichcode.setText("Strichcode");
-                            lblStrichcode.setFont(new Font("sansserif", Font.PLAIN, 24));
-
-                            //---- txtGTIN ----
-                            txtGTIN.setFont(new Font("sansserif", Font.PLAIN, 24));
-                            txtGTIN.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    txtGTINActionPerformed(e);
-                                }
-                            });
-                            txtGTIN.addFocusListener(new FocusAdapter() {
-                                @Override
-                                public void focusGained(FocusEvent e) {
-                                    txtGTINFocusGained(e);
-                                }
-                                @Override
-                                public void focusLost(FocusEvent e) {
-                                    txtGTINFocusLost(e);
-                                }
-                            });
-                            txtGTIN.addCaretListener(new CaretListener() {
-                                @Override
-                                public void caretUpdate(CaretEvent e) {
-                                    txtGTINCaretUpdate(e);
-                                }
-                            });
-
-                            //---- txtPackGroesse ----
-                            txtPackGroesse.setFont(new Font("sansserif", Font.PLAIN, 24));
-                            txtPackGroesse.addCaretListener(new CaretListener() {
-                                @Override
-                                public void caretUpdate(CaretEvent e) {
-                                    txtPackGroesseCaretUpdate(e);
-                                }
-                            });
-                            txtPackGroesse.addFocusListener(new FocusAdapter() {
-                                @Override
-                                public void focusGained(FocusEvent e) {
-                                    txtPackGroesseFocusGained(e);
-                                }
-                            });
-
-                            //---- lbl4 ----
-                            lbl4.setLabelFor(txtPackGroesse);
-                            lbl4.setText("Packungsgr\u00f6\u00dfe");
-                            lbl4.setFont(new Font("sansserif", Font.PLAIN, 24));
-
-                            //---- lblEinheit1 ----
-                            lblEinheit1.setText("text");
-                            lblEinheit1.setFont(new Font("sansserif", Font.PLAIN, 24));
-
-                            GroupLayout pnlVerpacktLayout = new GroupLayout(pnlVerpackt);
-                            pnlVerpackt.setLayout(pnlVerpacktLayout);
-                            pnlVerpacktLayout.setHorizontalGroup(
-                                pnlVerpacktLayout.createParallelGroup()
-                                    .addGroup(pnlVerpacktLayout.createSequentialGroup()
-                                        .addGap(10, 10, 10)
-                                        .addGroup(pnlVerpacktLayout.createParallelGroup()
-                                            .addGroup(pnlVerpacktLayout.createSequentialGroup()
-                                                .addComponent(btnVerpackteWare, GroupLayout.DEFAULT_SIZE, 1015, Short.MAX_VALUE)
-                                                .addContainerGap())
-                                            .addGroup(pnlVerpacktLayout.createSequentialGroup()
-                                                .addGroup(pnlVerpacktLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                                                    .addComponent(lblStrichcode, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                    .addComponent(lbl4, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addGroup(pnlVerpacktLayout.createParallelGroup()
-                                                    .addGroup(pnlVerpacktLayout.createSequentialGroup()
-                                                        .addComponent(txtPackGroesse, GroupLayout.DEFAULT_SIZE, 695, Short.MAX_VALUE)
-                                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                        .addComponent(lblEinheit1, GroupLayout.PREFERRED_SIZE, 126, GroupLayout.PREFERRED_SIZE))
-                                                    .addComponent(txtGTIN, GroupLayout.DEFAULT_SIZE, 827, Short.MAX_VALUE))
-                                                .addGap(12, 12, 12))))
-                            );
-                            pnlVerpacktLayout.setVerticalGroup(
-                                pnlVerpacktLayout.createParallelGroup()
-                                    .addGroup(pnlVerpacktLayout.createSequentialGroup()
-                                        .addContainerGap()
-                                        .addComponent(btnVerpackteWare)
-                                        .addGap(18, 18, 18)
-                                        .addGroup(pnlVerpacktLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                            .addComponent(lblStrichcode, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(txtGTIN, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                        .addGap(20, 20, 20)
-                                        .addGroup(pnlVerpacktLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                            .addComponent(lbl4, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(txtPackGroesse, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(lblEinheit1, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)))
-                            );
-                        }
-                        splitNeuProd.setTopComponent(pnlVerpackt);
-
-                        //======== pnlProduktLower ========
-                        {
-                            pnlProduktLower.setPreferredSize(new Dimension(952, 182));
-
-                            //======== splitStoffart ========
-                            {
-                                splitStoffart.setEnabled(false);
-
-                                //======== panel12 ========
-                                {
-                                    panel12.setLayout(new BoxLayout(panel12, BoxLayout.X_AXIS));
-
-                                    //---- cmbStoffart ----
-                                    cmbStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                    cmbStoffart.setModel(new DefaultComboBoxModel(new String[] {
-                                        "item 1",
-                                        "item 2",
-                                        "item 3"
-                                    }));
-                                    cmbStoffart.addItemListener(new ItemListener() {
-                                        @Override
-                                        public void itemStateChanged(ItemEvent e) {
-                                            cmbStoffartItemStateChanged(e);
-                                        }
-                                    });
-                                    panel12.add(cmbStoffart);
-
-                                    //---- btnAddStoffart ----
-                                    btnAddStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                    btnAddStoffart.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/edit_add.png")));
-                                    btnAddStoffart.addActionListener(new ActionListener() {
-                                        @Override
-                                        public void actionPerformed(ActionEvent e) {
-                                            btnAddStoffartActionPerformed(e);
-                                        }
-                                    });
-                                    panel12.add(btnAddStoffart);
-                                }
-                                splitStoffart.setLeftComponent(panel12);
-
-                                //======== panel13 ========
-                                {
-                                    panel13.setLayout(new BoxLayout(panel13, BoxLayout.X_AXIS));
-
-                                    //---- txtNewStoffart ----
-                                    txtNewStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                    txtNewStoffart.setText(" ");
-                                    txtNewStoffart.addFocusListener(new FocusAdapter() {
-                                        @Override
-                                        public void focusGained(FocusEvent e) {
-                                            txtNewStoffartFocusGained(e);
-                                        }
-                                    });
-                                    panel13.add(txtNewStoffart);
-
-                                    //---- btnApplyStoffart ----
-                                    btnApplyStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                    btnApplyStoffart.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/ok.png")));
-                                    btnApplyStoffart.addActionListener(new ActionListener() {
-                                        @Override
-                                        public void actionPerformed(ActionEvent e) {
-                                            btnApplyStoffartActionPerformed(e);
-                                        }
-                                    });
-                                    panel13.add(btnApplyStoffart);
-
-                                    //---- btnCancelStoffart ----
-                                    btnCancelStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                    btnCancelStoffart.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/cancel.png")));
-                                    btnCancelStoffart.addActionListener(new ActionListener() {
-                                        @Override
-                                        public void actionPerformed(ActionEvent e) {
-                                            btnCancelStoffartActionPerformed(e);
-                                        }
-                                    });
-                                    panel13.add(btnCancelStoffart);
-                                }
-                                splitStoffart.setRightComponent(panel13);
+                        //---- btnAddStoffart ----
+                        btnAddStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                        btnAddStoffart.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/edit_add.png")));
+                        btnAddStoffart.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                btnAddStoffartActionPerformed(e);
                             }
-
-                            //---- btnAcceptProd ----
-                            btnAcceptProd.setText("Produkt hinzuf\u00fcgen");
-                            btnAcceptProd.setFont(new Font("sansserif", Font.PLAIN, 24));
-                            btnAcceptProd.setBackground(new Color(255, 102, 102));
-                            btnAcceptProd.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btnAcceptProdActionPerformed(e);
-                                }
-                            });
-
-                            //---- btnCancelNeuProd ----
-                            btnCancelNeuProd.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/cancel.png")));
-                            btnCancelNeuProd.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    btnCancelNeuProdActionPerformed(e);
-                                }
-                            });
-
-                            //======== splitWarengruppe ========
-                            {
-                                splitWarengruppe.setEnabled(false);
-
-                                //======== panel8 ========
-                                {
-                                    panel8.setLayout(new BoxLayout(panel8, BoxLayout.X_AXIS));
-
-                                    //---- cmbWarengruppe ----
-                                    cmbWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                    cmbWarengruppe.setModel(new DefaultComboBoxModel(new String[] {
-                                        "item 1",
-                                        "item 2",
-                                        "item 3"
-                                    }));
-                                    cmbWarengruppe.addItemListener(new ItemListener() {
-                                        @Override
-                                        public void itemStateChanged(ItemEvent e) {
-                                            cmbWarengruppeItemStateChanged(e);
-                                        }
-                                    });
-                                    panel8.add(cmbWarengruppe);
-
-                                    //---- btnAddWarengruppe ----
-                                    btnAddWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                    btnAddWarengruppe.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/edit_add.png")));
-                                    btnAddWarengruppe.addActionListener(new ActionListener() {
-                                        @Override
-                                        public void actionPerformed(ActionEvent e) {
-                                            btnAddWarengruppeActionPerformed(e);
-                                        }
-                                    });
-                                    panel8.add(btnAddWarengruppe);
-                                }
-                                splitWarengruppe.setLeftComponent(panel8);
-
-                                //======== panel9 ========
-                                {
-                                    panel9.setLayout(new BoxLayout(panel9, BoxLayout.X_AXIS));
-
-                                    //---- txtNewWarengruppe ----
-                                    txtNewWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                    txtNewWarengruppe.setText(" ");
-                                    txtNewWarengruppe.addFocusListener(new FocusAdapter() {
-                                        @Override
-                                        public void focusGained(FocusEvent e) {
-                                            txtNewWarengruppeFocusGained(e);
-                                        }
-                                    });
-                                    panel9.add(txtNewWarengruppe);
-
-                                    //---- btnApplyWarengruppe ----
-                                    btnApplyWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                    btnApplyWarengruppe.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/ok.png")));
-                                    btnApplyWarengruppe.addActionListener(new ActionListener() {
-                                        @Override
-                                        public void actionPerformed(ActionEvent e) {
-                                            btnApplyWarengruppeActionPerformed(e);
-                                        }
-                                    });
-                                    panel9.add(btnApplyWarengruppe);
-
-                                    //---- btnCancelWarengruppe ----
-                                    btnCancelWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                                    btnCancelWarengruppe.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/cancel.png")));
-                                    btnCancelWarengruppe.addActionListener(new ActionListener() {
-                                        @Override
-                                        public void actionPerformed(ActionEvent e) {
-                                            btnCancelWarengruppeActionPerformed(e);
-                                        }
-                                    });
-                                    panel9.add(btnCancelWarengruppe);
-                                }
-                                splitWarengruppe.setRightComponent(panel9);
-                            }
-
-                            //---- lblMessageLower ----
-                            lblMessageLower.setFont(new Font("sansserif", Font.BOLD, 24));
-                            lblMessageLower.setHorizontalAlignment(SwingConstants.CENTER);
-
-                            GroupLayout pnlProduktLowerLayout = new GroupLayout(pnlProduktLower);
-                            pnlProduktLower.setLayout(pnlProduktLowerLayout);
-                            pnlProduktLowerLayout.setHorizontalGroup(
-                                pnlProduktLowerLayout.createParallelGroup()
-                                    .addGroup(pnlProduktLowerLayout.createSequentialGroup()
-                                        .addGroup(pnlProduktLowerLayout.createParallelGroup()
-                                            .addGroup(pnlProduktLowerLayout.createSequentialGroup()
-                                                .addComponent(btnAcceptProd, GroupLayout.DEFAULT_SIZE, 936, Short.MAX_VALUE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(btnCancelNeuProd, GroupLayout.PREFERRED_SIZE, 83, GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(pnlProduktLowerLayout.createSequentialGroup()
-                                                .addGap(2, 2, 2)
-                                                .addGroup(pnlProduktLowerLayout.createParallelGroup()
-                                                    .addComponent(splitWarengruppe, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 1023, Short.MAX_VALUE)
-                                                    .addComponent(splitStoffart, GroupLayout.DEFAULT_SIZE, 1023, Short.MAX_VALUE)))
-                                            .addGroup(pnlProduktLowerLayout.createSequentialGroup()
-                                                .addContainerGap()
-                                                .addComponent(lblMessageLower, GroupLayout.DEFAULT_SIZE, 1019, Short.MAX_VALUE)))
-                                        .addContainerGap())
-                            );
-                            pnlProduktLowerLayout.setVerticalGroup(
-                                pnlProduktLowerLayout.createParallelGroup()
-                                    .addGroup(pnlProduktLowerLayout.createSequentialGroup()
-                                        .addComponent(splitStoffart, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(splitWarengruppe, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(lblMessageLower, GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
-                                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addGroup(pnlProduktLowerLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(btnCancelNeuProd, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(btnAcceptProd))
-                                        .addContainerGap())
-                            );
-                            pnlProduktLowerLayout.linkSize(SwingConstants.VERTICAL, new Component[] {btnAcceptProd, btnCancelNeuProd});
-                        }
-                        splitNeuProd.setBottomComponent(pnlProduktLower);
+                        });
+                        pnlSelStoffart.add(btnAddStoffart);
                     }
-                    panel2.add(splitNeuProd);
+                    pnlStoffart.add(pnlSelStoffart, "card1");
+
+                    //======== pnlEditStoffart ========
+                    {
+                        pnlEditStoffart.setLayout(new BoxLayout(pnlEditStoffart, BoxLayout.X_AXIS));
+
+                        //---- txtNewStoffart ----
+                        txtNewStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                        txtNewStoffart.setText(" ");
+                        txtNewStoffart.addFocusListener(new FocusAdapter() {
+                            @Override
+                            public void focusGained(FocusEvent e) {
+                                txtNewStoffartFocusGained(e);
+                            }
+                        });
+                        pnlEditStoffart.add(txtNewStoffart);
+
+                        //---- btnApplyStoffart ----
+                        btnApplyStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                        btnApplyStoffart.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/ok.png")));
+                        btnApplyStoffart.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                btnApplyStoffartActionPerformed(e);
+                            }
+                        });
+                        pnlEditStoffart.add(btnApplyStoffart);
+
+                        //---- btnCancelStoffart ----
+                        btnCancelStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                        btnCancelStoffart.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/cancel.png")));
+                        btnCancelStoffart.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                btnCancelStoffartActionPerformed(e);
+                            }
+                        });
+                        pnlEditStoffart.add(btnCancelStoffart);
+                    }
+                    pnlStoffart.add(pnlEditStoffart, "card2");
                 }
-                pnlLower.add(panel2);
+                pnlLower.add(pnlStoffart, CC.xywh(1, 11, 5, 1));
+
+                //======== pnlWarengruppe ========
+                {
+                    pnlWarengruppe.setEnabled(false);
+                    pnlWarengruppe.setLayout(new CardLayout());
+
+                    //======== pnlSelWarengruppe ========
+                    {
+                        pnlSelWarengruppe.setLayout(new BoxLayout(pnlSelWarengruppe, BoxLayout.X_AXIS));
+
+                        //---- cmbWarengruppe ----
+                        cmbWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                        cmbWarengruppe.setModel(new DefaultComboBoxModel(new String[] {
+                            "item 1",
+                            "item 2",
+                            "item 3"
+                        }));
+                        cmbWarengruppe.addItemListener(new ItemListener() {
+                            @Override
+                            public void itemStateChanged(ItemEvent e) {
+                                cmbWarengruppeItemStateChanged(e);
+                            }
+                        });
+                        pnlSelWarengruppe.add(cmbWarengruppe);
+
+                        //---- btnAddWarengruppe ----
+                        btnAddWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                        btnAddWarengruppe.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/edit_add.png")));
+                        btnAddWarengruppe.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                btnAddWarengruppeActionPerformed(e);
+                            }
+                        });
+                        pnlSelWarengruppe.add(btnAddWarengruppe);
+                    }
+                    pnlWarengruppe.add(pnlSelWarengruppe, "card1");
+
+                    //======== pnlEditWarengruppe ========
+                    {
+                        pnlEditWarengruppe.setLayout(new BoxLayout(pnlEditWarengruppe, BoxLayout.X_AXIS));
+
+                        //---- txtNewWarengruppe ----
+                        txtNewWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                        txtNewWarengruppe.setText(" ");
+                        txtNewWarengruppe.addFocusListener(new FocusAdapter() {
+                            @Override
+                            public void focusGained(FocusEvent e) {
+                                txtNewWarengruppeFocusGained(e);
+                            }
+                        });
+                        pnlEditWarengruppe.add(txtNewWarengruppe);
+
+                        //---- btnApplyWarengruppe ----
+                        btnApplyWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                        btnApplyWarengruppe.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/ok.png")));
+                        btnApplyWarengruppe.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                btnApplyWarengruppeActionPerformed(e);
+                            }
+                        });
+                        pnlEditWarengruppe.add(btnApplyWarengruppe);
+
+                        //---- btnCancelWarengruppe ----
+                        btnCancelWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                        btnCancelWarengruppe.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/cancel.png")));
+                        btnCancelWarengruppe.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                btnCancelWarengruppeActionPerformed(e);
+                            }
+                        });
+                        pnlEditWarengruppe.add(btnCancelWarengruppe);
+                    }
+                    pnlWarengruppe.add(pnlEditWarengruppe, "card2");
+                }
+                pnlLower.add(pnlWarengruppe, CC.xywh(1, 13, 5, 1));
+
+                //---- btnAcceptProd ----
+                btnAcceptProd.setText("Produkt hinzuf\u00fcgen");
+                btnAcceptProd.setFont(new Font("sansserif", Font.PLAIN, 24));
+                btnAcceptProd.setBackground(new Color(255, 102, 102));
+                btnAcceptProd.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        btnAcceptProdActionPerformed(e);
+                    }
+                });
+                pnlLower.add(btnAcceptProd, CC.xywh(1, 15, 3, 1));
+
+                //---- lblMessageLower ----
+                lblMessageLower.setFont(new Font("sansserif", Font.BOLD, 24));
+                lblMessageLower.setHorizontalAlignment(SwingConstants.CENTER);
+                pnlLower.add(lblMessageLower, CC.xywh(1, 15, 3, 1, CC.DEFAULT, CC.FILL));
+
+                //---- btnCancelNeuProd ----
+                btnCancelNeuProd.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/cancel.png")));
+                btnCancelNeuProd.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        btnCancelNeuProdActionPerformed(e);
+                    }
+                });
+                pnlLower.add(btnCancelNeuProd, CC.xy(5, 15));
             }
-            splitMain.setBottomComponent(pnlLower);
+            splitMain.add(pnlLower, "card2");
         }
         add(splitMain);
 
@@ -1808,7 +1674,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    private JSplitPane splitMain;
+    private JPanel splitMain;
     private JPanel pnlUpper;
     private JPanel pnlUpperLeft;
     private JTextField txtSearch;
@@ -1855,40 +1721,35 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private JButton btnEinbuchen;
     private JToggleButton btnSofortBuchen;
     private JPanel pnlLower;
-    private JPanel panel1;
     private JLabel lbl1;
     private JTextField txtProdBezeichnung;
     private JComboBox cmbEinheit;
     private JComboBox cmbLagerart;
-    private JPanel panel2;
-    private JSplitPane splitNeuProd;
-    private JPanel pnlVerpackt;
     private JToggleButton btnVerpackteWare;
     private JLabel lblStrichcode;
     private JTextField txtGTIN;
-    private JTextField txtPackGroesse;
     private JLabel lbl4;
+    private JTextField txtPackGroesse;
     private JLabel lblEinheit1;
-    private JPanel pnlProduktLower;
-    private JSplitPane splitStoffart;
-    private JPanel panel12;
+    private JPanel pnlStoffart;
+    private JPanel pnlSelStoffart;
     private JComboBox cmbStoffart;
     private JButton btnAddStoffart;
-    private JPanel panel13;
+    private JPanel pnlEditStoffart;
     private JTextField txtNewStoffart;
     private JButton btnApplyStoffart;
     private JButton btnCancelStoffart;
-    private JButton btnAcceptProd;
-    private JButton btnCancelNeuProd;
-    private JSplitPane splitWarengruppe;
-    private JPanel panel8;
+    private JPanel pnlWarengruppe;
+    private JPanel pnlSelWarengruppe;
     private JComboBox cmbWarengruppe;
     private JButton btnAddWarengruppe;
-    private JPanel panel9;
+    private JPanel pnlEditWarengruppe;
     private JTextField txtNewWarengruppe;
     private JButton btnApplyWarengruppe;
     private JButton btnCancelWarengruppe;
+    private JButton btnAcceptProd;
     private JLabel lblMessageLower;
+    private JButton btnCancelNeuProd;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
 

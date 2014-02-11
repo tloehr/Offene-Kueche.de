@@ -40,10 +40,6 @@ public class VorratTableModel extends DefaultTableModel implements DeletableTabl
     private List data;
     private DecimalFormat decf;
 
-    public List getData() {
-        return data;
-    }
-
     private DateFormat df;
 
     public VorratTableModel(List data, Object[] columnNames) {
@@ -104,6 +100,10 @@ public class VorratTableModel extends DefaultTableModel implements DeletableTabl
     public Vorrat getVorrat(int row) {
         return (Vorrat) ((Object[]) data.get(row))[0];
     }
+
+//    public void replaceVorrat(int row, Vorrat vorrat){
+//
+//    }
 
     @Override
     public Object getValueAt(int row, int column) {
