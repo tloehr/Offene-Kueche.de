@@ -45,7 +45,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private int currentMode;
     private final int MODE_EDIT_PRODUCT = 1;
     private final int MODE_WARENEINGANG = 2;
-//    private final int MODE_VORRATREAKTIVIERUNG = 3;
+    //    private final int MODE_VORRATREAKTIVIERUNG = 3;
     private Buchung aktuelleBuchung;
     private Produkte neuesProdukt;
     private Vorrat vorrat;
@@ -169,49 +169,58 @@ public class PnlWareneingang extends DefaultTouchPanel {
     }
 
     private void btnAddLieferantActionPerformed(ActionEvent e) {
-        splitLiefADouble = Tools.showSide(splitLieferant, Tools.RIGHT_LOWER_SIDE, 400);
+        CardLayout cl = (CardLayout) (pnlLieferant.getLayout());
+        cl.show(pnlLieferant, "add");
         txtNewLieferant.setText("");
         txtNewLieferant.requestFocus();
     }
 
     private void btnCancelLieferantActionPerformed(ActionEvent e) {
-        splitLiefADouble = Tools.showSide(splitLieferant, Tools.LEFT_UPPER_SIDE, 400);
+        CardLayout cl = (CardLayout) (pnlLieferant.getLayout());
+        cl.show(pnlLieferant, "select");
     }
 
     private void btnAddLagerActionPerformed(ActionEvent e) {
-        splitLagerADouble = Tools.showSide(splitLager, Tools.RIGHT_LOWER_SIDE, 400);
+        CardLayout cl = (CardLayout) (pnlLager.getLayout());
+        cl.show(pnlLager, "add");
         txtNewLager.setText("");
         txtNewLager.requestFocus();
     }
 
     private void btnAddWarengruppeActionPerformed(ActionEvent e) {
-        Tools.showSide(splitWarengruppe, Tools.RIGHT_LOWER_SIDE, 400);
+        CardLayout cl = (CardLayout) (pnlWarengruppe.getLayout());
+        cl.show(pnlWarengruppe, "add");
         warengruppeEdit = true;
         txtNewWarengruppe.setText("");
         txtNewWarengruppe.requestFocus();
     }
 
     private void btnCancelLagerActionPerformed(ActionEvent e) {
-        splitLagerADouble = Tools.showSide(splitLager, Tools.LEFT_UPPER_SIDE, 400);
+        CardLayout cl = (CardLayout) (pnlLager.getLayout());
+        cl.show(pnlLager, "select");
     }
 
     private void btnCancelWarengruppeActionPerformed(ActionEvent e) {
-        Tools.showSide(splitWarengruppe, Tools.LEFT_UPPER_SIDE, 400);
+        CardLayout cl = (CardLayout) (pnlWarengruppe.getLayout());
+        cl.show(pnlWarengruppe, "select");
         warengruppeEdit = false;
         setWarengruppeEnabled(stoffartEdit);
     }
 
     private void btnCancelStoffartActionPerformed(ActionEvent e) {
-        Tools.showSide(splitStoffart, Tools.LEFT_UPPER_SIDE, 400);
+        CardLayout cl = (CardLayout) (pnlStoffart.getLayout());
+        cl.show(pnlStoffart, "select");
         stoffartEdit = false;
-        if (splitWarengruppe.getDividerLocation() <= 10) {
-            Tools.showSide(splitWarengruppe, Tools.LEFT_UPPER_SIDE, 400);
-        }
+
+//        if (splitWarengruppe.getDividerLocation() <= 10) {
+//            Tools.showSide(splitWarengruppe, Tools.LEFT_UPPER_SIDE, 400);
+//        }
         setWarengruppeEnabled(false);
     }
 
     private void btnAddStoffartActionPerformed(ActionEvent e) {
-        Tools.showSide(splitStoffart, Tools.RIGHT_LOWER_SIDE, 400);
+        CardLayout cl = (CardLayout) (pnlStoffart.getLayout());
+        cl.show(pnlStoffart, "add");
         txtNewStoffart.setText("");
         txtNewStoffart.requestFocus();
         stoffartEdit = true;
@@ -434,7 +443,8 @@ public class PnlWareneingang extends DefaultTouchPanel {
             StoffartTools.loadStoffarten(cmbStoffart);
             cmbStoffart.setSelectedItem(stoffart);
         }
-        Tools.showSide(splitStoffart, Tools.LEFT_UPPER_SIDE, 400);
+        CardLayout cl = (CardLayout) (pnlStoffart.getLayout());
+        cl.show(pnlStoffart, "select");
         stoffartEdit = false;
 //        if (splitWarengruppe.getDividerLocation() <= 10) {
 //            Tools.showSide(splitWarengruppe, Tools.LEFT_UPPER_SIDE, 400);
@@ -458,7 +468,8 @@ public class PnlWareneingang extends DefaultTouchPanel {
             loadWarengruppe();
             cmbWarengruppe.setSelectedItem(warengruppe);
         }
-        Tools.showSide(splitWarengruppe, Tools.LEFT_UPPER_SIDE, 400);
+        CardLayout cl = (CardLayout) (pnlWarengruppe.getLayout());
+        cl.show(pnlWarengruppe, "select");
         warengruppeEdit = false;
         setWarengruppeEnabled(false);
     }
@@ -487,13 +498,13 @@ public class PnlWareneingang extends DefaultTouchPanel {
         Main.getProps().put("touch1lieferant", new Integer(cmbLieferant.getSelectedIndex()).toString());
     }
 
-    private void splitNeuProdComponentResized(ComponentEvent e) {
-        if (btnVerpackteWare.isSelected()) {
-            splitNeuProd.setDividerLocation(170);
-        } else {
-            splitNeuProd.setDividerLocation(60);
-        }
-    }
+//    private void splitNeuProdComponentResized(ComponentEvent e) {
+//        if (btnVerpackteWare.isSelected()) {
+//            splitNeuProd.setDividerLocation(170);
+//        } else {
+//            splitNeuProd.setDividerLocation(60);
+//        }
+//    }
 
     private void txtMengeFocusLost(FocusEvent e) {
         txtMenge.setText(aktuelleBuchung.getMenge().toString());
@@ -511,10 +522,10 @@ public class PnlWareneingang extends DefaultTouchPanel {
         if (produkte == null || produkte.size() == 0) {
             vorrat = VorratTools.findByIDORScanner(txtSearch.getText());
 //            if (vorrat == null || !vorrat.isAusgebucht()) {
-                setPanelMode(MODE_WARENEINGANG, 700);
-                error("Kenn ich nicht", lblProdukt);
-                aktuelleBuchung.setProdukt(null);
-                setEinbuchenButton();
+            setPanelMode(MODE_WARENEINGANG, 700);
+            error("Kenn ich nicht", lblProdukt);
+            aktuelleBuchung.setProdukt(null);
+            setEinbuchenButton();
 //            } else {
 //                setPanelMode(MODE_VORRATREAKTIVIERUNG, 700);
 //            }
@@ -675,13 +686,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
         setEinbuchenButton();
     }
 
-    private void splitLieferantComponentResized(ComponentEvent e) {
-        Tools.showSide(splitLieferant, splitLiefADouble, 0);
-    }
-
-    private void splitLagerComponentResized(ComponentEvent e) {
-        Tools.showSide(splitLager, splitLagerADouble, 0);
-    }
 
     private void btnReaktivierenActionPerformed(ActionEvent e) {
         EntityManager em = Main.getEMF().createEntityManager();
@@ -691,7 +695,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
             em.getTransaction().commit();
             long id = vorrat.getId();
             setPanelMode(MODE_WARENEINGANG, 700);
-            Tools.fadeinout(lblProdukt, "Vorrat ["+id+"] wieder eingebucht.");
+            Tools.fadeinout(lblProdukt, "Vorrat [" + id + "] wieder eingebucht.");
         } catch (Exception e1) {
             new DlgException(e1);
             em.getTransaction().rollback();
@@ -702,15 +706,15 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-        splitMain = new JPanel();
-        pnlUpper = new JPanel();
-        pnlUpperLeft = new JPanel();
+        pnlMain = new JPanel();
+        pnlEingang = new JPanel();
+        pnlEingangLinks = new JPanel();
         txtSearch = new JTextField();
         scrollPane1 = new JScrollPane();
         listProdukte = new JList();
         lblProdInfo = new JLabel();
         btnNewProdukt = new JButton();
-        pnlUpperRight = new JPanel();
+        pnlEingangRechts = new JPanel();
         lblProdukt = new JLabel();
         panel3 = new JPanel();
         txtFaktor = new JTextField();
@@ -723,19 +727,19 @@ public class PnlWareneingang extends DefaultTouchPanel {
         panel10 = new JPanel();
         txtMenge = new JTextField();
         lblEinheit = new JLabel();
-        splitLieferant = new JSplitPane();
-        panel4 = new JPanel();
+        pnlLieferant = new JPanel();
+        pnlSelLieferant = new JPanel();
         cmbLieferant = new JComboBox();
         btnAddLieferant = new JButton();
-        panel5 = new JPanel();
+        pnlAddLieferant = new JPanel();
         txtNewLieferant = new JTextField();
         btnApplyLieferant = new JButton();
         btnCancelLieferant = new JButton();
-        splitLager = new JSplitPane();
-        panel6 = new JPanel();
+        pnlLager = new JPanel();
+        pnlSelectLager = new JPanel();
         cmbLager = new JComboBox();
         btnAddLager = new JButton();
-        panel7 = new JPanel();
+        pnlAddLager = new JPanel();
         txtNewLager = new JTextField();
         btnApplyLager = new JButton();
         btnCancelLager = new JButton();
@@ -748,7 +752,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
         btnNoPrinter = new JToggleButton();
         btnEinbuchen = new JButton();
         btnSofortBuchen = new JToggleButton();
-        pnlLower = new JPanel();
+        pnlAddProduct = new JPanel();
         lbl1 = new JLabel();
         txtProdBezeichnung = new JTextField();
         cmbEinheit = new JComboBox();
@@ -763,7 +767,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
         pnlSelStoffart = new JPanel();
         cmbStoffart = new JComboBox();
         btnAddStoffart = new JButton();
-        pnlEditStoffart = new JPanel();
+        pnlAddStoffart = new JPanel();
         txtNewStoffart = new JTextField();
         btnApplyStoffart = new JButton();
         btnCancelStoffart = new JButton();
@@ -771,7 +775,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
         pnlSelWarengruppe = new JPanel();
         cmbWarengruppe = new JComboBox();
         btnAddWarengruppe = new JButton();
-        pnlEditWarengruppe = new JPanel();
+        pnlAddWarengruppe = new JPanel();
         txtNewWarengruppe = new JTextField();
         btnApplyWarengruppe = new JButton();
         btnCancelWarengruppe = new JButton();
@@ -790,23 +794,23 @@ public class PnlWareneingang extends DefaultTouchPanel {
         });
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
-        //======== splitMain ========
+        //======== pnlMain ========
         {
-            splitMain.setEnabled(false);
-            splitMain.setMinimumSize(new Dimension(500, 400));
-            splitMain.setPreferredSize(new Dimension(500, 400));
-            splitMain.setLayout(new CardLayout());
+            pnlMain.setEnabled(false);
+            pnlMain.setMinimumSize(new Dimension(500, 400));
+            pnlMain.setPreferredSize(new Dimension(500, 400));
+            pnlMain.setLayout(new CardLayout());
 
-            //======== pnlUpper ========
+            //======== pnlEingang ========
             {
-                pnlUpper.setLayout(new FormLayout(
+                pnlEingang.setLayout(new FormLayout(
                     "default, $lcgap, default:grow",
                     "fill:default:grow"));
 
-                //======== pnlUpperLeft ========
+                //======== pnlEingangLinks ========
                 {
-                    pnlUpperLeft.setBorder(new EtchedBorder());
-                    pnlUpperLeft.setLayout(new FormLayout(
+                    pnlEingangLinks.setBorder(new EtchedBorder());
+                    pnlEingangLinks.setLayout(new FormLayout(
                         "$lcgap, default, $rgap, $glue",
                         "$rgap, $lgap, fill:default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:default, $lgap, $nlgap"));
 
@@ -824,7 +828,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                             txtSearchActionPerformed(e);
                         }
                     });
-                    pnlUpperLeft.add(txtSearch, CC.xy(2, 3));
+                    pnlEingangLinks.add(txtSearch, CC.xy(2, 3));
 
                     //======== scrollPane1 ========
                     {
@@ -846,11 +850,11 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         });
                         scrollPane1.setViewportView(listProdukte);
                     }
-                    pnlUpperLeft.add(scrollPane1, CC.xy(2, 5));
+                    pnlEingangLinks.add(scrollPane1, CC.xy(2, 5));
 
                     //---- lblProdInfo ----
                     lblProdInfo.setFont(new Font("sansserif", Font.PLAIN, 20));
-                    pnlUpperLeft.add(lblProdInfo, CC.xy(2, 7));
+                    pnlEingangLinks.add(lblProdInfo, CC.xy(2, 7));
 
                     //---- btnNewProdukt ----
                     btnNewProdukt.setText("Neues Produkt");
@@ -862,16 +866,16 @@ public class PnlWareneingang extends DefaultTouchPanel {
                             btnNewProduktActionPerformed(e);
                         }
                     });
-                    pnlUpperLeft.add(btnNewProdukt, CC.xy(2, 9));
+                    pnlEingangLinks.add(btnNewProdukt, CC.xy(2, 9));
                 }
-                pnlUpper.add(pnlUpperLeft, CC.xy(1, 1));
+                pnlEingang.add(pnlEingangLinks, CC.xy(1, 1));
 
-                //======== pnlUpperRight ========
+                //======== pnlEingangRechts ========
                 {
-                    pnlUpperRight.setLayout(new FormLayout(
+                    pnlEingangRechts.setLayout(new FormLayout(
                         "$rgap, 2*($lcgap, default:grow), $lcgap, default, $lcgap, $rgap",
                         "$rgap, $lgap, 20dlu, 4*($lgap, fill:default), $lgap, fill:default:grow, 2*($lgap, fill:default)"));
-                    ((FormLayout)pnlUpperRight.getLayout()).setColumnGroups(new int[][] {{3, 5}});
+                    ((FormLayout)pnlEingangRechts.getLayout()).setColumnGroups(new int[][] {{3, 5}});
 
                     //---- lblProdukt ----
                     lblProdukt.setText(" ");
@@ -879,7 +883,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                     lblProdukt.setHorizontalAlignment(SwingConstants.CENTER);
                     lblProdukt.setBackground(new Color(204, 204, 255));
                     lblProdukt.setOpaque(true);
-                    pnlUpperRight.add(lblProdukt, CC.xywh(3, 3, 5, 1));
+                    pnlEingangRechts.add(lblProdukt, CC.xywh(3, 3, 5, 1));
 
                     //======== panel3 ========
                     {
@@ -978,7 +982,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         label2.setFont(new Font("sansserif", Font.PLAIN, 24));
                         panel3.add(label2);
                     }
-                    pnlUpperRight.add(panel3, CC.xywh(3, 5, 5, 1));
+                    pnlEingangRechts.add(panel3, CC.xywh(3, 5, 5, 1));
 
                     //======== panel10 ========
                     {
@@ -1022,21 +1026,16 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         lblEinheit.setFont(new Font("Lucida Grande", Font.PLAIN, 24));
                         panel10.add(lblEinheit);
                     }
-                    pnlUpperRight.add(panel10, CC.xywh(3, 7, 5, 1));
+                    pnlEingangRechts.add(panel10, CC.xywh(3, 7, 5, 1));
 
-                    //======== splitLieferant ========
+                    //======== pnlLieferant ========
                     {
-                        splitLieferant.setEnabled(false);
-                        splitLieferant.addComponentListener(new ComponentAdapter() {
-                            @Override
-                            public void componentResized(ComponentEvent e) {
-                                splitLieferantComponentResized(e);
-                            }
-                        });
+                        pnlLieferant.setEnabled(false);
+                        pnlLieferant.setLayout(new CardLayout());
 
-                        //======== panel4 ========
+                        //======== pnlSelLieferant ========
                         {
-                            panel4.setLayout(new BoxLayout(panel4, BoxLayout.X_AXIS));
+                            pnlSelLieferant.setLayout(new BoxLayout(pnlSelLieferant, BoxLayout.X_AXIS));
 
                             //---- cmbLieferant ----
                             cmbLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1096,7 +1095,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                     cmbLieferantItemStateChanged(e);
                                 }
                             });
-                            panel4.add(cmbLieferant);
+                            pnlSelLieferant.add(cmbLieferant);
 
                             //---- btnAddLieferant ----
                             btnAddLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1107,13 +1106,13 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                     btnAddLieferantActionPerformed(e);
                                 }
                             });
-                            panel4.add(btnAddLieferant);
+                            pnlSelLieferant.add(btnAddLieferant);
                         }
-                        splitLieferant.setLeftComponent(panel4);
+                        pnlLieferant.add(pnlSelLieferant, "select");
 
-                        //======== panel5 ========
+                        //======== pnlAddLieferant ========
                         {
-                            panel5.setLayout(new BoxLayout(panel5, BoxLayout.X_AXIS));
+                            pnlAddLieferant.setLayout(new BoxLayout(pnlAddLieferant, BoxLayout.X_AXIS));
 
                             //---- txtNewLieferant ----
                             txtNewLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1136,7 +1135,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                     btnApplyLieferantActionPerformed(e);
                                 }
                             });
-                            panel5.add(txtNewLieferant);
+                            pnlAddLieferant.add(txtNewLieferant);
 
                             //---- btnApplyLieferant ----
                             btnApplyLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1147,7 +1146,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                     btnApplyLieferantActionPerformed(e);
                                 }
                             });
-                            panel5.add(btnApplyLieferant);
+                            pnlAddLieferant.add(btnApplyLieferant);
 
                             //---- btnCancelLieferant ----
                             btnCancelLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1158,25 +1157,20 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                     btnCancelLieferantActionPerformed(e);
                                 }
                             });
-                            panel5.add(btnCancelLieferant);
+                            pnlAddLieferant.add(btnCancelLieferant);
                         }
-                        splitLieferant.setRightComponent(panel5);
+                        pnlLieferant.add(pnlAddLieferant, "add");
                     }
-                    pnlUpperRight.add(splitLieferant, CC.xywh(3, 9, 5, 1));
+                    pnlEingangRechts.add(pnlLieferant, CC.xywh(3, 9, 5, 1));
 
-                    //======== splitLager ========
+                    //======== pnlLager ========
                     {
-                        splitLager.setEnabled(false);
-                        splitLager.addComponentListener(new ComponentAdapter() {
-                            @Override
-                            public void componentResized(ComponentEvent e) {
-                                splitLagerComponentResized(e);
-                            }
-                        });
+                        pnlLager.setEnabled(false);
+                        pnlLager.setLayout(new CardLayout());
 
-                        //======== panel6 ========
+                        //======== pnlSelectLager ========
                         {
-                            panel6.setLayout(new BoxLayout(panel6, BoxLayout.X_AXIS));
+                            pnlSelectLager.setLayout(new BoxLayout(pnlSelectLager, BoxLayout.X_AXIS));
 
                             //---- cmbLager ----
                             cmbLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1197,7 +1191,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                     cmbLagerItemStateChanged(e);
                                 }
                             });
-                            panel6.add(cmbLager);
+                            pnlSelectLager.add(cmbLager);
 
                             //---- btnAddLager ----
                             btnAddLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1208,13 +1202,13 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                     btnAddLagerActionPerformed(e);
                                 }
                             });
-                            panel6.add(btnAddLager);
+                            pnlSelectLager.add(btnAddLager);
                         }
-                        splitLager.setLeftComponent(panel6);
+                        pnlLager.add(pnlSelectLager, "select");
 
-                        //======== panel7 ========
+                        //======== pnlAddLager ========
                         {
-                            panel7.setLayout(new BoxLayout(panel7, BoxLayout.X_AXIS));
+                            pnlAddLager.setLayout(new BoxLayout(pnlAddLager, BoxLayout.X_AXIS));
 
                             //---- txtNewLager ----
                             txtNewLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1237,7 +1231,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                     btnApplyLagerActionPerformed(e);
                                 }
                             });
-                            panel7.add(txtNewLager);
+                            pnlAddLager.add(txtNewLager);
 
                             //---- btnApplyLager ----
                             btnApplyLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1248,7 +1242,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                     btnApplyLagerActionPerformed(e);
                                 }
                             });
-                            panel7.add(btnApplyLager);
+                            pnlAddLager.add(btnApplyLager);
 
                             //---- btnCancelLager ----
                             btnCancelLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1259,11 +1253,11 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                     btnCancelLagerActionPerformed(e);
                                 }
                             });
-                            panel7.add(btnCancelLager);
+                            pnlAddLager.add(btnCancelLager);
                         }
-                        splitLager.setRightComponent(panel7);
+                        pnlLager.add(pnlAddLager, "add");
                     }
-                    pnlUpperRight.add(splitLager, CC.xywh(3, 11, 5, 1));
+                    pnlEingangRechts.add(pnlLager, CC.xywh(3, 11, 5, 1));
 
                     //======== scrollPane2 ========
                     {
@@ -1277,7 +1271,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         txtLog.setLineWrap(true);
                         scrollPane2.setViewportView(txtLog);
                     }
-                    pnlUpperRight.add(scrollPane2, CC.xywh(3, 13, 5, 1));
+                    pnlEingangRechts.add(scrollPane2, CC.xywh(3, 13, 5, 1));
 
                     //======== panel11 ========
                     {
@@ -1328,7 +1322,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         });
                         panel11.add(btnNoPrinter);
                     }
-                    pnlUpperRight.add(panel11, CC.xywh(3, 15, 5, 1));
+                    pnlEingangRechts.add(panel11, CC.xywh(3, 15, 5, 1));
 
                     //---- btnEinbuchen ----
                     btnEinbuchen.setText("Einbuchen");
@@ -1340,7 +1334,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                             btnEinbuchenActionPerformed(e);
                         }
                     });
-                    pnlUpperRight.add(btnEinbuchen, CC.xywh(3, 17, 3, 1));
+                    pnlEingangRechts.add(btnEinbuchen, CC.xywh(3, 17, 3, 1));
 
                     //---- btnSofortBuchen ----
                     btnSofortBuchen.setToolTipText("Sofort Buchen wenn m\u00f6glich");
@@ -1351,23 +1345,23 @@ public class PnlWareneingang extends DefaultTouchPanel {
                             btnSofortBuchenItemStateChanged(e);
                         }
                     });
-                    pnlUpperRight.add(btnSofortBuchen, CC.xy(7, 17));
+                    pnlEingangRechts.add(btnSofortBuchen, CC.xy(7, 17));
                 }
-                pnlUpper.add(pnlUpperRight, CC.xy(3, 1));
+                pnlEingang.add(pnlEingangRechts, CC.xy(3, 1));
             }
-            splitMain.add(pnlUpper, "card1");
+            pnlMain.add(pnlEingang, "eingang");
 
-            //======== pnlLower ========
+            //======== pnlAddProduct ========
             {
-                pnlLower.setLayout(new FormLayout(
+                pnlAddProduct.setLayout(new FormLayout(
                     "default, $lcgap, default:grow, $lcgap, default",
-                    "fill:default, $rgap, 6*(default, $lgap), default"));
+                    "fill:default, $rgap, 6*(default, $lgap), fill:default:grow"));
 
                 //---- lbl1 ----
                 lbl1.setLabelFor(txtProdBezeichnung);
                 lbl1.setText("Produkt ");
                 lbl1.setFont(new Font("sansserif", Font.PLAIN, 24));
-                pnlLower.add(lbl1, CC.xy(1, 1));
+                pnlAddProduct.add(lbl1, CC.xy(1, 1));
 
                 //---- txtProdBezeichnung ----
                 txtProdBezeichnung.setFont(new Font("sansserif", Font.PLAIN, 24));
@@ -1383,7 +1377,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         txtProdBezeichnungCaretUpdate(e);
                     }
                 });
-                pnlLower.add(txtProdBezeichnung, CC.xywh(3, 1, 3, 1));
+                pnlAddProduct.add(txtProdBezeichnung, CC.xywh(3, 1, 3, 1));
 
                 //---- cmbEinheit ----
                 cmbEinheit.setFont(new Font("sansserif", Font.PLAIN, 24));
@@ -1394,7 +1388,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         cmbEinheitItemStateChanged(e);
                     }
                 });
-                pnlLower.add(cmbEinheit, CC.xy(1, 3));
+                pnlAddProduct.add(cmbEinheit, CC.xy(1, 3));
 
                 //---- cmbLagerart ----
                 cmbLagerart.setFont(new Font("sansserif", Font.PLAIN, 24));
@@ -1405,7 +1399,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         cmbLagerartItemStateChanged(e);
                     }
                 });
-                pnlLower.add(cmbLagerart, CC.xywh(3, 3, 3, 1));
+                pnlAddProduct.add(cmbLagerart, CC.xywh(3, 3, 3, 1));
 
                 //---- btnVerpackteWare ----
                 btnVerpackteWare.setText("Verpackte Ware");
@@ -1417,13 +1411,13 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         btnVerpackteWareItemStateChanged(e);
                     }
                 });
-                pnlLower.add(btnVerpackteWare, CC.xywh(1, 5, 5, 1));
+                pnlAddProduct.add(btnVerpackteWare, CC.xywh(1, 5, 5, 1));
 
                 //---- lblStrichcode ----
                 lblStrichcode.setLabelFor(txtGTIN);
                 lblStrichcode.setText("Strichcode");
                 lblStrichcode.setFont(new Font("sansserif", Font.PLAIN, 24));
-                pnlLower.add(lblStrichcode, CC.xy(1, 7));
+                pnlAddProduct.add(lblStrichcode, CC.xy(1, 7));
 
                 //---- txtGTIN ----
                 txtGTIN.setFont(new Font("sansserif", Font.PLAIN, 24));
@@ -1449,13 +1443,13 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         txtGTINCaretUpdate(e);
                     }
                 });
-                pnlLower.add(txtGTIN, CC.xywh(3, 7, 3, 1));
+                pnlAddProduct.add(txtGTIN, CC.xywh(3, 7, 3, 1));
 
                 //---- lbl4 ----
                 lbl4.setLabelFor(txtPackGroesse);
                 lbl4.setText("Packungsgr\u00f6\u00dfe");
                 lbl4.setFont(new Font("sansserif", Font.PLAIN, 24));
-                pnlLower.add(lbl4, CC.xy(1, 9));
+                pnlAddProduct.add(lbl4, CC.xy(1, 9));
 
                 //---- txtPackGroesse ----
                 txtPackGroesse.setFont(new Font("sansserif", Font.PLAIN, 24));
@@ -1471,12 +1465,12 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         txtPackGroesseFocusGained(e);
                     }
                 });
-                pnlLower.add(txtPackGroesse, CC.xy(3, 9));
+                pnlAddProduct.add(txtPackGroesse, CC.xy(3, 9));
 
                 //---- lblEinheit1 ----
                 lblEinheit1.setText("text");
                 lblEinheit1.setFont(new Font("sansserif", Font.PLAIN, 24));
-                pnlLower.add(lblEinheit1, CC.xy(5, 9));
+                pnlAddProduct.add(lblEinheit1, CC.xy(5, 9));
 
                 //======== pnlStoffart ========
                 {
@@ -1512,11 +1506,11 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         });
                         pnlSelStoffart.add(btnAddStoffart);
                     }
-                    pnlStoffart.add(pnlSelStoffart, "card1");
+                    pnlStoffart.add(pnlSelStoffart, "select");
 
-                    //======== pnlEditStoffart ========
+                    //======== pnlAddStoffart ========
                     {
-                        pnlEditStoffart.setLayout(new BoxLayout(pnlEditStoffart, BoxLayout.X_AXIS));
+                        pnlAddStoffart.setLayout(new BoxLayout(pnlAddStoffart, BoxLayout.X_AXIS));
 
                         //---- txtNewStoffart ----
                         txtNewStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1527,7 +1521,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                 txtNewStoffartFocusGained(e);
                             }
                         });
-                        pnlEditStoffart.add(txtNewStoffart);
+                        pnlAddStoffart.add(txtNewStoffart);
 
                         //---- btnApplyStoffart ----
                         btnApplyStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1538,7 +1532,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                 btnApplyStoffartActionPerformed(e);
                             }
                         });
-                        pnlEditStoffart.add(btnApplyStoffart);
+                        pnlAddStoffart.add(btnApplyStoffart);
 
                         //---- btnCancelStoffart ----
                         btnCancelStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1549,11 +1543,11 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                 btnCancelStoffartActionPerformed(e);
                             }
                         });
-                        pnlEditStoffart.add(btnCancelStoffart);
+                        pnlAddStoffart.add(btnCancelStoffart);
                     }
-                    pnlStoffart.add(pnlEditStoffart, "card2");
+                    pnlStoffart.add(pnlAddStoffart, "add");
                 }
-                pnlLower.add(pnlStoffart, CC.xywh(1, 11, 5, 1));
+                pnlAddProduct.add(pnlStoffart, CC.xywh(1, 11, 5, 1));
 
                 //======== pnlWarengruppe ========
                 {
@@ -1590,11 +1584,11 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         });
                         pnlSelWarengruppe.add(btnAddWarengruppe);
                     }
-                    pnlWarengruppe.add(pnlSelWarengruppe, "card1");
+                    pnlWarengruppe.add(pnlSelWarengruppe, "select");
 
-                    //======== pnlEditWarengruppe ========
+                    //======== pnlAddWarengruppe ========
                     {
-                        pnlEditWarengruppe.setLayout(new BoxLayout(pnlEditWarengruppe, BoxLayout.X_AXIS));
+                        pnlAddWarengruppe.setLayout(new BoxLayout(pnlAddWarengruppe, BoxLayout.X_AXIS));
 
                         //---- txtNewWarengruppe ----
                         txtNewWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1605,7 +1599,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                 txtNewWarengruppeFocusGained(e);
                             }
                         });
-                        pnlEditWarengruppe.add(txtNewWarengruppe);
+                        pnlAddWarengruppe.add(txtNewWarengruppe);
 
                         //---- btnApplyWarengruppe ----
                         btnApplyWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1616,7 +1610,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                 btnApplyWarengruppeActionPerformed(e);
                             }
                         });
-                        pnlEditWarengruppe.add(btnApplyWarengruppe);
+                        pnlAddWarengruppe.add(btnApplyWarengruppe);
 
                         //---- btnCancelWarengruppe ----
                         btnCancelWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1627,11 +1621,11 @@ public class PnlWareneingang extends DefaultTouchPanel {
                                 btnCancelWarengruppeActionPerformed(e);
                             }
                         });
-                        pnlEditWarengruppe.add(btnCancelWarengruppe);
+                        pnlAddWarengruppe.add(btnCancelWarengruppe);
                     }
-                    pnlWarengruppe.add(pnlEditWarengruppe, "card2");
+                    pnlWarengruppe.add(pnlAddWarengruppe, "add");
                 }
-                pnlLower.add(pnlWarengruppe, CC.xywh(1, 13, 5, 1));
+                pnlAddProduct.add(pnlWarengruppe, CC.xywh(1, 13, 5, 1));
 
                 //---- btnAcceptProd ----
                 btnAcceptProd.setText("Produkt hinzuf\u00fcgen");
@@ -1643,12 +1637,12 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         btnAcceptProdActionPerformed(e);
                     }
                 });
-                pnlLower.add(btnAcceptProd, CC.xywh(1, 15, 3, 1));
+                pnlAddProduct.add(btnAcceptProd, CC.xywh(1, 15, 3, 1, CC.DEFAULT, CC.BOTTOM));
 
                 //---- lblMessageLower ----
                 lblMessageLower.setFont(new Font("sansserif", Font.BOLD, 24));
                 lblMessageLower.setHorizontalAlignment(SwingConstants.CENTER);
-                pnlLower.add(lblMessageLower, CC.xywh(1, 15, 3, 1, CC.DEFAULT, CC.FILL));
+                pnlAddProduct.add(lblMessageLower, CC.xywh(1, 15, 3, 1, CC.DEFAULT, CC.FILL));
 
                 //---- btnCancelNeuProd ----
                 btnCancelNeuProd.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/cancel.png")));
@@ -1658,11 +1652,11 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         btnCancelNeuProdActionPerformed(e);
                     }
                 });
-                pnlLower.add(btnCancelNeuProd, CC.xy(5, 15));
+                pnlAddProduct.add(btnCancelNeuProd, CC.xy(5, 15, CC.DEFAULT, CC.BOTTOM));
             }
-            splitMain.add(pnlLower, "card2");
+            pnlMain.add(pnlAddProduct, "produkt");
         }
-        add(splitMain);
+        add(pnlMain);
 
         //---- buttonGroup1 ----
         ButtonGroup buttonGroup1 = new ButtonGroup();
@@ -1674,15 +1668,15 @@ public class PnlWareneingang extends DefaultTouchPanel {
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    private JPanel splitMain;
-    private JPanel pnlUpper;
-    private JPanel pnlUpperLeft;
+    private JPanel pnlMain;
+    private JPanel pnlEingang;
+    private JPanel pnlEingangLinks;
     private JTextField txtSearch;
     private JScrollPane scrollPane1;
     private JList listProdukte;
     private JLabel lblProdInfo;
     private JButton btnNewProdukt;
-    private JPanel pnlUpperRight;
+    private JPanel pnlEingangRechts;
     private JLabel lblProdukt;
     private JPanel panel3;
     private JTextField txtFaktor;
@@ -1695,19 +1689,19 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private JPanel panel10;
     private JTextField txtMenge;
     private JLabel lblEinheit;
-    private JSplitPane splitLieferant;
-    private JPanel panel4;
+    private JPanel pnlLieferant;
+    private JPanel pnlSelLieferant;
     private JComboBox cmbLieferant;
     private JButton btnAddLieferant;
-    private JPanel panel5;
+    private JPanel pnlAddLieferant;
     private JTextField txtNewLieferant;
     private JButton btnApplyLieferant;
     private JButton btnCancelLieferant;
-    private JSplitPane splitLager;
-    private JPanel panel6;
+    private JPanel pnlLager;
+    private JPanel pnlSelectLager;
     private JComboBox cmbLager;
     private JButton btnAddLager;
-    private JPanel panel7;
+    private JPanel pnlAddLager;
     private JTextField txtNewLager;
     private JButton btnApplyLager;
     private JButton btnCancelLager;
@@ -1720,7 +1714,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private JToggleButton btnNoPrinter;
     private JButton btnEinbuchen;
     private JToggleButton btnSofortBuchen;
-    private JPanel pnlLower;
+    private JPanel pnlAddProduct;
     private JLabel lbl1;
     private JTextField txtProdBezeichnung;
     private JComboBox cmbEinheit;
@@ -1735,7 +1729,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private JPanel pnlSelStoffart;
     private JComboBox cmbStoffart;
     private JButton btnAddStoffart;
-    private JPanel pnlEditStoffart;
+    private JPanel pnlAddStoffart;
     private JTextField txtNewStoffart;
     private JButton btnApplyStoffart;
     private JButton btnCancelStoffart;
@@ -1743,7 +1737,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private JPanel pnlSelWarengruppe;
     private JComboBox cmbWarengruppe;
     private JButton btnAddWarengruppe;
-    private JPanel pnlEditWarengruppe;
+    private JPanel pnlAddWarengruppe;
     private JTextField txtNewWarengruppe;
     private JButton btnApplyWarengruppe;
     private JButton btnCancelWarengruppe;
@@ -1766,8 +1760,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
         cmbLager.setSelectedIndex(Integer.parseInt(Main.getProps().getProperty("touch1lager")));
         cmbLieferant.setSelectedIndex(Integer.parseInt(Main.getProps().getProperty("touch1lieferant")));
 
-        splitLagerADouble = 1.0d;
-        splitLiefADouble = 1.0d;
 
         setPanelMode(MODE_WARENEINGANG, 0);
 
@@ -1795,7 +1787,8 @@ public class PnlWareneingang extends DefaultTouchPanel {
         switch (mode) {
             case MODE_WARENEINGANG: {
 
-                Tools.showSide(splitMain, Tools.LEFT_UPPER_SIDE, speed);
+                CardLayout cl = (CardLayout) (pnlMain.getLayout());
+                cl.show(pnlMain, "eingang");
 //                Tools.showSide(splitUpperRight, Tools.LEFT_UPPER_SIDE, speed);
 
                 if (!refresh) {
@@ -1823,14 +1816,16 @@ public class PnlWareneingang extends DefaultTouchPanel {
             case MODE_EDIT_PRODUCT: {
                 // 1. splitMain so setzen, dass nur der obere Teil zu sehen ist.
 
-                splitWarengruppe.setDividerLocation(1.0d);
-                splitStoffart.setDividerLocation(1.0d);
-                splitNeuProd.setDividerLocation(0.0d);
+
+                CardLayout cl = (CardLayout) (pnlMain.getLayout());
+                cl.show(pnlMain, "produkt");
+
+//                splitWarengruppe.setDividerLocation(1.0d);
+//                splitStoffart.setDividerLocation(1.0d);
+//                splitNeuProd.setDividerLocation(0.0d);
 
 //                Tools.showSide(splitUpperRight, Tools.LEFT_UPPER_SIDE, speed);
-                Tools.showSide(splitMain, Tools.RIGHT_LOWER_SIDE, speed);
-
-
+//                Tools.showSide(splitMain, Tools.RIGHT_LOWER_SIDE, speed);
 
 
                 if (!refresh) {

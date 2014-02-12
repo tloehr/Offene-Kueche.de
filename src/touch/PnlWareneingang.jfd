@@ -62,7 +62,7 @@
          </object> 
         </void> 
         <void property="name"> 
-         <string>splitMain</string> 
+         <string>pnlMain</string> 
         </void> 
         <void method="add"> 
          <object class="com.jformdesigner.model.FormContainer"> 
@@ -79,7 +79,7 @@
            </void> 
           </object> 
           <void property="name"> 
-           <string>pnlUpper</string> 
+           <string>pnlEingang</string> 
           </void> 
           <void method="add"> 
            <object class="com.jformdesigner.model.FormContainer"> 
@@ -104,7 +104,7 @@
              </object> 
             </void> 
             <void property="name"> 
-             <string>pnlUpperLeft</string> 
+             <string>pnlEingangLinks</string> 
             </void> 
             <void method="add"> 
              <object class="com.jformdesigner.model.FormComponent"> 
@@ -312,7 +312,7 @@
              </void> 
             </object> 
             <void property="name"> 
-             <string>pnlUpperRight</string> 
+             <string>pnlEingangRechts</string> 
             </void> 
             <void method="add"> 
              <object class="com.jformdesigner.model.FormComponent"> 
@@ -704,24 +704,16 @@
             </void> 
             <void method="add"> 
              <object class="com.jformdesigner.model.FormContainer"> 
-              <string>javax.swing.JSplitPane</string> 
+              <string>javax.swing.JPanel</string> 
               <object class="com.jformdesigner.model.FormLayoutManager"> 
-               <class>javax.swing.JSplitPane</class> 
+               <class>java.awt.CardLayout</class> 
               </object> 
               <void method="setProperty"> 
                <string>enabled</string> 
                <boolean>false</boolean> 
               </void> 
-              <void method="addEvent"> 
-               <object class="com.jformdesigner.model.FormEvent"> 
-                <string>java.awt.event.ComponentListener</string> 
-                <string>componentResized</string> 
-                <string>splitLieferantComponentResized</string> 
-                <boolean>true</boolean> 
-               </object> 
-              </void> 
               <void property="name"> 
-               <string>splitLieferant</string> 
+               <string>pnlLieferant</string> 
               </void> 
               <void method="add"> 
                <object class="com.jformdesigner.model.FormContainer"> 
@@ -730,7 +722,7 @@
                  <class>javax.swing.BoxLayout</class> 
                 </object> 
                 <void property="name"> 
-                 <string>panel4</string> 
+                 <string>pnlSelLieferant</string> 
                 </void> 
                 <void method="add"> 
                  <object class="com.jformdesigner.model.FormComponent"> 
@@ -930,7 +922,7 @@
                 <class>java.lang.String</class> 
                 <void method="setProperty"> 
                  <string>value</string> 
-                 <string>left</string> 
+                 <string>select</string> 
                 </void> 
                </object> 
               </void> 
@@ -941,7 +933,7 @@
                  <class>javax.swing.BoxLayout</class> 
                 </object> 
                 <void property="name"> 
-                 <string>panel5</string> 
+                 <string>pnlAddLieferant</string> 
                 </void> 
                 <void method="add"> 
                  <object class="com.jformdesigner.model.FormComponent"> 
@@ -1042,7 +1034,7 @@
                 <class>java.lang.String</class> 
                 <void method="setProperty"> 
                  <string>value</string> 
-                 <string>right</string> 
+                 <string>add</string> 
                 </void> 
                </object> 
               </void> 
@@ -1065,24 +1057,16 @@
             </void> 
             <void method="add"> 
              <object class="com.jformdesigner.model.FormContainer"> 
-              <string>javax.swing.JSplitPane</string> 
+              <string>javax.swing.JPanel</string> 
               <object class="com.jformdesigner.model.FormLayoutManager"> 
-               <class>javax.swing.JSplitPane</class> 
+               <class>java.awt.CardLayout</class> 
               </object> 
               <void method="setProperty"> 
                <string>enabled</string> 
                <boolean>false</boolean> 
               </void> 
-              <void method="addEvent"> 
-               <object class="com.jformdesigner.model.FormEvent"> 
-                <string>java.awt.event.ComponentListener</string> 
-                <string>componentResized</string> 
-                <string>splitLagerComponentResized</string> 
-                <boolean>true</boolean> 
-               </object> 
-              </void> 
               <void property="name"> 
-               <string>splitLager</string> 
+               <string>pnlLager</string> 
               </void> 
               <void method="add"> 
                <object class="com.jformdesigner.model.FormContainer"> 
@@ -1091,7 +1075,7 @@
                  <class>javax.swing.BoxLayout</class> 
                 </object> 
                 <void property="name"> 
-                 <string>panel6</string> 
+                 <string>pnlSelectLager</string> 
                 </void> 
                 <void method="add"> 
                  <object class="com.jformdesigner.model.FormComponent"> 
@@ -1170,7 +1154,7 @@
                 <class>java.lang.String</class> 
                 <void method="setProperty"> 
                  <string>value</string> 
-                 <string>left</string> 
+                 <string>select</string> 
                 </void> 
                </object> 
               </void> 
@@ -1181,7 +1165,7 @@
                  <class>javax.swing.BoxLayout</class> 
                 </object> 
                 <void property="name"> 
-                 <string>panel7</string> 
+                 <string>pnlAddLager</string> 
                 </void> 
                 <void method="add"> 
                  <object class="com.jformdesigner.model.FormComponent"> 
@@ -1276,7 +1260,7 @@
                 <class>java.lang.String</class> 
                 <void method="setProperty"> 
                  <string>value</string> 
-                 <string>right</string> 
+                 <string>add</string> 
                 </void> 
                </object> 
               </void> 
@@ -1636,7 +1620,7 @@
           <class>java.lang.String</class> 
           <void method="setProperty"> 
            <string>value</string> 
-           <string>card1</string> 
+           <string>eingang</string> 
           </void> 
          </object> 
         </void> 
@@ -1651,11 +1635,11 @@
            </void> 
            <void method="setProperty"> 
             <string>$rowSpecs</string> 
-            <string>fill:default, relgap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default</string> 
+            <string>fill:default, relgap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, fill:default:grow</string> 
            </void> 
           </object> 
           <void property="name"> 
-           <string>pnlLower</string> 
+           <string>pnlAddProduct</string> 
           </void> 
           <void method="add"> 
            <object class="com.jformdesigner.model.FormComponent"> 
@@ -2128,7 +2112,7 @@
               <class>java.lang.String</class> 
               <void method="setProperty"> 
                <string>value</string> 
-               <string>card1</string> 
+               <string>select</string> 
               </void> 
              </object> 
             </void> 
@@ -2139,7 +2123,7 @@
                <class>javax.swing.BoxLayout</class> 
               </object> 
               <void property="name"> 
-               <string>pnlEditStoffart</string> 
+               <string>pnlAddStoffart</string> 
               </void> 
               <void method="add"> 
                <object class="com.jformdesigner.model.FormComponent"> 
@@ -2218,7 +2202,7 @@
               <class>java.lang.String</class> 
               <void method="setProperty"> 
                <string>value</string> 
-               <string>card2</string> 
+               <string>add</string> 
               </void> 
              </object> 
             </void> 
@@ -2310,7 +2294,7 @@
               <class>java.lang.String</class> 
               <void method="setProperty"> 
                <string>value</string> 
-               <string>card1</string> 
+               <string>select</string> 
               </void> 
              </object> 
             </void> 
@@ -2321,7 +2305,7 @@
                <class>javax.swing.BoxLayout</class> 
               </object> 
               <void property="name"> 
-               <string>pnlEditWarengruppe</string> 
+               <string>pnlAddWarengruppe</string> 
               </void> 
               <void method="add"> 
                <object class="com.jformdesigner.model.FormComponent"> 
@@ -2400,7 +2384,7 @@
               <class>java.lang.String</class> 
               <void method="setProperty"> 
                <string>value</string> 
-               <string>card2</string> 
+               <string>add</string> 
               </void> 
              </object> 
             </void> 
@@ -2462,6 +2446,10 @@
             <void method="setProperty"> 
              <string>gridWidth</string> 
              <int>3</int> 
+            </void> 
+            <void method="setProperty"> 
+             <string>vAlign</string> 
+             <object class="com.jgoodies.forms.layout.CellConstraints" field="BOTTOM"/> 
             </void> 
            </object> 
           </void> 
@@ -2532,6 +2520,10 @@
              <string>gridX</string> 
              <int>5</int> 
             </void> 
+            <void method="setProperty"> 
+             <string>vAlign</string> 
+             <object class="com.jgoodies.forms.layout.CellConstraints" field="BOTTOM"/> 
+            </void> 
            </object> 
           </void> 
          </object> 
@@ -2539,7 +2531,7 @@
           <class>java.lang.String</class> 
           <void method="setProperty"> 
            <string>value</string> 
-           <string>card2</string> 
+           <string>produkt</string> 
           </void> 
          </object> 
         </void> 
@@ -2558,8 +2550,8 @@
       <void method="setProperty"> 
        <string>size</string> 
        <object class="java.awt.Dimension"> 
-        <int>1035</int> 
-        <int>810</int> 
+        <int>955</int> 
+        <int>625</int> 
        </object> 
       </void> 
      </object> 
@@ -2576,8 +2568,8 @@
       <void method="setProperty"> 
        <string>location</string> 
        <object class="java.awt.Point"> 
-        <int>0</int> 
-        <int>1110</int> 
+        <int>25</int> 
+        <int>925</int> 
        </object> 
       </void> 
      </object> 

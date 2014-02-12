@@ -22,7 +22,6 @@ import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -37,13 +36,6 @@ public class PnlUmbuchen extends DefaultTouchPanel {
     private SoundProcessor sp;
     private Object[] spaltenVorrat = new Object[]{"Vorrat Nr.", "Bezeichnung", "Menge", "Status"};
     private boolean txtSearchChecked;
-    private int laufendeVOperation;
-    private double splitLeftRightDouble;
-
-    private final int LAUFENDE_OPERATION_NICHTS = 0;
-    private final int LAUFENDE_OPERATION_LOESCHEN = 1;
-    private final int LAUFENDE_OPERATION_AUSBUCHEN = 2;
-    private final int LAUFENDE_OPERATION_BUCHEN_AUF_UNBEKANNT = 3;
 
     private Timeline timeline;
 
@@ -91,7 +83,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
         EntityManager em = Main.getEMF().createEntityManager();
         try {
-            
+
             em.getTransaction().begin();
 
             Vorrat myVorrat = em.merge(vorrat);
@@ -168,31 +160,29 @@ public class PnlUmbuchen extends DefaultTouchPanel {
     }
 
     private void loadVorratTable() {
-        if (btnLeftRight.isSelected()) {
-            EntityManager em = Main.getEMF().createEntityManager();
-            try {
-                Query query = em.createNamedQuery("Buchungen.findSUMByLagerAktiv");
-                query.setParameter("lager", (Lager) cmbLager.getSelectedItem());
 
-                java.util.List list = query.getResultList();
+        EntityManager em = Main.getEMF().createEntityManager();
+        try {
+            Query query = em.createNamedQuery("Buchungen.findSUMByLagerAktiv");
+            query.setParameter("lager", (Lager) cmbLager.getSelectedItem());
 
-                tblVorrat.setModel(new VorratTableModel2(list, spaltenVorrat));
-                Tools.packTable(tblVorrat, 0);
+            java.util.List list = query.getResultList();
 
-                tblVorrat.getColumnModel().getColumn(VorratTableModel2.COL_VORRAT_ID).setCellRenderer(new UmbuchenRenderer());
-                tblVorrat.getColumnModel().getColumn(VorratTableModel2.COL_BEZEICHNUNG).setCellRenderer(new UmbuchenRenderer());
-                tblVorrat.getColumnModel().getColumn(VorratTableModel2.COL_MENGE).setCellRenderer(new UmbuchenRenderer());
-                tblVorrat.getColumnModel().getColumn(VorratTableModel2.COL_ICON).setCellRenderer(new UmbuchenRenderer());
+            tblVorrat.setModel(new VorratTableModel2(list, spaltenVorrat));
+            Tools.packTable(tblVorrat, 0);
 
-            } catch (Exception e) { // nicht gefunden
-                Main.logger.fatal(e.getMessage(), e);
-                //e.printStackTrace();
-            } finally {
-                em.close();
-            }
-        } else {
-            tblVorrat.setModel(new DefaultTableModel());
+            tblVorrat.getColumnModel().getColumn(VorratTableModel2.COL_VORRAT_ID).setCellRenderer(new UmbuchenRenderer());
+            tblVorrat.getColumnModel().getColumn(VorratTableModel2.COL_BEZEICHNUNG).setCellRenderer(new UmbuchenRenderer());
+            tblVorrat.getColumnModel().getColumn(VorratTableModel2.COL_MENGE).setCellRenderer(new UmbuchenRenderer());
+            tblVorrat.getColumnModel().getColumn(VorratTableModel2.COL_ICON).setCellRenderer(new UmbuchenRenderer());
+
+        } catch (Exception e) { // nicht gefunden
+            Main.logger.fatal(e.getMessage(), e);
+            //e.printStackTrace();
+        } finally {
+            em.close();
         }
+
     }
 
     private void btnUmbuchenActionPerformed(ActionEvent e) {
@@ -218,28 +208,22 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         }
     }
 
-    private void btnLeftRightItemStateChanged(ItemEvent e) {
-        if (laufendeVOperation != LAUFENDE_OPERATION_NICHTS) {
-            btnLeftRight.setSelected(true);
-            return;
-        }
-        vorratsListeInsLogbuch();
-        loadVorratTable();
-        btnToUnbekannt.setEnabled(btnLeftRight.isSelected());
-        Tools.showSide(splitMain, btnLeftRight.isSelected() ? 0.5d : 1.0d, 500);
-    }
-
-    private void thisComponentResized(ComponentEvent e) {
-        Tools.showSide(splitMain, btnLeftRight.isSelected() ? 0.5d : 1.0d);
-        Tools.showSide(splitLeftRight, Tools.LEFT_UPPER_SIDE);
-        Tools.packTable(tblVorrat, 0);
-    }
 
     private void btnToUnbekanntActionPerformed(ActionEvent e) {
-        if (laufendeVOperation != LAUFENDE_OPERATION_NICHTS) return;
-        laufendeVOperation = LAUFENDE_OPERATION_BUCHEN_AUF_UNBEKANNT;
-        splitLeftRightDouble = Tools.showSide(splitLeftRight, Tools.RIGHT_LOWER_SIDE, 400);
-        showVEditMessage("Fragliche Vorräte auf UNBEKANNT buchen ?");
+        Lager unbekannt = LagerTools.getUnbekannt();
+        VorratTableModel2 model = (VorratTableModel2) tblVorrat.getModel();
+        Tools.log(txtLog, "Folgende Vorräte wurden auf Unbekannt umgebucht:");
+        Tools.log(txtLog, "================================================");
+        for (int row = 0; row < model.getRowCount(); row++) {
+            // Model Row Index Umwandlung ist hier unnötig. Markierungen bleiben unberücksichtigt.
+            if (model.getStatus(row) == VorratTableModel2.STATUS_FRAGLICH) {
+                Vorrat vorrat = model.getVorrat(row);
+                Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "");
+                vorrat.setLager(unbekannt);
+                EntityTools.merge(vorrat);
+            }
+        }
+        Tools.log(txtLog, "================================================");
     }
 
     private void vorratsListeInsLogbuch() {
@@ -284,7 +268,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             cmbLieferant.setModel(tools.Tools.newComboboxModel(lieferant));
         } catch (Exception e) { // nicht gefunden
             //
-        }  finally {
+        } finally {
             em.close();
         }
     }
@@ -303,385 +287,309 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         }
     }
 
-    private void btnCancelActionPerformed(ActionEvent e) {
-        timeline.cancel();
-        splitLeftRightDouble = Tools.showSide(splitLeftRight, Tools.LEFT_UPPER_SIDE, 400);
 
-        laufendeVOperation = LAUFENDE_OPERATION_NICHTS;
-    }
-
-    private void btnApplyActionPerformed(ActionEvent e) {
-
-        if (laufendeVOperation == LAUFENDE_OPERATION_BUCHEN_AUF_UNBEKANNT) {
-            Lager unbekannt = LagerTools.getUnbekannt();
-            VorratTableModel2 model = (VorratTableModel2) tblVorrat.getModel();
-            Tools.log(txtLog, "Folgende Vorräte wurden auf Unbekannt umgebucht:");
-            Tools.log(txtLog, "================================================");
-            for (int row = 0; row < model.getRowCount(); row++) {
-                // Model Row Index Umwandlung ist hier unnötig. Markierungen bleiben unberücksichtigt.
-                if (model.getStatus(row) == VorratTableModel2.STATUS_FRAGLICH) {
-                    Vorrat vorrat = model.getVorrat(row);
-                    Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "");
-                    vorrat.setLager(unbekannt);
-                    EntityTools.merge(vorrat);
-                }
-            }
-            Tools.log(txtLog, "================================================");
-        } else {
-            EntityManager em = Main.getEMF().createEntityManager();
-            try {
-                em.getTransaction().begin();
-                int[] rows = tblVorrat.getSelectedRows();
-
-                for (int r = 0; r < rows.length; r++) {
-                    // Diese Zeile ist sehr wichtig, da sie die Auswahl in der Tabelle bzgl. einer Umsortierung berücksichtigt.
-                    int row = tblVorrat.convertRowIndexToModel(rows[r]);
-                    Vorrat vorrat = ((VorratTableModel2) tblVorrat.getModel()).getVorrat(row);
-                    if (laufendeVOperation == LAUFENDE_OPERATION_LOESCHEN) {
-                        Main.logger.info("DELETE VORRAT: " + vorrat.toString());
-                        Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "GELÖSCHT");
-                        EntityTools.delete(vorrat);
-                    } else if (laufendeVOperation == LAUFENDE_OPERATION_AUSBUCHEN) {
-                        Main.logger.info("AUSBUCHEN VORRAT: " + vorrat.toString());
-                        Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "AUSGEBUCHT");
-                        VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
-                    }
-                }
-                em.getTransaction().commit();
-            } catch (Exception e1) {
-                em.getTransaction().rollback();
-            } finally {
-                em.close();
-            }
-        }
-        timeline.cancel();
-        splitLeftRightDouble = Tools.showSide(splitLeftRight, Tools.LEFT_UPPER_SIDE, 400);
-
-        laufendeVOperation = LAUFENDE_OPERATION_NICHTS;
-        loadVorratTable();
-    }
+//    private void btnApplyActionPerformed(ActionEvent e) {
+//
+//        if (laufendeVOperation == LAUFENDE_OPERATION_BUCHEN_AUF_UNBEKANNT) {
+//            Lager unbekannt = LagerTools.getUnbekannt();
+//            VorratTableModel2 model = (VorratTableModel2) tblVorrat.getModel();
+//            Tools.log(txtLog, "Folgende Vorräte wurden auf Unbekannt umgebucht:");
+//            Tools.log(txtLog, "================================================");
+//            for (int row = 0; row < model.getRowCount(); row++) {
+//                // Model Row Index Umwandlung ist hier unnötig. Markierungen bleiben unberücksichtigt.
+//                if (model.getStatus(row) == VorratTableModel2.STATUS_FRAGLICH) {
+//                    Vorrat vorrat = model.getVorrat(row);
+//                    Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "");
+//                    vorrat.setLager(unbekannt);
+//                    EntityTools.merge(vorrat);
+//                }
+//            }
+//            Tools.log(txtLog, "================================================");
+//        } else {
+//            EntityManager em = Main.getEMF().createEntityManager();
+//            try {
+//                em.getTransaction().begin();
+//                int[] rows = tblVorrat.getSelectedRows();
+//
+//                for (int r = 0; r < rows.length; r++) {
+//                    // Diese Zeile ist sehr wichtig, da sie die Auswahl in der Tabelle bzgl. einer Umsortierung berücksichtigt.
+//                    int row = tblVorrat.convertRowIndexToModel(rows[r]);
+//                    Vorrat vorrat = ((VorratTableModel2) tblVorrat.getModel()).getVorrat(row);
+//                    if (laufendeVOperation == LAUFENDE_OPERATION_LOESCHEN) {
+//                        Main.logger.info("DELETE VORRAT: " + vorrat.toString());
+//                        Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "GELÖSCHT");
+//                        EntityTools.delete(vorrat);
+//                    } else if (laufendeVOperation == LAUFENDE_OPERATION_AUSBUCHEN) {
+//                        Main.logger.info("AUSBUCHEN VORRAT: " + vorrat.toString());
+//                        Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "AUSGEBUCHT");
+//                        VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
+//                    }
+//                }
+//                em.getTransaction().commit();
+//            } catch (Exception e1) {
+//                em.getTransaction().rollback();
+//            } finally {
+//                em.close();
+//            }
+//        }
+//        timeline.cancel();
+//        splitLeftRightDouble = Tools.showSide(splitLeftRight, Tools.LEFT_UPPER_SIDE, 400);
+//
+//        laufendeVOperation = LAUFENDE_OPERATION_NICHTS;
+//        loadVorratTable();
+//    }
 
     private void btnAusbuchenActionPerformed(ActionEvent e) {
-        if (laufendeVOperation != LAUFENDE_OPERATION_NICHTS || tblVorrat.getSelectedRowCount() == 0) return;
-        laufendeVOperation = LAUFENDE_OPERATION_AUSBUCHEN;
-        splitLeftRightDouble = Tools.showSide(splitLeftRight, Tools.RIGHT_LOWER_SIDE, 400);
-        showVEditMessage("Markierte (" + tblVorrat.getSelectedRowCount() + ") Vorräte ausbuchen ?");
+        EntityManager em = Main.getEMF().createEntityManager();
+        try {
+            em.getTransaction().begin();
+            int[] rows = tblVorrat.getSelectedRows();
+
+            for (int r = 0; r < rows.length; r++) {
+                // Diese Zeile ist sehr wichtig, da sie die Auswahl in der Tabelle bzgl. einer Umsortierung berücksichtigt.
+                int row = tblVorrat.convertRowIndexToModel(rows[r]);
+                Vorrat vorrat = ((VorratTableModel2) tblVorrat.getModel()).getVorrat(row);
+
+                Main.logger.info("AUSBUCHEN VORRAT: " + vorrat.toString());
+                Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "AUSGEBUCHT");
+                VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
+            }
+            em.getTransaction().commit();
+        } catch (Exception e1) {
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
+        }
     }
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+        defaultTouchPanel1 = new DefaultTouchPanel();
         txtSearch = new JTextField();
         lblProdukt = new JLabel();
         cmbLieferant = new JComboBox();
         cmbLager = new JComboBox();
-        panel1 = new JPanel();
-        splitMain = new JSplitPane();
-        panel3 = new JPanel();
+        pnlLog = new JPanel();
         logScrollPane = new JScrollPane();
         txtLog = new JTextArea();
         label1 = new JLabel();
-        panel4 = new JPanel();
+        pnlVorraete = new JPanel();
         title1 = new JLabel();
         scrollPane2 = new JScrollPane();
         tblVorrat = new JTable();
-        cbZombieRevive = new JCheckBox();
+        cbZombieRevive = new JToggleButton();
         panel2 = new JPanel();
-        btnLeftRight = new JToggleButton();
         btnClear = new JButton();
         btnPrint = new JButton();
         separator1 = new JSeparator();
         btnToUnbekannt = new JButton();
         btnAusbuchen = new JButton();
-        panel5 = new JPanel();
-        splitLeftRight = new JSplitPane();
         btnUmbuchen = new JButton();
-        panel6 = new JPanel();
-        btnApply = new JButton();
-        hSpacer1 = new JPanel(null);
-        lblApply = new JLabel();
-        hSpacer2 = new JPanel(null);
-        btnCancel = new JButton();
         btnSofortUmbuchen = new JToggleButton();
 
         //======== this ========
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                thisComponentResized(e);
-            }
-        });
-        setLayout(new FormLayout(
-            "$rgap, $lcgap, default:grow, $lcgap, default, $lcgap, $rgap",
-            "$rgap, 4*($lgap, 30dlu), $lgap, fill:default:grow, $lgap, default, $lgap, $rgap"));
+        setLayout(new CardLayout());
 
-        //---- txtSearch ----
-        txtSearch.setFont(new Font("sansserif", Font.BOLD, 24));
-        txtSearch.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                txtSearchActionPerformed(e);
-            }
-        });
-        txtSearch.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                txtSearchFocusGained(e);
-            }
-            @Override
-            public void focusLost(FocusEvent e) {
-                txtSearchFocusLost(e);
-            }
-        });
-        txtSearch.addCaretListener(new CaretListener() {
-            @Override
-            public void caretUpdate(CaretEvent e) {
-                txtSearchCaretUpdate(e);
-            }
-        });
-        add(txtSearch, CC.xywh(3, 3, 3, 1, CC.DEFAULT, CC.FILL));
-
-        //---- lblProdukt ----
-        lblProdukt.setText(" ");
-        lblProdukt.setFont(new Font("sansserif", Font.BOLD, 24));
-        lblProdukt.setHorizontalAlignment(SwingConstants.CENTER);
-        lblProdukt.setBackground(new Color(204, 204, 255));
-        lblProdukt.setOpaque(true);
-        add(lblProdukt, CC.xywh(3, 5, 3, 1, CC.DEFAULT, CC.FILL));
-
-        //---- cmbLieferant ----
-        cmbLieferant.setFont(new Font("sansserif", Font.PLAIN, 24));
-        cmbLieferant.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                cmbLieferantItemStateChanged(e);
-            }
-        });
-        add(cmbLieferant, CC.xywh(3, 7, 3, 1, CC.DEFAULT, CC.FILL));
-
-        //---- cmbLager ----
-        cmbLager.setFont(new Font("sansserif", Font.PLAIN, 24));
-        cmbLager.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                cmbLagerItemStateChanged(e);
-            }
-        });
-        add(cmbLager, CC.xywh(3, 9, 3, 1, CC.DEFAULT, CC.FILL));
-
-        //======== panel1 ========
+        //======== defaultTouchPanel1 ========
         {
-            panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
+            defaultTouchPanel1.setLayout(new FormLayout(
+                "276dlu, $lcgap, pref:grow, $lcgap, center:default",
+                "4*(30dlu, $lgap), fill:default:grow, $lgap, default"));
 
-            //======== splitMain ========
-            {
-                splitMain.setDividerSize(0);
-                splitMain.setDividerLocation(200);
-
-                //======== panel3 ========
-                {
-                    panel3.setLayout(new BorderLayout());
-
-                    //======== logScrollPane ========
-                    {
-                        logScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-                        //---- txtLog ----
-                        txtLog.setBackground(Color.lightGray);
-                        txtLog.setFont(new Font("sansserif", Font.PLAIN, 18));
-                        txtLog.setWrapStyleWord(true);
-                        txtLog.setLineWrap(true);
-                        txtLog.setEditable(false);
-                        logScrollPane.setViewportView(txtLog);
-                    }
-                    panel3.add(logScrollPane, BorderLayout.CENTER);
-
-                    //---- label1 ----
-                    label1.setText("Logbuch");
-                    label1.setBackground(new Color(51, 51, 255));
-                    label1.setForeground(Color.yellow);
-                    label1.setOpaque(true);
-                    label1.setFont(new Font("sansserif", Font.BOLD, 24));
-                    label1.setHorizontalAlignment(SwingConstants.CENTER);
-                    panel3.add(label1, BorderLayout.NORTH);
+            //---- txtSearch ----
+            txtSearch.setFont(new Font("sansserif", Font.BOLD, 24));
+            txtSearch.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    txtSearchActionPerformed(e);
                 }
-                splitMain.setLeftComponent(panel3);
-
-                //======== panel4 ========
-                {
-                    panel4.setLayout(new BorderLayout());
-
-                    //---- title1 ----
-                    title1.setFont(new Font("sansserif", Font.BOLD, 24));
-                    title1.setText("Vorr\u00e4te zur \u00dcberpr\u00fcfung");
-                    title1.setBackground(new Color(51, 255, 51));
-                    title1.setOpaque(true);
-                    title1.setHorizontalAlignment(SwingConstants.CENTER);
-                    panel4.add(title1, BorderLayout.NORTH);
-
-                    //======== scrollPane2 ========
-                    {
-
-                        //---- tblVorrat ----
-                        tblVorrat.setFont(new Font("sansserif", Font.PLAIN, 18));
-                        tblVorrat.setAutoCreateRowSorter(true);
-                        tblVorrat.setRowHeight(20);
-                        scrollPane2.setViewportView(tblVorrat);
-                    }
-                    panel4.add(scrollPane2, BorderLayout.CENTER);
-
-                    //---- cbZombieRevive ----
-                    cbZombieRevive.setText("Ausgebuchte wieder zur\u00fcck holen (revive Zombies)");
-                    cbZombieRevive.setFont(new Font("Arial", Font.PLAIN, 18));
-                    panel4.add(cbZombieRevive, BorderLayout.SOUTH);
+            });
+            txtSearch.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusGained(FocusEvent e) {
+                    txtSearchFocusGained(e);
                 }
-                splitMain.setRightComponent(panel4);
-            }
-            panel1.add(splitMain);
-        }
-        add(panel1, CC.xywh(3, 11, 2, 1));
+                @Override
+                public void focusLost(FocusEvent e) {
+                    txtSearchFocusLost(e);
+                }
+            });
+            txtSearch.addCaretListener(new CaretListener() {
+                @Override
+                public void caretUpdate(CaretEvent e) {
+                    txtSearchCaretUpdate(e);
+                }
+            });
+            defaultTouchPanel1.add(txtSearch, CC.xywh(1, 1, 5, 1, CC.DEFAULT, CC.FILL));
 
-        //======== panel2 ========
-        {
-            panel2.setLayout(new VerticalLayout(10));
+            //---- lblProdukt ----
+            lblProdukt.setText(" ");
+            lblProdukt.setFont(new Font("sansserif", Font.BOLD, 24));
+            lblProdukt.setHorizontalAlignment(SwingConstants.CENTER);
+            lblProdukt.setBackground(new Color(204, 204, 255));
+            lblProdukt.setOpaque(true);
+            defaultTouchPanel1.add(lblProdukt, CC.xywh(1, 3, 5, 1, CC.DEFAULT, CC.FILL));
 
-            //---- btnLeftRight ----
-            btnLeftRight.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/2leftarrow.png")));
-            btnLeftRight.setSelectedIcon(new ImageIcon(getClass().getResource("/artwork/64x64/2rightarrow.png")));
-            btnLeftRight.setRolloverEnabled(false);
-            btnLeftRight.addItemListener(new ItemListener() {
+            //---- cmbLieferant ----
+            cmbLieferant.setFont(new Font("sansserif", Font.PLAIN, 24));
+            cmbLieferant.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
-                    btnLeftRightItemStateChanged(e);
+                    cmbLieferantItemStateChanged(e);
                 }
             });
-            panel2.add(btnLeftRight);
+            defaultTouchPanel1.add(cmbLieferant, CC.xywh(1, 5, 5, 1, CC.DEFAULT, CC.FILL));
 
-            //---- btnClear ----
-            btnClear.setToolTipText("Logbuch l\u00f6schen");
-            btnClear.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/editclear.png")));
-            btnClear.addActionListener(new ActionListener() {
+            //---- cmbLager ----
+            cmbLager.setFont(new Font("sansserif", Font.PLAIN, 24));
+            cmbLager.addItemListener(new ItemListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
-                    btnClearActionPerformed(e);
+                public void itemStateChanged(ItemEvent e) {
+                    cmbLagerItemStateChanged(e);
                 }
             });
-            panel2.add(btnClear);
+            defaultTouchPanel1.add(cmbLager, CC.xywh(1, 7, 5, 1, CC.DEFAULT, CC.FILL));
 
-            //---- btnPrint ----
-            btnPrint.setToolTipText("Logbuch drucken");
-            btnPrint.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/printer1.png")));
-            btnPrint.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    btnPrintActionPerformed(e);
-                }
-            });
-            panel2.add(btnPrint);
-            panel2.add(separator1);
-
-            //---- btnToUnbekannt ----
-            btnToUnbekannt.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/db_status.png")));
-            btnToUnbekannt.setToolTipText("Fragliche Vorr\u00e4te auf Unbekannt buchen");
-            btnToUnbekannt.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    btnToUnbekanntActionPerformed(e);
-                }
-            });
-            panel2.add(btnToUnbekannt);
-
-            //---- btnAusbuchen ----
-            btnAusbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/games.png")));
-            btnAusbuchen.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    btnAusbuchenActionPerformed(e);
-                }
-            });
-            panel2.add(btnAusbuchen);
-        }
-        add(panel2, CC.xy(5, 11));
-
-        //======== panel5 ========
-        {
-            panel5.setLayout(new BoxLayout(panel5, BoxLayout.X_AXIS));
-
-            //======== splitLeftRight ========
+            //======== pnlLog ========
             {
-                splitLeftRight.setDividerSize(0);
-                splitLeftRight.setDividerLocation(400);
+                pnlLog.setLayout(new BorderLayout());
 
-                //---- btnUmbuchen ----
-                btnUmbuchen.setText("Umbuchen");
-                btnUmbuchen.setFont(new Font("sansserif", Font.BOLD, 24));
-                btnUmbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/apply.png")));
-                btnUmbuchen.setEnabled(false);
-                btnUmbuchen.addActionListener(new ActionListener() {
+                //======== logScrollPane ========
+                {
+                    logScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+                    //---- txtLog ----
+                    txtLog.setBackground(Color.lightGray);
+                    txtLog.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    txtLog.setWrapStyleWord(true);
+                    txtLog.setLineWrap(true);
+                    txtLog.setEditable(false);
+                    logScrollPane.setViewportView(txtLog);
+                }
+                pnlLog.add(logScrollPane, BorderLayout.CENTER);
+
+                //---- label1 ----
+                label1.setText("Logbuch");
+                label1.setBackground(new Color(51, 51, 255));
+                label1.setForeground(Color.yellow);
+                label1.setOpaque(true);
+                label1.setFont(new Font("sansserif", Font.BOLD, 24));
+                label1.setHorizontalAlignment(SwingConstants.CENTER);
+                pnlLog.add(label1, BorderLayout.NORTH);
+            }
+            defaultTouchPanel1.add(pnlLog, CC.xy(1, 9));
+
+            //======== pnlVorraete ========
+            {
+                pnlVorraete.setLayout(new BorderLayout());
+
+                //---- title1 ----
+                title1.setFont(new Font("sansserif", Font.BOLD, 24));
+                title1.setText("Vorr\u00e4te zur \u00dcberpr\u00fcfung");
+                title1.setBackground(new Color(51, 255, 51));
+                title1.setOpaque(true);
+                title1.setHorizontalAlignment(SwingConstants.CENTER);
+                pnlVorraete.add(title1, BorderLayout.NORTH);
+
+                //======== scrollPane2 ========
+                {
+
+                    //---- tblVorrat ----
+                    tblVorrat.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    tblVorrat.setAutoCreateRowSorter(true);
+                    tblVorrat.setRowHeight(20);
+                    scrollPane2.setViewportView(tblVorrat);
+                }
+                pnlVorraete.add(scrollPane2, BorderLayout.CENTER);
+
+                //---- cbZombieRevive ----
+                cbZombieRevive.setText("Wieder einbuchen wenn n\u00f6tig");
+                cbZombieRevive.setFont(new Font("Arial", Font.PLAIN, 26));
+                cbZombieRevive.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/cb-off-jelle.png")));
+                cbZombieRevive.setSelectedIcon(new ImageIcon(getClass().getResource("/artwork/64x64/cb-on-jelle.png")));
+                cbZombieRevive.setPressedIcon(null);
+                pnlVorraete.add(cbZombieRevive, BorderLayout.SOUTH);
+            }
+            defaultTouchPanel1.add(pnlVorraete, CC.xy(3, 9));
+
+            //======== panel2 ========
+            {
+                panel2.setLayout(new VerticalLayout(10));
+
+                //---- btnClear ----
+                btnClear.setToolTipText("Logbuch l\u00f6schen");
+                btnClear.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/editclear.png")));
+                btnClear.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        btnUmbuchenActionPerformed(e);
+                        btnClearActionPerformed(e);
                     }
                 });
-                splitLeftRight.setLeftComponent(btnUmbuchen);
+                panel2.add(btnClear);
 
-                //======== panel6 ========
-                {
-                    panel6.setLayout(new BoxLayout(panel6, BoxLayout.X_AXIS));
+                //---- btnPrint ----
+                btnPrint.setToolTipText("Logbuch drucken");
+                btnPrint.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/printer1.png")));
+                btnPrint.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        btnPrintActionPerformed(e);
+                    }
+                });
+                panel2.add(btnPrint);
+                panel2.add(separator1);
 
-                    //---- btnApply ----
-                    btnApply.setFont(new Font("sansserif", Font.PLAIN, 24));
-                    btnApply.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/apply.png")));
-                    btnApply.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            btnApplyActionPerformed(e);
-                        }
-                    });
-                    panel6.add(btnApply);
-                    panel6.add(hSpacer1);
+                //---- btnToUnbekannt ----
+                btnToUnbekannt.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/db_status.png")));
+                btnToUnbekannt.setToolTipText("Fragliche Vorr\u00e4te auf Unbekannt buchen");
+                btnToUnbekannt.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        btnToUnbekanntActionPerformed(e);
+                    }
+                });
+                panel2.add(btnToUnbekannt);
 
-                    //---- lblApply ----
-                    lblApply.setText("text");
-                    lblApply.setFont(new Font("sansserif", Font.PLAIN, 24));
-                    panel6.add(lblApply);
-                    panel6.add(hSpacer2);
+                //---- btnAusbuchen ----
+                btnAusbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/games.png")));
+                btnAusbuchen.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        btnAusbuchenActionPerformed(e);
+                    }
+                });
+                panel2.add(btnAusbuchen);
+            }
+            defaultTouchPanel1.add(panel2, CC.xy(5, 9));
 
-                    //---- btnCancel ----
-                    btnCancel.setFont(new Font("sansserif", Font.PLAIN, 24));
-                    btnCancel.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/cancel.png")));
-                    btnCancel.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            btnCancelActionPerformed(e);
-                        }
-                    });
-                    panel6.add(btnCancel);
+            //---- btnUmbuchen ----
+            btnUmbuchen.setText("Umbuchen");
+            btnUmbuchen.setFont(new Font("sansserif", Font.BOLD, 24));
+            btnUmbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/apply.png")));
+            btnUmbuchen.setEnabled(false);
+            btnUmbuchen.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    btnUmbuchenActionPerformed(e);
                 }
-                splitLeftRight.setRightComponent(panel6);
-            }
-            panel5.add(splitLeftRight);
-        }
-        add(panel5, CC.xy(3, 13));
+            });
+            defaultTouchPanel1.add(btnUmbuchen, CC.xywh(1, 11, 5, 1));
 
-        //---- btnSofortUmbuchen ----
-        btnSofortUmbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/agt_member.png")));
-        btnSofortUmbuchen.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                btnSofortUmbuchenItemStateChanged(e);
-            }
-        });
-        add(btnSofortUmbuchen, CC.xy(5, 13));
+            //---- btnSofortUmbuchen ----
+            btnSofortUmbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/agt_member.png")));
+            btnSofortUmbuchen.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    btnSofortUmbuchenItemStateChanged(e);
+                }
+            });
+            defaultTouchPanel1.add(btnSofortUmbuchen, CC.xy(5, 11));
+        }
+        add(defaultTouchPanel1, "card1");
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
-    private void showVEditMessage(String text) {
-        lblApply.setText(text);
-        timeline = new Timeline(lblApply);
-        timeline.addPropertyToInterpolate("foreground", lblApply.getForeground(), Color.red);
-        timeline.setDuration(600);
-        timeline.playLoop(Timeline.RepeatBehavior.REVERSE);
-    }
+
 
     private void myInit() {
         cmbLager.setModel(tools.Tools.newComboboxModel("Lager.findAllSorted"));
@@ -694,37 +602,27 @@ public class PnlUmbuchen extends DefaultTouchPanel {
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+    private DefaultTouchPanel defaultTouchPanel1;
     private JTextField txtSearch;
     private JLabel lblProdukt;
     private JComboBox cmbLieferant;
     private JComboBox cmbLager;
-    private JPanel panel1;
-    private JSplitPane splitMain;
-    private JPanel panel3;
+    private JPanel pnlLog;
     private JScrollPane logScrollPane;
     private JTextArea txtLog;
     private JLabel label1;
-    private JPanel panel4;
+    private JPanel pnlVorraete;
     private JLabel title1;
     private JScrollPane scrollPane2;
     private JTable tblVorrat;
-    private JCheckBox cbZombieRevive;
+    private JToggleButton cbZombieRevive;
     private JPanel panel2;
-    private JToggleButton btnLeftRight;
     private JButton btnClear;
     private JButton btnPrint;
     private JSeparator separator1;
     private JButton btnToUnbekannt;
     private JButton btnAusbuchen;
-    private JPanel panel5;
-    private JSplitPane splitLeftRight;
     private JButton btnUmbuchen;
-    private JPanel panel6;
-    private JButton btnApply;
-    private JPanel hSpacer1;
-    private JLabel lblApply;
-    private JPanel hSpacer2;
-    private JButton btnCancel;
     private JToggleButton btnSofortUmbuchen;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

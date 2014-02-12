@@ -5,6 +5,8 @@
 package desktop;
 
 import Main.Main;
+import com.jgoodies.forms.factories.CC;
+import com.jgoodies.forms.layout.FormLayout;
 import entity.Mitarbeiter;
 import org.apache.commons.collections.Closure;
 import threads.HeapStat;
@@ -57,12 +59,38 @@ public class FrmDesktop extends JFrame {
 
     public FrmDesktop() {
         initComponents();
+
+        Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+            @Override
+            public void eventDispatched(AWTEvent event) {
+                if (Main.getCurrentUser() != null) {
+                    hs.touch();
+                }
+            }
+        }, AWTEvent.MOUSE_MOTION_EVENT_MASK);
+
+        Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+            @Override
+            public void eventDispatched(AWTEvent event) {
+                if (Main.getCurrentUser() != null) {
+                    hs.touch();
+                }
+            }
+        }, AWTEvent.KEY_EVENT_MASK);
+
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         pack();
         setTitle(tools.Tools.getWindowTitle("Desktop"));
 
         myFrameListener = new MyFrameListener();
-        hs = new HeapStat(pbHeap, null);
+        hs = new HeapStat(pbHeap, jpTimeout, null, new Closure() {
+            @Override
+            public void execute(Object o) {
+                Main.debug("TIMEOUT");
+                logout();
+                loginMode();
+            }
+        });
         hs.start();
 //        cardmonitor = new CardMonitor();
 //        cardmonitor.start();
@@ -92,6 +120,7 @@ public class FrmDesktop extends JFrame {
             @Override
             public void execute(Object o) {
                 Main.setCurrentUser((Mitarbeiter) o);
+                hs.touch();
                 stammdatenMenu.setEnabled(true);
                 aktionenMenu.setEnabled(true);
                 systemMenu.setEnabled(true);
@@ -311,6 +340,7 @@ public class FrmDesktop extends JFrame {
         systemMenu = new JMenu();
         userMenuItem = new JMenuItem();
         soundMenuItem = new JCheckBoxMenuItem();
+        jpTimeout = new JProgressBar();
         desktopPane = new JDesktopPane();
         pnlStatus = new JPanel();
         lblUsername = new JLabel();
@@ -325,16 +355,19 @@ public class FrmDesktop extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override
-            public void windowOpened(WindowEvent e) {
-                formWindowOpened(e);
-            }
-
-            @Override
             public void windowClosing(WindowEvent e) {
                 formWindowClosing(e);
             }
+
+            @Override
+            public void windowOpened(WindowEvent e) {
+                formWindowOpened(e);
+            }
         });
         Container contentPane = getContentPane();
+        contentPane.setLayout(new FormLayout(
+                "default:grow",
+                "$ugap, fill:default:grow, fill:default"));
 
         //======== menuBar ========
         {
@@ -473,6 +506,8 @@ public class FrmDesktop extends JFrame {
             menuBar.add(systemMenu);
         }
         setJMenuBar(menuBar);
+        contentPane.add(jpTimeout, CC.xy(1, 1));
+        contentPane.add(desktopPane, CC.xy(1, 2));
 
         //======== pnlStatus ========
         {
@@ -499,21 +534,7 @@ public class FrmDesktop extends JFrame {
             pbHeap.setToolTipText("Speicherauslastung");
             pnlStatus.add(pbHeap);
         }
-
-        GroupLayout contentPaneLayout = new GroupLayout(contentPane);
-        contentPane.setLayout(contentPaneLayout);
-        contentPaneLayout.setHorizontalGroup(
-                contentPaneLayout.createParallelGroup()
-                        .addComponent(pnlStatus, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 978, Short.MAX_VALUE)
-                        .addComponent(desktopPane, GroupLayout.DEFAULT_SIZE, 978, Short.MAX_VALUE)
-        );
-        contentPaneLayout.setVerticalGroup(
-                contentPaneLayout.createParallelGroup()
-                        .addGroup(GroupLayout.Alignment.TRAILING, contentPaneLayout.createSequentialGroup()
-                                .addComponent(desktopPane, GroupLayout.DEFAULT_SIZE, 406, Short.MAX_VALUE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(pnlStatus, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
-        );
+        contentPane.add(pnlStatus, CC.xy(1, 3));
         pack();
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
@@ -534,6 +555,7 @@ public class FrmDesktop extends JFrame {
     private JMenu systemMenu;
     private JMenuItem userMenuItem;
     private JCheckBoxMenuItem soundMenuItem;
+    private JProgressBar jpTimeout;
     private JDesktopPane desktopPane;
     private JPanel pnlStatus;
     private JLabel lblUsername;

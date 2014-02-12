@@ -1,0 +1,175 @@
+JFDML JFormDesigner: "5.2.0.0.72" Java: "1.6.0_33" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+				name: "dialogPane"
+				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+					"axis": 0
+				} ) {
+					name: "contentPanel"
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+						"$columnSpecs": "default, right:default, 3dlu, labelcompgap, default:grow, labelcompgap, default, relgap, default, labelcompgap, default"
+						"$rowSpecs": "relgap, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default"
+					} ) {
+						name: "panel4"
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label1"
+							"text": "Bezeichnung"
+							"font": &Font0 new java.awt.Font( "sansserif", 0, 18 )
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 2
+							"gridY": 3
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "txtBezeichnung"
+							"font": &Font1 new java.awt.Font( "sansserif", 0, 18 )
+							addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "txtBezeichnungFocusLost", true ) )
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 5
+							"gridY": 3
+							"gridWidth": 5
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label2"
+							"text": "Einheit"
+							"font": #Font0
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridY": 5
+							"gridX": 2
+						} )
+						add( new FormComponent( "javax.swing.JComboBox" ) {
+							name: "cmbEinheit"
+							"font": &Font2 new java.awt.Font( "sansserif", 0, 18 )
+							addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbEinheitItemStateChanged", true ) )
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 5
+							"gridY": 5
+							"gridWidth": 5
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label3"
+							"text": "Lagerart"
+							"font": #Font0
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridY": 7
+							"gridX": 2
+						} )
+						add( new FormComponent( "javax.swing.JComboBox" ) {
+							name: "cmbLagerart"
+							"font": #Font2
+							addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbLagerartItemStateChanged", true ) )
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 5
+							"gridY": 7
+							"gridWidth": 5
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label4"
+							"text": "GTIN"
+							"font": #Font0
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridY": 9
+							"gridX": 2
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "txtGTIN"
+							"font": #Font1
+							addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "txtGTINFocusLost", true ) )
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 5
+							"gridY": 9
+							"gridWidth": 3
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnUnverpackt"
+							"text": "unverpackt"
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnUnverpacktActionPerformed", true ) )
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 9
+							"gridY": 9
+							"gridHeight": 3
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label5"
+							"text": "Packungsgröße"
+							"font": #Font0
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridY": 11
+							"gridX": 2
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "txtPackGroesse"
+							"font": #Font1
+							addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "txtPackGroesseFocusLost", true ) )
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 5
+							"gridY": 11
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "lblEinheit"
+							"text": "liter"
+							"font": new java.awt.Font( "sansserif", 0, 18 )
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 7
+							"gridY": 11
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label6"
+							"text": "Stoffart"
+							"font": #Font0
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridY": 13
+							"gridX": 2
+						} )
+						add( new FormComponent( "javax.swing.JComboBox" ) {
+							name: "cmbStoffart"
+							"font": #Font2
+							addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbStoffartItemStateChanged", true ) )
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 5
+							"gridY": 13
+							"gridWidth": 5
+						} )
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "Center"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0:1.0, 80, 80"
+					"$rowSpecs": "0"
+					"$hGap": 5
+					"$vGap": 5
+				} ) {
+					name: "buttonBar"
+					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "okButton"
+						"text": "OK"
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 1
+						"gridy": 0
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "cancelButton"
+						"text": "Cancel"
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 2
+						"gridy": 0
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "South"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 690, 360 )
+		} )
+	}
+}
