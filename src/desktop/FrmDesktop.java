@@ -27,17 +27,11 @@ import java.beans.PropertyVetoException;
  * @author Torsten Löhr
  */
 public class FrmDesktop extends JFrame {
-
-    boolean ADMIN = true;
-
+//    boolean ADMIN = true;
     JInternalFrame einbuchen, ausbuchen, umbuchen, produkte = null;
     FrmVorrat vorrat = null;
-
-    // FrmPrinterSelection drucker = null;
     FrmUser user = null;
     HeapStat hs;
-    //    CardMonitor cardmonitor;
-//    CardStateListener csl;
     WindowAdapter wa;
     DlgLogin dlg;
 
@@ -46,13 +40,7 @@ public class FrmDesktop extends JFrame {
     }
 
     PrintProcessor pp;
-
     SoundProcessor sp;
-
-
-//    public CardMonitor getCardmonitor() {
-//        return cardmonitor;
-//    }
 
     private MyFrameListener myFrameListener;
 
@@ -92,8 +80,6 @@ public class FrmDesktop extends JFrame {
             }
         });
         hs.start();
-//        cardmonitor = new CardMonitor();
-//        cardmonitor.start();
         pp = new PrintProcessor(pbPrint);
         pp.start();
         sp = new SoundProcessor();
@@ -126,7 +112,7 @@ public class FrmDesktop extends JFrame {
                 systemMenu.setEnabled(true);
                 logoutMenuItem.setEnabled(true);
                 lblUsername.setText(Main.getCurrentUser().getName() + ", " + Main.getCurrentUser().getVorname());
-                userMenuItem.setEnabled(ADMIN);
+                userMenuItem.setEnabled(Main.getCurrentUser().isAdmin());
                 dlg.dispose();
             }
         });
@@ -147,10 +133,10 @@ public class FrmDesktop extends JFrame {
     }
 
     private void logout() {
-//        cardmonitor.removeCardEventListener(csl);
         Main.setCurrentUser(null);
         myDispose(einbuchen);
         myDispose(vorrat);
+        myDispose(produkte);
         //myDispose(drucker);
         myDispose(user);
         logoutMenuItem.setEnabled(false);

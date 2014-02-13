@@ -30,6 +30,7 @@ public class Warengruppe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     public long getId() {
         return id;
     }
@@ -49,12 +50,6 @@ public class Warengruppe {
     public void setBezeichnung(String bezeichnung) {
         this.bezeichnung = bezeichnung;
     }
-
-    /**
-     * Relationen
-     */
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "warengruppe")
-    private Collection<Stoffart> stoffartCollection;
 
     @Override
     public boolean equals(Object o) {
@@ -79,5 +74,13 @@ public class Warengruppe {
     @Override
     public String toString() {
         return bezeichnung;
+    }
+
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "warengruppe")
+    private Collection<Stoffart> stoffartCollection;
+
+    public Collection<Stoffart> getStoffartCollection() {
+        return stoffartCollection;
     }
 }

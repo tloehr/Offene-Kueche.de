@@ -3,7 +3,9 @@ package entity;
 import Main.Main;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -78,6 +80,38 @@ public class ProdukteTools {
                 }
             }
         }
+        return produkte;
+    }
+
+    public static ArrayList<Produkte> searchProdukte(Warengruppe warengruppe) {
+           ArrayList produkte = new ArrayList<Produkte>();
+           EntityManager em = Main.getEMF().createEntityManager();
+           Query query = em.createQuery("SELECT p FROM Produkte p WHERE p.stoffart.warengruppe = :warengruppe");
+           query.setParameter("warengruppe", warengruppe);
+           try {
+               produkte = new ArrayList<Produkte>(query.getResultList());
+           } catch (Exception e1) { // nicht gefunden
+               produkte = null;
+           } finally {
+               em.close();
+           }
+
+           return produkte;
+       }
+
+    public static ArrayList<Produkte> searchProdukte(Stoffart stoffart) {
+        ArrayList produkte = new ArrayList<Produkte>();
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createNamedQuery("Produkte.findByStoffart");
+        query.setParameter("stoffart", stoffart);
+        try {
+            produkte = new ArrayList<Produkte>(query.getResultList());
+        } catch (Exception e1) { // nicht gefunden
+            produkte = null;
+        } finally {
+            em.close();
+        }
+
         return produkte;
     }
 
@@ -163,7 +197,9 @@ public class ProdukteTools {
         try {
             query.getSingleResult();
             gtininuse = true;
-        } catch (Exception e1) { // nicht gefunden
+        } catch (NoResultException nre) { // nicht gefunden
+            gtininuse = false;
+        } catch (Exception exc) {
             gtininuse = true;
         } finally {
             em.close();

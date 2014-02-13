@@ -17,7 +17,7 @@ import java.util.Date;
 @NamedQueries({
         @NamedQuery(name = "Vorrat.findAll", query = "SELECT v FROM Vorrat v"),
         @NamedQuery(name = "Vorrat.findById", query = "SELECT v FROM Vorrat v WHERE v.id = :id"),
-                // @NamedQuery(name = "Vorrat.findByIdMenge", query = "SELECT v, SUM(b.menge) WHERE v.id = :id"),
+        // @NamedQuery(name = "Vorrat.findByIdMenge", query = "SELECT v, SUM(b.menge) WHERE v.id = :id"),
         @NamedQuery(name = "Vorrat.Buchungen.findVorraete", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v WHERE v.ausgang = :ausgang GROUP BY v"),
         @NamedQuery(name = "Vorrat.Buchungen.summeBestand", query = "SELECT SUM(b.menge) FROM Buchungen b JOIN b.vorrat v WHERE b.vorrat = :vorrat"),
         @NamedQuery(name = "Vorrat.findMitarbeiter", query = "SELECT b.mitarbeiter FROM Buchungen b JOIN b.vorrat v WHERE b.status = 1 and b.vorrat = :vorrat"),
@@ -30,6 +30,9 @@ import java.util.Date;
         @NamedQuery(name = "Vorrat.findByEingang", query = "SELECT v FROM Vorrat v WHERE v.eingang >= :eingang1 AND v.eingang <= :eingang2"),
         @NamedQuery(name = "Vorrat.findByAnbruch", query = "SELECT v FROM Vorrat v WHERE v.anbruch = :anbruch"),
         @NamedQuery(name = "Vorrat.findByAusgang", query = "SELECT v FROM Vorrat v WHERE v.ausgang = :ausgang")})
+
+
+
 public class Vorrat {
 
 
@@ -37,6 +40,7 @@ public class Vorrat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     public long getId() {
         return id;
     }
@@ -52,7 +56,7 @@ public class Vorrat {
         this.id = id;
     }
 
-   public Vorrat(Long id, Date eingang, Date anbruch, Date ausgang) {
+    public Vorrat(Long id, Date eingang, Date anbruch, Date ausgang) {
         this.id = id;
         this.eingang = eingang;
         this.anbruch = anbruch;
@@ -75,6 +79,7 @@ public class Vorrat {
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
     private Date eingang;
+
     public Date getEingang() {
         return eingang;
     }
@@ -82,7 +87,6 @@ public class Vorrat {
     public void setEingang(Date eingang) {
         this.eingang = eingang;
     }
-
 
 
     @javax.persistence.Column(name = "Anbruch", nullable = false, insertable = true, updatable = true, length = 19, precision = 0)
@@ -144,11 +148,11 @@ public class Vorrat {
         this.buchungenCollection = buchungenCollection;
     }
 
-    public boolean isAusgebucht(){
+    public boolean isAusgebucht() {
         return ausgang.before(Const.DATE_BIS_AUF_WEITERES);
     }
 
-    public boolean isAngebrochen(){
+    public boolean isAngebrochen() {
         return anbruch.before(Const.DATE_BIS_AUF_WEITERES);
     }
 

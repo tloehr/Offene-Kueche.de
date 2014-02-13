@@ -19,7 +19,7 @@ import java.util.Collection;
         @NamedQuery(name = "Stoffart.findByBezeichnung", query = "SELECT s FROM Stoffart s WHERE s.bezeichnung = :bezeichnung"),
         @NamedQuery(name = "Stoffart.findByEinheit", query = "SELECT s FROM Stoffart s WHERE s.einheit = :einheit"),
         @NamedQuery(name = "Stoffart.findByWarengruppe", query = "SELECT s FROM Stoffart s WHERE s.warengruppe = :warengruppe")})
-public class Stoffart {
+public class Stoffart implements Comparable<Stoffart> {
 
 
     public Stoffart() {
@@ -125,5 +125,14 @@ public class Stoffart {
     @Override
     public String toString() {
         return bezeichnung;
+    }
+
+    @Override
+    public int compareTo(Stoffart o) {
+        int sort = bezeichnung.compareTo(o.getBezeichnung());
+        if (sort == 0){
+            sort = new Long(id).compareTo(o.getId());
+        }
+        return sort;
     }
 }

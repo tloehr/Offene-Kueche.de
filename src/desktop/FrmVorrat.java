@@ -446,7 +446,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                 public void actionPerformed(ActionEvent e) {
                     if (JOptionPane.showConfirmDialog(thisComponent, "Wirklich ?", "Ausbuchen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48stop) == JOptionPane.YES_OPTION) {
                         int[] rows = tblVorrat.getSelectedRows();
-                        VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+//                        VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
                         EntityManager em = Main.getEMF().createEntityManager();
                         try {
                             em.getTransaction().begin();
@@ -473,7 +473,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                 public void actionPerformed(ActionEvent e) {
                     if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
                         int[] rows = tblVorrat.getSelectedRows();
-                        VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+//                        VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
                         EntityManager em = Main.getEMF().createEntityManager();
                         try {
                             em.getTransaction().begin();
@@ -502,7 +502,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                 public void actionPerformed(ActionEvent e) {
                     if (JOptionPane.showConfirmDialog(thisComponent, "Sicher ?", "wieder öffnen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48undo) == JOptionPane.YES_OPTION) {
                         int[] rows = tblVorrat.getSelectedRows();
-                        VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+//                        VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
                         EntityManager em = Main.getEMF().createEntityManager();
                         try {
                             em.getTransaction().begin();
@@ -537,7 +537,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                         public void actionPerformed(ActionEvent e) {
                             if (JOptionPane.showConfirmDialog(thisComponent, "Zuweisen ins Lager: " + lager.getBezeichnung() + " ?", "Lagerort ändern", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48box) == JOptionPane.YES_OPTION) {
                                 int[] rows = tblVorrat.getSelectedRows();
-                                VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+//                                VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
                                 EntityManager em = Main.getEMF().createEntityManager();
                                 try {
                                     em.getTransaction().begin();
@@ -580,7 +580,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                         public void actionPerformed(ActionEvent e) {
                             if (JOptionPane.showConfirmDialog(thisComponent, "Erhalten von Lieferant: " + lieferant.getFirma() + " ?", "Lieferant ändern", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48box) == JOptionPane.YES_OPTION) {
                                 int[] rows = tblVorrat.getSelectedRows();
-                                VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+//                                VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
                                 EntityManager em = Main.getEMF().createEntityManager();
                                 try {
                                     em.getTransaction().begin();

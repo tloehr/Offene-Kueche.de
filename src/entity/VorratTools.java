@@ -234,7 +234,6 @@ public class VorratTools {
         query.setParameter("alt", altesProdukt);
         Main.debug("Tausche Produkt aus: alt(" + altesProdukt + "-" + altesProdukt.getId() + ")\nneu(" + neuesProdukt + "-" + neuesProdukt.getId() + ")");
         query.executeUpdate();
-        em.close();
     }
 
     /**

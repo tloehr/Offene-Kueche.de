@@ -129,6 +129,7 @@ public class Const {
     public static final int ALLE = 11;
     public static final int NAME_NR = 12;
     public static final int LAGERART = 13;
+    public static final int STOFFART = 14;
 
 
     public static final Icon icon24truck = new ImageIcon(Const.class.getResource("/artwork/24x24/truck.png"));

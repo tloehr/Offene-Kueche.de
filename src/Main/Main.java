@@ -31,6 +31,7 @@ import java.util.Properties;
  */
 public class Main {
 
+    private static int TIMEOUT = 30;
     private static final int UNKNOWN = 0;
     private static final int DESKTOP = 1;
     private static final int TOUCH = 2;
@@ -121,11 +122,22 @@ public class Main {
             mode = props.getProperty("startup").equalsIgnoreCase("desktop") ? DESKTOP : TOUCH;
         }
 
+        // timeout
+        if (props.containsKey("timeout")){
+            try {
+                TIMEOUT = Integer.parseInt(props.getProperty("timeout"));
+            } catch (NumberFormatException nfe){
+                TIMEOUT = 30;
+            }
+        }
+
         if (mode != UNKNOWN) {
             props.put("startup", mode == DESKTOP ? "desktop" : "touch");
         }
+        props.put("eclipselink.session.customizer", "tools.JPAEclipseLinkSessionCustomizer");
 
         emf = Persistence.createEntityManagerFactory("KuechePU", props);
+
 //        em1 = emf.createEntityManager();
         printers = new Printers();
 
