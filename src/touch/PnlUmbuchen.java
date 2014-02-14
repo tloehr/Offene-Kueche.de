@@ -18,6 +18,8 @@ import tools.Const;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.OptimisticLockException;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -214,14 +216,29 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         VorratTableModel2 model = (VorratTableModel2) tblVorrat.getModel();
         Tools.log(txtLog, "Folgende Vorräte wurden auf Unbekannt umgebucht:");
         Tools.log(txtLog, "================================================");
-        for (int row = 0; row < model.getRowCount(); row++) {
-            // Model Row Index Umwandlung ist hier unnötig. Markierungen bleiben unberücksichtigt.
-            if (model.getStatus(row) == VorratTableModel2.STATUS_FRAGLICH) {
-                Vorrat vorrat = model.getVorrat(row);
-                Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "");
-                vorrat.setLager(unbekannt);
-                EntityTools.merge(vorrat);
+
+        EntityManager em = Main.getEMF().createEntityManager();
+        try {
+            em.getTransaction().begin();
+
+            for (int row = 0; row < model.getRowCount(); row++) {
+                // Model Row Index Umwandlung ist hier unnötig. Markierungen bleiben unberücksichtigt.
+                if (model.getStatus(row) == VorratTableModel2.STATUS_FRAGLICH) {
+                    Vorrat vorrat = em.merge(model.getVorrat(row));
+                    em.lock(vorrat, LockModeType.OPTIMISTIC);
+                    Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "");
+                    vorrat.setLager(unbekannt);
+                }
             }
+            em.getTransaction().commit();
+        } catch (OptimisticLockException ole) {
+            Main.logger.info(ole);
+            em.getTransaction().rollback();
+        } catch (Exception ex) {
+            em.getTransaction().rollback();
+            Main.fatal(ex);
+        } finally {
+            em.close();
         }
         Tools.log(txtLog, "================================================");
     }
@@ -393,8 +410,8 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         //======== defaultTouchPanel1 ========
         {
             defaultTouchPanel1.setLayout(new FormLayout(
-                "276dlu, $lcgap, pref:grow, $lcgap, center:default",
-                "4*(30dlu, $lgap), fill:default:grow, $lgap, default"));
+                    "276dlu, $lcgap, pref:grow, $lcgap, center:default",
+                    "4*(30dlu, $lgap), fill:default:grow, $lgap, default"));
 
             //---- txtSearch ----
             txtSearch.setFont(new Font("sansserif", Font.BOLD, 24));
@@ -409,6 +426,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                 public void focusGained(FocusEvent e) {
                     txtSearchFocusGained(e);
                 }
+
                 @Override
                 public void focusLost(FocusEvent e) {
                     txtSearchFocusLost(e);
@@ -588,7 +606,6 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         add(defaultTouchPanel1, "card1");
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
-
 
 
     private void myInit() {

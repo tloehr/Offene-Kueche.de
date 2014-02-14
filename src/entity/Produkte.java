@@ -38,12 +38,11 @@ public class Produkte {
     }
 
 
-
-
     @javax.persistence.Column(name = "ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     public long getId() {
         return id;
     }
@@ -76,22 +75,49 @@ public class Produkte {
         this.gtin = gtin;
     }
 
-    private short lagerart;
+
 
     @javax.persistence.Column(name = "Lagerart", nullable = false, insertable = true, updatable = true, length = 5, precision = 0)
     @Basic
-    public short getLagerart() {
-        return lagerart;
-    }
+    private short lagerart;
 
-    public void setLagerart(short lagerart) {
-        this.lagerart = lagerart;
-    }
-
-    private short einheit;
 
     @javax.persistence.Column(name = "Einheit", nullable = false, insertable = true, updatable = true, length = 5, precision = 0)
     @Basic
+    private short einheit;
+
+
+
+
+    @javax.persistence.Column(name = "PackGroesse", nullable = true, insertable = true, updatable = true, length = 12, precision = 4)
+    @Basic
+    private BigDecimal packGroesse;
+
+    @Version
+    @Column(name = "version")
+    private Long version;
+
+    /**
+     * Relationen
+     */
+    @OneToMany(mappedBy = "produkt")
+    private Collection<Vorrat> vorratCollection;
+
+
+    @JoinColumn(name = "Stoffart_ID", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    private Stoffart stoffart;
+
+
+    public short getLagerart() {
+            return lagerart;
+        }
+
+        public void setLagerart(short lagerart) {
+            this.lagerart = lagerart;
+        }
+
+
     public short getEinheit() {
         return einheit;
     }
@@ -100,38 +126,28 @@ public class Produkte {
         this.einheit = einheit;
     }
 
-    private BigDecimal packGroesse;
 
-    @javax.persistence.Column(name = "PackGroesse", nullable = true, insertable = true, updatable = true, length = 12, precision = 4)
-    @Basic
     public BigDecimal getPackGroesse() {
-        return packGroesse;
-    }
+            return packGroesse;
+        }
 
-    public void setPackGroesse(BigDecimal packGroesse) {
-        this.packGroesse = packGroesse;
-    }
+        public void setPackGroesse(BigDecimal packGroesse) {
+            this.packGroesse = packGroesse;
+        }
+
+
+        public boolean isLoseWare() {
+            return gtin == null;
+        }
+
 
     public Stoffart getStoffart() {
-        return stoffart;
-    }
+            return stoffart;
+        }
 
-    public void setStoffart(Stoffart stoffart) {
-        this.stoffart = stoffart;
-    }
-
-    public boolean isLoseWare(){
-        return gtin == null;
-    }
-
-    /**
-     * Relationen
-     */
-    @OneToMany(mappedBy = "produkt")
-    private Collection<Vorrat> vorratCollection;
-    @JoinColumn(name = "Stoffart_ID", referencedColumnName = "ID")
-    @ManyToOne(optional = false)
-    private Stoffart stoffart;
+        public void setStoffart(Stoffart stoffart) {
+            this.stoffart = stoffart;
+        }
 
     @Override
     public boolean equals(Object o) {

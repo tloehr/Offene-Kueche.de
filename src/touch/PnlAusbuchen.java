@@ -20,6 +20,8 @@ import tools.Const;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.OptimisticLockException;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -76,11 +78,21 @@ public class PnlAusbuchen extends DefaultTouchPanel {
                         em = Main.getEMF().createEntityManager();
                         try {
                             em.getTransaction().begin();
-                            VorratTools.ausbuchen(em, vorrat, "Abschlussbuchung");
+
+                            Vorrat myVorrat = em.merge(vorrat);
+                            em.lock(myVorrat, LockModeType.OPTIMISTIC);
+
+                            VorratTools.ausbuchen(em, myVorrat, "Abschlussbuchung");
                             em.getTransaction().commit();
+
+                            vorrat = myVorrat;
+
                             Tools.log(txtLog, "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" komplett ausgebucht");
                             sp.bell();
                             clearVorrat();
+                        } catch (OptimisticLockException ole) {
+                            Main.logger.info(ole);
+                            em.getTransaction().rollback();
                         } catch (Exception e1) {
                             em.getTransaction().rollback();
                             Main.fatal(e1);
@@ -121,11 +133,15 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         EntityManager em = Main.getEMF().createEntityManager();
         try {
             em.getTransaction().begin();
-            VorratTools.ausbuchen(em, vorrat, "Abschlussbuchung");
+            Vorrat myVorrat = VorratTools.ausbuchen(em, vorrat, "Abschlussbuchung");
             em.getTransaction().commit();
             Tools.log(txtLog, "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" komplett ausgebucht");
             sp.bell();
+            vorrat = myVorrat;
             clearVorrat();
+        } catch (OptimisticLockException ole) {
+            Main.logger.info(ole);
+            em.getTransaction().rollback();
         } catch (Exception ex) {
             em.getTransaction().rollback();
             clearVorrat();
@@ -161,12 +177,16 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         EntityManager em = Main.getEMF().createEntityManager();
         try {
             em.getTransaction().begin();
-            VorratTools.ausbuchen(em, vorrat, menge.divide(new BigDecimal(2)), "Ausbuchung Hälfte");
+            Vorrat myVorrat = VorratTools.ausbuchen(em, vorrat, menge.divide(new BigDecimal(2)), "Ausbuchung Hälfte");
             em.getTransaction().commit();
             Tools.log(txtLog, "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" zur Hälfte ausgebucht");
             sp.bell();
+            vorrat = myVorrat;
             clearVorrat();
             //success("Ausbuchung erfolgreich");
+        } catch (OptimisticLockException ole) {
+            Main.logger.info(ole);
+            em.getTransaction().rollback();
         } catch (Exception ex) {
             em.getTransaction().rollback();
             clearVorrat();
@@ -179,14 +199,20 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         EntityManager em = Main.getEMF().createEntityManager();
         try {
             em.getTransaction().begin();
-            VorratTools.ausbuchen(em, vorrat, menge, "Ausbuchung");
+            Vorrat myVorrat = VorratTools.ausbuchen(em, vorrat, menge, "Ausbuchung");
             String message = "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" " + menge + " " + lblEinheit.getText() + " ausgebucht.";
+            em.getTransaction().commit();
+            vorrat = myVorrat;
             message += vorrat.isAusgebucht() ? " Vorrat damit abgeschlossen." : "";
             sp.bell();
             Tools.log(txtLog, message);
             //Main.debug(">>" + vorrat.getProdukt().getBezeichnung() + "<< " + menge + " " + lblEinheit.getText() + " ausgebucht");
+
             clearVorrat();
-            em.getTransaction().commit();
+
+        } catch (OptimisticLockException ole) {
+            Main.logger.info(ole);
+            em.getTransaction().rollback();
         } catch (OutOfRangeException ex) {
             clearVorrat();
             Tools.log(txtLog, "Menge falsch. Mindestens: " + format.format(ex.getValidMin()) + " Höchstens: " + format.format(ex.getValidMax()));
@@ -268,8 +294,8 @@ public class PnlAusbuchen extends DefaultTouchPanel {
 
         //======== this ========
         setLayout(new FormLayout(
-            "default, $lcgap, default:grow, $lcgap, default, $lcgap, pref, $lcgap, default",
-            "default, 4*($lgap, fill:50dlu), $lgap, fill:default:grow, $lgap, fill:50dlu, $lgap, default"));
+                "default, $lcgap, default:grow, $lcgap, default, $lcgap, pref, $lcgap, default",
+                "default, 4*($lgap, fill:50dlu), $lgap, fill:default:grow, $lgap, fill:50dlu, $lgap, default"));
 
         //---- txtSearch ----
         txtSearch.setFont(new Font("sansserif", Font.BOLD, 36));
@@ -380,51 +406,51 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
-    private void success(String message, JLabel lbl) {
-        lbl.setText(message);
-        lbl.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/apply.png")));
-        Timeline timeline1 = new Timeline(lbl);
-        timeline1.addPropertyToInterpolate("foreground", Color.black, Color.green);
-        timeline1.setDuration(400);
-        final JLabel lbl1 = lbl;
-        timeline1.addCallback(new TimelineCallback() {
-            @Override
-            public void onTimelineStateChanged(Timeline.TimelineState timelineState, Timeline.TimelineState timelineState1, float v, float v1) {
-                if (timelineState1 == Timeline.TimelineState.DONE) {
-                    fadeout(lbl1);
-                }
-            }
-
-            @Override
-            public void onTimelinePulse(float v, float v1) {
-                //To change body of implemented methods use File | Settings | File Templates.
-            }
-        });
-        timeline1.playLoop(2, Timeline.RepeatBehavior.REVERSE);
-    }
-
-    private void error(String message, JLabel lbl) {
-        lbl.setText(message);
-        lbl.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/stop.png")));
-        Timeline timeline1 = new Timeline(lbl);
-        timeline1.addPropertyToInterpolate("foreground", lbl.getForeground(), Color.red);
-        timeline1.setDuration(300);
-        final JLabel lbl1 = lbl;
-        timeline1.addCallback(new TimelineCallback() {
-            @Override
-            public void onTimelineStateChanged(Timeline.TimelineState timelineState, Timeline.TimelineState timelineState1, float v, float v1) {
-                if (timelineState1 == Timeline.TimelineState.DONE) {
-                    fadeout(lbl1);
-                }
-            }
-
-            @Override
-            public void onTimelinePulse(float v, float v1) {
-                //To change body of implemented methods use File | Settings | File Templates.
-            }
-        });
-        timeline1.playLoop(4, Timeline.RepeatBehavior.REVERSE);
-    }
+//    private void success(String message, JLabel lbl) {
+//        lbl.setText(message);
+//        lbl.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/apply.png")));
+//        Timeline timeline1 = new Timeline(lbl);
+//        timeline1.addPropertyToInterpolate("foreground", Color.black, Color.green);
+//        timeline1.setDuration(400);
+//        final JLabel lbl1 = lbl;
+//        timeline1.addCallback(new TimelineCallback() {
+//            @Override
+//            public void onTimelineStateChanged(Timeline.TimelineState timelineState, Timeline.TimelineState timelineState1, float v, float v1) {
+//                if (timelineState1 == Timeline.TimelineState.DONE) {
+//                    fadeout(lbl1);
+//                }
+//            }
+//
+//            @Override
+//            public void onTimelinePulse(float v, float v1) {
+//                //To change body of implemented methods use File | Settings | File Templates.
+//            }
+//        });
+//        timeline1.playLoop(2, Timeline.RepeatBehavior.REVERSE);
+//    }
+//
+//    private void error(String message, JLabel lbl) {
+//        lbl.setText(message);
+//        lbl.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/stop.png")));
+//        Timeline timeline1 = new Timeline(lbl);
+//        timeline1.addPropertyToInterpolate("foreground", lbl.getForeground(), Color.red);
+//        timeline1.setDuration(300);
+//        final JLabel lbl1 = lbl;
+//        timeline1.addCallback(new TimelineCallback() {
+//            @Override
+//            public void onTimelineStateChanged(Timeline.TimelineState timelineState, Timeline.TimelineState timelineState1, float v, float v1) {
+//                if (timelineState1 == Timeline.TimelineState.DONE) {
+//                    fadeout(lbl1);
+//                }
+//            }
+//
+//            @Override
+//            public void onTimelinePulse(float v, float v1) {
+//                //To change body of implemented methods use File | Settings | File Templates.
+//            }
+//        });
+//        timeline1.playLoop(4, Timeline.RepeatBehavior.REVERSE);
+//    }
 
     private void fadeout(JLabel lbl) {
         //lbl.setIcon(null);

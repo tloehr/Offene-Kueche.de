@@ -38,6 +38,7 @@ public class Lager {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     public long getId() {
         return id;
     }
@@ -81,6 +82,11 @@ public class Lager {
     public void setOrt(String ort) {
         this.ort = ort;
     }
+
+
+    @Version
+    @Column(name = "version")
+    private Long version;
 
     @Override
     public boolean equals(Object o) {

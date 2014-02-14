@@ -21,7 +21,7 @@ import javax.persistence.*;
         @NamedQuery(name = "Mitarbeiter.findByVorname", query = "SELECT m FROM Mitarbeiter m WHERE m.vorname = :vorname"),
         @NamedQuery(name = "Mitarbeiter.findByIsAdmin", query = "SELECT m FROM Mitarbeiter m WHERE m.isAdmin = :isAdmin"),
         @NamedQuery(name = "Mitarbeiter.findByMD5Key", query = "SELECT m FROM Mitarbeiter m WHERE m.md5Key = :md5Key")
-        })
+})
 public class Mitarbeiter {
 
 
@@ -113,6 +113,10 @@ public class Mitarbeiter {
     public void setPin(String pin) {
         this.pin = pin;
     }
+
+    @Version
+    @Column(name = "version")
+    private Long version;
 
     @Override
     public boolean equals(Object o) {

@@ -11,6 +11,8 @@ import entity.*;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.OptimisticLockException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -217,6 +219,7 @@ public class DlgProdukt extends JDialog {
             em.getTransaction().begin();
             for (Produkte p : myProducts) {
                 Produkte produkt = em.merge(p);
+                em.lock(produkt, LockModeType.OPTIMISTIC);
 
                 if (txtBezeichnung.isEnabled()) {
                     produkt.setBezeichnung(Tools.catchNull(txtBezeichnung.getText()).trim());
@@ -244,6 +247,9 @@ public class DlgProdukt extends JDialog {
                 }
             }
             em.getTransaction().commit();
+        } catch (OptimisticLockException ole) {
+            Main.logger.info(ole);
+            em.getTransaction().rollback();
         } catch (Exception e) {
             Main.debug(e);
             em.getTransaction().rollback();

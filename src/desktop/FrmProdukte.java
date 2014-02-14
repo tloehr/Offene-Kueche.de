@@ -118,12 +118,15 @@ public class FrmProdukte extends JInternalFrame {
             em.lock(neuesProdukt, LockModeType.OPTIMISTIC);
             for (Produkte p : listProducts2Merge) {
                 Produkte altesProdukt = em.merge(p);
+                em.lock(altesProdukt, LockModeType.OPTIMISTIC);
                 VorratTools.tauscheProdukt(em, altesProdukt, neuesProdukt);
                 Main.debug("Lösche Produkt (wegen Merge): " + altesProdukt + " (" + altesProdukt.getId() + ")");
                 em.remove(altesProdukt);
             }
             em.getTransaction().commit();
             success = true;
+
+
         } catch (OptimisticLockException ole) {
             em.getTransaction().rollback();
         } catch (Exception e) {
@@ -156,6 +159,7 @@ public class FrmProdukte extends JInternalFrame {
 
         if (e.isPopupTrigger()) {
 
+
             if (menu != null && menu.isVisible()) {
                 menu.setVisible(false);
             }
@@ -166,6 +170,13 @@ public class FrmProdukte extends JInternalFrame {
             JMenuItem miEdit = new JMenuItem("Markierte Produkte bearbeiten");
             miEdit.setFont(new Font("sansserif", Font.PLAIN, 18));
             final int[] rows = tblProdukt.getSelectedRows();
+            final ArrayList<Produkte> listSelectedProducts = new ArrayList<Produkte>();
+            for (int r = 0; r < rows.length; r++) {
+                //                    final int finalR = r;
+                int thisRow = tblProdukt.convertRowIndexToModel(rows[r]);
+                listSelectedProducts.add(((ProdukteTableModel) tblProdukt.getModel()).getProdukt(thisRow));
+            }
+
 
             miEdit.addActionListener(new ActionListener() {
                 @Override
@@ -184,16 +195,9 @@ public class FrmProdukte extends JInternalFrame {
             menu.add(miEdit);
 
 
-            if (rows.length > 1) {
+            if (listSelectedProducts.size() > 1) {
                 JMenu miPopupMerge = new JMenu("Markierte Produkte zusammenfassen zu");
                 miPopupMerge.setFont(new Font("sansserif", Font.PLAIN, 18));
-
-                final ArrayList<Produkte> listSelectedProducts = new ArrayList<Produkte>();
-                for (int r = 0; r < rows.length; r++) {
-//                    final int finalR = r;
-                    int thisRow = tblProdukt.convertRowIndexToModel(rows[r]);
-                    listSelectedProducts.add(((ProdukteTableModel) tblProdukt.getModel()).getProdukt(thisRow));
-                }
 
                 for (final Produkte thisProduct : listSelectedProducts) {
                     JMenuItem mi = new JMenuItem("[" + thisProduct.getId() + "] " + thisProduct.getBezeichnung());
@@ -212,6 +216,65 @@ public class FrmProdukte extends JInternalFrame {
 
                 menu.add(miPopupMerge);
             }
+
+
+            JMenu menuPopupAssign = new JMenu("zuweisen zu");
+            menuPopupAssign.setFont(new Font("sansserif", Font.PLAIN, 18));
+
+
+            EntityManager em = Main.getEMF().createEntityManager();
+            try {
+                Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung ");
+                ArrayList<Warengruppe> listWarengruppen = new ArrayList<Warengruppe>(query.getResultList());
+
+
+                for (Warengruppe warengruppe : listWarengruppen) {
+
+                    JMenu menuWarengruppe = new JMenu(warengruppe.getBezeichnung());
+
+                    ArrayList<Stoffart> listStoffarten = new ArrayList<Stoffart>(warengruppe.getStoffartCollection());
+                    Collections.sort(listStoffarten);
+
+                    for (final Stoffart stoffart : listStoffarten) {
+                        JMenuItem miStoffart = new JMenuItem(stoffart.getBezeichnung());
+                        miStoffart.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+                                    EntityManager em = Main.getEMF().createEntityManager();
+                                    try {
+                                        em.getTransaction().begin();
+                                        for (Produkte p : listSelectedProducts) {
+                                            Produkte myProdukt = em.merge(p);
+                                            em.lock(myProdukt, LockModeType.OPTIMISTIC);
+                                            myProdukt.setStoffart(stoffart);
+                                        }
+                                        em.getTransaction().commit();
+                                    } catch (OptimisticLockException ole) {
+                                        em.getTransaction().rollback();
+                                    } catch (Exception exc) {
+                                        em.getTransaction().rollback();
+                                        Main.fatal(e);
+                                    } finally {
+                                        em.close();
+                                        loadTable();
+                                    }
+                                }
+                            }
+                        });
+                        menuWarengruppe.add(miStoffart);
+                    }
+                    menuPopupAssign.add(menuWarengruppe);
+                }
+            } catch (Exception exc) {
+                Main.fatal(exc);
+            } finally {
+                em.close();
+            }
+
+            menu.add(menuPopupAssign);
+
+
             menu.show(tblProdukt, (int) p.getX(), (int) p.getY());
         }
 
@@ -260,9 +323,15 @@ public class FrmProdukte extends JInternalFrame {
 
                 if (value instanceof DefaultMutableTreeNode) {
                     if (((DefaultMutableTreeNode) value).getUserObject() instanceof Warengruppe) {
-                        text = ((Warengruppe) ((DefaultMutableTreeNode) value).getUserObject()).getBezeichnung() + " [" + ((Warengruppe) ((DefaultMutableTreeNode) value).getUserObject()).getId() + "]";
+
+                        Warengruppe warengruppe = (Warengruppe) ((DefaultMutableTreeNode) value).getUserObject();
+
+                        text = warengruppe.getBezeichnung() + " [" + WarengruppeTools.getNumOfProducts(warengruppe) + "]";
                     } else if (((DefaultMutableTreeNode) value).getUserObject() instanceof Stoffart) {
-                        text = ((Stoffart) ((DefaultMutableTreeNode) value).getUserObject()).getBezeichnung() + " [" + ((Stoffart) ((DefaultMutableTreeNode) value).getUserObject()).getId() + "]";
+
+                        Stoffart stoffart = (Stoffart) ((DefaultMutableTreeNode) value).getUserObject();
+
+                        text = stoffart.getBezeichnung() + " [" + StoffartTools.getNumOfProducts(stoffart) + "]";
                     }
                 }
 
@@ -324,15 +393,19 @@ public class FrmProdukte extends JInternalFrame {
 
                 TreePath path = e.getNewLeadSelectionPath();
 
-                DefaultMutableTreeNode lastComponent = (DefaultMutableTreeNode) path.getLastPathComponent();
+                if (path != null) {
+
+                    DefaultMutableTreeNode lastComponent = (DefaultMutableTreeNode) path.getLastPathComponent();
 
 
-                if (lastComponent.getUserObject() instanceof Stoffart) {
-                    criteria = new Pair<Integer, Object>(Const.STOFFART, lastComponent.getUserObject());
-                    loadTable();
-                } else if (lastComponent.getUserObject() instanceof Warengruppe) {
-                    criteria = new Pair<Integer, Object>(Const.WARENGRUPPE, lastComponent.getUserObject());
-                    loadTable();
+                    if (lastComponent.getUserObject() instanceof Stoffart) {
+                        criteria = new Pair<Integer, Object>(Const.STOFFART, lastComponent.getUserObject());
+                        loadTable();
+                    } else if (lastComponent.getUserObject() instanceof Warengruppe) {
+                        criteria = new Pair<Integer, Object>(Const.WARENGRUPPE, lastComponent.getUserObject());
+                        loadTable();
+                    }
+
                 }
             }
         });

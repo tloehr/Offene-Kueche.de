@@ -36,6 +36,7 @@ public class Stoffart implements Comparable<Stoffart> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     public long getId() {
         return id;
     }
@@ -97,6 +98,10 @@ public class Stoffart implements Comparable<Stoffart> {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "stoffart")
     private Collection<Produkte> produkteCollection;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -130,7 +135,7 @@ public class Stoffart implements Comparable<Stoffart> {
     @Override
     public int compareTo(Stoffart o) {
         int sort = bezeichnung.compareTo(o.getBezeichnung());
-        if (sort == 0){
+        if (sort == 0) {
             sort = new Long(id).compareTo(o.getId());
         }
         return sort;

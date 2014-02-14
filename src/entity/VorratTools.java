@@ -9,6 +9,7 @@ import exceptions.OutOfRangeException;
 import tools.Const;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.transaction.TransactionRequiredException;
@@ -78,10 +79,12 @@ public class VorratTools {
         }
 
         Vorrat myVorrat = em.merge(vorrat);
+        em.lock(myVorrat, LockModeType.OPTIMISTIC);
 
         Date ausgang = new Date();
 
         Buchungen buchungen = em.merge(new Buchungen(menge.negate(), ausgang));
+        em.lock(buchungen, LockModeType.OPTIMISTIC);
         buchungen.setVorrat(myVorrat);
         buchungen.setMitarbeiter(Main.getCurrentUser());
         buchungen.setText(buchungstext);
@@ -348,8 +351,10 @@ public class VorratTools {
 
 
         Collection<Buchungen> buchungen = vorrat.getBuchungenCollection();
-        for (Buchungen buchung : buchungen) {
-            if (buchung.getStatus() == BuchungenTools.BUCHEN_ABSCHLUSSBUCHUNG) {
+        for (Buchungen b : buchungen) {
+            if (b.getStatus() == BuchungenTools.BUCHEN_ABSCHLUSSBUCHUNG) {
+                Buchungen buchung = em.merge(b);
+                em.lock(buchung, LockModeType.OPTIMISTIC);
                 em.remove(buchung);
                 break;
             }

@@ -24,25 +24,35 @@ public class LagerTools {
 
     public static Lager add(String bezeichnung) {
         Lager lager = null;
+
+
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Lager.findByBezeichnung");
-        query.setParameter("bezeichnung", bezeichnung.trim());
-        if (query.getResultList().isEmpty()) {
-            lager = new Lager(bezeichnung, LAGERART_TROCKENLAGER, "");
-            EntityTools.persist(lager);
-        } else {
-            lager = (Lager) query.getResultList().get(0);
+        try {
+            Query query = em.createNamedQuery("Lager.findByBezeichnung");
+            query.setParameter("bezeichnung", bezeichnung.trim());
+            if (query.getResultList().isEmpty()) {
+                em.getTransaction().begin();
+                lager = em.merge(new Lager(bezeichnung, LAGERART_TROCKENLAGER, ""));
+                em.getTransaction().commit();
+            } else {
+                lager = (Lager) query.getResultList().get(0);
+            }
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
-        em.close();
+
         return lager;
     }
 
     /**
      * Gibt genau das eine Lager zurück, dass als Unbekannt verwendet wird.
      * (Lagerart == 0)
+     *
      * @return
      */
-    public static Lager getUnbekannt(){
+    public static Lager getUnbekannt() {
         Lager lager = null;
         EntityManager em = Main.getEMF().createEntityManager();
         Query query = em.createNamedQuery("Lager.findByLagerart");

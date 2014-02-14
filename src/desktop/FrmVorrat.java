@@ -26,6 +26,8 @@ import tools.Pair;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.OptimisticLockException;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.border.SoftBevelBorder;
@@ -453,10 +455,14 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                             for (int r = 0; r < rows.length; r++) {
                                 int row = tblVorrat.convertRowIndexToModel(rows[r]);
                                 Vorrat vorrat = em.merge(tm.getVorrat(row));
+                                em.lock(vorrat, LockModeType.OPTIMISTIC);
                                 VorratTools.ausbuchen(em, vorrat, "Abschlussbuchung");
                             }
                             em.getTransaction().commit();
                             loadVorratTable();
+                        } catch (OptimisticLockException ole) {
+                            Main.logger.info(ole);
+                            em.getTransaction().rollback();
                         } catch (Exception e1) {
                             em.getTransaction().rollback();
                         } finally {
@@ -480,10 +486,14 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                             for (int r = 0; r < rows.length; r++) {
                                 int row = tblVorrat.convertRowIndexToModel(rows[r]);
                                 Vorrat vorrat = em.merge(tm.getVorrat(row));
+                                em.lock(vorrat, LockModeType.OPTIMISTIC);
                                 em.remove(vorrat);
                             }
                             em.getTransaction().commit();
                             loadVorratTable();
+                        } catch (OptimisticLockException ole) {
+                            Main.logger.info(ole);
+                            em.getTransaction().rollback();
                         } catch (Exception e1) {
                             em.getTransaction().rollback();
                         } finally {
@@ -496,11 +506,11 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
             menu.setEnabled(Main.getCurrentUser().isAdmin());
 
 
-            JMenuItem itemWiederOeffnen = new JMenuItem("wieder öffnen", Const.icon24undo);
-            itemWiederOeffnen.addActionListener(new ActionListener() {
+            JMenuItem itemZurueckBuchen = new JMenuItem("wieder einbuchen", Const.icon24undo);
+            itemZurueckBuchen.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if (JOptionPane.showConfirmDialog(thisComponent, "Sicher ?", "wieder öffnen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48undo) == JOptionPane.YES_OPTION) {
+                    if (JOptionPane.showConfirmDialog(thisComponent, "Sicher ?", "wieder einbuchen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48undo) == JOptionPane.YES_OPTION) {
                         int[] rows = tblVorrat.getSelectedRows();
 //                        VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
                         EntityManager em = Main.getEMF().createEntityManager();
@@ -509,10 +519,14 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                             for (int r = 0; r < rows.length; r++) {
                                 int row = tblVorrat.convertRowIndexToModel(rows[r]);
                                 Vorrat vorrat = em.merge(tm.getVorrat(row));
+                                em.lock(vorrat, LockModeType.OPTIMISTIC);
                                 VorratTools.reaktivieren(em, vorrat);
                             }
                             em.getTransaction().commit();
                             loadVorratTable();
+                        } catch (OptimisticLockException ole) {
+                            Main.logger.info(ole);
+                            em.getTransaction().rollback();
                         } catch (Exception e1) {
                             em.getTransaction().rollback();
                         } finally {
@@ -521,7 +535,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                     }
                 }
             });
-            menu.add(itemWiederOeffnen);
+            menu.add(itemZurueckBuchen);
 
             menu.add(compFactory.createSeparator("Zuweisen", SwingConstants.CENTER));
             JMenu menuLager = new JMenu("Lager");
@@ -545,10 +559,14 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                                     for (int r = 0; r < rows.length; r++) {
                                         int row = tblVorrat.convertRowIndexToModel(rows[r]);
                                         Vorrat vorrat = em.merge(tm.getVorrat(row));
+                                        em.lock(vorrat, LockModeType.OPTIMISTIC);
                                         vorrat.setLager(myLager);
                                     }
                                     em.getTransaction().commit();
                                     loadVorratTable();
+                                } catch (OptimisticLockException ole) {
+                                    Main.logger.info(ole);
+                                    em.getTransaction().rollback();
                                 } catch (Exception e1) {
                                     em.getTransaction().rollback();
                                 } finally {
@@ -588,10 +606,14 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                                     for (int r = 0; r < rows.length; r++) {
                                         int row = tblVorrat.convertRowIndexToModel(rows[r]);
                                         Vorrat vorrat = em.merge(tm.getVorrat(row));
+                                        em.lock(vorrat, LockModeType.OPTIMISTIC);
                                         vorrat.setLieferant(myLieferant);
                                     }
                                     em.getTransaction().commit();
                                     loadVorratTable();
+                                } catch (OptimisticLockException ole) {
+                                    Main.logger.info(ole);
+                                    em.getTransaction().rollback();
                                 } catch (Exception e1) {
                                     em.getTransaction().rollback();
                                 } finally {
@@ -689,8 +711,8 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         {
             pnlMain.setBorder(new SoftBevelBorder(SoftBevelBorder.RAISED));
             pnlMain.setLayout(new FormLayout(
-                "default, $lcgap, default:grow",
-                "fill:default:grow"));
+                    "default, $lcgap, default:grow",
+                    "fill:default:grow"));
 
             //======== jspSearch ========
             {
@@ -760,9 +782,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                         tpSpezial.setLayout(new VerticalLayout(10));
 
                         //---- cmbWarengruppe ----
-                        cmbWarengruppe.setModel(new DefaultComboBoxModel(new String[] {
-                            "nach Warengruppe",
-                            "Gefl\u00fcgel"
+                        cmbWarengruppe.setModel(new DefaultComboBoxModel(new String[]{
+                                "nach Warengruppe",
+                                "Gefl\u00fcgel"
                         }));
                         cmbWarengruppe.addItemListener(new ItemListener() {
                             @Override
@@ -773,9 +795,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                         tpSpezial.add(cmbWarengruppe);
 
                         //---- cmbLager ----
-                        cmbLager.setModel(new DefaultComboBoxModel(new String[] {
-                            "<html><i>nach Lager</i></html>",
-                            "Lager 1"
+                        cmbLager.setModel(new DefaultComboBoxModel(new String[]{
+                                "<html><i>nach Lager</i></html>",
+                                "Lager 1"
                         }));
                         cmbLager.addItemListener(new ItemListener() {
                             @Override
@@ -858,8 +880,8 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                     }
                 });
                 pnlWarenbestand.setLayout(new FormLayout(
-                    "left:default:grow",
-                    "fill:default, fill:default:grow"));
+                        "left:default:grow",
+                        "fill:default, fill:default:grow"));
 
                 //---- lblWarenbestand ----
                 lblWarenbestand.setBackground(Color.blue);
@@ -882,15 +904,15 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
                     //---- tblVorrat ----
                     tblVorrat.setModel(new DefaultTableModel(
-                        new Object[][] {
-                            {null, null, null, null},
-                            {null, null, null, null},
-                            {null, null, null, null},
-                            {null, null, null, null},
-                        },
-                        new String[] {
-                            "Title 1", "Title 2", "Title 3", "Title 4"
-                        }
+                            new Object[][]{
+                                    {null, null, null, null},
+                                    {null, null, null, null},
+                                    {null, null, null, null},
+                                    {null, null, null, null},
+                            },
+                            new String[]{
+                                    "Title 1", "Title 2", "Title 3", "Title 4"
+                            }
                     ));
                     tblVorrat.setAutoCreateRowSorter(true);
                     tblVorrat.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -911,12 +933,12 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         GroupLayout contentPaneLayout = new GroupLayout(contentPane);
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
-            contentPaneLayout.createParallelGroup()
-                .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 1313, Short.MAX_VALUE)
+                contentPaneLayout.createParallelGroup()
+                        .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 1313, Short.MAX_VALUE)
         );
         contentPaneLayout.setVerticalGroup(
-            contentPaneLayout.createParallelGroup()
-                .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 671, Short.MAX_VALUE)
+                contentPaneLayout.createParallelGroup()
+                        .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 671, Short.MAX_VALUE)
         );
 
         //---- buttonGroup1 ----

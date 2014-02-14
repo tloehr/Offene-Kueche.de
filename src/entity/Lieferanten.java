@@ -28,6 +28,7 @@ public class Lieferanten {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     public long getId() {
         return id;
     }
@@ -126,6 +127,10 @@ public class Lieferanten {
     public Lieferanten(String firma) {
         this.firma = firma;
     }
+
+    @Version
+    @Column(name = "version")
+    private Long version;
 
     @Override
     public boolean equals(Object o) {

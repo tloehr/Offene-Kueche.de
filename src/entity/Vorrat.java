@@ -32,7 +32,6 @@ import java.util.Date;
         @NamedQuery(name = "Vorrat.findByAusgang", query = "SELECT v FROM Vorrat v WHERE v.ausgang = :ausgang")})
 
 
-
 public class Vorrat {
 
 
@@ -155,6 +154,10 @@ public class Vorrat {
     public boolean isAngebrochen() {
         return anbruch.before(Const.DATE_BIS_AUF_WEITERES);
     }
+
+    @Version
+    @Column(name = "version")
+    private Long version;
 
     /**
      * Relationen

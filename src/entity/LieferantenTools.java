@@ -17,15 +17,21 @@ public class LieferantenTools {
     public static Lieferanten add(String firma) {
         Lieferanten lieferant = null;
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Lieferanten.findByFirma");
-        query.setParameter("firma", firma.trim());
-        if (query.getResultList().isEmpty()){
-            lieferant = new Lieferanten(firma.trim());
-            EntityTools.persist(lieferant);
-        } else {
-            lieferant = (Lieferanten) query.getResultList().get(0);
+        try {
+            Query query = em.createNamedQuery("Lieferanten.findByFirma");
+            query.setParameter("firma", firma.trim());
+            if (query.getResultList().isEmpty()) {
+                em.getTransaction().begin();
+                lieferant = em.merge(new Lieferanten(firma.trim()));
+                em.getTransaction().commit();
+            } else {
+                lieferant = (Lieferanten) query.getResultList().get(0);
+            }
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
-        em.close();
         return lieferant;
     }
 }

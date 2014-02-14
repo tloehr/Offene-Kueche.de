@@ -16,16 +16,24 @@ import javax.swing.*;
 public class StoffartTools {
     public static Stoffart add(String text, short einheit, Warengruppe warengruppe) {
         Stoffart stoffart = null;
+
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Stoffart.findByBezeichnung");
-        query.setParameter("bezeichnung", text.trim());
-        if (query.getResultList().isEmpty()){
-            stoffart = new Stoffart(text.trim(), einheit, warengruppe);
-            EntityTools.persist(stoffart);
-        } else {
-            stoffart = (Stoffart) query.getResultList().get(0);
+        try {
+            Query query = em.createNamedQuery("Stoffart.findByBezeichnung");
+            query.setParameter("bezeichnung", text.trim());
+            if (query.getResultList().isEmpty()) {
+                em.getTransaction().begin();
+                stoffart = em.merge(new Stoffart(text.trim(), einheit, warengruppe));
+                em.getTransaction().commit();
+            } else {
+                stoffart = (Stoffart) query.getResultList().get(0);
+            }
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
-        em.close();
+
         return stoffart;
     }
 
@@ -40,5 +48,22 @@ public class StoffartTools {
         } finally {
             em.close();
         }
+    }
+
+
+    public static long getNumOfProducts(Stoffart stoffart) {
+        long num = 0;
+        EntityManager em = Main.getEMF().createEntityManager();
+        try {
+            Query query = em.createQuery("SELECT count(p) FROM Produkte p WHERE p.stoffart = :stoffart");
+            query.setParameter("stoffart", stoffart);
+
+            num = (Long) query.getSingleResult();
+        } catch (Exception e) { // nicht gefunden
+            Main.fatal(e);
+        } finally {
+            em.close();
+        }
+        return num;
     }
 }

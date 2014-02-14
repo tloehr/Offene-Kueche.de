@@ -221,6 +221,11 @@ public class Buchungen {
         Main.Main.debug(toString());
     }
 
+
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     /**
      * Relationen
      */
