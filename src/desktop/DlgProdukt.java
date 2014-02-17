@@ -243,7 +243,7 @@ public class DlgProdukt extends JDialog {
                 }
 
                 if (cmbStoffart.getSelectedIndex() > 0) {
-                    produkt.setStoffart((Stoffart) cmbStoffart.getSelectedItem());
+                    produkt.setStoffart(em.merge( (Stoffart) cmbStoffart.getSelectedItem()));
                 }
             }
             em.getTransaction().commit();
@@ -329,11 +329,11 @@ public class DlgProdukt extends JDialog {
 
                     //---- label1 ----
                     label1.setText("Bezeichnung");
-                    label1.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    label1.setFont(new Font("arial", Font.PLAIN, 18));
                     panel4.add(label1, CC.xy(2, 3));
 
                     //---- txtBezeichnung ----
-                    txtBezeichnung.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    txtBezeichnung.setFont(new Font("arial", Font.PLAIN, 18));
                     txtBezeichnung.addFocusListener(new FocusAdapter() {
                         @Override
                         public void focusLost(FocusEvent e) {
@@ -344,11 +344,11 @@ public class DlgProdukt extends JDialog {
 
                     //---- label2 ----
                     label2.setText("Einheit");
-                    label2.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    label2.setFont(new Font("arial", Font.PLAIN, 18));
                     panel4.add(label2, CC.xy(2, 5));
 
                     //---- cmbEinheit ----
-                    cmbEinheit.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    cmbEinheit.setFont(new Font("arial", Font.PLAIN, 18));
                     cmbEinheit.addItemListener(new ItemListener() {
                         @Override
                         public void itemStateChanged(ItemEvent e) {
@@ -359,11 +359,11 @@ public class DlgProdukt extends JDialog {
 
                     //---- label3 ----
                     label3.setText("Lagerart");
-                    label3.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    label3.setFont(new Font("arial", Font.PLAIN, 18));
                     panel4.add(label3, CC.xy(2, 7));
 
                     //---- cmbLagerart ----
-                    cmbLagerart.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    cmbLagerart.setFont(new Font("arial", Font.PLAIN, 18));
                     cmbLagerart.addItemListener(new ItemListener() {
                         @Override
                         public void itemStateChanged(ItemEvent e) {
@@ -374,11 +374,11 @@ public class DlgProdukt extends JDialog {
 
                     //---- label4 ----
                     label4.setText("GTIN");
-                    label4.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    label4.setFont(new Font("arial", Font.PLAIN, 18));
                     panel4.add(label4, CC.xy(2, 9));
 
                     //---- txtGTIN ----
-                    txtGTIN.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    txtGTIN.setFont(new Font("arial", Font.PLAIN, 18));
                     txtGTIN.addFocusListener(new FocusAdapter() {
                         @Override
                         public void focusLost(FocusEvent e) {
@@ -399,11 +399,11 @@ public class DlgProdukt extends JDialog {
 
                     //---- label5 ----
                     label5.setText("Packungsgr\u00f6\u00dfe");
-                    label5.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    label5.setFont(new Font("arial", Font.PLAIN, 18));
                     panel4.add(label5, CC.xy(2, 11));
 
                     //---- txtPackGroesse ----
-                    txtPackGroesse.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    txtPackGroesse.setFont(new Font("arial", Font.PLAIN, 18));
                     txtPackGroesse.addFocusListener(new FocusAdapter() {
                         @Override
                         public void focusLost(FocusEvent e) {
@@ -414,16 +414,16 @@ public class DlgProdukt extends JDialog {
 
                     //---- lblEinheit ----
                     lblEinheit.setText("liter");
-                    lblEinheit.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    lblEinheit.setFont(new Font("arial", Font.PLAIN, 18));
                     panel4.add(lblEinheit, CC.xy(7, 11));
 
                     //---- label6 ----
                     label6.setText("Stoffart");
-                    label6.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    label6.setFont(new Font("arial", Font.PLAIN, 18));
                     panel4.add(label6, CC.xy(2, 13));
 
                     //---- cmbStoffart ----
-                    cmbStoffart.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    cmbStoffart.setFont(new Font("arial", Font.PLAIN, 18));
                     panel4.add(cmbStoffart, CC.xywh(5, 13, 5, 1));
                 }
                 contentPanel.add(panel4);

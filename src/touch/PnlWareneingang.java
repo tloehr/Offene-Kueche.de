@@ -544,14 +544,10 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
         if (produkte == null || produkte.size() == 0) {
             vorrat = VorratTools.findByIDORScanner(txtSearch.getText());
-//            if (vorrat == null || !vorrat.isAusgebucht()) {
             setPanelMode(MODE_WARENEINGANG);
             error("Kenn ich nicht", lblProdukt);
             aktuelleBuchung.setProdukt(null);
             setEinbuchenButton();
-//            } else {
-//                setPanelMode(MODE_VORRATREAKTIVIERUNG);
-//            }
             txtSearch.selectAll();
             txtSearch.requestFocus();
         } else if (produkte.size() == 1) {
@@ -568,12 +564,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 txtFaktor.requestFocus();
             }
         }
-
-
-//        if (listProdukte.getModel().getSize() > 0) {
-//            listProdukte.setSelectedIndex(0);
-//            listProdukte.requestFocus();
-//        }
     }
 
     private void txtFaktorActionPerformed(ActionEvent e) {
@@ -837,7 +827,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 {
                     pnlEingangLinks.setBorder(new EtchedBorder());
                     pnlEingangLinks.setLayout(new FormLayout(
-                            "$lcgap, default, $rgap, $glue",
+                            "$lcgap, 160dlu, $rgap, $glue",
                             "$rgap, $lgap, fill:default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:default, $lgap, $nlgap"));
 
                     //---- txtSearch ----
@@ -1803,9 +1793,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
     }
 
-//    private void setPanelModel(int mode){
-//
-//    }
 
     // Eigene Hilfsmethoden
     private void setPanelMode(int mode) {
@@ -1815,31 +1802,15 @@ public class PnlWareneingang extends DefaultTouchPanel {
         stoffartEdit = false;
         switch (mode) {
             case MODE_WARENEINGANG: {
-
                 CardLayout cl = (CardLayout) (pnlMain.getLayout());
                 cl.show(pnlMain, "eingang");
-//                Tools.showSide(splitUpperRight, Tools.LEFT_UPPER_SIDE, speed);
-
                 if (!refresh) {
-
                     vorrat = null;
-
-//                    lblVorrat.setText("");
-//                    lblEinMA.setText("");
-//                    lblAusMA.setText("");
-//                    lblEinDatum.setText("");
-//                    lblAusDatum.setText("");
 
                     btnNewProdukt.setEnabled(true);
                     btnVerpackteWare.setSelected(false);
                     txtSearch.requestFocus();
                 }
-
-
-//        splitNeuProd.setDividerLocation(0);
-                // Mit Produkteingabe 180
-                // ohne 55
-                //currentMode = MODE_WARENEINGANG;
                 break;
             }
             case MODE_EDIT_PRODUCT: {
@@ -1848,14 +1819,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
                 CardLayout cl = (CardLayout) (pnlMain.getLayout());
                 cl.show(pnlMain, "produkt");
-
-//                splitWarengruppe.setDividerLocation(1.0d);
-//                splitStoffart.setDividerLocation(1.0d);
-//                splitNeuProd.setDividerLocation(0.0d);
-
-//                Tools.showSide(splitUpperRight, Tools.LEFT_UPPER_SIDE, speed);
-//                Tools.showSide(splitMain, Tools.RIGHT_LOWER_SIDE, speed);
-
 
                 if (!refresh) {
                     vorrat = null;

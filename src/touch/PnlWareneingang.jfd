@@ -88,7 +88,7 @@
              <class>com.jgoodies.forms.layout.FormLayout</class> 
              <void method="setProperty"> 
               <string>$columnSpecs</string> 
-              <string>labelcompgap, default, relgap, glue</string> 
+              <string>labelcompgap, 160dlu, relgap, glue</string> 
              </void> 
              <void method="setProperty"> 
               <string>$rowSpecs</string> 

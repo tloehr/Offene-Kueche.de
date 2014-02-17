@@ -10,6 +10,7 @@ import javax.persistence.*;
  * To change this template use File | Settings | File Templates.
  */
 @Entity
+@Table(name = "lieferanten")
 @NamedQueries({
         @NamedQuery(name = "Lieferanten.findAll", query = "SELECT l FROM Lieferanten l"),
         @NamedQuery(name = "Lieferanten.findAllSorted", query = "SELECT l FROM Lieferanten l ORDER BY l.firma"),

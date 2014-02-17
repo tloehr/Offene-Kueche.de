@@ -361,11 +361,11 @@ public class FrmDesktop extends JFrame {
             //======== fileMenu ========
             {
                 fileMenu.setText("Datei");
-                fileMenu.setFont(new Font("sansserif", Font.PLAIN, 18));
+                fileMenu.setFont(new Font("arial", Font.PLAIN, 18));
 
                 //---- logoutMenuItem ----
                 logoutMenuItem.setText("Abmelden");
-                logoutMenuItem.setFont(new Font("sansserif", Font.PLAIN, 18));
+                logoutMenuItem.setFont(new Font("arial", Font.PLAIN, 18));
                 logoutMenuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -376,7 +376,7 @@ public class FrmDesktop extends JFrame {
 
                 //---- exitMenuItem ----
                 exitMenuItem.setText("Beenden");
-                exitMenuItem.setFont(new Font("sansserif", Font.PLAIN, 18));
+                exitMenuItem.setFont(new Font("arial", Font.PLAIN, 18));
                 exitMenuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -391,12 +391,12 @@ public class FrmDesktop extends JFrame {
             //======== stammdatenMenu ========
             {
                 stammdatenMenu.setText("Stammdaten");
-                stammdatenMenu.setFont(new Font("sansserif", Font.PLAIN, 18));
+                stammdatenMenu.setFont(new Font("arial", Font.PLAIN, 18));
 
                 //---- vorraeteMenuItem ----
                 vorraeteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.ALT_MASK));
                 vorraeteMenuItem.setText("Vorrat");
-                vorraeteMenuItem.setFont(new Font("sansserif", Font.PLAIN, 18));
+                vorraeteMenuItem.setFont(new Font("arial", Font.PLAIN, 18));
                 vorraeteMenuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -407,7 +407,7 @@ public class FrmDesktop extends JFrame {
 
                 //---- produkteMenuItem ----
                 produkteMenuItem.setText("Produkte");
-                produkteMenuItem.setFont(new Font("sansserif", Font.PLAIN, 18));
+                produkteMenuItem.setFont(new Font("arial", Font.PLAIN, 18));
                 produkteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.ALT_MASK));
                 produkteMenuItem.addActionListener(new ActionListener() {
                     @Override
@@ -422,12 +422,12 @@ public class FrmDesktop extends JFrame {
             //======== aktionenMenu ========
             {
                 aktionenMenu.setText("Aktionen");
-                aktionenMenu.setFont(new Font("sansserif", Font.PLAIN, 18));
+                aktionenMenu.setFont(new Font("arial", Font.PLAIN, 18));
 
                 //---- einbuchenMenuItem ----
                 einbuchenMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.ALT_MASK));
                 einbuchenMenuItem.setText("Einbuchen");
-                einbuchenMenuItem.setFont(new Font("sansserif", Font.PLAIN, 18));
+                einbuchenMenuItem.setFont(new Font("arial", Font.PLAIN, 18));
                 einbuchenMenuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -438,7 +438,7 @@ public class FrmDesktop extends JFrame {
 
                 //---- ausbuchenMenuItem ----
                 ausbuchenMenuItem.setText("Ausbuchen");
-                ausbuchenMenuItem.setFont(new Font("sansserif", Font.PLAIN, 18));
+                ausbuchenMenuItem.setFont(new Font("arial", Font.PLAIN, 18));
                 ausbuchenMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.ALT_MASK));
                 ausbuchenMenuItem.addActionListener(new ActionListener() {
                     @Override
@@ -450,7 +450,7 @@ public class FrmDesktop extends JFrame {
 
                 //---- umbuchenMenuItem ----
                 umbuchenMenuItem.setText("Umbuchen");
-                umbuchenMenuItem.setFont(new Font("sansserif", Font.PLAIN, 18));
+                umbuchenMenuItem.setFont(new Font("arial", Font.PLAIN, 18));
                 umbuchenMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.ALT_MASK));
                 umbuchenMenuItem.addActionListener(new ActionListener() {
                     @Override
@@ -465,11 +465,11 @@ public class FrmDesktop extends JFrame {
             //======== systemMenu ========
             {
                 systemMenu.setText("System");
-                systemMenu.setFont(new Font("sansserif", Font.PLAIN, 18));
+                systemMenu.setFont(new Font("arial", Font.PLAIN, 18));
 
                 //---- userMenuItem ----
                 userMenuItem.setText("Benutzerdaten");
-                userMenuItem.setFont(new Font("sansserif", Font.PLAIN, 18));
+                userMenuItem.setFont(new Font("arial", Font.PLAIN, 18));
                 userMenuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -480,7 +480,7 @@ public class FrmDesktop extends JFrame {
 
                 //---- soundMenuItem ----
                 soundMenuItem.setText("System-T\u00f6ne");
-                soundMenuItem.setFont(new Font("sansserif", Font.PLAIN, 18));
+                soundMenuItem.setFont(new Font("arial", Font.PLAIN, 18));
                 soundMenuItem.addItemListener(new ItemListener() {
                     @Override
                     public void itemStateChanged(ItemEvent e) {
@@ -502,7 +502,7 @@ public class FrmDesktop extends JFrame {
 
             //---- lblUsername ----
             lblUsername.setText("jLabel1");
-            lblUsername.setFont(new Font("sansserif", Font.PLAIN, 18));
+            lblUsername.setFont(new Font("arial", Font.PLAIN, 18));
             pnlStatus.add(lblUsername);
             pnlStatus.add(hSpacer1);
 

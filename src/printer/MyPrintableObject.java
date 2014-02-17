@@ -33,7 +33,7 @@ public class MyPrintableObject implements Printable
       PrinterJob prjob = ((PrinterGraphics)g2).getPrinterJob();
       g2.translate( pf.getImageableX(), pf.getImageableY() );
       g2.scale( 1.0 / iResMul, 1.0 / iResMul );
-      g2.setFont( new Font( "SansSerif", Font.PLAIN, FONTSIZE * iResMul ) );
+      g2.setFont( new Font( "arial", Font.PLAIN, FONTSIZE * iResMul ) );
       g2.setColor( Color.black );
       g2.drawRect( iPosX, iPosY, iWdth, iHght );
       g2.drawLine( iPosX, iHght/2 + iWdth/50, iPosX + iWdth, iHght/2 - iWdth/50 );

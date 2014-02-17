@@ -85,9 +85,9 @@ public class TKLabel implements Printable {
 
             iPosX += iAddYN;
             iPosY += iAddYN / 2;
-            g2.setFont(new Font("SansSerif", Font.PLAIN, LARGE_SIZE * iResMul));
+            g2.setFont(new Font("arial", Font.PLAIN, LARGE_SIZE * iResMul));
             g2.drawString(data.get("produkt.bezeichnung").toString(), iPosX, iPosY += iAddYL);
-            g2.setFont(new Font("SansSerif", Font.PLAIN, NORMAL_SIZE * iResMul));
+            g2.setFont(new Font("arial", Font.PLAIN, NORMAL_SIZE * iResMul));
 
             g2.drawString("Lieferant: " + data.get("vorrat.lieferant").toString(), iPosX, iPosY += iAddYN);
             if (data.containsKey("produkt.gtin")){

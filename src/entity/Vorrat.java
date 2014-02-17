@@ -14,6 +14,7 @@ import java.util.Date;
  * To change this template use File | Settings | File Templates.
  */
 @Entity
+@Table(name = "vorrat")
 @NamedQueries({
         @NamedQuery(name = "Vorrat.findAll", query = "SELECT v FROM Vorrat v"),
         @NamedQuery(name = "Vorrat.findById", query = "SELECT v FROM Vorrat v WHERE v.id = :id"),

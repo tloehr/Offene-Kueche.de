@@ -234,7 +234,7 @@ public class FrmTouch extends JFrame {
             pnlLower.add(jpTimeout, CC.xywh(1, 1, 7, 1));
 
             //---- btnWareneingang ----
-            btnWareneingang.setFont(new Font("sansserif", Font.BOLD, 24));
+            btnWareneingang.setFont(new Font("arial", Font.BOLD, 24));
             btnWareneingang.setText("Wareneingang");
             btnWareneingang.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/edit_add.png")));
             btnWareneingang.setEnabled(false);
@@ -278,7 +278,7 @@ public class FrmTouch extends JFrame {
                 lblUsername.setIcon(new ImageIcon(getClass().getResource("/artwork/16x16/redled.png")));
                 lblUsername.setText("jLabel1");
                 lblUsername.setForeground(Color.black);
-                lblUsername.setFont(new Font("sansserif", Font.PLAIN, 18));
+                lblUsername.setFont(new Font("arial", Font.PLAIN, 18));
                 panel1.add(lblUsername, CC.xywh(1, 7, 2, 1));
 
                 //---- btnSound ----
@@ -301,7 +301,7 @@ public class FrmTouch extends JFrame {
             pnlLower.add(lblClock, CC.xywh(5, 2, 1, 5));
 
             //---- btnWarenausgang ----
-            btnWarenausgang.setFont(new Font("sansserif", Font.BOLD, 24));
+            btnWarenausgang.setFont(new Font("arial", Font.BOLD, 24));
             btnWarenausgang.setText("Warenausgang");
             btnWarenausgang.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/edit_remove.png")));
             btnWarenausgang.setEnabled(false);
@@ -316,7 +316,7 @@ public class FrmTouch extends JFrame {
 
             //---- btnUmbuchen ----
             btnUmbuchen.setText("Umbuchen");
-            btnUmbuchen.setFont(new Font("sansserif", Font.BOLD, 24));
+            btnUmbuchen.setFont(new Font("arial", Font.BOLD, 24));
             btnUmbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/reload.png")));
             btnUmbuchen.setEnabled(false);
             btnUmbuchen.setHorizontalAlignment(SwingConstants.LEADING);

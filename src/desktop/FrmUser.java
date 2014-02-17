@@ -484,15 +484,15 @@ public class FrmUser extends JInternalFrame {
             panel1.setBorder(new SoftBevelBorder(SoftBevelBorder.RAISED));
 
             //---- txtUsername ----
-            txtUsername.setFont(new Font("sansserif", Font.PLAIN, 18));
+            txtUsername.setFont(new Font("arial", Font.PLAIN, 18));
             txtUsername.setEnabled(false);
 
             //---- txtVorname ----
-            txtVorname.setFont(new Font("sansserif", Font.PLAIN, 18));
+            txtVorname.setFont(new Font("arial", Font.PLAIN, 18));
             txtVorname.setEnabled(false);
 
             //---- txtNachname ----
-            txtNachname.setFont(new Font("sansserif", Font.PLAIN, 18));
+            txtNachname.setFont(new Font("arial", Font.PLAIN, 18));
             txtNachname.setEnabled(false);
 
             //======== panel2 ========
@@ -502,7 +502,7 @@ public class FrmUser extends JInternalFrame {
                     "fill:default"));
 
                 //---- btnPassword ----
-                btnPassword.setFont(new Font("sansserif", Font.PLAIN, 18));
+                btnPassword.setFont(new Font("arial", Font.PLAIN, 18));
                 btnPassword.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/password.png")));
                 btnPassword.setToolTipText("Passwort setzen");
                 btnPassword.addActionListener(new ActionListener() {
@@ -569,22 +569,22 @@ public class FrmUser extends JInternalFrame {
 
             //---- label1 ----
             label1.setText("Benutzername");
-            label1.setFont(new Font("sansserif", Font.PLAIN, 18));
+            label1.setFont(new Font("arial", Font.PLAIN, 18));
             label1.setLabelFor(txtUsername);
 
             //---- label2 ----
             label2.setText("Vorname");
-            label2.setFont(new Font("sansserif", Font.PLAIN, 18));
+            label2.setFont(new Font("arial", Font.PLAIN, 18));
             label2.setLabelFor(txtVorname);
 
             //---- label3 ----
             label3.setText("Nachname");
-            label3.setFont(new Font("sansserif", Font.PLAIN, 18));
+            label3.setFont(new Font("arial", Font.PLAIN, 18));
             label3.setLabelFor(txtNachname);
 
             //---- cbIsAdmin ----
             cbIsAdmin.setText("Vollzugriff");
-            cbIsAdmin.setFont(new Font("sansserif", Font.PLAIN, 18));
+            cbIsAdmin.setFont(new Font("arial", Font.PLAIN, 18));
 
             GroupLayout panel1Layout = new GroupLayout(panel1);
             panel1.setLayout(panel1Layout);
@@ -633,7 +633,7 @@ public class FrmUser extends JInternalFrame {
         {
 
             //---- listUser ----
-            listUser.setFont(new Font("sansserif", Font.PLAIN, 18));
+            listUser.setFont(new Font("arial", Font.PLAIN, 18));
             listUser.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             listUser.addListSelectionListener(new ListSelectionListener() {
                 @Override
@@ -646,7 +646,7 @@ public class FrmUser extends JInternalFrame {
 
         //---- cbArchiv ----
         cbArchiv.setText("Auch Ehemalige anzeigen");
-        cbArchiv.setFont(new Font("sansserif", Font.PLAIN, 18));
+        cbArchiv.setFont(new Font("arial", Font.PLAIN, 18));
         cbArchiv.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {

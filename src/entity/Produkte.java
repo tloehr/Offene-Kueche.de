@@ -12,6 +12,7 @@ import java.util.Collection;
  * To change this template use File | Settings | File Templates.
  */
 @Entity
+@Table(name = "produkte")
 @NamedQueries({
         @NamedQuery(name = "Produkte.findAll", query = "SELECT p FROM Produkte p"),
         @NamedQuery(name = "Produkte.findAllSorted", query = "SELECT p FROM Produkte p ORDER BY p.bezeichnung"),

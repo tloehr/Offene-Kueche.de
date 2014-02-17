@@ -11,6 +11,7 @@ import java.util.Collection;
  * To change this template use File | Settings | File Templates.
  */
 @Entity
+@Table(name = "warengruppe")
 @NamedQueries({
         @NamedQuery(name = "Warengruppe.findAll", query = "SELECT w FROM Warengruppe w"),
         @NamedQuery(name = "Warengruppe.findById", query = "SELECT w FROM Warengruppe w WHERE w.id = :id"),

@@ -22,14 +22,14 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "label1"
 							"text": "Bezeichnung"
-							"font": &Font0 new java.awt.Font( "sansserif", 0, 18 )
+							"font": &Font0 new java.awt.Font( "arial", 0, 18 )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 2
 							"gridY": 3
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "txtBezeichnung"
-							"font": &Font1 new java.awt.Font( "sansserif", 0, 18 )
+							"font": &Font1 new java.awt.Font( "arial", 0, 18 )
 							addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "txtBezeichnungFocusLost", true ) )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 5
@@ -46,7 +46,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JComboBox" ) {
 							name: "cmbEinheit"
-							"font": &Font2 new java.awt.Font( "sansserif", 0, 18 )
+							"font": &Font2 new java.awt.Font( "arial", 0, 18 )
 							addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbEinheitItemStateChanged", true ) )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 5
@@ -115,7 +115,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "lblEinheit"
 							"text": "liter"
-							"font": new java.awt.Font( "sansserif", 0, 18 )
+							"font": new java.awt.Font( "arial", 0, 18 )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 7
 							"gridY": 11
