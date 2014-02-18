@@ -30,6 +30,7 @@ public class PnlPIN extends DefaultTouchPanel {
     public PnlPIN(Closure loginAction) {
         this.loginAction = loginAction;
         initComponents();
+        startAction();
     }
 
     @Override
@@ -55,7 +56,6 @@ public class PnlPIN extends DefaultTouchPanel {
                 passwordField1.requestFocus();
             }
         });
-
     }
 
     @Override
@@ -80,6 +80,7 @@ public class PnlPIN extends DefaultTouchPanel {
 
     private void btnClearActionPerformed(ActionEvent e) {
         passwordField1.setText(null);
+        passwordField1.requestFocus();
     }
 
     private void button0ActionPerformed(ActionEvent e) {
@@ -156,7 +157,7 @@ public class PnlPIN extends DefaultTouchPanel {
                 }
             });
             lblReply.setText("falsche PIN");
-
+             passwordField1.requestFocus();
 //            passwordField1.requestFocus();
             //            user = null;
             //            success = false;

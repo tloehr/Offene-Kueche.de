@@ -290,6 +290,16 @@ public class FrmUser extends JInternalFrame {
     }
 
     private void btnPasswordActionPerformed(ActionEvent e) {
+        String pattern= "[0-9]{4}";
+        String newPin = JOptionPane.showInputDialog(Main.mainframe, "Bitte eine neue PIN eingeben", "PIN setzen", JOptionPane.OK_CANCEL_OPTION);
+
+        if (!newPin.matches(pattern)){
+            JOptionPane.showInternalMessageDialog(this.getDesktopPane(),
+                                                "Die PIN muss aus genau 4 Zahlen bestehen.",
+                                                "Problem",
+                                                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         EntityManager em = Main.getEMF().createEntityManager();
         try {
@@ -298,11 +308,16 @@ public class FrmUser extends JInternalFrame {
             myMA.setMd5Key(null);
 
             Query query = em.createQuery("SELECT m FROM Mitarbeiter m WHERE m.pin = :pin");
-            int pin = 0;
-            do {
-                pin = (int) Math.floor(Math.random() * 9000) + 1000;
-                query.setParameter("pin", Integer.toString(pin));
-            } while (!query.getResultList().isEmpty());
+            int pin = Integer.parseInt(newPin);
+            query.setParameter("pin", Integer.toString(pin));
+
+            if (!query.getResultList().isEmpty()){
+                JOptionPane.showInternalMessageDialog(this.getDesktopPane(),
+                                    "Diese PIN ist schon vergeben.",
+                                    "Problem",
+                                    JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
             myMA.setPin(Integer.toString(pin));
 
@@ -320,10 +335,6 @@ public class FrmUser extends JInternalFrame {
         } finally {
             em.close();
         }
-
-
-//        setFormMode(MODE_PASSWORD);
-//        txtPassword.requestFocus();
     }
 
     private void btnLockAccountActionPerformed(ActionEvent e) {
@@ -443,6 +454,38 @@ public class FrmUser extends JInternalFrame {
 
     }
 
+    private void btnPinActionPerformed(ActionEvent e) {
+        EntityManager em = Main.getEMF().createEntityManager();
+        try {
+            em.getTransaction().begin();
+            Mitarbeiter myMA = em.merge(currentMA);
+            myMA.setMd5Key(null);
+
+            Query query = em.createQuery("SELECT m FROM Mitarbeiter m WHERE m.pin = :pin");
+            int pin = 0;
+            do {
+                pin = (int) Math.floor(Math.random() * 9000) + 1000;
+                query.setParameter("pin", Integer.toString(pin));
+            } while (!query.getResultList().isEmpty());
+
+            myMA.setPin(Integer.toString(pin));
+
+            em.getTransaction().commit();
+
+            currentMA = myMA;
+
+            JOptionPane.showInternalMessageDialog(this.getDesktopPane(),
+                    "Die neue PIN lautet: " + pin,
+                    "Neue PIN",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e1) {
+            // Pech
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
+        }
+    }
+
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -457,6 +500,7 @@ public class FrmUser extends JInternalFrame {
         btnCancel = new JButton();
         btnAdd = new JButton();
         btnEdit = new JButton();
+        btnPin = new JButton();
         label1 = new JLabel();
         label2 = new JLabel();
         label3 = new JLabel();
@@ -484,25 +528,25 @@ public class FrmUser extends JInternalFrame {
             panel1.setBorder(new SoftBevelBorder(SoftBevelBorder.RAISED));
 
             //---- txtUsername ----
-            txtUsername.setFont(new Font("arial", Font.PLAIN, 18));
+            txtUsername.setFont(new Font("sansserif", Font.PLAIN, 18));
             txtUsername.setEnabled(false);
 
             //---- txtVorname ----
-            txtVorname.setFont(new Font("arial", Font.PLAIN, 18));
+            txtVorname.setFont(new Font("sansserif", Font.PLAIN, 18));
             txtVorname.setEnabled(false);
 
             //---- txtNachname ----
-            txtNachname.setFont(new Font("arial", Font.PLAIN, 18));
+            txtNachname.setFont(new Font("sansserif", Font.PLAIN, 18));
             txtNachname.setEnabled(false);
 
             //======== panel2 ========
             {
                 panel2.setLayout(new FormLayout(
-                    "4*(default, $lcgap), default:grow, 2*($lcgap, default)",
-                    "fill:default"));
+                    "5*(default, $lcgap), default:grow, 2*($lcgap, default)",
+                    "fill:default, $lgap, default"));
 
                 //---- btnPassword ----
-                btnPassword.setFont(new Font("arial", Font.PLAIN, 18));
+                btnPassword.setFont(new Font("sansserif", Font.PLAIN, 18));
                 btnPassword.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/password.png")));
                 btnPassword.setToolTipText("Passwort setzen");
                 btnPassword.addActionListener(new ActionListener() {
@@ -522,7 +566,7 @@ public class FrmUser extends JInternalFrame {
                         btnSaveActionPerformed(e);
                     }
                 });
-                panel2.add(btnSave, CC.xy(13, 1));
+                panel2.add(btnSave, CC.xy(15, 1));
 
                 //---- btnLockAccount ----
                 btnLockAccount.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/lock.png")));
@@ -533,7 +577,7 @@ public class FrmUser extends JInternalFrame {
                         btnLockAccountActionPerformed(e);
                     }
                 });
-                panel2.add(btnLockAccount, CC.xy(7, 1));
+                panel2.add(btnLockAccount, CC.xy(9, 1));
 
                 //---- btnCancel ----
                 btnCancel.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/cancel.png")));
@@ -544,7 +588,7 @@ public class FrmUser extends JInternalFrame {
                         btnCancelActionPerformed(e);
                     }
                 });
-                panel2.add(btnCancel, CC.xy(11, 1));
+                panel2.add(btnCancel, CC.xy(13, 1));
 
                 //---- btnAdd ----
                 btnAdd.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/edit_add.png")));
@@ -565,26 +609,38 @@ public class FrmUser extends JInternalFrame {
                     }
                 });
                 panel2.add(btnEdit, CC.xy(3, 1));
+
+                //---- btnPin ----
+                btnPin.setFont(new Font("sansserif", Font.PLAIN, 18));
+                btnPin.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/keypad.png")));
+                btnPin.setToolTipText("Passwort setzen");
+                btnPin.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        btnPinActionPerformed(e);
+                    }
+                });
+                panel2.add(btnPin, CC.xy(7, 1));
             }
 
             //---- label1 ----
             label1.setText("Benutzername");
-            label1.setFont(new Font("arial", Font.PLAIN, 18));
+            label1.setFont(new Font("sansserif", Font.PLAIN, 18));
             label1.setLabelFor(txtUsername);
 
             //---- label2 ----
             label2.setText("Vorname");
-            label2.setFont(new Font("arial", Font.PLAIN, 18));
+            label2.setFont(new Font("sansserif", Font.PLAIN, 18));
             label2.setLabelFor(txtVorname);
 
             //---- label3 ----
             label3.setText("Nachname");
-            label3.setFont(new Font("arial", Font.PLAIN, 18));
+            label3.setFont(new Font("sansserif", Font.PLAIN, 18));
             label3.setLabelFor(txtNachname);
 
             //---- cbIsAdmin ----
             cbIsAdmin.setText("Vollzugriff");
-            cbIsAdmin.setFont(new Font("arial", Font.PLAIN, 18));
+            cbIsAdmin.setFont(new Font("sansserif", Font.PLAIN, 18));
 
             GroupLayout panel1Layout = new GroupLayout(panel1);
             panel1.setLayout(panel1Layout);
@@ -601,9 +657,9 @@ public class FrmUser extends JInternalFrame {
                                     .addComponent(label3))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(panel1Layout.createParallelGroup()
-                                    .addComponent(txtNachname, GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
-                                    .addComponent(txtUsername, GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
-                                    .addComponent(txtVorname, GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)))
+                                    .addComponent(txtNachname, GroupLayout.DEFAULT_SIZE, 448, Short.MAX_VALUE)
+                                    .addComponent(txtUsername, GroupLayout.DEFAULT_SIZE, 448, Short.MAX_VALUE)
+                                    .addComponent(txtVorname, GroupLayout.DEFAULT_SIZE, 448, Short.MAX_VALUE)))
                             .addComponent(panel2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addContainerGap())
             );
@@ -624,7 +680,7 @@ public class FrmUser extends JInternalFrame {
                             .addComponent(label3))
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cbIsAdmin)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 262, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 240, Short.MAX_VALUE)
                         .addComponent(panel2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
             );
         }
@@ -633,7 +689,7 @@ public class FrmUser extends JInternalFrame {
         {
 
             //---- listUser ----
-            listUser.setFont(new Font("arial", Font.PLAIN, 18));
+            listUser.setFont(new Font("sansserif", Font.PLAIN, 18));
             listUser.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             listUser.addListSelectionListener(new ListSelectionListener() {
                 @Override
@@ -646,7 +702,7 @@ public class FrmUser extends JInternalFrame {
 
         //---- cbArchiv ----
         cbArchiv.setText("Auch Ehemalige anzeigen");
-        cbArchiv.setFont(new Font("arial", Font.PLAIN, 18));
+        cbArchiv.setFont(new Font("sansserif", Font.PLAIN, 18));
         cbArchiv.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
@@ -674,7 +730,7 @@ public class FrmUser extends JInternalFrame {
                     .addGroup(contentPaneLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
                         .addComponent(panel1, GroupLayout.Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(contentPaneLayout.createSequentialGroup()
-                            .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
+                            .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 436, Short.MAX_VALUE)
                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(cbArchiv)))
                     .addContainerGap())
@@ -694,6 +750,7 @@ public class FrmUser extends JInternalFrame {
     private JButton btnCancel;
     private JButton btnAdd;
     private JButton btnEdit;
+    private JButton btnPin;
     private JLabel label1;
     private JLabel label2;
     private JLabel label3;
