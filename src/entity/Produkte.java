@@ -101,9 +101,12 @@ public class Produkte {
     /**
      * Relationen
      */
-    @OneToMany(mappedBy = "produkt")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "produkt")
     private Collection<Vorrat> vorratCollection;
 
+    public Collection<Vorrat> getVorratCollection() {
+        return vorratCollection;
+    }
 
     @JoinColumn(name = "Stoffart_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)

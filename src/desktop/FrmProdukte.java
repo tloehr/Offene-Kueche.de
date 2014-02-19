@@ -8,6 +8,7 @@ import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import entity.*;
+import org.apache.commons.lang.ArrayUtils;
 import org.jdesktop.swingx.JXSearchField;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
@@ -27,10 +28,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.TableRowSorter;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -76,7 +74,7 @@ public class FrmProdukte extends JInternalFrame {
         } else if (criteria.getFirst() == Const.NAME_NR) {
             list = ProdukteTools.searchProdukte(criteria.getSecond().toString());
         } else if (criteria.getFirst() == Const.STOFFART) {
-            list = ProdukteTools.searchProdukte((Stoffart) criteria.getSecond());
+            list = ProdukteTools.getProdukte((Stoffart) criteria.getSecond());
         } else if (criteria.getFirst() == Const.WARENGRUPPE) {
             list = ProdukteTools.searchProdukte((Warengruppe) criteria.getSecond());
         }
@@ -94,7 +92,7 @@ public class FrmProdukte extends JInternalFrame {
 
         tblProdukt.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-        //pnlVorratComponentResized(null);
+        pnlMainComponentResized(null);
 
     }
 
@@ -119,8 +117,16 @@ public class FrmProdukte extends JInternalFrame {
             for (Produkte p : listProducts2Merge) {
                 Produkte altesProdukt = em.merge(p);
                 em.lock(altesProdukt, LockModeType.OPTIMISTIC);
-                VorratTools.tauscheProdukt(em, altesProdukt, neuesProdukt);
-                Main.debug("Lösche Produkt (wegen Merge): " + altesProdukt + " (" + altesProdukt.getId() + ")");
+
+                for (Vorrat v : altesProdukt.getVorratCollection()) {
+                    Vorrat myVorrat = em.merge(v);
+                    myVorrat.setProdukt(neuesProdukt);
+                }
+
+                altesProdukt.getVorratCollection().clear();
+
+//                VorratTools.tauscheProdukt(em, altesProdukt, neuesProdukt);
+//                Main.debug("Lösche Produkt (wegen Merge): " + altesProdukt + " (" + altesProdukt.getId() + ")");
                 em.remove(altesProdukt);
             }
             em.getTransaction().commit();
@@ -195,6 +201,37 @@ public class FrmProdukte extends JInternalFrame {
             menu.add(miEdit);
 
 
+            JMenuItem miDelete = new JMenuItem("löschen (inkl. Vorräte)");
+            miDelete.setFont(new Font("arial", Font.PLAIN, 18));
+
+            miDelete.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    EntityManager em1 = Main.getEMF().createEntityManager();
+                    try {
+                        em1.getTransaction().begin();
+                        for (Produkte p : listSelectedProducts) {
+                            if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+                                Produkte myProdukt = em1.merge(p);
+                                em1.remove(myProdukt);
+                            }
+                        }
+                        em1.getTransaction().commit();
+                    } catch (OptimisticLockException ole) {
+                        em1.getTransaction().rollback();
+                    } catch (Exception exc) {
+                        em1.getTransaction().rollback();
+                        Main.fatal(e);
+                    } finally {
+                        em1.close();
+                        loadTable();
+                    }
+                    loadTable();
+                }
+            });
+            miDelete.setEnabled(listSelectedProducts.size() > 0 && Main.getCurrentUser().isAdmin());
+            menu.add(miDelete);
+
             if (listSelectedProducts.size() > 1) {
                 JMenu miPopupMerge = new JMenu("Markierte Produkte zusammenfassen zu");
                 miPopupMerge.setFont(new Font("arial", Font.PLAIN, 18));
@@ -218,7 +255,78 @@ public class FrmProdukte extends JInternalFrame {
             }
 
 
-            JMenu menuPopupAssign = new JMenu("zuweisen zu");
+            JMenu menuLagerart = new JMenu("Lagerart setzen");
+            menuLagerart.setFont(new Font("arial", Font.PLAIN, 18));
+            for (final String lagerart : LagerTools.LAGERART) {
+
+                JMenuItem miLagerart = new JMenuItem(lagerart);
+                miLagerart.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+//                        if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+                        EntityManager em1 = Main.getEMF().createEntityManager();
+                        try {
+                            em1.getTransaction().begin();
+                            for (Produkte p : listSelectedProducts) {
+                                Produkte myProdukt = em1.merge(p);
+                                em1.lock(myProdukt, LockModeType.OPTIMISTIC);
+                                myProdukt.setLagerart((short) ArrayUtils.indexOf(LagerTools.LAGERART, lagerart));
+                            }
+                            em1.getTransaction().commit();
+                        } catch (OptimisticLockException ole) {
+                            em1.getTransaction().rollback();
+                        } catch (Exception exc) {
+                            em1.getTransaction().rollback();
+                            Main.fatal(e);
+                        } finally {
+                            em1.close();
+                            loadTable();
+                        }
+//                        }
+                    }
+                });
+                menuLagerart.add(miLagerart);
+
+
+            }
+            menu.add(menuLagerart);
+
+
+            JMenu menuEinheit = new JMenu("Einheit setzen");
+            menuEinheit.setFont(new Font("arial", Font.PLAIN, 18));
+            for (final String einheit : ProdukteTools.EINHEIT) {
+
+                JMenuItem miEinheit = new JMenuItem(einheit);
+                miEinheit.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+//                        if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+                        EntityManager em1 = Main.getEMF().createEntityManager();
+                        try {
+                            em1.getTransaction().begin();
+                            for (Produkte p : listSelectedProducts) {
+                                Produkte myProdukt = em1.merge(p);
+                                em1.lock(myProdukt, LockModeType.OPTIMISTIC);
+                                myProdukt.setEinheit((short) ArrayUtils.indexOf(ProdukteTools.EINHEIT, einheit));
+                            }
+                            em1.getTransaction().commit();
+                        } catch (OptimisticLockException ole) {
+                            em1.getTransaction().rollback();
+                        } catch (Exception exc) {
+                            em1.getTransaction().rollback();
+                            Main.fatal(e);
+                        } finally {
+                            em1.close();
+                            loadTable();
+                        }
+//                        }
+                    }
+                });
+                menuEinheit.add(miEinheit);
+            }
+            menu.add(menuEinheit);
+
+            JMenu menuPopupAssign = new JMenu("zuweisen zu Stoffart");
             menuPopupAssign.setFont(new Font("arial", Font.PLAIN, 18));
 
 
@@ -241,22 +349,22 @@ public class FrmProdukte extends JInternalFrame {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-                                    EntityManager em = Main.getEMF().createEntityManager();
+                                    EntityManager em1 = Main.getEMF().createEntityManager();
                                     try {
-                                        em.getTransaction().begin();
+                                        em1.getTransaction().begin();
                                         for (Produkte p : listSelectedProducts) {
-                                            Produkte myProdukt = em.merge(p);
-                                            em.lock(myProdukt, LockModeType.OPTIMISTIC);
-                                            myProdukt.setStoffart(em.merge(stoffart));
+                                            Produkte myProdukt = em1.merge(p);
+                                            em1.lock(myProdukt, LockModeType.OPTIMISTIC);
+                                            myProdukt.setStoffart(em1.merge(stoffart));
                                         }
-                                        em.getTransaction().commit();
+                                        em1.getTransaction().commit();
                                     } catch (OptimisticLockException ole) {
-                                        em.getTransaction().rollback();
+                                        em1.getTransaction().rollback();
                                     } catch (Exception exc) {
-                                        em.getTransaction().rollback();
+                                        em1.getTransaction().rollback();
                                         Main.fatal(e);
                                     } finally {
-                                        em.close();
+                                        em1.close();
                                         loadTable();
                                     }
                                 }
@@ -284,7 +392,11 @@ public class FrmProdukte extends JInternalFrame {
     private void createTree() {
         xTaskPane2.removeAll();
 
-        if (tree != null) tree.removeAll();
+        String expansion = null;
+        if (tree != null) {
+            expansion = Tools.getExpansionState(tree, 0);
+            tree.removeAll();
+        }
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Warengruppen");
         tree = new JTree(root);
@@ -423,13 +535,11 @@ public class FrmProdukte extends JInternalFrame {
                     });
                     menu.add(miRename);
 
-                    if (isOnlyStoffartSelected() && singleRowSelected) {
+                    if (isOnlyStoffartSelected()) {
 
-                        final Stoffart stoffart = (Stoffart) ((DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent()).getUserObject();
-
-                        JMenuItem miDelete = new JMenuItem("Markiertes Objekt löschen");
+                        JMenuItem miDelete = new JMenuItem("Markierte Stoffgruppe löschen, wenn leer");
                         miDelete.setFont(new Font("arial", Font.PLAIN, 18));
-                        miDelete.setEnabled(singleRowSelected && isOnlyStoffartSelected() && StoffartTools.getNumOfProducts(stoffart) == 0);
+//                        miDelete.setEnabled(StoffartTools.getNumOfProducts(stoffart) == 0);
                         miDelete.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
@@ -438,8 +548,111 @@ public class FrmProdukte extends JInternalFrame {
                                     try {
                                         em.getTransaction().begin();
 
-                                        Stoffart myStoffart = em.merge(stoffart);
-                                        em.remove(myStoffart);
+                                        for (TreePath path : tree.getSelectionPaths()) {
+                                            DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+                                            Stoffart myStoffart = em.merge((Stoffart) thisNode.getUserObject());
+                                            if (myStoffart.getProdukteCollection().isEmpty()) {
+                                                em.remove(myStoffart);
+                                            }
+                                        }
+
+                                        em.getTransaction().commit();
+                                    } catch (OptimisticLockException ole) {
+                                        em.getTransaction().rollback();
+                                    } catch (Exception exc) {
+                                        em.getTransaction().rollback();
+                                        Main.fatal(e);
+                                    } finally {
+                                        em.close();
+                                        createTree();
+                                    }
+                                }
+                            }
+                        });
+                        menu.add(miDelete);
+                    }
+
+                    if (isOnlyStoffartSelected() && singleRowSelected) {
+                        final Stoffart stoffart = (Stoffart) ((DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent()).getUserObject();
+                        JMenu menuDeleteReplace = new JMenu("Markierte Stoffgruppe löschen, Produkte zuweisen zu");
+                        menuDeleteReplace.setFont(new Font("arial", Font.PLAIN, 18));
+                        menuDeleteReplace.setEnabled(StoffartTools.getNumOfProducts(stoffart) > 0);
+
+                        EntityManager em = Main.getEMF().createEntityManager();
+                        try {
+                            Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung ");
+                            ArrayList<Warengruppe> listWarengruppen = new ArrayList<Warengruppe>(query.getResultList());
+
+
+                            for (Warengruppe warengruppe : listWarengruppen) {
+
+                                JMenu menuWarengruppe = new JMenu(warengruppe.getBezeichnung());
+
+                                ArrayList<Stoffart> listStoffarten = new ArrayList<Stoffart>(warengruppe.getStoffartCollection());
+                                Collections.sort(listStoffarten);
+
+                                for (final Stoffart s : listStoffarten) {
+                                    JMenuItem miStoffart = new JMenuItem(s.getBezeichnung());
+                                    miStoffart.addActionListener(new ActionListener() {
+                                        @Override
+                                        public void actionPerformed(ActionEvent e) {
+                                            if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+                                                EntityManager em1 = Main.getEMF().createEntityManager();
+                                                try {
+                                                    em1.getTransaction().begin();
+                                                    Stoffart myStoffart = em1.merge(s);
+                                                    Stoffart stoffart2delete = em1.merge(stoffart);
+                                                    for (Produkte p : stoffart2delete.getProdukteCollection()) {
+                                                        Produkte myProdukt = em1.merge(p);
+                                                        em1.lock(myProdukt, LockModeType.OPTIMISTIC);
+                                                        myProdukt.setStoffart(myStoffart);
+                                                    }
+                                                    stoffart2delete.getProdukteCollection().clear();
+                                                    em1.remove(stoffart2delete);
+                                                    em1.getTransaction().commit();
+                                                } catch (OptimisticLockException ole) {
+                                                    em1.getTransaction().rollback();
+                                                } catch (Exception exc) {
+                                                    em1.getTransaction().rollback();
+                                                    Main.fatal(e);
+                                                } finally {
+                                                    em1.close();
+                                                    createTree();
+                                                }
+                                            }
+                                        }
+                                    });
+                                    menuWarengruppe.add(miStoffart);
+                                }
+                                menuDeleteReplace.add(menuWarengruppe);
+                            }
+                        } catch (Exception exc) {
+                            Main.fatal(exc);
+                        } finally {
+                            em.close();
+                        }
+                        menu.add(menuDeleteReplace);
+
+                    }
+
+
+                    if (isOnlyWarengruppeSelected() && singleRowSelected) {
+
+                        final Warengruppe warengruppe = (Warengruppe) ((DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent()).getUserObject();
+
+                        JMenuItem miDelete = new JMenuItem("Markierte Warengruppe löschen");
+                        miDelete.setFont(new Font("arial", Font.PLAIN, 18));
+                        miDelete.setEnabled(WarengruppeTools.getNumOfProducts(warengruppe) == 0);
+                        miDelete.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+                                    EntityManager em = Main.getEMF().createEntityManager();
+                                    try {
+                                        em.getTransaction().begin();
+
+                                        Warengruppe myWarengruppe = em.merge(warengruppe);
+                                        em.remove(myWarengruppe);
 
                                         em.getTransaction().commit();
                                     } catch (OptimisticLockException ole) {
@@ -548,6 +761,10 @@ public class FrmProdukte extends JInternalFrame {
         });
 
 
+        if (expansion != null) {
+            Tools.restoreExpansionState(tree, 0, expansion);
+        }
+
         xTaskPane2.add(tree);
 
     }
@@ -607,6 +824,10 @@ public class FrmProdukte extends JInternalFrame {
         return sameClasses;
     }
 
+    private void pnlMainComponentResized(ComponentEvent e) {
+        Tools.packTable(tblProdukt, 0);
+    }
+
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -641,12 +862,12 @@ public class FrmProdukte extends JInternalFrame {
                 {
                     xTaskPane1.setSpecial(true);
                     xTaskPane1.setTitle("Suchen");
-                    xTaskPane1.setFont(new Font("arial", Font.BOLD, 18));
+                    xTaskPane1.setFont(new Font("sansserif", Font.BOLD, 18));
                     xTaskPane1.setLayout(new VerticalLayout(10));
 
                     //---- btnSearchAll ----
                     btnSearchAll.setText("Alle");
-                    btnSearchAll.setFont(new Font("arial", Font.PLAIN, 18));
+                    btnSearchAll.setFont(new Font("sansserif", Font.PLAIN, 18));
                     btnSearchAll.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -657,7 +878,7 @@ public class FrmProdukte extends JInternalFrame {
 
                     //---- xSearchField1 ----
                     xSearchField1.setPrompt("Suchtext hier eingeben");
-                    xSearchField1.setFont(new Font("arial", Font.PLAIN, 18));
+                    xSearchField1.setFont(new Font("sansserif", Font.PLAIN, 18));
                     xSearchField1.setMinimumSize(new Dimension(230, 36));
                     xSearchField1.addActionListener(new ActionListener() {
                         @Override
@@ -672,7 +893,7 @@ public class FrmProdukte extends JInternalFrame {
                 //======== xTaskPane2 ========
                 {
                     xTaskPane2.setTitle("Warengruppen");
-                    xTaskPane2.setFont(new Font("arial", Font.BOLD, 18));
+                    xTaskPane2.setFont(new Font("sansserif", Font.BOLD, 18));
                     xTaskPane2.setCollapsed(true);
                     xTaskPane2.setLayout(new VerticalLayout(10));
                 }
@@ -684,13 +905,19 @@ public class FrmProdukte extends JInternalFrame {
 
         //======== pnlMain ========
         {
+            pnlMain.addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    pnlMainComponentResized(e);
+                }
+            });
             pnlMain.setLayout(new BoxLayout(pnlMain, BoxLayout.X_AXIS));
 
             //======== jspProdukt ========
             {
 
                 //---- tblProdukt ----
-                tblProdukt.setFont(new Font("arial", Font.PLAIN, 18));
+                tblProdukt.setFont(new Font("sansserif", Font.PLAIN, 18));
                 tblProdukt.setRowHeight(20);
                 tblProdukt.addMouseListener(new MouseAdapter() {
                     @Override

@@ -49,6 +49,8 @@ public class DlgLogin extends JDialog {
         //======== this ========
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Anmeldung");
+        setModal(true);
+        setResizable(false);
         Container contentPane = getContentPane();
         contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.X_AXIS));
         pack();

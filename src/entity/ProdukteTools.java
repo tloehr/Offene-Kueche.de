@@ -99,7 +99,7 @@ public class ProdukteTools {
            return produkte;
        }
 
-    public static ArrayList<Produkte> searchProdukte(Stoffart stoffart) {
+    public static ArrayList<Produkte> getProdukte(Stoffart stoffart) {
         ArrayList produkte = new ArrayList<Produkte>();
         EntityManager em = Main.getEMF().createEntityManager();
         Query query = em.createNamedQuery("Produkte.findByStoffart");

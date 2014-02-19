@@ -99,6 +99,10 @@ public class Stoffart implements Comparable<Stoffart> {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "stoffart")
     private Collection<Produkte> produkteCollection;
 
+    public Collection<Produkte> getProdukteCollection() {
+        return produkteCollection;
+    }
+
     @Version
     @Column(name = "version")
     private Long version;
