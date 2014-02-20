@@ -450,7 +450,7 @@ public class FrmProdukte extends JInternalFrame {
                 }
 
                 setFont(new Font("arial", Font.PLAIN, 16));
-
+                setOpaque(false);
 
                 return new DefaultTreeCellRenderer().getTreeCellRendererComponent(tree, text, selected, expanded, leaf, row, hasFocus);
             }
@@ -485,7 +485,60 @@ public class FrmProdukte extends JInternalFrame {
                     JMenuItem miNewWarengruppe = new JMenuItem("Neue Warengruppe erstellen");
                     miNewWarengruppe.setFont(new Font("arial", Font.PLAIN, 18));
                     miNewWarengruppe.setEnabled(singleRowSelected);
+                    miNewWarengruppe.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            String newText = JOptionPane.showInputDialog(thisComponent, "Warengruppe", "Neu erstellen", JOptionPane.OK_CANCEL_OPTION);
+                            if (newText != null && !newText.trim().isEmpty()) {
+                                EntityManager em = Main.getEMF().createEntityManager();
+                                try {
+                                    em.getTransaction().begin();
+                                    Warengruppe myWarengruppe = em.merge(new Warengruppe(newText));
+                                    em.getTransaction().commit();
+                                } catch (OptimisticLockException ole) {
+                                    em.getTransaction().rollback();
+                                } catch (Exception exc) {
+                                    em.getTransaction().rollback();
+                                    Main.fatal(e);
+                                } finally {
+                                    em.close();
+                                    createTree();
+                                }
+                            }
+                        }
+                    });
+                    miNewWarengruppe.setEnabled(singleRowSelected && ((DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent()).getUserObject() instanceof Warengruppe);
                     menu.add(miNewWarengruppe);
+
+                    JMenuItem miNewStoffart = new JMenuItem("Neue Stoffart erstellen");
+                    miNewStoffart.setFont(new Font("arial", Font.PLAIN, 18));
+                    miNewStoffart.setEnabled(singleRowSelected);
+                    miNewStoffart.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            String newText = JOptionPane.showInputDialog(thisComponent, "Stoffart", "Neu erstellen", JOptionPane.OK_CANCEL_OPTION);
+                            if (newText != null && !newText.trim().isEmpty()) {
+                                EntityManager em = Main.getEMF().createEntityManager();
+                                try {
+                                    em.getTransaction().begin();
+                                    DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode)  tree.getSelectionPaths()[0].getLastPathComponent();
+                                    Warengruppe myWarengruppe = em.merge((Warengruppe) thisNode.getUserObject());
+                                    Stoffart myStoffart = em.merge(new Stoffart(newText, myWarengruppe));
+                                    em.getTransaction().commit();
+                                } catch (OptimisticLockException ole) {
+                                    em.getTransaction().rollback();
+                                } catch (Exception exc) {
+                                    em.getTransaction().rollback();
+                                    Main.fatal(e);
+                                } finally {
+                                    em.close();
+                                    createTree();
+                                }
+                            }
+                        }
+                    });
+                    miNewStoffart.setEnabled(singleRowSelected && ((DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent()).getUserObject() instanceof Warengruppe);
+                    menu.add(miNewStoffart);
 
                     JMenuItem miRename = new JMenuItem("Markiertes Objekt umbennen");
                     miRename.setFont(new Font("arial", Font.PLAIN, 18));
@@ -503,8 +556,7 @@ public class FrmProdukte extends JInternalFrame {
                                 text = ((Stoffart) thisNode.getUserObject()).getBezeichnung();
                             }
 
-                            String newText = JOptionPane.showInputDialog(thisComponent, text, "Objekt umbenennen", JOptionPane.OK_CANCEL_OPTION);
-                            if (!newText.trim().isEmpty()) {
+                            String newText = JOptionPane.showInputDialog(thisComponent, "Bezeichnung", text);                            if (newText != null && !newText.trim().isEmpty()) {
                                 EntityManager em = Main.getEMF().createEntityManager();
                                 try {
                                     em.getTransaction().begin();

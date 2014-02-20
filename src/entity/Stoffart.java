@@ -27,6 +27,12 @@ public class Stoffart implements Comparable<Stoffart> {
         this.id = 0l;
     }
 
+    public Stoffart(String bezeichnung, Warengruppe warengruppe) {
+            this.bezeichnung = bezeichnung;
+            this.einheit = 0;
+            this.warengruppe = warengruppe;
+        }
+
     public Stoffart(String bezeichnung, short einheit, Warengruppe warengruppe) {
         this.bezeichnung = bezeichnung;
         this.einheit = einheit;

@@ -77,11 +77,6 @@ public class DlgProdukt extends JDialog {
             }
     }
 
-    private void btnUnverpacktActionPerformed(ActionEvent e) {
-
-
-    }
-
     private void txtPackGroesseFocusLost(FocusEvent e) {
         try {
             groesse = new BigDecimal(txtPackGroesse.getText().replaceAll(",", "\\."));
@@ -107,26 +102,27 @@ public class DlgProdukt extends JDialog {
     }
 
     private void fillBezeichnungGTIN() {
+
         if (myProducts.size() == 1) {
             txtBezeichnung.setText(myProducts.get(0).getBezeichnung());
             txtGTIN.setText(myProducts.get(0).isLoseWare() ? "(lose Ware)" : myProducts.get(0).getGtin());
             txtGTIN.setEnabled(!myProducts.get(0).isLoseWare());
-            btnUnverpackt.setEnabled(true);
+
         } else if (myProducts.size() > 1) {
             txtBezeichnung.setText("(unterschiedliche Werte)");
             txtBezeichnung.setEnabled(false);
             txtGTIN.setText("(unterschiedliche Werte)");
             txtGTIN.setEnabled(false);
-            btnUnverpackt.setEnabled(false);
+
         } else {
             txtBezeichnung.setText("");
             txtBezeichnung.setEnabled(false);
             txtGTIN.setText("");
             txtGTIN.setEnabled(false);
-            btnUnverpackt.setEnabled(false);
+
         }
 
-        btnUnverpackt.setEnabled(txtGTIN.isEnabled());
+//        btnUnverpackt.setEnabled(txtGTIN.isEnabled());
     }
 
     private void fillPackgroesse() {
@@ -324,8 +320,8 @@ public class DlgProdukt extends JDialog {
                 //======== panel4 ========
                 {
                     panel4.setLayout(new FormLayout(
-                            "default, right:default, 3dlu, $lcgap, default:grow, $lcgap, default, $rgap, default, $lcgap, default",
-                            "$rgap, 6*($lgap, default)"));
+                        "default, right:default, 3dlu, $lcgap, default:grow, $lcgap, default, $rgap, default, $lcgap, default",
+                        "$rgap, 6*($lgap, default)"));
 
                     //---- label1 ----
                     label1.setText("Bezeichnung");
@@ -434,8 +430,8 @@ public class DlgProdukt extends JDialog {
             {
                 buttonBar.setBorder(new EmptyBorder(12, 0, 0, 0));
                 buttonBar.setLayout(new GridBagLayout());
-                ((GridBagLayout) buttonBar.getLayout()).columnWidths = new int[]{0, 85, 80};
-                ((GridBagLayout) buttonBar.getLayout()).columnWeights = new double[]{1.0, 0.0, 0.0};
+                ((GridBagLayout)buttonBar.getLayout()).columnWidths = new int[] {0, 85, 80};
+                ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- okButton ----
                 okButton.setText("OK");
@@ -447,8 +443,8 @@ public class DlgProdukt extends JDialog {
                     }
                 });
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 0, 5), 0, 0));
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- cancelButton ----
                 cancelButton.setText("Abbrechen");
@@ -460,8 +456,8 @@ public class DlgProdukt extends JDialog {
                     }
                 });
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 0, 0), 0, 0));
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 0, 0), 0, 0));
             }
             dialogPane.add(buttonBar, BorderLayout.SOUTH);
         }
