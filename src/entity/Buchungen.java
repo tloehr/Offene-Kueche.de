@@ -4,6 +4,7 @@ import tools.Const;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -238,6 +239,10 @@ public class Buchungen {
     @JoinColumn(name = "Vorrat_ID", referencedColumnName = "ID", nullable = false)
     @ManyToOne(optional = false, cascade = CascadeType.ALL)
     private Vorrat vorrat;
+
+    @ManyToMany(mappedBy = "txs")
+    private Collection<Preparation> preparations;
+
 
     @Override
     public boolean equals(Object o) {

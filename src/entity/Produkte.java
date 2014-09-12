@@ -77,7 +77,6 @@ public class Produkte {
     }
 
 
-
     @javax.persistence.Column(name = "Lagerart", nullable = false, insertable = true, updatable = true, length = 5, precision = 0)
     @Basic
     private short lagerart;
@@ -86,8 +85,6 @@ public class Produkte {
     @javax.persistence.Column(name = "Einheit", nullable = false, insertable = true, updatable = true, length = 5, precision = 0)
     @Basic
     private short einheit;
-
-
 
 
     @javax.persistence.Column(name = "PackGroesse", nullable = true, insertable = true, updatable = true, length = 12, precision = 4)
@@ -112,14 +109,26 @@ public class Produkte {
     @ManyToOne(optional = false)
     private Stoffart stoffart;
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "additives2products", joinColumns =
+    @JoinColumn(name = "prodid"), inverseJoinColumns =
+    @JoinColumn(name = "addid"))
+    private Collection<Additives> additives;
+//
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "allergene2products", joinColumns =
+    @JoinColumn(name = "prodid"), inverseJoinColumns =
+    @JoinColumn(name = "allergenid"))
+    private Collection<Allergene> allergics;
+
 
     public short getLagerart() {
-            return lagerart;
-        }
+        return lagerart;
+    }
 
-        public void setLagerart(short lagerart) {
-            this.lagerart = lagerart;
-        }
+    public void setLagerart(short lagerart) {
+        this.lagerart = lagerart;
+    }
 
 
     public short getEinheit() {
@@ -132,26 +141,26 @@ public class Produkte {
 
 
     public BigDecimal getPackGroesse() {
-            return packGroesse;
-        }
+        return packGroesse;
+    }
 
-        public void setPackGroesse(BigDecimal packGroesse) {
-            this.packGroesse = packGroesse;
-        }
+    public void setPackGroesse(BigDecimal packGroesse) {
+        this.packGroesse = packGroesse;
+    }
 
 
-        public boolean isLoseWare() {
-            return gtin == null;
-        }
+    public boolean isLoseWare() {
+        return gtin == null;
+    }
 
 
     public Stoffart getStoffart() {
-            return stoffart;
-        }
+        return stoffart;
+    }
 
-        public void setStoffart(Stoffart stoffart) {
-            this.stoffart = stoffart;
-        }
+    public void setStoffart(Stoffart stoffart) {
+        this.stoffart = stoffart;
+    }
 
     @Override
     public boolean equals(Object o) {

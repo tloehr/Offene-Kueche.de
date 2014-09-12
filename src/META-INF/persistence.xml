@@ -12,5 +12,9 @@
         <class>entity.Lieferanten</class>
         <class>entity.Warengruppe</class>
         <class>entity.Buchungen</class>
+        <class>entity.Additives</class>
+        <class>entity.Allergene</class>
+        <class>entity.Preparation</class>
+        <class>entity.Recipes</class>
     </persistence-unit>
 </persistence>

@@ -31,7 +31,7 @@ import java.util.Properties;
  */
 public class Main {
 
-    private static int TIMEOUT = 30;
+    public static int TIMEOUT = 30;
     private static final int UNKNOWN = 0;
     private static final int DESKTOP = 1;
     private static final int TOUCH = 2;

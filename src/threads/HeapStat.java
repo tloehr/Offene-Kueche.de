@@ -48,7 +48,7 @@ public class HeapStat
     private long lastoperation; // used for the timeout function to automatically log out idle users
 
 
-    private final long TIMEOUTMINS = 30;
+    private final long TIMEOUTMINS = Main.TIMEOUT;
 
     /**
      * Creates a new instance of HeapStat

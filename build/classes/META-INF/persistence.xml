@@ -10,11 +10,18 @@
         <class>entity.Stoffart</class>
         <class>entity.Vorrat</class>
         <class>entity.Warengruppe</class>
+        <class>entity.Additives</class>
+        <class>entity.Additives2Products</class>
+        <class>entity.Allergene</class>
+        <class>entity.Allergene2Products</class>
+        <class>entity.Preparation</class>
+        <class>entity.Recipes</class>
+        <class>entity.Tx2Preparation</class>
         <properties>
-            <property name="eclipselink.jdbc.url" value="jdbc:mysql://srv0004:3306/kueche"/>
+            <property name="eclipselink.jdbc.url" value="jdbc:mysql://srv0006:3306/kueche"/>
             <property name="eclipselink.jdbc.driver" value="com.mysql.jdbc.Driver"/>
             <property name="eclipselink.jdbc.user" value="root"/>
-            <property name="eclipselink.jdbc.password" value="qrp2507te"/>
+            <property name="eclipselink.jdbc.password" value="db-jor-uk-c"/>
             <property name="eclipselink.logging.level" value="FINER"/>
         </properties>
     </persistence-unit>

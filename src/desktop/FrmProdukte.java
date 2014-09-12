@@ -400,7 +400,7 @@ public class FrmProdukte extends JInternalFrame {
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Warengruppen");
         tree = new JTree(root);
-        tree.setOpaque(false);
+//        tree.setOpaque(false);
 
 
         EntityManager em = Main.getEMF().createEntityManager();
@@ -450,7 +450,7 @@ public class FrmProdukte extends JInternalFrame {
                 }
 
                 setFont(new Font("arial", Font.PLAIN, 16));
-                setOpaque(false);
+//                setOpaque(false);
 
                 return new DefaultTreeCellRenderer().getTreeCellRendererComponent(tree, text, selected, expanded, leaf, row, hasFocus);
             }
@@ -521,7 +521,7 @@ public class FrmProdukte extends JInternalFrame {
                                 EntityManager em = Main.getEMF().createEntityManager();
                                 try {
                                     em.getTransaction().begin();
-                                    DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode)  tree.getSelectionPaths()[0].getLastPathComponent();
+                                    DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent();
                                     Warengruppe myWarengruppe = em.merge((Warengruppe) thisNode.getUserObject());
                                     Stoffart myStoffart = em.merge(new Stoffart(newText, myWarengruppe));
                                     em.getTransaction().commit();
@@ -556,7 +556,8 @@ public class FrmProdukte extends JInternalFrame {
                                 text = ((Stoffart) thisNode.getUserObject()).getBezeichnung();
                             }
 
-                            String newText = JOptionPane.showInputDialog(thisComponent, "Bezeichnung", text);                            if (newText != null && !newText.trim().isEmpty()) {
+                            String newText = JOptionPane.showInputDialog(thisComponent, "Bezeichnung", text);
+                            if (newText != null && !newText.trim().isEmpty()) {
                                 EntityManager em = Main.getEMF().createEntityManager();
                                 try {
                                     em.getTransaction().begin();
