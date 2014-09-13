@@ -141,8 +141,9 @@ public class Main {
 //        em1 = emf.createEntityManager();
         printers = new Printers();
 
-        logger.info(UIManager.getInstalledLookAndFeels());
-        UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+//        logger.info(UIManager.getInstalledLookAndFeels());
+//        UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+        UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 
         css = Tools.readFileAsString(Main.props.getProperty("workdir") + System.getProperty("file.separator") + "standard.css");
 

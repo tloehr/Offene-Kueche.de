@@ -84,17 +84,6 @@ public class Stoffart implements Comparable<Stoffart> {
         this.warengruppe = warengruppe;
     }
 
-    //    private long warengruppeId;
-//
-//    @javax.persistence.Column(name = "warengruppe_ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
-//    @Basic
-//    public long getWarengruppeId() {
-//        return warengruppeId;
-//    }
-//
-//    public void setWarengruppeId(long warengruppeId) {
-//        this.warengruppeId = warengruppeId;
-//    }
 
     /**
      * Relationen

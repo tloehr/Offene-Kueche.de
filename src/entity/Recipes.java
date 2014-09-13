@@ -10,7 +10,6 @@ import javax.persistence.*;
 public class Recipes {
     private String title;
     private String text;
-    private long version;
 
     @javax.persistence.Column(name = "ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
     @Id
@@ -45,15 +44,9 @@ public class Recipes {
         this.text = text;
     }
 
-    @Basic
-    @Column(name = "version", nullable = false, insertable = true, updatable = true)
-    public long getVersion() {
-        return version;
-    }
-
-    public void setVersion(long version) {
-        this.version = version;
-    }
+    @Version
+    @Column(name = "version")
+    private Long version;
 
     @Override
     public boolean equals(Object o) {

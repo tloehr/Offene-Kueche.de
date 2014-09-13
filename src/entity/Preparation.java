@@ -57,6 +57,10 @@ public class Preparation {
         this.text = text;
     }
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "tx2preparation", joinColumns =
     @JoinColumn(name = "prepid"), inverseJoinColumns =

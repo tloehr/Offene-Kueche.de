@@ -284,6 +284,7 @@ public class DlgProdukt extends JDialog {
         dialogPane = new JPanel();
         contentPanel = new JPanel();
         panel4 = new JPanel();
+        label8 = new JLabel();
         label1 = new JLabel();
         txtBezeichnung = new JTextField();
         label2 = new JLabel();
@@ -298,6 +299,16 @@ public class DlgProdukt extends JDialog {
         lblEinheit = new JLabel();
         label6 = new JLabel();
         cmbStoffart = new JComboBox();
+        label7 = new JLabel();
+        textField1 = new JTextField();
+        scrollPane1 = new JScrollPane();
+        lstAllergics = new JList();
+        btnTakeAllergics = new JButton();
+        label9 = new JLabel();
+        textField2 = new JTextField();
+        panel1 = new JScrollPane();
+        lstAllergics2 = new JList();
+        btnTakeAllergics2 = new JButton();
         buttonBar = new JPanel();
         okButton = new JButton();
         cancelButton = new JButton();
@@ -321,12 +332,20 @@ public class DlgProdukt extends JDialog {
                 {
                     panel4.setLayout(new FormLayout(
                         "default, right:default, 3dlu, $lcgap, default:grow, $lcgap, default, $rgap, default, $lcgap, default",
-                        "$rgap, 6*($lgap, default)"));
+                        "$rgap, 9*($lgap, default), $lgap, default:grow, 2*($lgap, default), $lgap, default:grow, $lgap, default"));
+
+                    //---- label8 ----
+                    label8.setText(" Produkt Daten");
+                    label8.setFont(new Font("Arial", Font.PLAIN, 22));
+                    label8.setBackground(new Color(51, 51, 255));
+                    label8.setOpaque(true);
+                    label8.setForeground(new Color(102, 204, 255));
+                    panel4.add(label8, CC.xywh(1, 3, 11, 1));
 
                     //---- label1 ----
                     label1.setText("Bezeichnung");
                     label1.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label1, CC.xy(2, 3));
+                    panel4.add(label1, CC.xy(2, 5));
 
                     //---- txtBezeichnung ----
                     txtBezeichnung.setFont(new Font("arial", Font.PLAIN, 18));
@@ -336,12 +355,12 @@ public class DlgProdukt extends JDialog {
                             txtBezeichnungFocusLost(e);
                         }
                     });
-                    panel4.add(txtBezeichnung, CC.xywh(5, 3, 5, 1));
+                    panel4.add(txtBezeichnung, CC.xywh(5, 5, 5, 1));
 
                     //---- label2 ----
                     label2.setText("Einheit");
                     label2.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label2, CC.xy(2, 5));
+                    panel4.add(label2, CC.xy(2, 7));
 
                     //---- cmbEinheit ----
                     cmbEinheit.setFont(new Font("arial", Font.PLAIN, 18));
@@ -351,12 +370,12 @@ public class DlgProdukt extends JDialog {
                             cmbEinheitItemStateChanged(e);
                         }
                     });
-                    panel4.add(cmbEinheit, CC.xywh(5, 5, 5, 1));
+                    panel4.add(cmbEinheit, CC.xywh(5, 7, 5, 1));
 
                     //---- label3 ----
                     label3.setText("Lagerart");
                     label3.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label3, CC.xy(2, 7));
+                    panel4.add(label3, CC.xy(2, 9));
 
                     //---- cmbLagerart ----
                     cmbLagerart.setFont(new Font("arial", Font.PLAIN, 18));
@@ -366,12 +385,12 @@ public class DlgProdukt extends JDialog {
                             cmbLagerartItemStateChanged(e);
                         }
                     });
-                    panel4.add(cmbLagerart, CC.xywh(5, 7, 5, 1));
+                    panel4.add(cmbLagerart, CC.xywh(5, 9, 5, 1));
 
                     //---- label4 ----
                     label4.setText("GTIN");
                     label4.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label4, CC.xy(2, 9));
+                    panel4.add(label4, CC.xy(2, 11));
 
                     //---- txtGTIN ----
                     txtGTIN.setFont(new Font("arial", Font.PLAIN, 18));
@@ -381,7 +400,7 @@ public class DlgProdukt extends JDialog {
                             txtGTINFocusLost(e);
                         }
                     });
-                    panel4.add(txtGTIN, CC.xywh(5, 9, 3, 1));
+                    panel4.add(txtGTIN, CC.xywh(5, 11, 3, 1));
 
                     //---- btnUnverpackt ----
                     btnUnverpackt.setText("unverpackt");
@@ -391,12 +410,12 @@ public class DlgProdukt extends JDialog {
                             btnUnverpacktItemStateChanged(e);
                         }
                     });
-                    panel4.add(btnUnverpackt, CC.xywh(9, 9, 1, 3));
+                    panel4.add(btnUnverpackt, CC.xywh(9, 11, 1, 3));
 
                     //---- label5 ----
                     label5.setText("Packungsgr\u00f6\u00dfe");
                     label5.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label5, CC.xy(2, 11));
+                    panel4.add(label5, CC.xy(2, 13));
 
                     //---- txtPackGroesse ----
                     txtPackGroesse.setFont(new Font("arial", Font.PLAIN, 18));
@@ -406,21 +425,59 @@ public class DlgProdukt extends JDialog {
                             txtPackGroesseFocusLost(e);
                         }
                     });
-                    panel4.add(txtPackGroesse, CC.xy(5, 11));
+                    panel4.add(txtPackGroesse, CC.xy(5, 13));
 
                     //---- lblEinheit ----
                     lblEinheit.setText("liter");
                     lblEinheit.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(lblEinheit, CC.xy(7, 11));
+                    panel4.add(lblEinheit, CC.xy(7, 13));
 
                     //---- label6 ----
                     label6.setText("Stoffart");
                     label6.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label6, CC.xy(2, 13));
+                    panel4.add(label6, CC.xy(2, 15));
 
                     //---- cmbStoffart ----
                     cmbStoffart.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(cmbStoffart, CC.xywh(5, 13, 5, 1));
+                    panel4.add(cmbStoffart, CC.xywh(5, 15, 5, 1));
+
+                    //---- label7 ----
+                    label7.setText(" Allergene");
+                    label7.setFont(new Font("Arial", Font.PLAIN, 22));
+                    label7.setBackground(new Color(204, 0, 204));
+                    label7.setOpaque(true);
+                    label7.setForeground(Color.cyan);
+                    panel4.add(label7, CC.xywh(1, 17, 11, 1));
+                    panel4.add(textField1, CC.xy(2, 19, CC.FILL, CC.TOP));
+
+                    //======== scrollPane1 ========
+                    {
+                        scrollPane1.setViewportView(lstAllergics);
+                    }
+                    panel4.add(scrollPane1, CC.xywh(5, 19, 5, 3));
+
+                    //---- btnTakeAllergics ----
+                    btnTakeAllergics.setText("\u00dcbernehmen von Stoffarten");
+                    panel4.add(btnTakeAllergics, CC.xy(2, 21, CC.FILL, CC.TOP));
+
+                    //---- label9 ----
+                    label9.setText(" Zusatzstoffe");
+                    label9.setFont(new Font("Arial", Font.PLAIN, 22));
+                    label9.setBackground(Color.green);
+                    label9.setOpaque(true);
+                    label9.setForeground(new Color(93, 73, 1));
+                    panel4.add(label9, CC.xywh(1, 23, 11, 1));
+                    panel4.add(textField2, CC.xy(2, 25, CC.FILL, CC.TOP));
+
+                    //======== panel1 ========
+                    {
+                        panel1.setViewportView(lstAllergics2);
+                    }
+                    panel4.add(panel1, CC.xywh(5, 25, 5, 3));
+
+                    //---- btnTakeAllergics2 ----
+                    btnTakeAllergics2.setText("\u00dcbernehmen von Stoffarten");
+                    panel4.add(btnTakeAllergics2, CC.xy(2, 27, CC.FILL, CC.TOP));
                 }
                 contentPanel.add(panel4);
             }
@@ -471,6 +528,7 @@ public class DlgProdukt extends JDialog {
     private JPanel dialogPane;
     private JPanel contentPanel;
     private JPanel panel4;
+    private JLabel label8;
     private JLabel label1;
     private JTextField txtBezeichnung;
     private JLabel label2;
@@ -485,6 +543,16 @@ public class DlgProdukt extends JDialog {
     private JLabel lblEinheit;
     private JLabel label6;
     private JComboBox cmbStoffart;
+    private JLabel label7;
+    private JTextField textField1;
+    private JScrollPane scrollPane1;
+    private JList lstAllergics;
+    private JButton btnTakeAllergics;
+    private JLabel label9;
+    private JTextField textField2;
+    private JScrollPane panel1;
+    private JList lstAllergics2;
+    private JButton btnTakeAllergics2;
     private JPanel buttonBar;
     private JButton okButton;
     private JButton cancelButton;
