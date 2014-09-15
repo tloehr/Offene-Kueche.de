@@ -23,12 +23,12 @@ import java.util.ArrayList;
 /**
  * @author Torsten Löhr
  */
-public class DlgProdukt extends JDialog {
+public class DlgType extends JDialog {
     private ArrayList<Produkte> myProducts;
     String gtin = null;
     BigDecimal groesse;
 
-    public DlgProdukt(Frame owner, ArrayList<Produkte> myProducts) {
+    public DlgType(Frame owner, ArrayList<Produkte> myProducts) {
         super(owner);
         this.myProducts = myProducts;
         initComponents();
@@ -333,7 +333,7 @@ public class DlgProdukt extends JDialog {
                         "$rgap, 9*($lgap, default), $lgap, default:grow, 2*($lgap, default), $lgap, default:grow, $lgap, default"));
 
                     //---- label8 ----
-                    label8.setText(" Produkt Daten");
+                    label8.setText(" Stoffart Daten");
                     label8.setFont(new Font("Arial", Font.PLAIN, 22));
                     label8.setBackground(new Color(51, 51, 255));
                     label8.setOpaque(true);

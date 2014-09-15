@@ -1,0 +1,71 @@
+JFDML JFormDesigner: "5.2.0.0.109" Java: "1.6.0_65" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JInternalFrame", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+			"$columnSpecs": "default, labelcompgap, default:grow"
+			"$rowSpecs": "default:grow, linegap, default, linegap, default"
+		} ) {
+			name: "this"
+			"visible": true
+			addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentResized", "thisComponentResized", true ) )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "jspSearch"
+				add( new FormContainer( "org.jdesktop.swingx.JXTaskPaneContainer", new FormLayoutManager( class com.jformdesigner.runtime.GenericIndexLayout ) ) {
+					name: "pnlSearch"
+					add( new FormContainer( "org.jdesktop.swingx.JXTaskPane", new FormLayoutManager( class org.jdesktop.swingx.VerticalLayout ) {
+						"gap": 10
+					} ) {
+						name: "xTaskPane1"
+						"special": true
+						"title": "Suchen"
+						"font": new java.awt.Font( "sansserif", 1, 18 )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnSearchAll"
+							"text": "Alle"
+							"font": new java.awt.Font( "sansserif", 0, 18 )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnSearchAllActionPerformed", true ) )
+						} )
+						add( new FormComponent( "org.jdesktop.swingx.JXSearchField" ) {
+							name: "xSearchField1"
+							"prompt": "Suchtext hier eingeben"
+							"font": new java.awt.Font( "sansserif", 0, 18 )
+							"minimumSize": new java.awt.Dimension( 230, 36 )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "xSearchField1ActionPerformed", true ) )
+						} )
+					} )
+					add( new FormContainer( "org.jdesktop.swingx.JXTaskPane", new FormLayoutManager( class org.jdesktop.swingx.VerticalLayout ) {
+						"gap": 10
+					} ) {
+						name: "xTaskPane2"
+						"title": "Warengruppen"
+						"font": new java.awt.Font( "sansserif", 1, 18 )
+						"collapsed": true
+					} )
+					add( new FormContainer( "org.jdesktop.swingx.JXTaskPane", new FormLayoutManager( class org.jdesktop.swingx.VerticalLayout ) ) {
+						name: "xTaskPane3"
+					} )
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
+				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
+				"gridHeight": 5
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane1"
+				add( new FormComponent( "javax.swing.JTable" ) {
+					name: "tblTypes"
+					"font": new java.awt.Font( "SansSerif", 0, 18 )
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
+				"gridHeight": 5
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 955, 595 )
+		} )
+	}
+}

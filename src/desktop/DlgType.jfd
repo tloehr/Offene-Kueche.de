@@ -21,7 +21,7 @@ new FormModel {
 						name: "panel4"
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "label8"
-							"text": " Produkt Daten"
+							"text": " Stoffart Daten"
 							"font": new java.awt.Font( "Arial", 0, 22 )
 							"background": new java.awt.Color( 51, 51, 255, 255 )
 							"opaque": true
