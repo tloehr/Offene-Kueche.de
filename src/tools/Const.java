@@ -96,7 +96,7 @@ public class Const {
     public static Color yellow4 = new Color(0x8B, 0x8B, 0x00);
     public static Color grey80 = new Color(0xc7, 0xc7, 0xc5);
     public static Color grey50 = new Color(0x74, 0x71, 0x70);
-    //Gray50  	747170
+
     public static char eurosymbol = '\u20AC';
     public static final GregorianCalendar VON_ANFANG_AN = new GregorianCalendar(1970, GregorianCalendar.JANUARY, 1, 0, 0, 0);
     public static final GregorianCalendar BIS_AUF_WEITERES = new GregorianCalendar(9999, GregorianCalendar.DECEMBER, 31, 23, 59, 59);
@@ -108,7 +108,7 @@ public class Const {
     public static final Timestamp TS_BIS_AUF_WEITERES = new Timestamp(BIS_AUF_WEITERES.getTimeInMillis());
     public static final String MYSQL_DATETIME_VON_ANFANG_AN = "'1000-01-01 00:00:00'";
     public static final String MYSQL_DATETIME_BIS_AUF_WEITERES = "'9999-12-31 23:59:59'";
-    public static final String EINHEIT[] = {"kg", "liter", "Stück"};
+
     public static final int MENU_ART_VORSPEISE = 0;
     public static final int MENU_ART_HAUPTGANG = 1;
     public static final int MENU_ART_Nachtisch = 2;

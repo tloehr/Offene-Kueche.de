@@ -60,6 +60,10 @@ public class Main {
         return emf;
     }
 
+    public static JFrame getMainframe() {
+        return mainframe;
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -225,6 +229,8 @@ public class Main {
 
     public static void fatal(Object msg) {
         logger.fatal(msg);
+        new DlgException((Throwable) msg);
+        System.exit(1);
     }
 
 //    public static EntityManager getEM() {

@@ -4,6 +4,11 @@ import Main.Main;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,6 +26,34 @@ public class LagerTools {
     public static final short LAGERART_TK = 3;
     public static final short LAGERART_TROCKENLAGER = 4;
     public static final short LAGERART_NORMAL = 5;
+
+    public static final String EINHEIT[] = {"kg", "liter", "Stück"};
+
+
+    public static TableCellRenderer getEinheitTableCellRenderer() {
+        return new TableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                return new DefaultTableCellRenderer().getTableCellRendererComponent(table, EINHEIT[(Short) value], isSelected, hasFocus, row, column);
+            }
+        };
+    }
+
+    public static class MyEinheitTableCellEditor extends DefaultCellEditor {
+        MyEinheitTableCellEditor() {
+            super(new JComboBox<String>(new DefaultComboBoxModel<String>(EINHEIT)));
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return new Integer(((JComboBox<String>) editorComponent).getSelectedIndex()).shortValue();
+        }
+    }
+
+    public static TableCellEditor getEinheitTableCellEditor() {
+        return new MyEinheitTableCellEditor();
+    }
+
 
     public static Lager add(String bezeichnung) {
         Lager lager = null;

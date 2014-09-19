@@ -28,15 +28,28 @@ public class Stoffart implements Comparable<Stoffart> {
     }
 
     public Stoffart(String bezeichnung, Warengruppe warengruppe) {
-            this.bezeichnung = bezeichnung;
-            this.einheit = 0;
-            this.warengruppe = warengruppe;
-        }
+        this.bezeichnung = bezeichnung;
+        this.einheit = 0;
+        this.warengruppe = warengruppe;
+    }
 
     public Stoffart(String bezeichnung, short einheit, Warengruppe warengruppe) {
         this.bezeichnung = bezeichnung;
         this.einheit = einheit;
         this.warengruppe = warengruppe;
+    }
+
+
+    @javax.persistence.Column(name = "Lagerart", nullable = false, insertable = true, updatable = true, length = 5, precision = 0)
+    @Basic
+    private short lagerart;
+
+    public short getLagerart() {
+        return lagerart;
+    }
+
+    public void setLagerart(short lagerart) {
+        this.lagerart = lagerart;
     }
 
     @javax.persistence.Column(name = "ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)

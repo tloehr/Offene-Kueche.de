@@ -270,7 +270,7 @@ public class FrmProdukte extends JInternalFrame {
                             for (Produkte p : listSelectedProducts) {
                                 Produkte myProdukt = em1.merge(p);
                                 em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-                                myProdukt.setLagerart((short) ArrayUtils.indexOf(LagerTools.LAGERART, lagerart));
+                                myProdukt.getStoffart().setLagerart((short) ArrayUtils.indexOf(LagerTools.LAGERART, lagerart));
                             }
                             em1.getTransaction().commit();
                         } catch (OptimisticLockException ole) {
@@ -307,7 +307,7 @@ public class FrmProdukte extends JInternalFrame {
                             for (Produkte p : listSelectedProducts) {
                                 Produkte myProdukt = em1.merge(p);
                                 em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-                                myProdukt.setEinheit((short) ArrayUtils.indexOf(ProdukteTools.EINHEIT, einheit));
+                                myProdukt.getStoffart().setEinheit((short) ArrayUtils.indexOf(ProdukteTools.EINHEIT, einheit));
                             }
                             em1.getTransaction().commit();
                         } catch (OptimisticLockException ole) {
@@ -902,8 +902,8 @@ public class FrmProdukte extends JInternalFrame {
         setClosable(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-                "249dlu, default:grow",
-                "default:grow"));
+            "249dlu, default:grow",
+            "default:grow"));
 
         //======== jspSearch ========
         {

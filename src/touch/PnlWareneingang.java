@@ -16,7 +16,6 @@ import printer.Form;
 import printer.Printer;
 import printer.Printers;
 import threads.PrintProcessor;
-import tools.Const;
 import tools.DlgException;
 import tools.Tools;
 
@@ -268,13 +267,13 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 aktuelleBuchung.setProdukt(produkt);
 
                 //lblProdukt.setText(produkt.getBezeichnung());
-                info(produkt.getBezeichnung() +(produkt.isLoseWare() ? "" : ", "+produkt.getPackGroesse() + " " + ProdukteTools.EINHEIT[produkt.getEinheit()])  , lblProdukt);
+                info(produkt.getBezeichnung() +(produkt.isLoseWare() ? "" : ", "+produkt.getPackGroesse() + " " + ProdukteTools.EINHEIT[produkt.getStoffart().getEinheit()])  , lblProdukt);
 
-                lblProdInfo.setText(String.valueOf("ProdNr.: " + produkt.getId()) + ", " + (produkt.isLoseWare() ? "[lose Ware]" : produkt.getPackGroesse() + " " + ProdukteTools.EINHEIT[produkt.getEinheit()]));
+                lblProdInfo.setText(String.valueOf("ProdNr.: " + produkt.getId()) + ", " + (produkt.isLoseWare() ? "[lose Ware]" : produkt.getPackGroesse() + " " + ProdukteTools.EINHEIT[produkt.getStoffart().getEinheit()]));
 
                 // Menge wird immer eingeschaltet. Bei Produkten mit einer GTIN kann man aber nicht mehr Menge einbuchen
                 // als eine Packung hat, damit kann man Anbrüche einbuchen.
-                lblEinheit.setText(Const.EINHEIT[produkt.getEinheit()]);
+                lblEinheit.setText(LagerTools.EINHEIT[produkt.getStoffart().getEinheit()]);
                 // Faktor, wenn das Produkt verpackt ist.
                 txtFaktorSetEnabled(produkt.getGtin() != null);
                 if (produkt.getGtin() != null) {
@@ -369,7 +368,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
                 em.getTransaction().commit();
 
-                Tools.log(txtLog, "EINBUCHUNG " + aktuelleBuchung.getFaktor() + "x '" + aktuelleBuchung.getProdukt().getBezeichnung() + "' á " + aktuelleBuchung.getMenge() + " " + ProdukteTools.EINHEIT[aktuelleBuchung.getProdukt().getEinheit()]);
+                Tools.log(txtLog, "EINBUCHUNG " + aktuelleBuchung.getFaktor() + "x '" + aktuelleBuchung.getProdukt().getBezeichnung() + "' á " + aktuelleBuchung.getMenge() + " " + ProdukteTools.EINHEIT[aktuelleBuchung.getProdukt().getStoffart().getEinheit()]);
 
                 if (!btnNoPrinter.isSelected()) {
                     Collections.sort(printList); // Sortieren nach den PrimaryKeys
@@ -457,22 +456,19 @@ public class PnlWareneingang extends DefaultTouchPanel {
     }
 
     private void btnApplyStoffartActionPerformed(ActionEvent e) {
-        if (warengruppeEdit) {
-            btnApplyWarengruppe.doClick();
-        }
-
-        if (!txtNewStoffart.getText().isEmpty() && cmbWarengruppe.getSelectedItem() != null) {
-            Stoffart stoffart = StoffartTools.add(txtNewStoffart.getText(), (short) cmbEinheit.getSelectedIndex(), (Warengruppe) cmbWarengruppe.getSelectedItem());
-            StoffartTools.loadStoffarten(cmbStoffart);
-            cmbStoffart.setSelectedItem(stoffart);
-        }
-        CardLayout cl = (CardLayout) (pnlStoffart.getLayout());
-        cl.show(pnlStoffart, "select");
-        stoffartEdit = false;
-//        if (splitWarengruppe.getDividerLocation() <= 10) {
-//            Tools.showSide(splitWarengruppe, Tools.LEFT_UPPER_SIDE, 400);
-//            setWarengruppeEnabled(false);
+//        if (warengruppeEdit) {
+//            btnApplyWarengruppe.doClick();
 //        }
+//
+//        if (!txtNewStoffart.getText().isEmpty() && cmbWarengruppe.getSelectedItem() != null) {
+//            Stoffart stoffart = StoffartTools.add(txtNewStoffart.getText(), (short) cmbEinheit.getSelectedIndex(), (Warengruppe) cmbWarengruppe.getSelectedItem());
+//            StoffartTools.loadStoffarten(cmbStoffart);
+//            cmbStoffart.setSelectedItem(stoffart);
+//        }
+//        CardLayout cl = (CardLayout) (pnlStoffart.getLayout());
+//        cl.show(pnlStoffart, "select");
+//        stoffartEdit = false;
+
     }
 
     private void cmbStoffartItemStateChanged(ItemEvent e) {
@@ -506,16 +502,16 @@ public class PnlWareneingang extends DefaultTouchPanel {
         setProduktEingabeButton();
     }
 
-    private void cmbEinheitItemStateChanged(ItemEvent e) {
-        Main.getProps().put("touch1einheit", new Integer(cmbEinheit.getSelectedIndex()).toString());
-        neuesProdukt.setEinheit((short) cmbEinheit.getSelectedIndex());
-        lblEinheit1.setText(cmbEinheit.getSelectedItem().toString());
-    }
-
-    private void cmbLagerartItemStateChanged(ItemEvent e) {
-        Main.getProps().put("touch1lagerart", new Integer(cmbLagerart.getSelectedIndex()).toString());
-        neuesProdukt.setLagerart((short) cmbLagerart.getSelectedIndex());
-    }
+//    private void cmbEinheitItemStateChanged(ItemEvent e) {
+//        Main.getProps().put("touch1einheit", new Integer(cmbEinheit.getSelectedIndex()).toString());
+//        neuesProdukt.getStoffart().setEinheit((short) cmbEinheit.getSelectedIndex());
+//        lblEinheit1.setText(cmbEinheit.getSelectedItem().toString());
+//    }
+//
+//    private void cmbLagerartItemStateChanged(ItemEvent e) {
+//        Main.getProps().put("touch1lagerart", new Integer(cmbLagerart.getSelectedIndex()).toString());
+//        neuesProdukt.getStoffart().setLagerart((short) cmbLagerart.getSelectedIndex());
+//    }
 
     private void cmbLieferantItemStateChanged(ItemEvent e) {
         Main.getProps().put("touch1lieferant", new Integer(cmbLieferant.getSelectedIndex()).toString());
@@ -771,8 +767,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
         pnlAddProduct = new JPanel();
         lbl1 = new JLabel();
         txtProdBezeichnung = new JTextField();
-        cmbEinheit = new JComboBox();
-        cmbLagerart = new JComboBox();
         btnVerpackteWare = new JToggleButton();
         lblStrichcode = new JLabel();
         txtGTIN = new JTextField();
@@ -1371,7 +1365,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
             {
                 pnlAddProduct.setLayout(new FormLayout(
                     "default, $lcgap, default:grow, $lcgap, default",
-                    "fill:default, $rgap, 6*(default, $lgap), fill:default:grow"));
+                    "fill:default, $rgap, 5*(default, $lgap), fill:default:grow"));
 
                 //---- lbl1 ----
                 lbl1.setLabelFor(txtProdBezeichnung);
@@ -1395,28 +1389,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 });
                 pnlAddProduct.add(txtProdBezeichnung, CC.xywh(3, 1, 3, 1));
 
-                //---- cmbEinheit ----
-                cmbEinheit.setFont(new Font("sansserif", Font.PLAIN, 24));
-                cmbEinheit.setPreferredSize(new Dimension(70, 45));
-                cmbEinheit.addItemListener(new ItemListener() {
-                    @Override
-                    public void itemStateChanged(ItemEvent e) {
-                        cmbEinheitItemStateChanged(e);
-                    }
-                });
-                pnlAddProduct.add(cmbEinheit, CC.xy(1, 3));
-
-                //---- cmbLagerart ----
-                cmbLagerart.setFont(new Font("sansserif", Font.PLAIN, 24));
-                cmbLagerart.setPreferredSize(new Dimension(70, 45));
-                cmbLagerart.addItemListener(new ItemListener() {
-                    @Override
-                    public void itemStateChanged(ItemEvent e) {
-                        cmbLagerartItemStateChanged(e);
-                    }
-                });
-                pnlAddProduct.add(cmbLagerart, CC.xywh(3, 3, 3, 1));
-
                 //---- btnVerpackteWare ----
                 btnVerpackteWare.setText("Verpackte Ware");
                 btnVerpackteWare.setFont(new Font("sansserif", Font.PLAIN, 24));
@@ -1427,13 +1399,13 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         btnVerpackteWareItemStateChanged(e);
                     }
                 });
-                pnlAddProduct.add(btnVerpackteWare, CC.xywh(1, 5, 5, 1));
+                pnlAddProduct.add(btnVerpackteWare, CC.xywh(1, 3, 5, 1));
 
                 //---- lblStrichcode ----
                 lblStrichcode.setLabelFor(txtGTIN);
                 lblStrichcode.setText("Strichcode");
                 lblStrichcode.setFont(new Font("sansserif", Font.PLAIN, 24));
-                pnlAddProduct.add(lblStrichcode, CC.xy(1, 7));
+                pnlAddProduct.add(lblStrichcode, CC.xy(1, 5));
 
                 //---- txtGTIN ----
                 txtGTIN.setFont(new Font("sansserif", Font.PLAIN, 24));
@@ -1459,13 +1431,13 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         txtGTINCaretUpdate(e);
                     }
                 });
-                pnlAddProduct.add(txtGTIN, CC.xywh(3, 7, 3, 1));
+                pnlAddProduct.add(txtGTIN, CC.xywh(3, 5, 3, 1));
 
                 //---- lbl4 ----
                 lbl4.setLabelFor(txtPackGroesse);
                 lbl4.setText("Packungsgr\u00f6\u00dfe");
                 lbl4.setFont(new Font("sansserif", Font.PLAIN, 24));
-                pnlAddProduct.add(lbl4, CC.xy(1, 9));
+                pnlAddProduct.add(lbl4, CC.xy(1, 7));
 
                 //---- txtPackGroesse ----
                 txtPackGroesse.setFont(new Font("sansserif", Font.PLAIN, 24));
@@ -1481,12 +1453,12 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         txtPackGroesseFocusGained(e);
                     }
                 });
-                pnlAddProduct.add(txtPackGroesse, CC.xy(3, 9));
+                pnlAddProduct.add(txtPackGroesse, CC.xy(3, 7));
 
                 //---- lblEinheit1 ----
                 lblEinheit1.setText("text");
                 lblEinheit1.setFont(new Font("sansserif", Font.PLAIN, 24));
-                pnlAddProduct.add(lblEinheit1, CC.xy(5, 9));
+                pnlAddProduct.add(lblEinheit1, CC.xy(5, 7));
 
                 //======== pnlStoffart ========
                 {
@@ -1563,7 +1535,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                     }
                     pnlStoffart.add(pnlAddStoffart, "add");
                 }
-                pnlAddProduct.add(pnlStoffart, CC.xywh(1, 11, 5, 1));
+                pnlAddProduct.add(pnlStoffart, CC.xywh(1, 9, 5, 1));
 
                 //======== pnlWarengruppe ========
                 {
@@ -1641,7 +1613,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                     }
                     pnlWarengruppe.add(pnlAddWarengruppe, "add");
                 }
-                pnlAddProduct.add(pnlWarengruppe, CC.xywh(1, 13, 5, 1));
+                pnlAddProduct.add(pnlWarengruppe, CC.xywh(1, 11, 5, 1));
 
                 //---- btnAcceptProd ----
                 btnAcceptProd.setText("Produkt hinzuf\u00fcgen");
@@ -1653,12 +1625,12 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         btnAcceptProdActionPerformed(e);
                     }
                 });
-                pnlAddProduct.add(btnAcceptProd, CC.xywh(1, 15, 3, 1, CC.DEFAULT, CC.BOTTOM));
+                pnlAddProduct.add(btnAcceptProd, CC.xywh(1, 13, 3, 1, CC.DEFAULT, CC.BOTTOM));
 
                 //---- lblMessageLower ----
                 lblMessageLower.setFont(new Font("sansserif", Font.BOLD, 24));
                 lblMessageLower.setHorizontalAlignment(SwingConstants.CENTER);
-                pnlAddProduct.add(lblMessageLower, CC.xywh(1, 15, 3, 1, CC.DEFAULT, CC.FILL));
+                pnlAddProduct.add(lblMessageLower, CC.xywh(1, 13, 3, 1, CC.DEFAULT, CC.FILL));
 
                 //---- btnCancelNeuProd ----
                 btnCancelNeuProd.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/cancel.png")));
@@ -1668,7 +1640,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                         btnCancelNeuProdActionPerformed(e);
                     }
                 });
-                pnlAddProduct.add(btnCancelNeuProd, CC.xy(5, 15, CC.DEFAULT, CC.BOTTOM));
+                pnlAddProduct.add(btnCancelNeuProd, CC.xy(5, 13, CC.DEFAULT, CC.BOTTOM));
             }
             pnlMain.add(pnlAddProduct, "produkt");
         }
@@ -1733,8 +1705,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private JPanel pnlAddProduct;
     private JLabel lbl1;
     private JTextField txtProdBezeichnung;
-    private JComboBox cmbEinheit;
-    private JComboBox cmbLagerart;
     private JToggleButton btnVerpackteWare;
     private JLabel lblStrichcode;
     private JTextField txtGTIN;
@@ -1811,8 +1781,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 break;
             }
             case MODE_EDIT_PRODUCT: {
-                // 1. splitMain so setzen, dass nur der obere Teil zu sehen ist.
-
 
                 CardLayout cl = (CardLayout) (pnlMain.getLayout());
                 cl.show(pnlMain, "produkt");
@@ -1820,16 +1788,15 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 if (!refresh) {
                     vorrat = null;
                     neuesProdukt = new Produkte();
-                    cmbLagerart.setModel(new DefaultComboBoxModel(LagerTools.LAGERART));
-                    cmbEinheit.setModel(new DefaultComboBoxModel(ProdukteTools.EINHEIT));
-
-                    cmbLagerart.setSelectedIndex(Integer.parseInt(Main.getProps().getProperty("touch1lagerart")));
-                    cmbEinheit.setSelectedIndex(Integer.parseInt(Main.getProps().getProperty("touch1einheit")));
-                    lblEinheit1.setText(cmbEinheit.getSelectedItem().toString());
-                    //btnPrinter.setSelected(Main.getProps().getProperty("touch1printlabel").equalsIgnoreCase("true"));
-
-                    neuesProdukt.setLagerart((short) cmbLagerart.getSelectedIndex());
-                    neuesProdukt.setEinheit((short) cmbEinheit.getSelectedIndex());
+//                    cmbLagerart.setModel(new DefaultComboBoxModel(LagerTools.LAGERART));
+//                    cmbEinheit.setModel(new DefaultComboBoxModel(ProdukteTools.EINHEIT));
+//
+//                    cmbLagerart.setSelectedIndex(Integer.parseInt(Main.getProps().getProperty("touch1lagerart")));
+//                    cmbEinheit.setSelectedIndex(Integer.parseInt(Main.getProps().getProperty("touch1einheit")));
+//                    lblEinheit1.setText(cmbEinheit.getSelectedItem().toString());
+//
+//                    neuesProdukt.getStoffart().setLagerart((short) cmbLagerart.getSelectedIndex());
+//                    neuesProdukt.getStoffart().setEinheit((short) cmbEinheit.getSelectedIndex());
 
                     setWarengruppeEnabled(false);
                     loadWarengruppe();

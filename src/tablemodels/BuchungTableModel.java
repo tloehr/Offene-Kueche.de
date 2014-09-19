@@ -6,7 +6,7 @@ package tablemodels;
 
 import beans.Buchung;
 import entity.Lager;
-import tools.Const;
+import entity.LagerTools;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class BuchungTableModel extends DefaultTableModel implements DeletableTab
             case 1: {
                 String v;
                 v = buchung.getFaktor() + "x";
-                v += " " + buchung.getMenge() + " " + Const.EINHEIT[buchung.getProdukt().getEinheit()];
+                v += " " + buchung.getMenge() + " " + LagerTools.EINHEIT[buchung.getProdukt().getStoffart().getEinheit()];
                 value = v;
                 break;
             }

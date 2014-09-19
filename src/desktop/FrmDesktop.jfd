@@ -377,7 +377,7 @@
             <string>javax.swing.JMenuItem</string> 
             <void method="setProperty"> 
              <string>text</string> 
-             <string>text</string> 
+             <string>Stoffart</string> 
             </void> 
             <void method="setProperty"> 
              <string>font</string> 
@@ -385,6 +385,14 @@
               <string>SansSerif</string> 
               <int>0</int> 
               <int>18</int> 
+             </object> 
+            </void> 
+            <void method="setProperty"> 
+             <string>accelerator</string> 
+             <object class="javax.swing.KeyStroke" method="getKeyStroke"> 
+              <int>83</int> 
+              <int>520</int> 
+              <boolean>false</boolean> 
              </object> 
             </void> 
             <void property="name"> 

@@ -38,10 +38,6 @@ public class DlgProdukt extends JDialog {
     }
 
     private void initDialog() {
-        cmbLagerart.setModel(new DefaultComboBoxModel(LagerTools.LAGERART));
-        ((DefaultComboBoxModel) cmbLagerart.getModel()).insertElementAt("(unterschiedliche Werte)", 0);
-        cmbEinheit.setModel(new DefaultComboBoxModel(ProdukteTools.EINHEIT));
-        ((DefaultComboBoxModel) cmbEinheit.getModel()).insertElementAt("(unterschiedliche Werte)", 0);
         StoffartTools.loadStoffarten(cmbStoffart);
         ((DefaultComboBoxModel) cmbStoffart.getModel()).insertElementAt("(unterschiedliche Werte)", 0);
         fillEditor();
@@ -52,16 +48,6 @@ public class DlgProdukt extends JDialog {
 //        myProducts.setBezeichnung(txtBezeichnung.getText().trim());
     }
 
-    private void cmbEinheitItemStateChanged(ItemEvent e) {
-
-        lblEinheit.setText(cmbEinheit.getSelectedItem().toString());
-
-    }
-
-    private void cmbLagerartItemStateChanged(ItemEvent e) {
-
-//        myProducts.setLagerart(cmbLagerart.getSelectedIndex() == 0 ? -1 : (short) (cmbLagerart.getSelectedIndex() - 1));
-    }
 
     private void txtGTINFocusLost(FocusEvent e) {
 
@@ -96,8 +82,6 @@ public class DlgProdukt extends JDialog {
     private void fillEditor() {
         fillBezeichnungGTIN();
         fillPackgroesse();
-        fillCMBEinheit();
-        fillCMBLagerart();
         fillStoffart();
     }
 
@@ -153,39 +137,6 @@ public class DlgProdukt extends JDialog {
     }
 
 
-    private void fillCMBLagerart() {
-        if (myProducts.size() == 1) {
-            cmbLagerart.setSelectedIndex(myProducts.get(0).getLagerart() + 1);
-        } else {
-            // Testen ob alle markierten Produkte dieselbe Einheit haben
-            boolean allegleich = true;
-            for (Produkte produkt : myProducts) {
-                if (myProducts.get(0).getLagerart() != produkt.getLagerart()) {
-                    allegleich = false;
-                    break;
-                }
-            }
-            cmbLagerart.setSelectedIndex(allegleich ? myProducts.get(0).getLagerart() + 1 : 0);
-        }
-    }
-
-    private void fillCMBEinheit() {
-        if (myProducts.size() == 1) {
-            cmbEinheit.setSelectedIndex(myProducts.get(0).getEinheit() + 1);
-        } else {
-            // Testen ob alle markierten Produkte dieselbe Einheit haben
-            boolean allegleich = true;
-            short einheit = -1;
-            for (Produkte produkt : myProducts) {
-                if (myProducts.get(0).getEinheit() != produkt.getEinheit()) {
-                    allegleich = false;
-                    break;
-                }
-            }
-            cmbEinheit.setSelectedIndex(allegleich ? einheit + 1 : 0);
-        }
-        lblEinheit.setText(cmbEinheit.getSelectedItem().toString());
-    }
 
     private void fillStoffart() {
         if (myProducts.size() == 1) {
@@ -230,13 +181,7 @@ public class DlgProdukt extends JDialog {
                     VorratTools.setzePackungsgroesse(em, produkt);
                 }
 
-                if (cmbEinheit.getSelectedIndex() > 0) {
-                    produkt.setEinheit((short) (cmbEinheit.getSelectedIndex() - 1));
-                }
 
-                if (cmbLagerart.getSelectedIndex() > 0) {
-                    produkt.setLagerart((short) (cmbLagerart.getSelectedIndex() - 1));
-                }
 
                 if (cmbStoffart.getSelectedIndex() > 0) {
                     produkt.setStoffart(em.merge( (Stoffart) cmbStoffart.getSelectedItem()));
@@ -287,10 +232,6 @@ public class DlgProdukt extends JDialog {
         label8 = new JLabel();
         label1 = new JLabel();
         txtBezeichnung = new JTextField();
-        label2 = new JLabel();
-        cmbEinheit = new JComboBox();
-        label3 = new JLabel();
-        cmbLagerart = new JComboBox();
         label4 = new JLabel();
         txtGTIN = new JTextField();
         btnUnverpackt = new JToggleButton();
@@ -330,7 +271,7 @@ public class DlgProdukt extends JDialog {
                 {
                     panel4.setLayout(new FormLayout(
                         "default, right:default, 3dlu, $lcgap, default:grow, $lcgap, default, $rgap, default, $lcgap, default",
-                        "$rgap, 9*($lgap, default), $lgap, default:grow, 2*($lgap, default), $lgap, default:grow, $lgap, default"));
+                        "$rgap, 7*($lgap, default), $lgap, default:grow, 2*($lgap, default), $lgap, default:grow, $lgap, default"));
 
                     //---- label8 ----
                     label8.setText(" Produkt Daten");
@@ -355,40 +296,10 @@ public class DlgProdukt extends JDialog {
                     });
                     panel4.add(txtBezeichnung, CC.xywh(5, 5, 5, 1));
 
-                    //---- label2 ----
-                    label2.setText("Einheit");
-                    label2.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label2, CC.xy(2, 7));
-
-                    //---- cmbEinheit ----
-                    cmbEinheit.setFont(new Font("arial", Font.PLAIN, 18));
-                    cmbEinheit.addItemListener(new ItemListener() {
-                        @Override
-                        public void itemStateChanged(ItemEvent e) {
-                            cmbEinheitItemStateChanged(e);
-                        }
-                    });
-                    panel4.add(cmbEinheit, CC.xywh(5, 7, 5, 1));
-
-                    //---- label3 ----
-                    label3.setText("Lagerart");
-                    label3.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label3, CC.xy(2, 9));
-
-                    //---- cmbLagerart ----
-                    cmbLagerart.setFont(new Font("arial", Font.PLAIN, 18));
-                    cmbLagerart.addItemListener(new ItemListener() {
-                        @Override
-                        public void itemStateChanged(ItemEvent e) {
-                            cmbLagerartItemStateChanged(e);
-                        }
-                    });
-                    panel4.add(cmbLagerart, CC.xywh(5, 9, 5, 1));
-
                     //---- label4 ----
                     label4.setText("GTIN");
                     label4.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label4, CC.xy(2, 11));
+                    panel4.add(label4, CC.xy(2, 7));
 
                     //---- txtGTIN ----
                     txtGTIN.setFont(new Font("arial", Font.PLAIN, 18));
@@ -398,7 +309,7 @@ public class DlgProdukt extends JDialog {
                             txtGTINFocusLost(e);
                         }
                     });
-                    panel4.add(txtGTIN, CC.xywh(5, 11, 3, 1));
+                    panel4.add(txtGTIN, CC.xywh(5, 7, 3, 1));
 
                     //---- btnUnverpackt ----
                     btnUnverpackt.setText("unverpackt");
@@ -408,12 +319,12 @@ public class DlgProdukt extends JDialog {
                             btnUnverpacktItemStateChanged(e);
                         }
                     });
-                    panel4.add(btnUnverpackt, CC.xywh(9, 11, 1, 3));
+                    panel4.add(btnUnverpackt, CC.xywh(9, 7, 1, 3));
 
                     //---- label5 ----
                     label5.setText("Packungsgr\u00f6\u00dfe");
                     label5.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label5, CC.xy(2, 13));
+                    panel4.add(label5, CC.xy(2, 9));
 
                     //---- txtPackGroesse ----
                     txtPackGroesse.setFont(new Font("arial", Font.PLAIN, 18));
@@ -423,21 +334,21 @@ public class DlgProdukt extends JDialog {
                             txtPackGroesseFocusLost(e);
                         }
                     });
-                    panel4.add(txtPackGroesse, CC.xy(5, 13));
+                    panel4.add(txtPackGroesse, CC.xy(5, 9));
 
                     //---- lblEinheit ----
                     lblEinheit.setText("liter");
                     lblEinheit.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(lblEinheit, CC.xy(7, 13));
+                    panel4.add(lblEinheit, CC.xy(7, 9));
 
                     //---- label6 ----
                     label6.setText("Stoffart");
                     label6.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label6, CC.xy(2, 15));
+                    panel4.add(label6, CC.xy(2, 11));
 
                     //---- cmbStoffart ----
                     cmbStoffart.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(cmbStoffart, CC.xywh(5, 15, 5, 1));
+                    panel4.add(cmbStoffart, CC.xywh(5, 11, 5, 1));
 
                     //---- label7 ----
                     label7.setText(" Allergene");
@@ -445,14 +356,14 @@ public class DlgProdukt extends JDialog {
                     label7.setBackground(new Color(204, 0, 204));
                     label7.setOpaque(true);
                     label7.setForeground(Color.cyan);
-                    panel4.add(label7, CC.xywh(1, 17, 11, 1));
-                    panel4.add(textField1, CC.xy(2, 19, CC.FILL, CC.TOP));
+                    panel4.add(label7, CC.xywh(1, 13, 11, 1));
+                    panel4.add(textField1, CC.xy(2, 15, CC.FILL, CC.TOP));
 
                     //======== scrollPane1 ========
                     {
                         scrollPane1.setViewportView(lstAllergics);
                     }
-                    panel4.add(scrollPane1, CC.xywh(5, 19, 5, 3));
+                    panel4.add(scrollPane1, CC.xywh(5, 15, 5, 3));
 
                     //---- label9 ----
                     label9.setText(" Zusatzstoffe");
@@ -460,14 +371,14 @@ public class DlgProdukt extends JDialog {
                     label9.setBackground(Color.green);
                     label9.setOpaque(true);
                     label9.setForeground(new Color(93, 73, 1));
-                    panel4.add(label9, CC.xywh(1, 23, 11, 1));
-                    panel4.add(textField2, CC.xy(2, 25, CC.FILL, CC.TOP));
+                    panel4.add(label9, CC.xywh(1, 19, 11, 1));
+                    panel4.add(textField2, CC.xy(2, 21, CC.FILL, CC.TOP));
 
                     //======== panel1 ========
                     {
                         panel1.setViewportView(lstAllergics2);
                     }
-                    panel4.add(panel1, CC.xywh(5, 25, 5, 3));
+                    panel4.add(panel1, CC.xywh(5, 21, 5, 3));
                 }
                 contentPanel.add(panel4);
             }
@@ -521,10 +432,6 @@ public class DlgProdukt extends JDialog {
     private JLabel label8;
     private JLabel label1;
     private JTextField txtBezeichnung;
-    private JLabel label2;
-    private JComboBox cmbEinheit;
-    private JLabel label3;
-    private JComboBox cmbLagerart;
     private JLabel label4;
     private JTextField txtGTIN;
     private JToggleButton btnUnverpackt;

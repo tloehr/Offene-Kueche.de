@@ -86,7 +86,7 @@ public class ProdukteTableModel extends DefaultTableModel {
                 break;
             }
             case COL_LAGERART: {
-                value = LagerTools.LAGERART[produkte.getLagerart()];
+                value = LagerTools.LAGERART[produkte.getStoffart().getLagerart()];
                 break;
             }
             case COL_GTIN: {
@@ -98,7 +98,7 @@ public class ProdukteTableModel extends DefaultTableModel {
                 break;
             }
             case COL_EINHEIT: {
-                value = ProdukteTools.EINHEIT[produkte.getEinheit()];
+                value = ProdukteTools.EINHEIT[produkte.getStoffart().getEinheit()];
                 break;
             }
             case COL_STOFFART: {

@@ -45,6 +45,10 @@ public class FrmDesktop extends JFrame {
     private MyFrameListener myFrameListener;
 
 
+    public FrmIngType getTypesFrame() {
+        return (FrmIngType) types;
+    }
+
     public FrmDesktop() {
         initComponents();
 
@@ -66,7 +70,7 @@ public class FrmDesktop extends JFrame {
             }
         }, AWTEvent.KEY_EVENT_MASK);
 
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+//        setExtendedState(JFrame.MAXIMIZED_BOTH);
         pack();
         setTitle(tools.Tools.getWindowTitle("Desktop"));
 
@@ -359,7 +363,6 @@ public class FrmDesktop extends JFrame {
             public void windowClosing(WindowEvent e) {
                 formWindowClosing(e);
             }
-
             @Override
             public void windowOpened(WindowEvent e) {
                 formWindowOpened(e);
@@ -367,8 +370,8 @@ public class FrmDesktop extends JFrame {
         });
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-                "default:grow",
-                "$ugap, fill:default:grow, fill:default"));
+            "default:grow",
+            "$ugap, fill:default:grow, fill:default"));
 
         //======== menuBar ========
         {
@@ -433,8 +436,9 @@ public class FrmDesktop extends JFrame {
                 stammdatenMenu.add(produkteMenuItem);
 
                 //---- typeMenuItem ----
-                typeMenuItem.setText("text");
+                typeMenuItem.setText("Stoffart");
                 typeMenuItem.setFont(new Font("SansSerif", Font.PLAIN, 18));
+                typeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.ALT_MASK));
                 typeMenuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {

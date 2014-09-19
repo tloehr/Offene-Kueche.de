@@ -8,6 +8,7 @@ package touch;
 import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
+import entity.LagerTools;
 import entity.ProdukteTools;
 import entity.Vorrat;
 import entity.VorratTools;
@@ -16,7 +17,6 @@ import org.jdesktop.swingx.border.DropShadowBorder;
 import org.pushingpixels.trident.Timeline;
 import org.pushingpixels.trident.callback.TimelineCallback;
 import threads.SoundProcessor;
-import tools.Const;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
@@ -227,7 +227,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
 
     private void showVorrat() {
         info(vorrat.getProdukt().getBezeichnung(), lblVorrat);
-        lblEinheit.setText(Const.EINHEIT[vorrat.getProdukt().getEinheit()]);
+        lblEinheit.setText(LagerTools.EINHEIT[vorrat.getProdukt().getStoffart().getEinheit()]);
         txtMenge.setText(format.format(VorratTools.getSummeBestand(vorrat)));
         txtMenge.setEnabled(true);
         btnKomplettAusbuchen.setEnabled(true);
@@ -298,7 +298,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
             "default, 4*($lgap, fill:50dlu), $lgap, fill:default:grow, $lgap, fill:50dlu, $lgap, default"));
 
         //---- txtSearch ----
-        txtSearch.setFont(new Font("arial", Font.BOLD, 36));
+        txtSearch.setFont(new Font("sansserif", Font.BOLD, 36));
         txtSearch.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -314,7 +314,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         add(txtSearch, CC.xywh(3, 3, 5, 1));
 
         //---- btnKomplettAusbuchen ----
-        btnKomplettAusbuchen.setFont(new Font("arial", Font.BOLD, 28));
+        btnKomplettAusbuchen.setFont(new Font("sansserif", Font.BOLD, 28));
         btnKomplettAusbuchen.setText("Komplett ausbuchen");
         btnKomplettAusbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/switchuser.png")));
         btnKomplettAusbuchen.addActionListener(new ActionListener() {
@@ -326,7 +326,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         add(btnKomplettAusbuchen, CC.xywh(3, 13, 3, 1));
 
         //---- txtMenge ----
-        txtMenge.setFont(new Font("arial", Font.BOLD, 36));
+        txtMenge.setFont(new Font("sansserif", Font.BOLD, 36));
         txtMenge.setHorizontalAlignment(SwingConstants.RIGHT);
         txtMenge.addCaretListener(new CaretListener() {
             @Override
@@ -349,17 +349,17 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         add(txtMenge, CC.xy(3, 7));
 
         //---- lblVorrat ----
-        lblVorrat.setFont(new Font("arial", Font.BOLD, 28));
+        lblVorrat.setFont(new Font("sansserif", Font.BOLD, 28));
         lblVorrat.setText(" ");
         lblVorrat.setBorder(new DropShadowBorder(Color.black, 5, 0.5f, 12, true, true, true, true));
         add(lblVorrat, CC.xywh(3, 5, 5, 1));
 
         //---- lblEinheit ----
-        lblEinheit.setFont(new Font("arial", Font.BOLD, 28));
+        lblEinheit.setFont(new Font("sansserif", Font.BOLD, 28));
         add(lblEinheit, CC.xy(5, 7));
 
         //---- btnHalbAusbuchen ----
-        btnHalbAusbuchen.setFont(new Font("arial", Font.BOLD, 28));
+        btnHalbAusbuchen.setFont(new Font("sansserif", Font.BOLD, 28));
         btnHalbAusbuchen.setText("H\u00e4lfte ausbuchen");
         btnHalbAusbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/half_icon.png")));
         btnHalbAusbuchen.addActionListener(new ActionListener() {
@@ -371,7 +371,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         add(btnHalbAusbuchen, CC.xywh(3, 9, 5, 1));
 
         //---- btnMengeAusbuchen ----
-        btnMengeAusbuchen.setFont(new Font("arial", Font.BOLD, 28));
+        btnMengeAusbuchen.setFont(new Font("sansserif", Font.BOLD, 28));
         btnMengeAusbuchen.setText("Menge ausbuchen");
         btnMengeAusbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/kcmpartitions.png")));
         btnMengeAusbuchen.addActionListener(new ActionListener() {
@@ -396,7 +396,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         {
 
             //---- txtLog ----
-            txtLog.setFont(new Font("arial", Font.PLAIN, 24));
+            txtLog.setFont(new Font("sansserif", Font.PLAIN, 24));
             txtLog.setLineWrap(true);
             txtLog.setWrapStyleWord(true);
             txtLog.setBackground(Color.lightGray);

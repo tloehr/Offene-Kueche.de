@@ -5,6 +5,10 @@ import Main.Main;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,6 +18,32 @@ import javax.swing.*;
  * To change this template use File | Settings | File Templates.
  */
 public class StoffartTools {
+
+
+    public static TableCellRenderer getStorageRenderer() {
+        return new TableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                return new DefaultTableCellRenderer().getTableCellRendererComponent(table, LagerTools.LAGERART[(Short) value], isSelected, hasFocus, row, column);
+            }
+        };
+    }
+
+    public static class MyTableCellEditor extends DefaultCellEditor {
+        MyTableCellEditor() {
+            super(new JComboBox<String>(new DefaultComboBoxModel<String>(LagerTools.LAGERART)));
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return new Integer(((JComboBox<String>) editorComponent).getSelectedIndex()).shortValue();
+        }
+    }
+
+    public static TableCellEditor getStorageEditor() {
+        return new MyTableCellEditor();
+    }
+
     public static Stoffart add(String text, short einheit, Warengruppe warengruppe) {
         Stoffart stoffart = null;
 

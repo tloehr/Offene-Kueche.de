@@ -77,11 +77,11 @@ public class DlgException extends javax.swing.JDialog {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-            "2*(default, $lcgap), default",
-            "4*(fill:default, $lgap), fill:default"));
+            "default:grow, 2*($lcgap, default)",
+            "fill:default, $lgap, fill:default:grow, 3*($lgap, fill:default)"));
 
         //---- btnClose ----
-        btnClose.setIcon(new ImageIcon(getClass().getResource("/artwork/22x22/infored.png")));
+        btnClose.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/cancel.png")));
         btnClose.setText("Schliessen");
         btnClose.addActionListener(new ActionListener() {
             @Override
@@ -113,7 +113,7 @@ public class DlgException extends javax.swing.JDialog {
         contentPane.add(jScrollPane1, CC.xywh(1, 7, 5, 1));
 
         //---- btnPrint ----
-        btnPrint.setIcon(new ImageIcon(getClass().getResource("/artwork/22x22/printer.png")));
+        btnPrint.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/printer.png")));
         btnPrint.setText("Drucken");
         btnPrint.addActionListener(new ActionListener() {
             @Override
@@ -124,7 +124,7 @@ public class DlgException extends javax.swing.JDialog {
         contentPane.add(btnPrint, CC.xy(3, 9));
 
         //---- btnExit ----
-        btnExit.setIcon(new ImageIcon(getClass().getResource("/artwork/22x22/exit.png")));
+        btnExit.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/exit.png")));
         btnExit.setText("Programm beenden");
         btnExit.addActionListener(new ActionListener() {
             @Override

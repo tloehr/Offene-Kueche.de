@@ -19,8 +19,6 @@ import java.util.Collection;
         @NamedQuery(name = "Produkte.findById", query = "SELECT p FROM Produkte p WHERE p.id = :id"),
         @NamedQuery(name = "Produkte.findByBezeichnung", query = "SELECT p FROM Produkte p WHERE p.bezeichnung = :bezeichnung"),
         @NamedQuery(name = "Produkte.findByGtin", query = "SELECT p FROM Produkte p WHERE p.gtin = :gtin"),
-        @NamedQuery(name = "Produkte.findByLagerart", query = "SELECT p FROM Produkte p WHERE p.lagerart = :lagerart"),
-        @NamedQuery(name = "Produkte.findByEinheit", query = "SELECT p FROM Produkte p WHERE p.einheit = :einheit"),
         @NamedQuery(name = "Produkte.findByPackGroesse", query = "SELECT p FROM Produkte p WHERE p.packGroesse = :packGroesse"),
         @NamedQuery(name = "Produkte.findByStoffart", query = "SELECT p FROM Produkte p WHERE p.stoffart = :stoffart"),
         @NamedQuery(name = "Produkte.findByBezeichnungLike", query = "SELECT p FROM Produkte p WHERE p.bezeichnung LIKE :bezeichnung" +
@@ -31,8 +29,8 @@ public class Produkte {
     public Produkte() {
         this.id = 0l;
         this.bezeichnung = "";
-        this.lagerart = -1;
-        this.einheit = -1;
+//        this.lagerart = -1;
+//        this.einheit = -1;
         this.gtin = null;
         this.packGroesse = BigDecimal.ONE.negate();
         this.stoffart = null;
@@ -76,15 +74,15 @@ public class Produkte {
         this.gtin = gtin;
     }
 
-
-    @javax.persistence.Column(name = "Lagerart", nullable = false, insertable = true, updatable = true, length = 5, precision = 0)
-    @Basic
-    private short lagerart;
-
-
-    @javax.persistence.Column(name = "Einheit", nullable = false, insertable = true, updatable = true, length = 5, precision = 0)
-    @Basic
-    private short einheit;
+//
+//    @javax.persistence.Column(name = "Lagerart", nullable = false, insertable = true, updatable = true, length = 5, precision = 0)
+//    @Basic
+//    private short lagerart;
+//
+//
+//    @javax.persistence.Column(name = "Einheit", nullable = false, insertable = true, updatable = true, length = 5, precision = 0)
+//    @Basic
+//    private short einheit;
 
 
     @javax.persistence.Column(name = "PackGroesse", nullable = true, insertable = true, updatable = true, length = 12, precision = 4)
@@ -122,22 +120,22 @@ public class Produkte {
     private Collection<Allergene> allergics;
 
 
-    public short getLagerart() {
-        return lagerart;
-    }
-
-    public void setLagerart(short lagerart) {
-        this.lagerart = lagerart;
-    }
-
-
-    public short getEinheit() {
-        return einheit;
-    }
-
-    public void setEinheit(short einheit) {
-        this.einheit = einheit;
-    }
+//    public short getLagerart() {
+//        return lagerart;
+//    }
+//
+//    public void setLagerart(short lagerart) {
+//        this.lagerart = lagerart;
+//    }
+//
+//
+//    public short getEinheit() {
+//        return einheit;
+//    }
+//
+//    public void setEinheit(short einheit) {
+//        this.einheit = einheit;
+//    }
 
 
     public BigDecimal getPackGroesse() {
@@ -169,10 +167,9 @@ public class Produkte {
 
         Produkte produkte = (Produkte) o;
 
-        if (einheit != produkte.einheit) return false;
+//        if (einheit != produkte.einheit) return false;
         if (id != produkte.id) return false;
-        if (lagerart != produkte.lagerart) return false;
-        //if (stoffartId != produkte.stoffartId) return false;
+//        if (lagerart != produkte.lagerart) return false;
         if (bezeichnung != null ? !bezeichnung.equals(produkte.bezeichnung) : produkte.bezeichnung != null)
             return false;
         if (gtin != null ? !gtin.equals(produkte.gtin) : produkte.gtin != null) return false;
@@ -187,11 +184,8 @@ public class Produkte {
         int result = (int) (id ^ (id >>> 32));
         result = 31 * result + (bezeichnung != null ? bezeichnung.hashCode() : 0);
         result = 31 * result + (gtin != null ? gtin.hashCode() : 0);
-        result = 31 * result + (int) lagerart;
-        result = 31 * result + (int) einheit;
         result = 31 * result + (packGroesse != null ? packGroesse.hashCode() : 0);
-        //result = 31 * result + (int) (stoffartId ^ (stoffartId >>> 32));
-        // result = 31 * result + (int) drucker;
+
         return result;
     }
 

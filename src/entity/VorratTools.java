@@ -210,7 +210,7 @@ public class VorratTools {
             hm.put("vorrat.info", vorrat.getProdukt().getGtin());
         } else {
             hm.put("produkt.gtin", "--");
-            hm.put("vorrat.info", getSummeBestand(vorrat) + " " + ProdukteTools.EINHEIT[vorrat.getProdukt().getEinheit()]);
+            hm.put("vorrat.info", getSummeBestand(vorrat) + " " + ProdukteTools.EINHEIT[vorrat.getProdukt().getStoffart().getEinheit()]);
         }
 
 
