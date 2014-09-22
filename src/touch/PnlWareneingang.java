@@ -1806,6 +1806,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
                     neuesProdukt.setStoffart((Stoffart) cmbStoffart.getSelectedItem());
 
+
                     neuesProdukt.setPackGroesse(BigDecimal.ZERO);
 
                     txtGTIN.setText("");
