@@ -74,7 +74,7 @@ public class FrmProdukte extends JInternalFrame {
         } else if (criteria.getFirst() == Const.NAME_NR) {
             list = ProdukteTools.searchProdukte(criteria.getSecond().toString());
         } else if (criteria.getFirst() == Const.STOFFART) {
-            list = ProdukteTools.getProdukte((Stoffart) criteria.getSecond());
+            list = ProdukteTools.getProdukte((IngTypes) criteria.getSecond());
         } else if (criteria.getFirst() == Const.WARENGRUPPE) {
             list = ProdukteTools.searchProdukte((Warengruppe) criteria.getSecond());
         }
@@ -270,7 +270,7 @@ public class FrmProdukte extends JInternalFrame {
                             for (Produkte p : listSelectedProducts) {
                                 Produkte myProdukt = em1.merge(p);
                                 em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-                                myProdukt.getStoffart().setLagerart((short) ArrayUtils.indexOf(LagerTools.LAGERART, lagerart));
+                                myProdukt.getIngTypes().setLagerart((short) ArrayUtils.indexOf(LagerTools.LAGERART, lagerart));
                             }
                             em1.getTransaction().commit();
                         } catch (OptimisticLockException ole) {
@@ -307,7 +307,7 @@ public class FrmProdukte extends JInternalFrame {
                             for (Produkte p : listSelectedProducts) {
                                 Produkte myProdukt = em1.merge(p);
                                 em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-                                myProdukt.getStoffart().setEinheit((short) ArrayUtils.indexOf(ProdukteTools.EINHEIT, einheit));
+                                myProdukt.getIngTypes().setEinheit((short) ArrayUtils.indexOf(ProdukteTools.EINHEIT, einheit));
                             }
                             em1.getTransaction().commit();
                         } catch (OptimisticLockException ole) {
@@ -340,11 +340,11 @@ public class FrmProdukte extends JInternalFrame {
 
                     JMenu menuWarengruppe = new JMenu(warengruppe.getBezeichnung());
 
-                    ArrayList<Stoffart> listStoffarten = new ArrayList<Stoffart>(warengruppe.getStoffartCollection());
+                    ArrayList<IngTypes> listStoffarten = new ArrayList<IngTypes>(warengruppe.getIngTypesCollection());
                     Collections.sort(listStoffarten);
 
-                    for (final Stoffart stoffart : listStoffarten) {
-                        JMenuItem miStoffart = new JMenuItem(stoffart.getBezeichnung());
+                    for (final IngTypes ingTypes : listStoffarten) {
+                        JMenuItem miStoffart = new JMenuItem(ingTypes.getBezeichnung());
                         miStoffart.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
@@ -355,7 +355,7 @@ public class FrmProdukte extends JInternalFrame {
                                         for (Produkte p : listSelectedProducts) {
                                             Produkte myProdukt = em1.merge(p);
                                             em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-                                            myProdukt.setStoffart(em1.merge(stoffart));
+                                            myProdukt.setIngTypes(em1.merge(ingTypes));
                                         }
                                         em1.getTransaction().commit();
                                     } catch (OptimisticLockException ole) {
@@ -413,11 +413,11 @@ public class FrmProdukte extends JInternalFrame {
                 DefaultMutableTreeNode nodeWG = new DefaultMutableTreeNode(warengruppe);
                 root.add(nodeWG);
 
-                ArrayList<Stoffart> listStoffarten = new ArrayList<Stoffart>(warengruppe.getStoffartCollection());
+                ArrayList<IngTypes> listStoffarten = new ArrayList<IngTypes>(warengruppe.getIngTypesCollection());
                 Collections.sort(listStoffarten);
 
-                for (Stoffart stoffart : listStoffarten) {
-                    DefaultMutableTreeNode nodeSA = new DefaultMutableTreeNode(stoffart);
+                for (IngTypes ingTypes : listStoffarten) {
+                    DefaultMutableTreeNode nodeSA = new DefaultMutableTreeNode(ingTypes);
                     nodeWG.add(nodeSA);
                 }
             }
@@ -441,11 +441,11 @@ public class FrmProdukte extends JInternalFrame {
                         Warengruppe warengruppe = (Warengruppe) ((DefaultMutableTreeNode) value).getUserObject();
 
                         text = warengruppe.getBezeichnung() + " [" + WarengruppeTools.getNumOfProducts(warengruppe) + "]";
-                    } else if (((DefaultMutableTreeNode) value).getUserObject() instanceof Stoffart) {
+                    } else if (((DefaultMutableTreeNode) value).getUserObject() instanceof IngTypes) {
 
-                        Stoffart stoffart = (Stoffart) ((DefaultMutableTreeNode) value).getUserObject();
+                        IngTypes ingTypes = (IngTypes) ((DefaultMutableTreeNode) value).getUserObject();
 
-                        text = stoffart.getBezeichnung() + " [" + StoffartTools.getNumOfProducts(stoffart) + "]";
+                        text = ingTypes.getBezeichnung() + " [" + IngTypesTools.getNumOfProducts(ingTypes) + "]";
                     }
                 }
 
@@ -523,7 +523,7 @@ public class FrmProdukte extends JInternalFrame {
                                     em.getTransaction().begin();
                                     DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent();
                                     Warengruppe myWarengruppe = em.merge((Warengruppe) thisNode.getUserObject());
-                                    Stoffart myStoffart = em.merge(new Stoffart(newText, myWarengruppe));
+                                    IngTypes myIngTypes = em.merge(new IngTypes(newText, myWarengruppe));
                                     em.getTransaction().commit();
                                 } catch (OptimisticLockException ole) {
                                     em.getTransaction().rollback();
@@ -552,8 +552,8 @@ public class FrmProdukte extends JInternalFrame {
                             if (thisNode.getUserObject() instanceof Warengruppe) {
                                 text = ((Warengruppe) thisNode.getUserObject()).getBezeichnung();
 
-                            } else if (thisNode.getUserObject() instanceof Stoffart) {
-                                text = ((Stoffart) thisNode.getUserObject()).getBezeichnung();
+                            } else if (thisNode.getUserObject() instanceof IngTypes) {
+                                text = ((IngTypes) thisNode.getUserObject()).getBezeichnung();
                             }
 
                             String newText = JOptionPane.showInputDialog(thisComponent, "Bezeichnung", text);
@@ -562,10 +562,10 @@ public class FrmProdukte extends JInternalFrame {
                                 try {
                                     em.getTransaction().begin();
 
-                                    if (thisNode.getUserObject() instanceof Stoffart) {
-                                        Stoffart myStoffart = em.merge((Stoffart) thisNode.getUserObject());
-                                        em.lock(myStoffart, LockModeType.OPTIMISTIC);
-                                        myStoffart.setBezeichnung(newText);
+                                    if (thisNode.getUserObject() instanceof IngTypes) {
+                                        IngTypes myIngTypes = em.merge((IngTypes) thisNode.getUserObject());
+                                        em.lock(myIngTypes, LockModeType.OPTIMISTIC);
+                                        myIngTypes.setBezeichnung(newText);
                                     } else if (thisNode.getUserObject() instanceof Warengruppe) {
                                         Warengruppe myWarengruppe = em.merge((Warengruppe) thisNode.getUserObject());
                                         em.lock(myWarengruppe, LockModeType.OPTIMISTIC);
@@ -603,9 +603,9 @@ public class FrmProdukte extends JInternalFrame {
 
                                         for (TreePath path : tree.getSelectionPaths()) {
                                             DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-                                            Stoffart myStoffart = em.merge((Stoffart) thisNode.getUserObject());
-                                            if (myStoffart.getProdukteCollection().isEmpty()) {
-                                                em.remove(myStoffart);
+                                            IngTypes myIngTypes = em.merge((IngTypes) thisNode.getUserObject());
+                                            if (myIngTypes.getProdukteCollection().isEmpty()) {
+                                                em.remove(myIngTypes);
                                             }
                                         }
 
@@ -626,10 +626,10 @@ public class FrmProdukte extends JInternalFrame {
                     }
 
                     if (isOnlyStoffartSelected() && singleRowSelected) {
-                        final Stoffart stoffart = (Stoffart) ((DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent()).getUserObject();
+                        final IngTypes ingTypes = (IngTypes) ((DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent()).getUserObject();
                         JMenu menuDeleteReplace = new JMenu("Markierte Stoffgruppe löschen, Produkte zuweisen zu");
                         menuDeleteReplace.setFont(new Font("arial", Font.PLAIN, 18));
-                        menuDeleteReplace.setEnabled(StoffartTools.getNumOfProducts(stoffart) > 0);
+                        menuDeleteReplace.setEnabled(IngTypesTools.getNumOfProducts(ingTypes) > 0);
 
                         EntityManager em = Main.getEMF().createEntityManager();
                         try {
@@ -641,10 +641,10 @@ public class FrmProdukte extends JInternalFrame {
 
                                 JMenu menuWarengruppe = new JMenu(warengruppe.getBezeichnung());
 
-                                ArrayList<Stoffart> listStoffarten = new ArrayList<Stoffart>(warengruppe.getStoffartCollection());
+                                ArrayList<IngTypes> listStoffarten = new ArrayList<IngTypes>(warengruppe.getIngTypesCollection());
                                 Collections.sort(listStoffarten);
 
-                                for (final Stoffart s : listStoffarten) {
+                                for (final IngTypes s : listStoffarten) {
                                     JMenuItem miStoffart = new JMenuItem(s.getBezeichnung());
                                     miStoffart.addActionListener(new ActionListener() {
                                         @Override
@@ -653,15 +653,15 @@ public class FrmProdukte extends JInternalFrame {
                                                 EntityManager em1 = Main.getEMF().createEntityManager();
                                                 try {
                                                     em1.getTransaction().begin();
-                                                    Stoffart myStoffart = em1.merge(s);
-                                                    Stoffart stoffart2delete = em1.merge(stoffart);
-                                                    for (Produkte p : stoffart2delete.getProdukteCollection()) {
+                                                    IngTypes myIngTypes = em1.merge(s);
+                                                    IngTypes ingTypes2delete = em1.merge(ingTypes);
+                                                    for (Produkte p : ingTypes2delete.getProdukteCollection()) {
                                                         Produkte myProdukt = em1.merge(p);
                                                         em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-                                                        myProdukt.setStoffart(myStoffart);
+                                                        myProdukt.setIngTypes(myIngTypes);
                                                     }
-                                                    stoffart2delete.getProdukteCollection().clear();
-                                                    em1.remove(stoffart2delete);
+                                                    ingTypes2delete.getProdukteCollection().clear();
+                                                    em1.remove(ingTypes2delete);
                                                     em1.getTransaction().commit();
                                                 } catch (OptimisticLockException ole) {
                                                     em1.getTransaction().rollback();
@@ -747,9 +747,9 @@ public class FrmProdukte extends JInternalFrame {
                                                     em.getTransaction().begin();
                                                     for (TreePath path : tree.getSelectionPaths()) {
                                                         DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-                                                        Stoffart myStoffart = em.merge((Stoffart) thisNode.getUserObject());
-                                                        em.lock(myStoffart, LockModeType.OPTIMISTIC);
-                                                        myStoffart.setWarengruppe(em.merge(warengruppe));
+                                                        IngTypes myIngTypes = em.merge((IngTypes) thisNode.getUserObject());
+                                                        em.lock(myIngTypes, LockModeType.OPTIMISTIC);
+                                                        myIngTypes.setWarengruppe(em.merge(warengruppe));
                                                     }
                                                     em.getTransaction().commit();
                                                 } catch (OptimisticLockException ole) {
@@ -801,7 +801,7 @@ public class FrmProdukte extends JInternalFrame {
                     DefaultMutableTreeNode lastComponent = (DefaultMutableTreeNode) path.getLastPathComponent();
 
 
-                    if (lastComponent.getUserObject() instanceof Stoffart) {
+                    if (lastComponent.getUserObject() instanceof IngTypes) {
                         criteria = new Pair<Integer, Object>(Const.STOFFART, lastComponent.getUserObject());
                         loadTable();
                     } else if (lastComponent.getUserObject() instanceof Warengruppe) {
@@ -826,7 +826,7 @@ public class FrmProdukte extends JInternalFrame {
         boolean onlyStoffarten = true;
         for (TreePath path : tree.getSelectionPaths()) {
             DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-            if (!(thisNode.getUserObject() instanceof Stoffart)) {
+            if (!(thisNode.getUserObject() instanceof IngTypes)) {
                 onlyStoffarten = false;
                 break;
             }
@@ -840,10 +840,10 @@ public class FrmProdukte extends JInternalFrame {
             return false;
         }
         boolean sameWarengruppe = true;
-        Warengruppe warengruppe = ((Stoffart) ((DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent()).getUserObject()).getWarengruppe();
+        Warengruppe warengruppe = ((IngTypes) ((DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent()).getUserObject()).getWarengruppe();
         for (TreePath path : tree.getSelectionPaths()) {
-            Stoffart thisStoffart = (Stoffart) ((DefaultMutableTreeNode) path.getLastPathComponent()).getUserObject();
-            if (!warengruppe.equals(thisStoffart.getWarengruppe())) {
+            IngTypes thisIngTypes = (IngTypes) ((DefaultMutableTreeNode) path.getLastPathComponent()).getUserObject();
+            if (!warengruppe.equals(thisIngTypes.getWarengruppe())) {
                 sameWarengruppe = false;
                 break;
             }

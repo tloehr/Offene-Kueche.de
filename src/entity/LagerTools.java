@@ -42,11 +42,18 @@ public class LagerTools {
     public static class MyEinheitTableCellEditor extends DefaultCellEditor {
         MyEinheitTableCellEditor() {
             super(new JComboBox<String>(new DefaultComboBoxModel<String>(EINHEIT)));
+            setClickCountToStart(2);
         }
 
         @Override
         public Object getCellEditorValue() {
             return new Integer(((JComboBox<String>) editorComponent).getSelectedIndex()).shortValue();
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            ((JComboBox) editorComponent).setSelectedIndex((Short) value);
+            return editorComponent;
         }
     }
 

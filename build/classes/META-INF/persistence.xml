@@ -7,7 +7,7 @@
         <class>entity.Lieferanten</class>
         <class>entity.Mitarbeiter</class>
         <class>entity.Produkte</class>
-        <class>entity.Stoffart</class>
+        <class>entity.IngTypes</class>
         <class>entity.Vorrat</class>
         <class>entity.Warengruppe</class>
         <class>entity.Additives</class>

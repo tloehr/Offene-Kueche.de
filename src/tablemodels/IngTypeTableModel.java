@@ -2,7 +2,7 @@ package tablemodels;
 
 import Main.Main;
 import desktop.FrmDesktop;
-import entity.Stoffart;
+import entity.IngTypes;
 import entity.Warengruppe;
 
 import javax.persistence.EntityManager;
@@ -23,7 +23,7 @@ public class IngTypeTableModel extends DefaultTableModel {
     public static final int COL_LAGERART = 3;
     public static final int COL_WARENGRUPPE = 4;
 
-    private List<Stoffart> data;
+    private List<IngTypes> data;
     private boolean editable = false;
 
 
@@ -31,13 +31,13 @@ public class IngTypeTableModel extends DefaultTableModel {
         this.editable = editable;
     }
 
-    public List<Stoffart> getData() {
+    public List<IngTypes> getData() {
         return data;
     }
 
     private DateFormat df;
 
-    public IngTypeTableModel(List<Stoffart> data) {
+    public IngTypeTableModel(List<IngTypes> data) {
         this.data = data;
 
         df = DateFormat.getDateInstance(DateFormat.DEFAULT);
@@ -50,26 +50,26 @@ public class IngTypeTableModel extends DefaultTableModel {
         try {
             em.getTransaction().begin();
 
-            final Stoffart myStoffart = em.merge(data.get(row));
+            final IngTypes myIngTypes = em.merge(data.get(row));
 
             switch (column) {
 
                 case COL_BEZEICHNUNG: {
                     if (!aValue.toString().isEmpty()) {
-                        myStoffart.setBezeichnung(aValue.toString());
+                        myIngTypes.setBezeichnung(aValue.toString());
                     }
                     break;
                 }
                 case COL_EINHEIT: {
-                    myStoffart.setEinheit((Short) aValue);
+                    myIngTypes.setEinheit((Short) aValue);
                     break;
                 }
                 case COL_LAGERART: {
-                    myStoffart.setLagerart((Short) aValue);
+                    myIngTypes.setLagerart((Short) aValue);
                     break;
                 }
                 case COL_WARENGRUPPE: {
-                    myStoffart.setWarengruppe((Warengruppe) aValue);
+                    myIngTypes.setWarengruppe((Warengruppe) aValue);
                     break;
                 }
                 default: {
@@ -78,7 +78,7 @@ public class IngTypeTableModel extends DefaultTableModel {
             }
 
             em.getTransaction().commit();
-            data.set(row, myStoffart);
+            data.set(row, myIngTypes);
             fireTableCellUpdated(row, column);
 
         } catch (OptimisticLockException ole) {
@@ -153,30 +153,34 @@ public class IngTypeTableModel extends DefaultTableModel {
         return c;
     }
 
+    public IngTypes getIngType(int row){
+        return data.get(row);
+    }
+
 
     @Override
     public Object getValueAt(int row, int column) {
         Object value;
-        Stoffart stoffart = data.get(row);
+        IngTypes ingTypes = data.get(row);
         switch (column) {
             case COL_ID: {
-                value = stoffart.getId();
+                value = ingTypes.getId();
                 break;
             }
             case COL_BEZEICHNUNG: {
-                value = stoffart.getBezeichnung();
+                value = ingTypes.getBezeichnung();
                 break;
             }
             case COL_EINHEIT: {
-                value = stoffart.getEinheit();
+                value = ingTypes.getEinheit();
                 break;
             }
             case COL_LAGERART: {
-                value = stoffart.getLagerart();
+                value = ingTypes.getLagerart();
                 break;
             }
             case COL_WARENGRUPPE: {
-                value = stoffart.getWarengruppe();
+                value = ingTypes.getWarengruppe();
                 break;
             }
             default: {

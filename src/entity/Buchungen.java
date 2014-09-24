@@ -86,13 +86,13 @@ import java.util.Date;
                 " GROUP BY v"),
         // BY WARENGRUPPE
         @NamedQuery(name = "Buchungen.findSUMByWarengruppeAktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
-                " WHERE v.produkt.stoffart.warengruppe = :warengruppe AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " WHERE v.produkt.ingTypes.warengruppe = :warengruppe AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                 " GROUP BY v"),
         @NamedQuery(name = "Buchungen.findSUMByWarengruppeAlle", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
-                " WHERE v.produkt.stoffart.warengruppe = :warengruppe " +
+                " WHERE v.produkt.ingTypes.warengruppe = :warengruppe " +
                 " GROUP BY v"),
         @NamedQuery(name = "Buchungen.findSUMByWarengruppeInaktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
-                " WHERE v.produkt.stoffart.warengruppe = :warengruppe AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " WHERE v.produkt.ingTypes.warengruppe = :warengruppe AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                 " GROUP BY v"),
         // BY LIEFERANT
         @NamedQuery(name = "Buchungen.findSUMByLieferantAktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +

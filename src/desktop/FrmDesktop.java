@@ -316,7 +316,7 @@ public class FrmDesktop extends JFrame {
     private void typeMenuItemActionPerformed(ActionEvent e) {
         types = new FrmIngType();
         types.addInternalFrameListener(myFrameListener);
-        types.setEnabled(false);
+        typeMenuItem.setEnabled(false);
         desktopPane.add(types);
         Tools.centerOnParent(desktopPane, types);
         types.toFront();
@@ -363,6 +363,7 @@ public class FrmDesktop extends JFrame {
             public void windowClosing(WindowEvent e) {
                 formWindowClosing(e);
             }
+
             @Override
             public void windowOpened(WindowEvent e) {
                 formWindowOpened(e);
@@ -370,8 +371,8 @@ public class FrmDesktop extends JFrame {
         });
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-            "default:grow",
-            "$ugap, fill:default:grow, fill:default"));
+                "default:grow",
+                "$ugap, fill:default:grow, fill:default"));
 
         //======== menuBar ========
         {
@@ -630,6 +631,10 @@ public class FrmDesktop extends JFrame {
                 produkte.removeInternalFrameListener(myFrameListener);
                 produkte = null;
                 produkteMenuItem.setEnabled(true);
+            } else if (e.getSource() instanceof FrmIngType) {
+                types.removeInternalFrameListener(myFrameListener);
+                types = null;
+                typeMenuItem.setEnabled(true);
             }
             super.internalFrameClosed(e);
         }

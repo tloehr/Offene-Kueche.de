@@ -227,7 +227,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
 
     private void showVorrat() {
         info(vorrat.getProdukt().getBezeichnung(), lblVorrat);
-        lblEinheit.setText(LagerTools.EINHEIT[vorrat.getProdukt().getStoffart().getEinheit()]);
+        lblEinheit.setText(LagerTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()]);
         txtMenge.setText(format.format(VorratTools.getSummeBestand(vorrat)));
         txtMenge.setEnabled(true);
         btnKomplettAusbuchen.setEnabled(true);

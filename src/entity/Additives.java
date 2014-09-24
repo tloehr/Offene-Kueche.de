@@ -111,4 +111,9 @@ public class Additives {
         result = 31 * result + (display != null ? display.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return symbol + " " + name + " " + text;
+    }
 }

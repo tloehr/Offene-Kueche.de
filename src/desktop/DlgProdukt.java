@@ -38,7 +38,7 @@ public class DlgProdukt extends JDialog {
     }
 
     private void initDialog() {
-        StoffartTools.loadStoffarten(cmbStoffart);
+        IngTypesTools.loadStoffarten(cmbStoffart);
         ((DefaultComboBoxModel) cmbStoffart.getModel()).insertElementAt("(unterschiedliche Werte)", 0);
         fillEditor();
         setTitle(Tools.getWindowTitle("Produkt(e) bearbeiten"));
@@ -140,12 +140,12 @@ public class DlgProdukt extends JDialog {
 
     private void fillStoffart() {
         if (myProducts.size() == 1) {
-            cmbStoffart.setSelectedItem(myProducts.get(0).getStoffart());
+            cmbStoffart.setSelectedItem(myProducts.get(0).getIngTypes());
         } else {
             // Testen ob alle markierten Produkte dieselbe Einheit haben
             boolean allegleich = true;
             for (Produkte produkt : myProducts) {
-                if (!myProducts.get(0).getStoffart().equals(produkt.getStoffart())) {
+                if (!myProducts.get(0).getIngTypes().equals(produkt.getIngTypes())) {
                     allegleich = false;
                     break;
                 }
@@ -184,7 +184,7 @@ public class DlgProdukt extends JDialog {
 
 
                 if (cmbStoffart.getSelectedIndex() > 0) {
-                    produkt.setStoffart(em.merge( (Stoffart) cmbStoffart.getSelectedItem()));
+                    produkt.setIngTypes(em.merge((IngTypes) cmbStoffart.getSelectedItem()));
                 }
             }
             em.getTransaction().commit();

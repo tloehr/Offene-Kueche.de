@@ -5,6 +5,7 @@
 package tools;
 
 import Main.Main;
+import com.jidesoft.popup.JidePopup;
 import com.toedter.calendar.JDateChooser;
 import events.PropertyChangeListenerDevelop;
 import org.pushingpixels.trident.Timeline;
@@ -321,10 +322,10 @@ public class Tools {
         jtf.setSelectionEnd(jtf.getText().length());
     }
 
-    public static DefaultListModel newListModel(List list) {
-        DefaultListModel listModel = new DefaultListModel();
+    public static <T> DefaultListModel<T> newListModel(List<T> list) {
+        DefaultListModel<T> listModel = new DefaultListModel<T>();
         if (list != null) {
-            Iterator it = list.iterator();
+            Iterator<T> it = list.iterator();
             while (it.hasNext()) {
                 listModel.addElement(it.next());
             }
@@ -1280,4 +1281,141 @@ public class Tools {
         }
     }
 
+
+    /**
+     * Shows a JidePopup in relation to its owner. Calculates the new position that it leaves the owner
+     * visible. The popup is placed according to the <code>location</code> setting. The size of the content
+     * pane is taken into the calculation in order to find the necessary <code>x, y</code> coordinates on the screen.
+     * <p/>
+     * <ul>
+     * <li>SwingConstants.CENTER <i>You can use this, but I fail to see the sense in it.</i></li>
+     * <li>SwingConstants.SOUTH</li>
+     * <li>SwingConstants.NORTH</li>
+     * <li>SwingConstants.WEST</li>
+     * <li>SwingConstants.EAST</li>
+     * <li>SwingConstants.NORTH_EAST</li>
+     * <li>SwingConstants.NORTH_WEST</li>
+     * <li>SwingConstants.SOUTH_EAST</li>
+     * <li>SwingConstants.SOUTH_WEST</li>
+     * </ul>
+     *
+     * @param popup    the JidePopup to show
+     * @param location where to show the popup in relation to the <code>reference</code>. Use the SwingConstants above.
+     */
+    public static void showPopup(JidePopup popup, int location, boolean keepOnScreen) {
+
+        Point desiredPosition = getDesiredPosition(popup, location);
+
+        if (keepOnScreen && !isFullyVisibleOnScreen(popup, desiredPosition)) {
+            int[] positions = new int[]{SwingConstants.SOUTH_EAST, SwingConstants.SOUTH_WEST, SwingConstants.NORTH_EAST, SwingConstants.NORTH_WEST, SwingConstants.SOUTH, SwingConstants.EAST, SwingConstants.SOUTH_WEST, SwingConstants.NORTH, SwingConstants.CENTER};
+            boolean found = false;
+
+            for (int pos : positions) {
+                desiredPosition = getDesiredPosition(popup, pos);
+                if (isFullyVisibleOnScreen(popup, desiredPosition)) {
+                    found = true;
+                    Main.debug("fits on screen");
+                    break;
+                }
+            }
+
+            if (!found) {
+                // desiredPosition = getDesiredPosition(popup, location);
+                desiredPosition = centerOnScreen(popup);
+                Main.debug("didnt find any position thats on the screen");
+            }
+
+        }
+
+        popup.showPopup(desiredPosition.x, desiredPosition.y);
+
+    }
+
+    public static void showPopup(JidePopup popup, int location) {
+           showPopup(popup, location, true);
+       }
+
+    private static Point centerOnScreen(JidePopup popup) {
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        int width = gd.getDisplayMode().getWidth();
+        int height = gd.getDisplayMode().getHeight();
+
+        int midx = width / 2;
+        int midy = height / 2;
+
+
+        int x = midx - popup.getContentPane().getPreferredSize().width / 2;
+        int y = midy - popup.getContentPane().getPreferredSize().height / 2;
+
+        return new Point(x, y);
+    }
+
+    public static boolean isFullyVisibleOnScreen(JidePopup popup, Point point) {
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        int width = gd.getDisplayMode().getWidth();
+        int height = gd.getDisplayMode().getHeight();
+
+        int spreadX = point.x + popup.getContentPane().getPreferredSize().width;
+        int spreadY = point.y + popup.getContentPane().getPreferredSize().height;
+
+
+        return point.x >= 0 && point.y >= 0 && width > spreadX && height > spreadY;
+
+    }
+
+    private static Point getDesiredPosition(JidePopup popup, int location) {
+        Container content = popup.getContentPane();
+
+        final Point screenposition = new Point(popup.getOwner().getLocationOnScreen().x, popup.getOwner().getLocationOnScreen().y);
+
+        int x = screenposition.x;
+        int y = screenposition.y;
+
+        switch (location) {
+            case SwingConstants.SOUTH_WEST: {
+                x = screenposition.x - content.getPreferredSize().width;
+                y = screenposition.y;
+                break;
+            }
+            case SwingConstants.SOUTH_EAST: {
+                x = screenposition.x + popup.getOwner().getPreferredSize().width;
+                y = screenposition.y;
+                break;
+            }
+            case SwingConstants.NORTH_EAST: {
+                x = screenposition.x + popup.getOwner().getPreferredSize().width;
+                y = screenposition.y - popup.getOwner().getPreferredSize().height - content.getPreferredSize().height;
+                break;
+            }
+            case SwingConstants.NORTH_WEST: {
+                x = screenposition.x - content.getPreferredSize().width - popup.getOwner().getPreferredSize().width;
+                y = screenposition.y - popup.getOwner().getPreferredSize().height - content.getPreferredSize().height;
+                break;
+            }
+            case SwingConstants.EAST: {
+                x = screenposition.x + popup.getOwner().getPreferredSize().width;
+                y = screenposition.y - (popup.getOwner().getPreferredSize().height / 2);
+                break;
+            }
+            case SwingConstants.WEST: {
+                x = screenposition.x - content.getPreferredSize().width;
+                y = screenposition.y - (popup.getOwner().getPreferredSize().height / 2);
+                break;
+            }
+            case SwingConstants.NORTH: {
+                x = screenposition.x;
+                y = screenposition.y - content.getPreferredSize().height;
+                break;
+            }
+            case SwingConstants.CENTER: {
+                x = screenposition.x + popup.getOwner().getPreferredSize().width / 2 - content.getPreferredSize().width / 2;
+                y = screenposition.y + popup.getOwner().getPreferredSize().height / 2 - content.getPreferredSize().height / 2;
+                break;
+            }
+            default: {
+                // nop
+            }
+        }
+        return new Point(x, y);
+    }
 }

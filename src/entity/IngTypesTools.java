@@ -17,7 +17,7 @@ import java.awt.*;
  * Time: 13:58
  * To change this template use File | Settings | File Templates.
  */
-public class StoffartTools {
+public class IngTypesTools {
 
 
     public static TableCellRenderer getStorageRenderer() {
@@ -32,11 +32,18 @@ public class StoffartTools {
     public static class MyTableCellEditor extends DefaultCellEditor {
         MyTableCellEditor() {
             super(new JComboBox<String>(new DefaultComboBoxModel<String>(LagerTools.LAGERART)));
+            setClickCountToStart(2);
         }
 
         @Override
         public Object getCellEditorValue() {
             return new Integer(((JComboBox<String>) editorComponent).getSelectedIndex()).shortValue();
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            ((JComboBox) editorComponent).setSelectedIndex((Short) value);
+            return editorComponent;
         }
     }
 
@@ -44,8 +51,8 @@ public class StoffartTools {
         return new MyTableCellEditor();
     }
 
-    public static Stoffart add(String text, short einheit, Warengruppe warengruppe) {
-        Stoffart stoffart = null;
+    public static IngTypes add(String text, short einheit, Warengruppe warengruppe) {
+        IngTypes ingTypes = null;
 
         EntityManager em = Main.getEMF().createEntityManager();
         try {
@@ -53,10 +60,10 @@ public class StoffartTools {
             query.setParameter("bezeichnung", text.trim());
             if (query.getResultList().isEmpty()) {
                 em.getTransaction().begin();
-                stoffart = em.merge(new Stoffart(text.trim(), einheit, warengruppe));
+                ingTypes = em.merge(new IngTypes(text.trim(), einheit, warengruppe));
                 em.getTransaction().commit();
             } else {
-                stoffart = (Stoffart) query.getResultList().get(0);
+                ingTypes = (IngTypes) query.getResultList().get(0);
             }
         } catch (Exception e) {
             em.getTransaction().rollback();
@@ -64,7 +71,7 @@ public class StoffartTools {
             em.close();
         }
 
-        return stoffart;
+        return ingTypes;
     }
 
     public static void loadStoffarten(JComboBox cmb) {
@@ -81,12 +88,12 @@ public class StoffartTools {
     }
 
 
-    public static long getNumOfProducts(Stoffart stoffart) {
+    public static long getNumOfProducts(IngTypes ingTypes) {
         long num = 0;
         EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Query query = em.createQuery("SELECT count(p) FROM Produkte p WHERE p.stoffart = :stoffart");
-            query.setParameter("stoffart", stoffart);
+            Query query = em.createQuery("SELECT count(p) FROM Produkte p WHERE p.ingTypes = :ingTypes");
+            query.setParameter("ingTypes", ingTypes);
 
             num = (Long) query.getSingleResult();
         } catch (Exception e) { // nicht gefunden

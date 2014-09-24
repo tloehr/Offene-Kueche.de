@@ -7,24 +7,23 @@ package desktop;
 import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
-import entity.LagerTools;
-import entity.StoffartTools;
-import entity.WarengruppeTools;
+import com.jidesoft.popup.JidePopup;
+import entity.*;
 import org.jdesktop.swingx.JXSearchField;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
 import tablemodels.IngTypeTableModel;
-import tools.Const;
-import tools.MyInternalFrames;
-import tools.Pair;
-import tools.Tools;
+import tools.*;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.OptimisticLockException;
 import javax.persistence.Query;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 /**
  * @author Torsten Löhr
@@ -57,7 +56,7 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
         if (criteria.getFirst() == Const.ALLE) {
             EntityManager em = Main.getEMF().createEntityManager();
             Query query = em.createQuery("" +
-                    " SELECT t FROM Stoffart t" +
+                    " SELECT t FROM IngTypes t" +
                     " ORDER BY t.bezeichnung ");
             list = query.getResultList();
             em.close();
@@ -71,8 +70,8 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
 
         tblTypes.setModel(new IngTypeTableModel(list));
 
-        tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_LAGERART).setCellRenderer(StoffartTools.getStorageRenderer());
-        tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_LAGERART).setCellEditor(StoffartTools.getStorageEditor());
+        tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_LAGERART).setCellRenderer(IngTypesTools.getStorageRenderer());
+        tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_LAGERART).setCellEditor(IngTypesTools.getStorageEditor());
         tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_WARENGRUPPE).setCellRenderer(WarengruppeTools.getTableCellRenderer());
         tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_WARENGRUPPE).setCellEditor(WarengruppeTools.getTableCellEditor());
         tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_EINHEIT).setCellRenderer(LagerTools.getEinheitTableCellRenderer());
@@ -109,33 +108,100 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
     }
 
     private void tblTypesMousePressed(MouseEvent e) {
-//        final BeanTableModel<Stoffart> tm = (BeanTableModel<Stoffart>) tblTypes.getModel();
-//        if (tm.getRowCount() == 0) {
-//            return;
-//        }
-//        Point p = e.getPoint();
-//        final int col = tblProdukt.columnAtPoint(p);
-//        final int row = tblProdukt.rowAtPoint(p);
-//        ListSelectionModel lsm = tblProdukt.getSelectionModel();
-//
-//        //lsm.setSelectionInterval(row, row);
-//        boolean singleRowSelected = lsm.getMaxSelectionIndex() == lsm.getMinSelectionIndex();
-//
-//
-//        if (singleRowSelected) {
-//            lsm.setSelectionInterval(row, row);
-//        }
-//
-//        if (e.isPopupTrigger()) {
-//
-//
-//            if (menu != null && menu.isVisible()) {
-//                menu.setVisible(false);
-//            }
-//
-//            Tools.unregisterListeners(menu);
-//            menu = new JPopupMenu();
-//
+        final IngTypeTableModel tm = (IngTypeTableModel) tblTypes.getModel();
+        if (tm.getRowCount() == 0) {
+            return;
+        }
+        Point p = e.getPoint();
+        final int col = tblTypes.columnAtPoint(p);
+        final int row = tblTypes.rowAtPoint(p);
+        ListSelectionModel lsm = tblTypes.getSelectionModel();
+
+        boolean singleRowSelected = lsm.getMaxSelectionIndex() == lsm.getMinSelectionIndex();
+
+        if (singleRowSelected) {
+            lsm.setSelectionInterval(row, row);
+        }
+
+        if (e.isPopupTrigger()) {
+
+
+            if (menu != null && menu.isVisible()) {
+                menu.setVisible(false);
+            }
+
+            Tools.unregisterListeners(menu);
+            menu = new JPopupMenu();
+
+            final JMenuItem miAllergics = new JMenuItem("Allergene zuordnen");
+            miAllergics.setFont(new Font("arial", Font.PLAIN, 18));
+
+            miAllergics.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    ArrayList<Allergene> listAllergenes = new ArrayList<Allergene>();
+                    for (int index : tblTypes.getSelectedRows()) {
+                        for (Allergene allergene : tm.getIngType(index).getAllergenes()) {
+                            if (!listAllergenes.contains(allergene)) {
+                                listAllergenes.add(allergene);
+                            }
+                        }
+                    }
+
+                    final JidePopup popup = new JidePopup();
+
+                    final PnlAssign<Allergene> pnlAssign = new PnlAssign<Allergene>(listAllergenes, AllergeneTools.getAll(), AllergeneTools.getListCellRenderer());
+                    pnlAssign.addComponentListener(new ComponentAdapter() {
+                        @Override
+                        public void componentHidden(ComponentEvent e) {
+                            popup.hidePopup();
+
+                            if (pnlAssign.getAssigned() == null) return;
+
+                            EntityManager em = Main.getEMF().createEntityManager();
+                            try {
+                                em.getTransaction().begin();
+
+                                for (int index : tblTypes.getSelectedRows()) {
+                                    IngTypes myIngType = em.merge(tm.getIngType(index));
+                                    em.lock(myIngType, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+                                    myIngType.getAllergenes().clear();
+                                    for (Allergene allergene : pnlAssign.getAssigned()) {
+                                        myIngType.getAllergenes().add(em.merge(allergene));
+                                    }
+                                }
+
+                                em.getTransaction().commit();
+                            } catch (OptimisticLockException ole) {
+                                em.getTransaction().rollback();
+                            } catch (Exception exc) {
+                                em.getTransaction().rollback();
+                                Main.fatal(e);
+                            } finally {
+                                em.close();
+                                loadTable();
+                            }
+
+                        }
+                    });
+
+                    popup.setMovable(false);
+                    popup.getContentPane().setLayout(new BoxLayout(popup.getContentPane(), BoxLayout.LINE_AXIS));
+                    popup.setOwner(tblTypes);
+                    popup.removeExcludedComponent(tblTypes);
+
+                    popup.getContentPane().add(pnlAssign);
+                    popup.setDefaultFocusComponent(pnlAssign);
+
+                    Tools.showPopup(popup, SwingConstants.CENTER);
+
+
+                }
+            });
+//            miAllergics.setEnabled(rows.length > 0);
+            menu.add(miAllergics);
+
+
 //            JMenuItem miEdit = new JMenuItem("Markierte Produkte bearbeiten");
 //            miEdit.setFont(new Font("arial", Font.PLAIN, 18));
 //            final int[] rows = tblProdukt.getSelectedRows();
@@ -344,10 +410,10 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
 //            }
 //
 //            menu.add(menuPopupAssign);
-//
-//
-//            menu.show(tblProdukt, (int) p.getX(), (int) p.getY());
-//        }
+
+
+            menu.show(tblTypes, (int) p.getX(), (int) p.getY());
+        }
     }
 
     private void initComponents() {
@@ -376,8 +442,8 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
         });
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-            "default, $lcgap, default:grow",
-            "default:grow, 2*($lgap, default)"));
+                "default, $lcgap, default:grow",
+                "default:grow, 2*($lgap, default)"));
 
         //======== jspSearch ========
         {
@@ -440,7 +506,7 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
         {
 
             //---- tblTypes ----
-            tblTypes.setFont(new Font("SansSerif", Font.PLAIN, 18));
+            tblTypes.setFont(new Font("SansSerif", Font.PLAIN, 12));
             tblTypes.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {

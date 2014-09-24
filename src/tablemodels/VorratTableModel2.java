@@ -122,7 +122,7 @@ public class VorratTableModel2 extends DefaultTableModel implements DeletableTab
                 break;
             }
             case COL_MENGE: {
-                value = Tools.roundScale2(menge.doubleValue()) + " " + ProdukteTools.EINHEIT[vorrat.getProdukt().getStoffart().getEinheit()];
+                value = Tools.roundScale2(menge.doubleValue()) + " " + ProdukteTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()];
                 break;
             }
             default: {

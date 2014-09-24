@@ -134,19 +134,19 @@ public class VorratTableModel extends DefaultTableModel implements DeletableTabl
                 break;
             }
             case COL_EINGANGSMENGE: {
-                value = decf.format(VorratTools.getEingangsbestand(vorrat)) + " " + LagerTools.EINHEIT[vorrat.getProdukt().getStoffart().getEinheit()];
+                value = decf.format(VorratTools.getEingangsbestand(vorrat)) + " " + LagerTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()];
                 break;
             }
             case COL_RESTMENGE: {
-                value = decf.format(menge) + " " + LagerTools.EINHEIT[vorrat.getProdukt().getStoffart().getEinheit()];
+                value = decf.format(menge) + " " + LagerTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()];
                 break;
             }
             case COL_STOFFART: {
-                value = vorrat.getProdukt().getStoffart().getBezeichnung();
+                value = vorrat.getProdukt().getIngTypes().getBezeichnung();
                 break;
             }
             case COL_WARENGRUPPE: {
-                value = vorrat.getProdukt().getStoffart().getWarengruppe().getBezeichnung();
+                value = vorrat.getProdukt().getIngTypes().getWarengruppe().getBezeichnung();
                 break;
             }
             case COL_EINGANG: {

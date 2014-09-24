@@ -6,7 +6,7 @@
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <class>entity.Mitarbeiter</class>
         <class>entity.Lager</class>
-        <class>entity.Stoffart</class>
+        <class>entity.IngTypes</class>
         <class>entity.Produkte</class>
         <class>entity.Vorrat</class>
         <class>entity.Lieferanten</class>

@@ -45,8 +45,15 @@ public class Allergene {
         this.text = text;
     }
 
-    @ManyToMany(mappedBy = "allergics")
+    @ManyToMany(mappedBy = "allergenes")
     private Collection<Produkte> products;
+
+    @ManyToMany(mappedBy = "allergenes")
+    private Collection<IngTypes> ingTypes;
+
+    public Collection<IngTypes> getIngTypes() {
+        return ingTypes;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -68,5 +75,10 @@ public class Allergene {
         result = 31 * result + (kennung != null ? kennung.hashCode() : 0);
         result = 31 * result + (text != null ? text.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return kennung + " " + text;
     }
 }

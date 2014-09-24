@@ -35,7 +35,7 @@ public class BuchungTableModel extends DefaultTableModel implements DeletableTab
             case 1: {
                 String v;
                 v = buchung.getFaktor() + "x";
-                v += " " + buchung.getMenge() + " " + LagerTools.EINHEIT[buchung.getProdukt().getStoffart().getEinheit()];
+                v += " " + buchung.getMenge() + " " + LagerTools.EINHEIT[buchung.getProdukt().getIngTypes().getEinheit()];
                 value = v;
                 break;
             }

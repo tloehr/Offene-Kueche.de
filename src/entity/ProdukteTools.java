@@ -86,7 +86,7 @@ public class ProdukteTools {
     public static ArrayList<Produkte> searchProdukte(Warengruppe warengruppe) {
            ArrayList produkte = new ArrayList<Produkte>();
            EntityManager em = Main.getEMF().createEntityManager();
-           Query query = em.createQuery("SELECT p FROM Produkte p WHERE p.stoffart.warengruppe = :warengruppe");
+           Query query = em.createQuery("SELECT p FROM Produkte p WHERE p.ingTypes.warengruppe = :warengruppe");
            query.setParameter("warengruppe", warengruppe);
            try {
                produkte = new ArrayList<Produkte>(query.getResultList());
@@ -99,11 +99,11 @@ public class ProdukteTools {
            return produkte;
        }
 
-    public static ArrayList<Produkte> getProdukte(Stoffart stoffart) {
+    public static ArrayList<Produkte> getProdukte(IngTypes ingTypes) {
         ArrayList produkte = new ArrayList<Produkte>();
         EntityManager em = Main.getEMF().createEntityManager();
         Query query = em.createNamedQuery("Produkte.findByStoffart");
-        query.setParameter("stoffart", stoffart);
+        query.setParameter("ingTypes", ingTypes);
         try {
             produkte = new ArrayList<Produkte>(query.getResultList());
         } catch (Exception e1) { // nicht gefunden

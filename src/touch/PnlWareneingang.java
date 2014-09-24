@@ -267,13 +267,13 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 aktuelleBuchung.setProdukt(produkt);
 
                 //lblProdukt.setText(produkt.getBezeichnung());
-                info(produkt.getBezeichnung() +(produkt.isLoseWare() ? "" : ", "+produkt.getPackGroesse() + " " + ProdukteTools.EINHEIT[produkt.getStoffart().getEinheit()])  , lblProdukt);
+                info(produkt.getBezeichnung() +(produkt.isLoseWare() ? "" : ", "+produkt.getPackGroesse() + " " + ProdukteTools.EINHEIT[produkt.getIngTypes().getEinheit()])  , lblProdukt);
 
-                lblProdInfo.setText(String.valueOf("ProdNr.: " + produkt.getId()) + ", " + (produkt.isLoseWare() ? "[lose Ware]" : produkt.getPackGroesse() + " " + ProdukteTools.EINHEIT[produkt.getStoffart().getEinheit()]));
+                lblProdInfo.setText(String.valueOf("ProdNr.: " + produkt.getId()) + ", " + (produkt.isLoseWare() ? "[lose Ware]" : produkt.getPackGroesse() + " " + ProdukteTools.EINHEIT[produkt.getIngTypes().getEinheit()]));
 
                 // Menge wird immer eingeschaltet. Bei Produkten mit einer GTIN kann man aber nicht mehr Menge einbuchen
                 // als eine Packung hat, damit kann man Anbrüche einbuchen.
-                lblEinheit.setText(LagerTools.EINHEIT[produkt.getStoffart().getEinheit()]);
+                lblEinheit.setText(LagerTools.EINHEIT[produkt.getIngTypes().getEinheit()]);
                 // Faktor, wenn das Produkt verpackt ist.
                 txtFaktorSetEnabled(produkt.getGtin() != null);
                 if (produkt.getGtin() != null) {
@@ -368,7 +368,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
                 em.getTransaction().commit();
 
-                Tools.log(txtLog, "EINBUCHUNG " + aktuelleBuchung.getFaktor() + "x '" + aktuelleBuchung.getProdukt().getBezeichnung() + "' á " + aktuelleBuchung.getMenge() + " " + ProdukteTools.EINHEIT[aktuelleBuchung.getProdukt().getStoffart().getEinheit()]);
+                Tools.log(txtLog, "EINBUCHUNG " + aktuelleBuchung.getFaktor() + "x '" + aktuelleBuchung.getProdukt().getBezeichnung() + "' á " + aktuelleBuchung.getMenge() + " " + ProdukteTools.EINHEIT[aktuelleBuchung.getProdukt().getIngTypes().getEinheit()]);
 
                 if (!btnNoPrinter.isSelected()) {
                     Collections.sort(printList); // Sortieren nach den PrimaryKeys
@@ -472,8 +472,8 @@ public class PnlWareneingang extends DefaultTouchPanel {
     }
 
     private void cmbStoffartItemStateChanged(ItemEvent e) {
-        neuesProdukt.setStoffart((Stoffart) cmbStoffart.getSelectedItem());
-        cmbWarengruppe.setSelectedItem(neuesProdukt.getStoffart().getWarengruppe());
+        neuesProdukt.setIngTypes((IngTypes) cmbStoffart.getSelectedItem());
+        cmbWarengruppe.setSelectedItem(neuesProdukt.getIngTypes().getWarengruppe());
     }
 
     private void btnCancelNeuProdActionPerformed(ActionEvent e) {
@@ -1800,11 +1800,11 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
                     setWarengruppeEnabled(false);
                     loadWarengruppe();
-                    StoffartTools.loadStoffarten(cmbStoffart);
+                    IngTypesTools.loadStoffarten(cmbStoffart);
                     cmbStoffart.setSelectedIndex(0);
-                    cmbWarengruppe.setSelectedItem(((Stoffart) cmbStoffart.getSelectedItem()).getWarengruppe());
+                    cmbWarengruppe.setSelectedItem(((IngTypes) cmbStoffart.getSelectedItem()).getWarengruppe());
 
-                    neuesProdukt.setStoffart((Stoffart) cmbStoffart.getSelectedItem());
+                    neuesProdukt.setIngTypes((IngTypes) cmbStoffart.getSelectedItem());
 
 
                     neuesProdukt.setPackGroesse(BigDecimal.ZERO);

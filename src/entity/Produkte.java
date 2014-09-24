@@ -20,7 +20,7 @@ import java.util.Collection;
         @NamedQuery(name = "Produkte.findByBezeichnung", query = "SELECT p FROM Produkte p WHERE p.bezeichnung = :bezeichnung"),
         @NamedQuery(name = "Produkte.findByGtin", query = "SELECT p FROM Produkte p WHERE p.gtin = :gtin"),
         @NamedQuery(name = "Produkte.findByPackGroesse", query = "SELECT p FROM Produkte p WHERE p.packGroesse = :packGroesse"),
-        @NamedQuery(name = "Produkte.findByStoffart", query = "SELECT p FROM Produkte p WHERE p.stoffart = :stoffart"),
+        @NamedQuery(name = "Produkte.findByStoffart", query = "SELECT p FROM Produkte p WHERE p.ingTypes = :ingTypes"),
         @NamedQuery(name = "Produkte.findByBezeichnungLike", query = "SELECT p FROM Produkte p WHERE p.bezeichnung LIKE :bezeichnung" +
                 "    ORDER BY p.bezeichnung")
 })
@@ -33,7 +33,7 @@ public class Produkte {
 //        this.einheit = -1;
         this.gtin = null;
         this.packGroesse = BigDecimal.ONE.negate();
-        this.stoffart = null;
+        this.ingTypes = null;
     }
 
 
@@ -105,7 +105,7 @@ public class Produkte {
 
     @JoinColumn(name = "Stoffart_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
-    private Stoffart stoffart;
+    private IngTypes ingTypes;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "additives2products", joinColumns =
@@ -117,7 +117,7 @@ public class Produkte {
     @JoinTable(name = "allergene2products", joinColumns =
     @JoinColumn(name = "prodid"), inverseJoinColumns =
     @JoinColumn(name = "allergenid"))
-    private Collection<Allergene> allergics;
+    private Collection<Allergene> allergenes;
 
 
 //    public short getLagerart() {
@@ -152,12 +152,12 @@ public class Produkte {
     }
 
 
-    public Stoffart getStoffart() {
-        return stoffart;
+    public IngTypes getIngTypes() {
+        return ingTypes;
     }
 
-    public void setStoffart(Stoffart stoffart) {
-        this.stoffart = stoffart;
+    public void setIngTypes(IngTypes ingTypes) {
+        this.ingTypes = ingTypes;
     }
 
     @Override

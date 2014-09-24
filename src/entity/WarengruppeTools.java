@@ -33,12 +33,19 @@ public class WarengruppeTools {
     public static class MyTableCellEditor extends DefaultCellEditor {
         MyTableCellEditor() {
             super(new JComboBox<Warengruppe>(new DefaultComboBoxModel<Warengruppe>(getAll())));
+            setClickCountToStart(2);
             ((JComboBox<Warengruppe>) editorComponent).setRenderer(new ListCellRenderer<Warengruppe>() {
                 @Override
                 public Component getListCellRendererComponent(JList<? extends Warengruppe> list, Warengruppe warengruppe, int index, boolean isSelected, boolean cellHasFocus) {
                     return new DefaultListCellRenderer().getListCellRendererComponent(list, warengruppe.getBezeichnung(), index, isSelected, cellHasFocus);
                 }
             });
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            ((JComboBox) editorComponent).setSelectedItem(value);
+            return editorComponent;
         }
     }
 
@@ -73,7 +80,7 @@ public class WarengruppeTools {
         long num = 0;
         EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Query query = em.createQuery("SELECT count(p) FROM Produkte p WHERE p.stoffart.warengruppe = :warengruppe");
+            Query query = em.createQuery("SELECT count(p) FROM Produkte p WHERE p.ingTypes.warengruppe = :warengruppe");
             query.setParameter("warengruppe", warengruppe);
 
             num = (Long) query.getSingleResult();

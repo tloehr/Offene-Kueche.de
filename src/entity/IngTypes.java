@@ -2,6 +2,7 @@ package entity;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -13,27 +14,27 @@ import java.util.Collection;
 @Entity
 @Table(name = "stoffart")
 @NamedQueries({
-        @NamedQuery(name = "Stoffart.findAll", query = "SELECT s FROM Stoffart s"),
-        @NamedQuery(name = "Stoffart.findAllSorted", query = "SELECT s FROM Stoffart s ORDER BY s.bezeichnung"),
-        @NamedQuery(name = "Stoffart.findById", query = "SELECT s FROM Stoffart s WHERE s.id = :id"),
-        @NamedQuery(name = "Stoffart.findByBezeichnungLike", query = "SELECT s FROM Stoffart s WHERE s.bezeichnung LIKE :bezeichnung"),
-        @NamedQuery(name = "Stoffart.findByBezeichnung", query = "SELECT s FROM Stoffart s WHERE s.bezeichnung = :bezeichnung"),
-        @NamedQuery(name = "Stoffart.findByEinheit", query = "SELECT s FROM Stoffart s WHERE s.einheit = :einheit"),
-        @NamedQuery(name = "Stoffart.findByWarengruppe", query = "SELECT s FROM Stoffart s WHERE s.warengruppe = :warengruppe")})
-public class Stoffart implements Comparable<Stoffart> {
+        @NamedQuery(name = "Stoffart.findAll", query = "SELECT s FROM IngTypes s"),
+        @NamedQuery(name = "Stoffart.findAllSorted", query = "SELECT s FROM IngTypes s ORDER BY s.bezeichnung"),
+        @NamedQuery(name = "Stoffart.findById", query = "SELECT s FROM IngTypes s WHERE s.id = :id"),
+        @NamedQuery(name = "Stoffart.findByBezeichnungLike", query = "SELECT s FROM IngTypes s WHERE s.bezeichnung LIKE :bezeichnung"),
+        @NamedQuery(name = "Stoffart.findByBezeichnung", query = "SELECT s FROM IngTypes s WHERE s.bezeichnung = :bezeichnung"),
+        @NamedQuery(name = "Stoffart.findByEinheit", query = "SELECT s FROM IngTypes s WHERE s.einheit = :einheit"),
+        @NamedQuery(name = "Stoffart.findByWarengruppe", query = "SELECT s FROM IngTypes s WHERE s.warengruppe = :warengruppe")})
+public class IngTypes implements Comparable<IngTypes> {
 
 
-    public Stoffart() {
+    public IngTypes() {
         this.id = 0l;
     }
 
-    public Stoffart(String bezeichnung, Warengruppe warengruppe) {
+    public IngTypes(String bezeichnung, Warengruppe warengruppe) {
         this.bezeichnung = bezeichnung;
         this.einheit = 0;
         this.warengruppe = warengruppe;
     }
 
-    public Stoffart(String bezeichnung, short einheit, Warengruppe warengruppe) {
+    public IngTypes(String bezeichnung, short einheit, Warengruppe warengruppe) {
         this.bezeichnung = bezeichnung;
         this.einheit = einheit;
         this.warengruppe = warengruppe;
@@ -104,12 +105,24 @@ public class Stoffart implements Comparable<Stoffart> {
     @JoinColumn(name = "warengruppe_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
     private Warengruppe warengruppe;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "stoffart")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "ingTypes")
     private Collection<Produkte> produkteCollection;
 
     public Collection<Produkte> getProdukteCollection() {
         return produkteCollection;
     }
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinTable(name = "allergene2types", joinColumns =
+    @JoinColumn(name = "allergenid"), inverseJoinColumns =
+    @JoinColumn(name = "typeid"))
+    private Set<Allergene> allergenes;
+
+    public Set<Allergene> getAllergenes() {
+        return allergenes;
+    }
+
+
 
     @Version
     @Column(name = "version")
@@ -120,12 +133,12 @@ public class Stoffart implements Comparable<Stoffart> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Stoffart stoffart = (Stoffart) o;
+        IngTypes ingTypes = (IngTypes) o;
 
-        if (einheit != stoffart.einheit) return false;
-        if (id != stoffart.id) return false;
+        if (einheit != ingTypes.einheit) return false;
+        if (id != ingTypes.id) return false;
         //if (warengruppeId != stoffart.warengruppeId) return false;
-        if (bezeichnung != null ? !bezeichnung.equals(stoffart.bezeichnung) : stoffart.bezeichnung != null)
+        if (bezeichnung != null ? !bezeichnung.equals(ingTypes.bezeichnung) : ingTypes.bezeichnung != null)
             return false;
 
         return true;
@@ -146,7 +159,7 @@ public class Stoffart implements Comparable<Stoffart> {
     }
 
     @Override
-    public int compareTo(Stoffart o) {
+    public int compareTo(IngTypes o) {
         int sort = bezeichnung.compareTo(o.getBezeichnung());
         if (sort == 0) {
             sort = new Long(id).compareTo(o.getId());

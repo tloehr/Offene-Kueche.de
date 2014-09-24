@@ -83,9 +83,9 @@ public class Warengruppe {
 
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "warengruppe")
-    private Collection<Stoffart> stoffartCollection;
+    private Collection<IngTypes> ingTypesCollection;
 
-    public Collection<Stoffart> getStoffartCollection() {
-        return stoffartCollection;
+    public Collection<IngTypes> getIngTypesCollection() {
+        return ingTypesCollection;
     }
 }
