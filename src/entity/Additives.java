@@ -12,11 +12,11 @@ public class Additives {
     private String symbol;
     private String name;
     private String text;
-    private short group;
+    private short additivegroup;
     private String display;
 
 
-    @javax.persistence.Column(name = "ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
+    @javax.persistence.Column(name = "id", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -59,15 +59,17 @@ public class Additives {
         this.text = text;
     }
 
+
     @Basic
-    @Column(name = "group", nullable = false, insertable = true, updatable = true)
-    public short getGroup() {
-        return group;
+    @Column(name = "additivegroup", nullable = false, insertable = true, updatable = true)
+    public short getAdditivegroup() {
+        return additivegroup;
     }
 
-    public void setGroup(short group) {
-        this.group = group;
+    public void setAdditivegroup(short additivegroup) {
+        this.additivegroup = additivegroup;
     }
+
 
     @Basic
     @Column(name = "display", nullable = true, insertable = true, updatable = true, length = 500)
@@ -80,10 +82,6 @@ public class Additives {
     }
 
 
-    @ManyToMany(mappedBy = "additives")
-    private Collection<Produkte> products;
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -91,7 +89,7 @@ public class Additives {
 
         Additives additives = (Additives) o;
 
-        if (group != additives.group) return false;
+        if (additivegroup != additives.additivegroup) return false;
         if (id != additives.id) return false;
         if (display != null ? !display.equals(additives.display) : additives.display != null) return false;
         if (name != null ? !name.equals(additives.name) : additives.name != null) return false;
@@ -107,13 +105,19 @@ public class Additives {
         result = 31 * result + (symbol != null ? symbol.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (text != null ? text.hashCode() : 0);
-        result = 31 * result + (int) group;
+        result = 31 * result + (int) additivegroup;
         result = 31 * result + (display != null ? display.hashCode() : 0);
         return result;
     }
 
+    @ManyToMany(mappedBy = "additives")
+    private Collection<Produkte> products;
+
+    @ManyToMany(mappedBy = "additives")
+    private Collection<IngTypes> ingTypes;
+
     @Override
     public String toString() {
-        return symbol + " " + name + " " + text;
+        return symbol + " " + name;
     }
 }

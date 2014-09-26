@@ -113,8 +113,9 @@ public class PnlAssign<T> extends JPanel {
     private void txtSearchActionPerformed(ActionEvent e) {
         ArrayList<T> searchList = new ArrayList<T>();
         String searchText = txtSearch.getText().trim();
+
         for (T t : all) {
-            if (t.toString().toLowerCase().indexOf(searchText.toLowerCase()) > 0) {
+            if (t.toString().toLowerCase().indexOf(searchText.toLowerCase()) >= 0) {
                 searchList.add(t);
             }
         }
@@ -155,7 +156,7 @@ public class PnlAssign<T> extends JPanel {
             //======== contentPanel ========
             {
                 contentPanel.setLayout(new FormLayout(
-                    "180dlu, $lcgap, 180dlu",
+                    "180dlu:grow, $lcgap, 180dlu:grow",
                     "default, $lgap, fill:default:grow, $lgap, default"));
 
                 //======== panel1 ========

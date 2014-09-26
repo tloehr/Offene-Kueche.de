@@ -119,8 +119,15 @@ public class Produkte {
     @JoinColumn(name = "allergenid"))
     private Collection<Allergene> allergenes;
 
+    public Collection<Additives> getAdditives() {
+        return additives;
+    }
 
-//    public short getLagerart() {
+    public Collection<Allergene> getAllergenes() {
+        return allergenes;
+    }
+
+    //    public short getLagerart() {
 //        return lagerart;
 //    }
 //

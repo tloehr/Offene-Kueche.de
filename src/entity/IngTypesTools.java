@@ -3,12 +3,15 @@ package entity;
 import Main.Main;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.OptimisticLockException;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Created by IntelliJ IDEA.
@@ -102,5 +105,56 @@ public class IngTypesTools {
             em.close();
         }
         return num;
+    }
+
+
+    public static boolean mergeUs(ArrayList<IngTypes> listTypes2Merge, IngTypes target) {
+
+        boolean success = false;
+
+        listTypes2Merge.remove(target);
+
+        EntityManager em = Main.getEMF().createEntityManager();
+        try {
+            em.getTransaction().begin();
+            IngTypes myTarget = em.merge(target);
+            em.lock(myTarget, LockModeType.OPTIMISTIC);
+            for (IngTypes t : listTypes2Merge) {
+                IngTypes oldType = em.merge(t);
+                em.lock(oldType, LockModeType.OPTIMISTIC);
+
+                for (Additives additive : oldType.getAdditives()) {
+                    myTarget.getAdditives().add(em.merge(additive));
+                }
+
+                for (Allergene allergene : oldType.getAllergenes()) {
+                    myTarget.getAllergenes().add(em.merge(allergene));
+                }
+
+                for (Produkte product : oldType.getProdukteCollection()) {
+                    Produkte myProduct = em.merge(product);
+                    em.lock(myProduct, LockModeType.OPTIMISTIC);
+                    myProduct.setIngTypes(myTarget);
+                }
+
+                oldType.getAdditives().clear();
+                oldType.getAllergenes().clear();
+                oldType.getProdukteCollection().clear();
+
+                em.remove(oldType);
+            }
+            em.getTransaction().commit();
+            success = true;
+
+
+        } catch (OptimisticLockException ole) {
+            em.getTransaction().rollback();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            Main.fatal(e);
+        } finally {
+            em.close();
+        }
+        return success;
     }
 }

@@ -5,6 +5,8 @@ import Main.Main;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -51,6 +53,17 @@ public class ProdukteTools {
     public static final Pattern gs1128 = Pattern.compile("^(01|02)\\d{14}");
 
     public static final String EINHEIT[] = {"kg", "liter", "Stueck"};
+
+
+    public static ListCellRenderer<Produkte> getListCellRenderer() {
+           return new ListCellRenderer<Produkte>() {
+               @Override
+               public Component getListCellRendererComponent(JList<? extends Produkte> list, Produkte value, int index, boolean isSelected, boolean cellHasFocus) {
+                   return new DefaultListCellRenderer().getListCellRendererComponent(list, "[" + value.getId() + "] " + value.getBezeichnung(), index, isSelected, cellHasFocus);
+               }
+           };
+       }
+
 
     public static List<Produkte> searchProdukte(String search) {
         List produkte = null;

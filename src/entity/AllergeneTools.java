@@ -27,7 +27,7 @@ public class AllergeneTools {
         ArrayList<Allergene> list = new ArrayList<Allergene>();
 
         EntityManager em = Main.getEMF().createEntityManager();
-        Query queryMin = em.createQuery("SELECT t FROM Allergene t ORDER BY t.kennung DESC ");
+        Query queryMin = em.createQuery("SELECT t FROM Allergene t ORDER BY t.kennung ASC ");
 
         list.addAll(queryMin.getResultList());
 

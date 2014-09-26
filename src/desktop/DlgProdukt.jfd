@@ -124,25 +124,6 @@ new FormModel {
 							"gridY": 13
 							"gridWidth": 11
 						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "textField1"
-						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-							"gridY": 15
-							"hAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
-							"vAlign": sfield com.jgoodies.forms.layout.CellConstraints TOP
-							"gridX": 2
-						} )
-						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-							name: "scrollPane1"
-							add( new FormComponent( "javax.swing.JList" ) {
-								name: "lstAllergics"
-							} )
-						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-							"gridX": 5
-							"gridY": 15
-							"gridWidth": 5
-							"gridHeight": 3
-						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "label9"
 							"text": " Zusatzstoffe"
@@ -153,25 +134,6 @@ new FormModel {
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridY": 19
 							"gridWidth": 11
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "textField2"
-						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-							"gridY": 21
-							"hAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
-							"vAlign": sfield com.jgoodies.forms.layout.CellConstraints TOP
-							"gridX": 2
-						} )
-						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-							name: "panel1"
-							add( new FormComponent( "javax.swing.JList" ) {
-								name: "lstAllergics2"
-							} )
-						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-							"gridX": 5
-							"gridY": 21
-							"gridWidth": 5
-							"gridHeight": 3
 						} )
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {

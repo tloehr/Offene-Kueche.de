@@ -16,5 +16,11 @@
         <class>entity.Allergene</class>
         <class>entity.Preparation</class>
         <class>entity.Recipes</class>
+        <properties>
+            <property name="eclipselink.jdbc.url" value="jdbc:mysql://srv0006:3306/kueche"/>
+            <property name="eclipselink.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+            <property name="eclipselink.jdbc.user" value="root"/>
+            <property name="eclipselink.jdbc.password" value="db-jor-uk-c"/>
+        </properties>
     </persistence-unit>
 </persistence>

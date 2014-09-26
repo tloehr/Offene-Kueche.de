@@ -8,6 +8,7 @@ import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import entity.*;
+import tools.PnlAssign;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
@@ -27,6 +28,7 @@ public class DlgProdukt extends JDialog {
     private ArrayList<Produkte> myProducts;
     String gtin = null;
     BigDecimal groesse;
+    PnlAssign pnlAllergenes, pnlAdditives;
 
     public DlgProdukt(Frame owner, ArrayList<Produkte> myProducts) {
         super(owner);
@@ -40,6 +42,15 @@ public class DlgProdukt extends JDialog {
     private void initDialog() {
         IngTypesTools.loadStoffarten(cmbStoffart);
         ((DefaultComboBoxModel) cmbStoffart.getModel()).insertElementAt("(unterschiedliche Werte)", 0);
+
+        if (myProducts.size() == 1) {
+            pnlAdditives = new PnlAssign(new ArrayList(myProducts.get(0).getAdditives()), AdditivesTools.getAll(), AdditivesTools.getListCellRenderer());
+            panel4.add(pnlAdditives, CC.xywh(1, 15, 9, 3));
+            pnlAllergenes = new PnlAssign(new ArrayList(myProducts.get(0).getAllergenes()), AllergeneTools.getAll(), AllergeneTools.getListCellRenderer());
+            panel4.add(pnlAllergenes, CC.xywh(1, 21, 9, 3));
+        }
+
+
         fillEditor();
         setTitle(Tools.getWindowTitle("Produkt(e) bearbeiten"));
     }
@@ -50,9 +61,7 @@ public class DlgProdukt extends JDialog {
 
 
     private void txtGTINFocusLost(FocusEvent e) {
-
         if (myProducts.get(0).getGtin() == null && myProducts.get(0).getGtin() != txtGTIN.getText())
-
             if (ProdukteTools.isGTIN(txtGTIN.getText())) {
                 if (ProdukteTools.isGTINinUse(txtGTIN.getText())) {
                     txtGTIN.setText("(GTIN wird schon verwendet)");
@@ -137,7 +146,6 @@ public class DlgProdukt extends JDialog {
     }
 
 
-
     private void fillStoffart() {
         if (myProducts.size() == 1) {
             cmbStoffart.setSelectedItem(myProducts.get(0).getIngTypes());
@@ -180,7 +188,6 @@ public class DlgProdukt extends JDialog {
                     produkt.setPackGroesse(groesse);
                     VorratTools.setzePackungsgroesse(em, produkt);
                 }
-
 
 
                 if (cmbStoffart.getSelectedIndex() > 0) {
@@ -241,13 +248,7 @@ public class DlgProdukt extends JDialog {
         label6 = new JLabel();
         cmbStoffart = new JComboBox();
         label7 = new JLabel();
-        textField1 = new JTextField();
-        scrollPane1 = new JScrollPane();
-        lstAllergics = new JList();
         label9 = new JLabel();
-        textField2 = new JTextField();
-        panel1 = new JScrollPane();
-        lstAllergics2 = new JList();
         buttonBar = new JPanel();
         okButton = new JButton();
         cancelButton = new JButton();
@@ -357,13 +358,6 @@ public class DlgProdukt extends JDialog {
                     label7.setOpaque(true);
                     label7.setForeground(Color.cyan);
                     panel4.add(label7, CC.xywh(1, 13, 11, 1));
-                    panel4.add(textField1, CC.xy(2, 15, CC.FILL, CC.TOP));
-
-                    //======== scrollPane1 ========
-                    {
-                        scrollPane1.setViewportView(lstAllergics);
-                    }
-                    panel4.add(scrollPane1, CC.xywh(5, 15, 5, 3));
 
                     //---- label9 ----
                     label9.setText(" Zusatzstoffe");
@@ -372,13 +366,6 @@ public class DlgProdukt extends JDialog {
                     label9.setOpaque(true);
                     label9.setForeground(new Color(93, 73, 1));
                     panel4.add(label9, CC.xywh(1, 19, 11, 1));
-                    panel4.add(textField2, CC.xy(2, 21, CC.FILL, CC.TOP));
-
-                    //======== panel1 ========
-                    {
-                        panel1.setViewportView(lstAllergics2);
-                    }
-                    panel4.add(panel1, CC.xywh(5, 21, 5, 3));
                 }
                 contentPanel.add(panel4);
             }
@@ -441,13 +428,7 @@ public class DlgProdukt extends JDialog {
     private JLabel label6;
     private JComboBox cmbStoffart;
     private JLabel label7;
-    private JTextField textField1;
-    private JScrollPane scrollPane1;
-    private JList lstAllergics;
     private JLabel label9;
-    private JTextField textField2;
-    private JScrollPane panel1;
-    private JList lstAllergics2;
     private JPanel buttonBar;
     private JButton okButton;
     private JButton cancelButton;

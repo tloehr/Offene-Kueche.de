@@ -122,7 +122,15 @@ public class IngTypes implements Comparable<IngTypes> {
         return allergenes;
     }
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinTable(name = "additives2types", joinColumns =
+    @JoinColumn(name = "addid"), inverseJoinColumns =
+    @JoinColumn(name = "typeid"))
+    private Set<Additives> additives;
 
+    public Set<Additives> getAdditives() {
+        return additives;
+    }
 
     @Version
     @Column(name = "version")

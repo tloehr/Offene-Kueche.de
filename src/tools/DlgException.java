@@ -138,7 +138,6 @@ public class DlgException extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
     
     private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
-        Main.fatal("Benutzer hat das Programm nach Exception beendet.");
         System.exit(1);
     }//GEN-LAST:event_btnExitActionPerformed
     
