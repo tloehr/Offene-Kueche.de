@@ -9,6 +9,7 @@ import java.util.Collection;
 @Entity
 @Table(name = "additives")
 public class Additives {
+
     private String symbol;
     private String name;
     private String text;
@@ -17,10 +18,9 @@ public class Additives {
 
 
     @javax.persistence.Column(name = "id", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
-    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     private long id;
-
     public long getId() {
         return id;
     }

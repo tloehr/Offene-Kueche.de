@@ -132,6 +132,22 @@ public class IngTypes implements Comparable<IngTypes> {
         return additives;
     }
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinTable(name = "types2recipes", joinColumns =
+    @JoinColumn(name = "recipeid"), inverseJoinColumns =
+    @JoinColumn(name = "typeid"))
+    private Set<Recipes> recipes;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinTable(name = "types2menu", joinColumns =
+    @JoinColumn(name = "menuid"), inverseJoinColumns =
+    @JoinColumn(name = "typeid"))
+    private Set<Menu> menus;
+
+    public Set<Menu> getMenus() {
+        return menus;
+    }
+
     @Version
     @Column(name = "version")
     private Long version;

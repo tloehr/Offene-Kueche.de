@@ -1,6 +1,7 @@
 package entity;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 /**
  * Created by tloehr on 12.09.14.
@@ -10,9 +11,10 @@ import javax.persistence.*;
 public class Recipes {
     private String title;
     private String text;
+    private Collection<Recipefeature> features;
 
-    @javax.persistence.Column(name = "ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
     @Id
+    @Column(name = "id", nullable = false, insertable = true, updatable = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
@@ -44,9 +46,22 @@ public class Recipes {
         this.text = text;
     }
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "recipe2feature", joinColumns =
+    @JoinColumn(name = "recipeid"), inverseJoinColumns =
+    @JoinColumn(name = "featureid"))
+    public Collection<Recipefeature> getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(Collection<Recipefeature> features) {
+        this.features = features;
+    }
+
     @Version
     @Column(name = "version")
     private Long version;
+
 
     @Override
     public boolean equals(Object o) {
@@ -71,4 +86,5 @@ public class Recipes {
         result = 31 * result + (int) (version ^ (version >>> 32));
         return result;
     }
+
 }

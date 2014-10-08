@@ -14,7 +14,7 @@
         <class>entity.Additives2Products</class>
         <class>entity.Allergene</class>
         <class>entity.Allergene2Products</class>
-        <class>entity.Preparation</class>
+        <class>entity.Menu</class>
         <class>entity.Recipes</class>
         <class>entity.Tx2Preparation</class>
         <properties>

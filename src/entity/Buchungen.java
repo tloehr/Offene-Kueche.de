@@ -136,18 +136,6 @@ public class Buchungen {
 
     }
 
-//    private long vorratId;
-//
-//    @javax.persistence.Column(name = "Vorrat_ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
-//    @Basic
-//    public long getVorratId() {
-//        return vorratId;
-//    }
-//
-//    public void setVorratId(long vorratId) {
-//        this.vorratId = vorratId;
-//    }
-
     private BigDecimal menge;
 
     @javax.persistence.Column(name = "Menge", nullable = false, insertable = true, updatable = true, length = 12, precision = 4)
@@ -174,17 +162,6 @@ public class Buchungen {
         this.datum = datum;
     }
 
-    //private long mitarbeiterId;
-
-//    @javax.persistence.Column(name = "mitarbeiter_ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
-//    @Basic
-//    public long getMitarbeiterId() {
-//        return mitarbeiterId;
-//    }
-//
-//    public void setMitarbeiterId(long mitarbeiterId) {
-//        this.mitarbeiterId = mitarbeiterId;
-//    }
 
     public Buchungen() {
     }
@@ -241,7 +218,7 @@ public class Buchungen {
     private Vorrat vorrat;
 
     @ManyToMany(mappedBy = "txs")
-    private Collection<Preparation> preparations;
+    private Collection<Menu> menus;
 
 
     @Override

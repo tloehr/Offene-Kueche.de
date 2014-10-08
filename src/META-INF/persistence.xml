@@ -14,8 +14,12 @@
         <class>entity.Buchungen</class>
         <class>entity.Additives</class>
         <class>entity.Allergene</class>
-        <class>entity.Preparation</class>
+        <class>entity.Menu</class>
         <class>entity.Recipes</class>
+        <class>entity.Customer</class>
+        <class>entity.Customergroups</class>
+        <class>entity.Recipefeature</class>
+        <class>entity.Menu2Customer</class>
         <properties>
             <property name="eclipselink.jdbc.url" value="jdbc:mysql://srv0006:3306/kueche"/>
             <property name="eclipselink.jdbc.driver" value="com.mysql.jdbc.Driver"/>
