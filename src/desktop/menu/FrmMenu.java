@@ -2,7 +2,7 @@
  * Created by JFormDesigner on Wed Oct 08 15:05:11 CEST 2014
  */
 
-package desktop;
+package desktop.menu;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;

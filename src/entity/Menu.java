@@ -16,7 +16,6 @@ public class Menu {
     private Collection<IngTypes> ingTypes;
     private Collection<Menu2Customer> menu2Customers;
     private Recipes recipe;
-    private Recipefeature feature;
 
     @javax.persistence.Column(name = "ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
     @Id
@@ -88,15 +87,7 @@ public class Menu {
         this.ingTypes = ingTypes;
     }
 
-    @JoinColumn(name = "featureid", referencedColumnName = "id", nullable = false)
-    @ManyToOne(optional = false)
-    public Recipefeature getFeature() {
-        return feature;
-    }
 
-    public void setFeature(Recipefeature feature) {
-        this.feature = feature;
-    }
 
     @JoinColumn(name = "menuid", referencedColumnName = "id", nullable = false)
     @OneToMany
