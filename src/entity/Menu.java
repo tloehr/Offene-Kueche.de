@@ -14,7 +14,7 @@ public class Menu {
     private String text;
     private Collection<Buchungen> txs;
     private Collection<IngTypes> ingTypes;
-    private Collection<Menu2Customer> menu2Customers;
+//    private Collection<Menuweek2Customer> menuweek2Customers;
     private Recipes recipe;
 
     @javax.persistence.Column(name = "ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
@@ -88,16 +88,15 @@ public class Menu {
     }
 
 
-
-    @JoinColumn(name = "menuid", referencedColumnName = "id", nullable = false)
-    @OneToMany
-    public Collection<Menu2Customer> getMenu2Customers() {
-        return menu2Customers;
-    }
-
-    public void setMenu2Customers(Collection<Menu2Customer> menu2Customers) {
-        this.menu2Customers = menu2Customers;
-    }
+//    @JoinColumn(name = "menuweekid", referencedColumnName = "id", nullable = false)
+//    @OneToMany
+//    public Collection<Menuweek2Customer> getMenuweek2Customers() {
+//        return menuweek2Customers;
+//    }
+//
+//    public void setMenuweek2Customers(Collection<Menuweek2Customer> menuweek2Customers) {
+//        this.menuweek2Customers = menuweek2Customers;
+//    }
 
 
     @Override
@@ -110,6 +109,7 @@ public class Menu {
         if (id != menu.id) return false;
         if (date != null ? !date.equals(menu.date) : menu.date != null) return false;
         if (ingTypes != null ? !ingTypes.equals(menu.ingTypes) : menu.ingTypes != null) return false;
+
         if (recipe != null ? !recipe.equals(menu.recipe) : menu.recipe != null) return false;
         if (text != null ? !text.equals(menu.text) : menu.text != null) return false;
         if (txs != null ? !txs.equals(menu.txs) : menu.txs != null) return false;

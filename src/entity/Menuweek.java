@@ -1,7 +1,5 @@
 package entity;
 
-import org.joda.time.LocalDate;
-
 import javax.persistence.*;
 import java.util.Date;
 
@@ -9,8 +7,9 @@ import java.util.Date;
  * Created by tloehr on 14.10.14.
  */
 @Entity
+@Table(name = "menuweek")
 public class Menuweek {
-    private Date week;
+
     private Menu mon;
     private Menu tue;
     private Menu wed;
@@ -24,6 +23,7 @@ public class Menuweek {
     @Column(name = "id", nullable = false, insertable = true, updatable = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     public long getId() {
         return id;
     }
@@ -32,14 +32,17 @@ public class Menuweek {
         this.id = id;
     }
 
+
     @Basic
     @Column(name = "week", nullable = false, insertable = true, updatable = true)
+    @Temporal(TemporalType.DATE)
+    private Date week;
     public Date getWeek() {
         return week;
     }
 
     public void setWeek(Date week) {
-        this.week = new LocalDate(week).dayOfWeek().withMinimumValue().toDate();
+        this.week = week;
     }
 
     @JoinColumn(name = "featureid", referencedColumnName = "id", nullable = false)

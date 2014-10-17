@@ -7,6 +7,7 @@ import java.util.Collection;
  * Created by tloehr on 08.10.14.
  */
 @Entity
+@Table(name = "customer")
 public class Customer {
     private String abbrev;
     private String name;
@@ -20,7 +21,7 @@ public class Customer {
     private String fax;
     private String email;
     private Customergroups group;
-    private Collection<Menu2Customer> menu2Customers;
+    private Collection<Menuweek2Customer> menuweek2Customers;
 
     @Id
     @Column(name = "id", nullable = false, insertable = true, updatable = true)
@@ -159,11 +160,11 @@ public class Customer {
 
     @JoinColumn(name = "customerid", referencedColumnName = "id", nullable = false)
     @OneToMany
-    public Collection<Menu2Customer> getMenu2Customers() {
-        return menu2Customers;
+    public Collection<Menuweek2Customer> getMenuweek2Customers() {
+        return menuweek2Customers;
     }
 
-    public void setMenu2Customers(Collection<Menu2Customer> menu2Customers) {
-        this.menu2Customers = menu2Customers;
+    public void setMenuweek2Customers(Collection<Menuweek2Customer> menuweek2Customers) {
+        this.menuweek2Customers = menuweek2Customers;
     }
 }

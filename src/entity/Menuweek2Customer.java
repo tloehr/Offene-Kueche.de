@@ -6,6 +6,7 @@ import javax.persistence.*;
  * Created by tloehr on 14.10.14.
  */
 @Entity
+@Table(name = "menuweek2customer")
 public class Menuweek2Customer {
     private Menuweek menuweek;
     private Customer customer;

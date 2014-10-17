@@ -7,6 +7,7 @@ package desktop;
 import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
+import desktop.menu.FrmMenu;
 import entity.Mitarbeiter;
 import org.apache.commons.collections.Closure;
 import threads.HeapStat;
@@ -28,7 +29,7 @@ import java.beans.PropertyVetoException;
  */
 public class FrmDesktop extends JFrame {
     //    boolean ADMIN = true;
-    JInternalFrame einbuchen, ausbuchen, umbuchen, produkte, types = null;
+    JInternalFrame einbuchen, ausbuchen, umbuchen, produkte, types, menuweek;
     FrmVorrat vorrat = null;
     FrmUser user = null;
     HeapStat hs;
@@ -327,6 +328,20 @@ public class FrmDesktop extends JFrame {
         }
     }
 
+    private void menuweekMenuItemActionPerformed(ActionEvent e) {
+        menuweek = new FrmMenu();
+        menuweek.addInternalFrameListener(myFrameListener);
+        menuweekMenuItem.setEnabled(false);
+        desktopPane.add(menuweek);
+        Tools.centerOnParent(desktopPane, menuweek);
+        menuweek.toFront();
+        try {
+            menuweek.setMaximum(true);
+        } catch (PropertyVetoException e1) {
+            e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+    }
+
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -338,6 +353,7 @@ public class FrmDesktop extends JFrame {
         vorraeteMenuItem = new JMenuItem();
         produkteMenuItem = new JMenuItem();
         typeMenuItem = new JMenuItem();
+        menuweekMenuItem = new JMenuItem();
         aktionenMenu = new JMenu();
         einbuchenMenuItem = new JMenuItem();
         ausbuchenMenuItem = new JMenuItem();
@@ -363,7 +379,6 @@ public class FrmDesktop extends JFrame {
             public void windowClosing(WindowEvent e) {
                 formWindowClosing(e);
             }
-
             @Override
             public void windowOpened(WindowEvent e) {
                 formWindowOpened(e);
@@ -371,8 +386,8 @@ public class FrmDesktop extends JFrame {
         });
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-                "default:grow",
-                "$ugap, fill:default:grow, fill:default"));
+            "default:grow",
+            "$ugap, fill:default:grow, fill:default"));
 
         //======== menuBar ========
         {
@@ -447,6 +462,17 @@ public class FrmDesktop extends JFrame {
                     }
                 });
                 stammdatenMenu.add(typeMenuItem);
+
+                //---- menuweekMenuItem ----
+                menuweekMenuItem.setText("text");
+                menuweekMenuItem.setFont(new Font("SansSerif", Font.PLAIN, 18));
+                menuweekMenuItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        menuweekMenuItemActionPerformed(e);
+                    }
+                });
+                stammdatenMenu.add(menuweekMenuItem);
             }
             menuBar.add(stammdatenMenu);
 
@@ -566,6 +592,7 @@ public class FrmDesktop extends JFrame {
     private JMenuItem vorraeteMenuItem;
     private JMenuItem produkteMenuItem;
     private JMenuItem typeMenuItem;
+    private JMenuItem menuweekMenuItem;
     private JMenu aktionenMenu;
     private JMenuItem einbuchenMenuItem;
     private JMenuItem ausbuchenMenuItem;
@@ -635,6 +662,10 @@ public class FrmDesktop extends JFrame {
                 types.removeInternalFrameListener(myFrameListener);
                 types = null;
                 typeMenuItem.setEnabled(true);
+            } else if (e.getSource() instanceof FrmMenu) {
+                menuweek.removeInternalFrameListener(myFrameListener);
+                menuweek = null;
+                menuweekMenuItem.setEnabled(true);
             }
             super.internalFrameClosed(e);
         }
