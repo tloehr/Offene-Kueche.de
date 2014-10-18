@@ -9,16 +9,6 @@ import java.util.Date;
 @Entity
 @Table(name = "menuweek")
 public class Menuweek {
-
-    private Menu mon;
-    private Menu tue;
-    private Menu wed;
-    private Menu thu;
-    private Menu fri;
-    private Menu sat;
-    private Menu sun;
-    private Recipefeature recipefeature;
-
     @Id
     @Column(name = "id", nullable = false, insertable = true, updatable = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,6 +37,7 @@ public class Menuweek {
 
     @JoinColumn(name = "featureid", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
+    private Recipefeature recipefeature;
     public Recipefeature getRecipefeature() {
         return recipefeature;
     }
@@ -57,6 +48,7 @@ public class Menuweek {
 
     @JoinColumn(name = "mon", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    private Menu mon;
     public Menu getMon() {
         return mon;
     }
@@ -67,6 +59,7 @@ public class Menuweek {
 
     @JoinColumn(name = "tue", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    private Menu tue;
     public Menu getTue() {
         return tue;
     }
@@ -78,6 +71,7 @@ public class Menuweek {
 
     @JoinColumn(name = "wed", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    private Menu wed;
     public Menu getWed() {
         return wed;
     }
@@ -88,6 +82,7 @@ public class Menuweek {
 
     @JoinColumn(name = "thu", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    private Menu thu;
     public Menu getThu() {
         return thu;
     }
@@ -99,6 +94,7 @@ public class Menuweek {
 
     @JoinColumn(name = "fri", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    private Menu fri;
     public Menu getFri() {
         return fri;
     }
@@ -109,6 +105,7 @@ public class Menuweek {
 
     @JoinColumn(name = "sat", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    private Menu sat;
     public Menu getSat() {
         return sat;
     }
@@ -119,6 +116,7 @@ public class Menuweek {
 
     @JoinColumn(name = "sun", referencedColumnName = "id")
     @ManyToOne(optional = false)
+    private Menu sun;
     public Menu getSun() {
         return sun;
     }

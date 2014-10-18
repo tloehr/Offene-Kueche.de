@@ -9,20 +9,6 @@ import java.util.Collection;
 @Entity
 @Table(name = "customer")
 public class Customer {
-    private String abbrev;
-    private String name;
-    private String firstname;
-    private String orgname;
-    private String street;
-    private String city;
-    private String zip;
-    private String tel;
-    private String mobile;
-    private String fax;
-    private String email;
-    private Customergroups group;
-    private Collection<Menuweek2Customer> menuweek2Customers;
-
     @Id
     @Column(name = "id", nullable = false, insertable = true, updatable = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,6 +24,8 @@ public class Customer {
 
     @Basic
     @Column(name = "abbrev", nullable = false, insertable = true, updatable = true, length = 20)
+    private String abbrev;
+
     public String getAbbrev() {
         return abbrev;
     }
@@ -48,6 +36,8 @@ public class Customer {
 
     @Basic
     @Column(name = "name", nullable = true, insertable = true, updatable = true, length = 200)
+    private String name;
+
     public String getName() {
         return name;
     }
@@ -58,6 +48,8 @@ public class Customer {
 
     @Basic
     @Column(name = "firstname", nullable = true, insertable = true, updatable = true, length = 200)
+    private String firstname;
+
     public String getFirstname() {
         return firstname;
     }
@@ -68,6 +60,8 @@ public class Customer {
 
     @Basic
     @Column(name = "orgname", nullable = true, insertable = true, updatable = true, length = 200)
+    private String orgname;
+
     public String getOrgname() {
         return orgname;
     }
@@ -78,6 +72,8 @@ public class Customer {
 
     @Basic
     @Column(name = "street", nullable = true, insertable = true, updatable = true, length = 200)
+    private String street;
+
     public String getStreet() {
         return street;
     }
@@ -88,6 +84,8 @@ public class Customer {
 
     @Basic
     @Column(name = "city", nullable = true, insertable = true, updatable = true, length = 200)
+    private String city;
+
     public String getCity() {
         return city;
     }
@@ -98,6 +96,8 @@ public class Customer {
 
     @Basic
     @Column(name = "zip", nullable = true, insertable = true, updatable = true, length = 200)
+    private String zip;
+
     public String getZip() {
         return zip;
     }
@@ -108,6 +108,8 @@ public class Customer {
 
     @Basic
     @Column(name = "tel", nullable = true, insertable = true, updatable = true, length = 200)
+    private String tel;
+
     public String getTel() {
         return tel;
     }
@@ -118,6 +120,8 @@ public class Customer {
 
     @Basic
     @Column(name = "mobile", nullable = true, insertable = true, updatable = true, length = 200)
+    private String mobile;
+
     public String getMobile() {
         return mobile;
     }
@@ -128,6 +132,8 @@ public class Customer {
 
     @Basic
     @Column(name = "fax", nullable = true, insertable = true, updatable = true, length = 200)
+    private String fax;
+
     public String getFax() {
         return fax;
     }
@@ -138,6 +144,8 @@ public class Customer {
 
     @Basic
     @Column(name = "email", nullable = true, insertable = true, updatable = true, length = 200)
+    private String email;
+
     public String getEmail() {
         return email;
     }
@@ -146,9 +154,10 @@ public class Customer {
         this.email = email;
     }
 
-
     @JoinColumn(name = "group", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
+    private Customergroups group;
+
     public Customergroups getGroup() {
         return group;
     }
@@ -160,6 +169,8 @@ public class Customer {
 
     @JoinColumn(name = "customerid", referencedColumnName = "id", nullable = false)
     @OneToMany
+    private Collection<Menuweek2Customer> menuweek2Customers;
+
     public Collection<Menuweek2Customer> getMenuweek2Customers() {
         return menuweek2Customers;
     }
