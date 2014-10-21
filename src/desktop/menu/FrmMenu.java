@@ -61,6 +61,10 @@ public class FrmMenu extends JInternalFrame {
 
         //======== this ========
         setVisible(true);
+        setClosable(true);
+        setIconifiable(true);
+        setMaximizable(true);
+        setResizable(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
             "default, $lcgap, pref:grow",

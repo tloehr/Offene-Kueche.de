@@ -413,7 +413,7 @@
             <string>javax.swing.JMenuItem</string> 
             <void method="setProperty"> 
              <string>text</string> 
-             <string>text</string> 
+             <string>Speisepläne</string> 
             </void> 
             <void method="setProperty"> 
              <string>font</string> 

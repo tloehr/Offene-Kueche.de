@@ -8,6 +8,7 @@ import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import desktop.menu.FrmMenu;
+import desktop.products.FrmProdukte;
 import entity.Mitarbeiter;
 import org.apache.commons.collections.Closure;
 import threads.HeapStat;
@@ -71,7 +72,6 @@ public class FrmDesktop extends JFrame {
             }
         }, AWTEvent.KEY_EVENT_MASK);
 
-//        setExtendedState(JFrame.MAXIMIZED_BOTH);
         pack();
         setTitle(tools.Tools.getWindowTitle("Desktop"));
 
@@ -92,6 +92,8 @@ public class FrmDesktop extends JFrame {
         soundMenuItem.setSelected(Main.getProps().getProperty("sound").equalsIgnoreCase("on"));
 
         lblJDBC.setText(Main.getProps().getProperty("javax.persistence.jdbc.url"));
+
+        menuweekMenuItem.setEnabled(Main.isDebug());
 
     }
 
@@ -464,7 +466,7 @@ public class FrmDesktop extends JFrame {
                 stammdatenMenu.add(typeMenuItem);
 
                 //---- menuweekMenuItem ----
-                menuweekMenuItem.setText("text");
+                menuweekMenuItem.setText("Speisepl\u00e4ne");
                 menuweekMenuItem.setFont(new Font("SansSerif", Font.PLAIN, 18));
                 menuweekMenuItem.addActionListener(new ActionListener() {
                     @Override

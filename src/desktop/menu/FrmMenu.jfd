@@ -9,6 +9,10 @@ new FormModel {
 		} ) {
 			name: "this"
 			"visible": true
+			"closable": true
+			"iconifiable": true
+			"maximizable": true
+			"resizable": true
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "label8"
 				"text": "text"

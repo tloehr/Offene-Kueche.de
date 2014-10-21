@@ -56,13 +56,13 @@ public class ProdukteTools {
 
 
     public static ListCellRenderer<Produkte> getListCellRenderer() {
-           return new ListCellRenderer<Produkte>() {
-               @Override
-               public Component getListCellRendererComponent(JList<? extends Produkte> list, Produkte value, int index, boolean isSelected, boolean cellHasFocus) {
-                   return new DefaultListCellRenderer().getListCellRendererComponent(list, "[" + value.getId() + "] " + value.getBezeichnung(), index, isSelected, cellHasFocus);
-               }
-           };
-       }
+        return new ListCellRenderer<Produkte>() {
+            @Override
+            public Component getListCellRendererComponent(JList<? extends Produkte> list, Produkte value, int index, boolean isSelected, boolean cellHasFocus) {
+                return new DefaultListCellRenderer().getListCellRendererComponent(list, "[" + value.getId() + "] " + value.getBezeichnung(), index, isSelected, cellHasFocus);
+            }
+        };
+    }
 
 
     public static List<Produkte> searchProdukte(String search) {
@@ -97,20 +97,20 @@ public class ProdukteTools {
     }
 
     public static ArrayList<Produkte> searchProdukte(Warengruppe warengruppe) {
-           ArrayList produkte = new ArrayList<Produkte>();
-           EntityManager em = Main.getEMF().createEntityManager();
-           Query query = em.createQuery("SELECT p FROM Produkte p WHERE p.ingTypes.warengruppe = :warengruppe");
-           query.setParameter("warengruppe", warengruppe);
-           try {
-               produkte = new ArrayList<Produkte>(query.getResultList());
-           } catch (Exception e1) { // nicht gefunden
-               produkte = null;
-           } finally {
-               em.close();
-           }
+        ArrayList produkte = new ArrayList<Produkte>();
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createQuery("SELECT p FROM Produkte p WHERE p.ingTypes.warengruppe = :warengruppe");
+        query.setParameter("warengruppe", warengruppe);
+        try {
+            produkte = new ArrayList<Produkte>(query.getResultList());
+        } catch (Exception e1) { // nicht gefunden
+            produkte = null;
+        } finally {
+            em.close();
+        }
 
-           return produkte;
-       }
+        return produkte;
+    }
 
     public static ArrayList<Produkte> getProdukte(IngTypes ingTypes) {
         ArrayList produkte = new ArrayList<Produkte>();
@@ -202,21 +202,24 @@ public class ProdukteTools {
         return l;
     }
 
-    public static boolean isGTINinUse(String gtin) {
-        boolean gtininuse = false;
+    public static Produkte getProduct(String gtin) {
+        Produkte product = null;
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Produkte.findByGtin");
+        Query query = em.createQuery("SELECT p FROM Produkte p WHERE p.gtin = :gtin");
         query.setParameter("gtin", gtin.trim());
         try {
-            query.getSingleResult();
-            gtininuse = true;
+            product = (Produkte) query.getSingleResult();
         } catch (NoResultException nre) { // nicht gefunden
-            gtininuse = false;
+            product = null;
         } catch (Exception exc) {
-            gtininuse = true;
+            product = null;
         } finally {
             em.close();
         }
-        return gtininuse;
+        return product;
+    }
+
+    public static boolean isGTINinUse(String gtin) {
+        return getProduct(gtin) != null;
     }
 }

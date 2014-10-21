@@ -7,6 +7,7 @@ new FormModel {
 			name: "this"
 			"defaultCloseOperation": 2
 			"modal": true
+			"$sizePolicy": 1
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 				name: "dialogPane"
 				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
@@ -16,52 +17,74 @@ new FormModel {
 					name: "contentPanel"
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 						"$columnSpecs": "default, right:default, 3dlu, labelcompgap, default:grow, labelcompgap, default, relgap, default, labelcompgap, default"
-						"$rowSpecs": "relgap, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default:grow, linegap, default, linegap, default, linegap, default:grow, linegap, default"
+						"$rowSpecs": "linegap, default, linegap, default, relgap, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default:grow, linegap, default, linegap, default, linegap, default:grow, linegap, default"
 					} ) {
 						name: "panel4"
 						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label10"
+							"text": " Suchen"
+							"font": &Font0 new java.awt.Font( "Arial", 0, 22 )
+							"background": new java.awt.Color( 204, 204, 0, 255 )
+							"opaque": true
+							"foreground": new java.awt.Color( 0, 0, 102, 255 )
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridY": 2
+							"gridWidth": 11
+						} )
+						add( new FormComponent( "org.jdesktop.swingx.JXSearchField" ) {
+							name: "xSearchField1"
+							"font": new java.awt.Font( "Dialog", 1, 18 )
+							"prompt": "GTIN oder Vorrat Nummer"
+							"instantSearchDelay": 2000
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "xSearchField1ActionPerformed", true ) )
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridY": 4
+							"gridWidth": 8
+							"gridX": 2
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "label8"
 							"text": " Produkt Daten"
-							"font": new java.awt.Font( "Arial", 0, 22 )
+							"font": #Font0
 							"background": new java.awt.Color( 51, 51, 255, 255 )
 							"opaque": true
 							"foreground": new java.awt.Color( 102, 204, 255, 255 )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-							"gridY": 3
+							"gridY": 7
 							"gridWidth": 11
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "label1"
 							"text": "Bezeichnung"
-							"font": &Font0 new java.awt.Font( "arial", 0, 18 )
+							"font": &Font1 new java.awt.Font( "arial", 0, 18 )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 2
-							"gridY": 5
+							"gridY": 9
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "txtBezeichnung"
-							"font": &Font1 new java.awt.Font( "arial", 0, 18 )
+							"font": &Font2 new java.awt.Font( "arial", 0, 18 )
 							addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "txtBezeichnungFocusLost", true ) )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 5
-							"gridY": 5
+							"gridY": 9
 							"gridWidth": 5
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "label4"
 							"text": "GTIN"
-							"font": #Font0
+							"font": #Font1
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-							"gridY": 7
+							"gridY": 11
 							"gridX": 2
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "txtGTIN"
-							"font": #Font1
+							"font": #Font2
 							addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "txtGTINFocusLost", true ) )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 5
-							"gridY": 7
+							"gridY": 11
 							"gridWidth": 3
 						} )
 						add( new FormComponent( "javax.swing.JToggleButton" ) {
@@ -70,24 +93,24 @@ new FormModel {
 							addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "btnUnverpacktItemStateChanged", true ) )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 9
-							"gridY": 7
+							"gridY": 11
 							"gridHeight": 3
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "label5"
 							"text": "Packungsgröße"
-							"font": #Font0
+							"font": #Font1
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-							"gridY": 9
+							"gridY": 13
 							"gridX": 2
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "txtPackGroesse"
-							"font": #Font1
+							"font": #Font2
 							addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "txtPackGroesseFocusLost", true ) )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 5
-							"gridY": 9
+							"gridY": 13
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "lblEinheit"
@@ -95,14 +118,14 @@ new FormModel {
 							"font": new java.awt.Font( "arial", 0, 18 )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 7
-							"gridY": 9
+							"gridY": 13
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "label6"
 							"text": "Stoffart"
-							"font": #Font0
+							"font": #Font1
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-							"gridY": 11
+							"gridY": 15
 							"gridX": 2
 						} )
 						add( new FormComponent( "javax.swing.JComboBox" ) {
@@ -110,29 +133,29 @@ new FormModel {
 							"font": new java.awt.Font( "arial", 0, 18 )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 5
-							"gridY": 11
+							"gridY": 15
 							"gridWidth": 5
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "label7"
 							"text": " Allergene"
-							"font": &Font2 new java.awt.Font( "Arial", 0, 22 )
+							"font": &Font3 new java.awt.Font( "Arial", 0, 22 )
 							"background": new java.awt.Color( 204, 0, 204, 255 )
 							"opaque": true
 							"foreground": new java.awt.Color( 0, 255, 255, 255 )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-							"gridY": 13
+							"gridY": 17
 							"gridWidth": 11
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "label9"
 							"text": " Zusatzstoffe"
-							"font": #Font2
+							"font": #Font3
 							"background": new java.awt.Color( 0, 255, 0, 255 )
 							"opaque": true
 							"foreground": new java.awt.Color( 93, 73, 1, 255 )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-							"gridY": 19
+							"gridY": 23
 							"gridWidth": 11
 						} )
 					} )
@@ -173,7 +196,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 805, 725 )
+			"size": new java.awt.Dimension( 805, 780 )
 		} )
 	}
 }

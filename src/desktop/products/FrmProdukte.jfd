@@ -13,7 +13,7 @@
        <class>com.jgoodies.forms.layout.FormLayout</class> 
        <void method="setProperty"> 
         <string>$columnSpecs</string> 
-        <string>249dlu, default:grow</string> 
+        <string>134dlu, default:grow</string> 
        </void> 
        <void method="setProperty"> 
         <string>$rowSpecs</string> 
@@ -72,10 +72,6 @@
              </void> 
             </object> 
             <void method="setProperty"> 
-             <string>special</string> 
-             <boolean>true</boolean> 
-            </void> 
-            <void method="setProperty"> 
              <string>title</string> 
              <string>Suchen</string> 
             </void> 
@@ -86,6 +82,10 @@
               <int>1</int> 
               <int>18</int> 
              </object> 
+            </void> 
+            <void method="setProperty"> 
+             <string>opaque</string> 
+             <boolean>false</boolean> 
             </void> 
             <void property="name"> 
              <string>xTaskPane1</string> 
@@ -148,6 +148,61 @@
                 <string>java.awt.event.ActionListener</string> 
                 <string>actionPerformed</string> 
                 <string>xSearchField1ActionPerformed</string> 
+                <boolean>true</boolean> 
+               </object> 
+              </void> 
+             </object> 
+            </void> 
+           </object> 
+          </void> 
+          <void method="add"> 
+           <object class="com.jformdesigner.model.FormContainer"> 
+            <string>org.jdesktop.swingx.JXTaskPane</string> 
+            <object class="com.jformdesigner.model.FormLayoutManager"> 
+             <class>org.jdesktop.swingx.VerticalLayout</class> 
+             <void method="setProperty"> 
+              <string>gap</string> 
+              <int>10</int> 
+             </void> 
+            </object> 
+            <void method="setProperty"> 
+             <string>title</string> 
+             <string>Funktionen</string> 
+            </void> 
+            <void method="setProperty"> 
+             <string>font</string> 
+             <object class="java.awt.Font"> 
+              <string>Dialog</string> 
+              <int>1</int> 
+              <int>18</int> 
+             </object> 
+            </void> 
+            <void method="setProperty"> 
+             <string>opaque</string> 
+             <boolean>false</boolean> 
+            </void> 
+            <void method="setProperty"> 
+             <string>special</string> 
+             <boolean>true</boolean> 
+            </void> 
+            <void property="name"> 
+             <string>xTaskPane3</string> 
+            </void> 
+            <void method="add"> 
+             <object class="com.jformdesigner.model.FormComponent"> 
+              <string>javax.swing.JButton</string> 
+              <void method="setProperty"> 
+               <string>text</string> 
+               <string>text</string> 
+              </void> 
+              <void property="name"> 
+               <string>btnSearchEditProducts</string> 
+              </void> 
+              <void method="addEvent"> 
+               <object class="com.jformdesigner.model.FormEvent"> 
+                <string>java.awt.event.ActionListener</string> 
+                <string>actionPerformed</string> 
+                <string>btnSearchEditProductsActionPerformed</string> 
                 <boolean>true</boolean> 
                </object> 
               </void> 

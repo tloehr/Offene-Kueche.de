@@ -773,6 +773,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
         lbl4 = new JLabel();
         txtPackGroesse = new JTextField();
         lblEinheit1 = new JLabel();
+        lbl2 = new JLabel();
         pnlStoffart = new JPanel();
         pnlSelStoffart = new JPanel();
         cmbStoffart = new JComboBox();
@@ -781,6 +782,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
         txtNewStoffart = new JTextField();
         btnApplyStoffart = new JButton();
         btnCancelStoffart = new JButton();
+        lbl3 = new JLabel();
         pnlWarengruppe = new JPanel();
         pnlSelWarengruppe = new JPanel();
         cmbWarengruppe = new JComboBox();
@@ -1460,6 +1462,12 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 lblEinheit1.setFont(new Font("sansserif", Font.PLAIN, 24));
                 pnlAddProduct.add(lblEinheit1, CC.xy(5, 7));
 
+                //---- lbl2 ----
+                lbl2.setLabelFor(txtProdBezeichnung);
+                lbl2.setText("Stoffart");
+                lbl2.setFont(new Font("sansserif", Font.PLAIN, 24));
+                pnlAddProduct.add(lbl2, CC.xy(1, 9));
+
                 //======== pnlStoffart ========
                 {
                     pnlStoffart.setLayout(new CardLayout());
@@ -1535,7 +1543,13 @@ public class PnlWareneingang extends DefaultTouchPanel {
                     }
                     pnlStoffart.add(pnlAddStoffart, "add");
                 }
-                pnlAddProduct.add(pnlStoffart, CC.xywh(1, 9, 5, 1));
+                pnlAddProduct.add(pnlStoffart, CC.xywh(3, 9, 3, 1));
+
+                //---- lbl3 ----
+                lbl3.setLabelFor(txtProdBezeichnung);
+                lbl3.setText("Warengruppe");
+                lbl3.setFont(new Font("sansserif", Font.PLAIN, 24));
+                pnlAddProduct.add(lbl3, CC.xy(1, 11));
 
                 //======== pnlWarengruppe ========
                 {
@@ -1613,7 +1627,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                     }
                     pnlWarengruppe.add(pnlAddWarengruppe, "add");
                 }
-                pnlAddProduct.add(pnlWarengruppe, CC.xywh(1, 11, 5, 1));
+                pnlAddProduct.add(pnlWarengruppe, CC.xywh(3, 11, 3, 1));
 
                 //---- btnAcceptProd ----
                 btnAcceptProd.setText("Produkt hinzuf\u00fcgen");
@@ -1711,6 +1725,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private JLabel lbl4;
     private JTextField txtPackGroesse;
     private JLabel lblEinheit1;
+    private JLabel lbl2;
     private JPanel pnlStoffart;
     private JPanel pnlSelStoffart;
     private JComboBox cmbStoffart;
@@ -1719,6 +1734,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private JTextField txtNewStoffart;
     private JButton btnApplyStoffart;
     private JButton btnCancelStoffart;
+    private JLabel lbl3;
     private JPanel pnlWarengruppe;
     private JPanel pnlSelWarengruppe;
     private JComboBox cmbWarengruppe;

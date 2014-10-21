@@ -57,9 +57,6 @@ public class PnlSingleDayMenu extends JPanel {
 
     private void searcherCaretUpdate(CaretEvent e){
 
-
-        Main.debug(e.getDot());
-
         if (e.getDot() == 0) return;
 
         if (popup == null){

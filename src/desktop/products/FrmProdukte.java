@@ -2,7 +2,7 @@
  * Created by JFormDesigner on Thu Aug 11 16:45:25 CEST 2011
  */
 
-package desktop;
+package desktop.products;
 
 import Main.Main;
 import com.jgoodies.forms.factories.CC;
@@ -863,22 +863,33 @@ public class FrmProdukte extends JInternalFrame {
         return onlyWarengruppen;
     }
 
-    boolean isOnlySameClassesAreSelected() {
-        boolean sameClasses = true;
-        Class prevClass = tree.getSelectionPaths()[0].getLastPathComponent().getClass();
-        for (TreePath path : tree.getSelectionPaths()) {
-            Class thisClass = path.getLastPathComponent().getClass();
-            if (!thisClass.equals(prevClass)) {
-                sameClasses = false;
-                break;
-            }
-            prevClass = thisClass;
-        }
-        return sameClasses;
-    }
+//    boolean isOnlySameClassesAreSelected() {
+//        boolean sameClasses = true;
+//        Class prevClass = tree.getSelectionPaths()[0].getLastPathComponent().getClass();
+//        for (TreePath path : tree.getSelectionPaths()) {
+//            Class thisClass = path.getLastPathComponent().getClass();
+//            if (!thisClass.equals(prevClass)) {
+//                sameClasses = false;
+//                break;
+//            }
+//            prevClass = thisClass;
+//        }
+//        return sameClasses;
+//    }
 
     private void pnlMainComponentResized(ComponentEvent e) {
         Tools.packTable(tblProdukt, 0);
+    }
+
+    private void btnSearchEditProductsActionPerformed(ActionEvent e) {
+        DlgProdukt dlg = new DlgProdukt(Main.mainframe, null);
+        dlg.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                super.componentHidden(e);
+                loadTable();
+            }
+        });
     }
 
 
@@ -889,6 +900,8 @@ public class FrmProdukte extends JInternalFrame {
         xTaskPane1 = new JXTaskPane();
         btnSearchAll = new JButton();
         xSearchField1 = new JXSearchField();
+        xTaskPane3 = new JXTaskPane();
+        btnSearchEditProducts = new JButton();
         xTaskPane2 = new JXTaskPane();
         pnlMain = new JPanel();
         jspProdukt = new JScrollPane();
@@ -902,7 +915,7 @@ public class FrmProdukte extends JInternalFrame {
         setClosable(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-            "249dlu, default:grow",
+            "134dlu, default:grow",
             "default:grow"));
 
         //======== jspSearch ========
@@ -913,9 +926,9 @@ public class FrmProdukte extends JInternalFrame {
 
                 //======== xTaskPane1 ========
                 {
-                    xTaskPane1.setSpecial(true);
                     xTaskPane1.setTitle("Suchen");
                     xTaskPane1.setFont(new Font("sansserif", Font.BOLD, 18));
+                    xTaskPane1.setOpaque(false);
                     xTaskPane1.setLayout(new VerticalLayout(10));
 
                     //---- btnSearchAll ----
@@ -942,6 +955,26 @@ public class FrmProdukte extends JInternalFrame {
                     xTaskPane1.add(xSearchField1);
                 }
                 pnlSearch.add(xTaskPane1);
+
+                //======== xTaskPane3 ========
+                {
+                    xTaskPane3.setTitle("Funktionen");
+                    xTaskPane3.setFont(new Font("Dialog", Font.BOLD, 18));
+                    xTaskPane3.setOpaque(false);
+                    xTaskPane3.setSpecial(true);
+                    xTaskPane3.setLayout(new VerticalLayout(10));
+
+                    //---- btnSearchEditProducts ----
+                    btnSearchEditProducts.setText("text");
+                    btnSearchEditProducts.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            btnSearchEditProductsActionPerformed(e);
+                        }
+                    });
+                    xTaskPane3.add(btnSearchEditProducts);
+                }
+                pnlSearch.add(xTaskPane3);
 
                 //======== xTaskPane2 ========
                 {
@@ -993,6 +1026,8 @@ public class FrmProdukte extends JInternalFrame {
     private JXTaskPane xTaskPane1;
     private JButton btnSearchAll;
     private JXSearchField xSearchField1;
+    private JXTaskPane xTaskPane3;
+    private JButton btnSearchEditProducts;
     private JXTaskPane xTaskPane2;
     private JPanel pnlMain;
     private JScrollPane jspProdukt;
