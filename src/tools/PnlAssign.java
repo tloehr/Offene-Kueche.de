@@ -74,16 +74,20 @@ public class PnlAssign<T> extends JPanel {
     }
 
     public ArrayList<T> getAssigned() {
-        return assigned;
-    }
-
-    private void okButtonActionPerformed(ActionEvent e) {
         assigned.clear();
         for (T t : Collections.list(((DefaultListModel<T>) listAssigned.getModel()).elements())) {
             assigned.add(t);
         }
-        setVisible(false);
+        return assigned;
     }
+
+//    private void okButtonActionPerformed(ActionEvent e) {
+//        assigned.clear();
+//        for (T t : Collections.list(((DefaultListModel<T>) listAssigned.getModel()).elements())) {
+//            assigned.add(t);
+//        }
+//        setVisible(false);
+//    }
 
     private void btnPlusActionPerformed(ActionEvent e) {
         for (int index : listAll.getSelectedIndices()) {
@@ -97,7 +101,7 @@ public class PnlAssign<T> extends JPanel {
         // a little complicated but it doesnt work as a simple "removeElement" because the model changes during the process.
         assigned.clear();
         for (int index = 0; index < listAssigned.getModel().getSize(); index++) {
-            if (ArrayUtils.contains(listAssigned.getSelectedIndices(), index)) {
+            if (!ArrayUtils.contains(listAssigned.getSelectedIndices(), index)) {
                 assigned.add(((DefaultListModel<T>) listAssigned.getModel()).getElementAt(index));
             }
         }
@@ -105,10 +109,10 @@ public class PnlAssign<T> extends JPanel {
         listAssigned.setModel(Tools.newListModel(assigned));
     }
 
-    private void cancelButtonActionPerformed(ActionEvent e) {
-        assigned = null;
-        setVisible(false);
-    }
+//    private void cancelButtonActionPerformed(ActionEvent e) {
+//        assigned = null;
+//        setVisible(false);
+//    }
 
     private void txtSearchActionPerformed(ActionEvent e) {
         ArrayList<T> searchList = new ArrayList<T>();
@@ -140,9 +144,6 @@ public class PnlAssign<T> extends JPanel {
         listAssigned = new JList();
         btnPlus = new JButton();
         btnMinux = new JButton();
-        buttonBar = new JPanel();
-        okButton = new JButton();
-        cancelButton = new JButton();
 
         //======== this ========
         setVisible(true);
@@ -156,7 +157,7 @@ public class PnlAssign<T> extends JPanel {
             //======== contentPanel ========
             {
                 contentPanel.setLayout(new FormLayout(
-                    "180dlu:grow, $lcgap, 180dlu:grow",
+                    "180dlu:grow, $ugap, 180dlu:grow",
                     "default, $lgap, fill:default:grow, $lgap, default"));
 
                 //======== panel1 ========
@@ -173,7 +174,8 @@ public class PnlAssign<T> extends JPanel {
                     panel1.add(txtSearch);
 
                     //---- btnClearSearch ----
-                    btnClearSearch.setText("text");
+                    btnClearSearch.setText(null);
+                    btnClearSearch.setIcon(new ImageIcon(getClass().getResource("/artwork/16x16/editclear.png")));
                     btnClearSearch.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -220,35 +222,6 @@ public class PnlAssign<T> extends JPanel {
                 contentPanel.add(btnMinux, CC.xy(3, 5));
             }
             dialogPane.add(contentPanel, BorderLayout.CENTER);
-
-            //======== buttonBar ========
-            {
-                buttonBar.setBorder(Borders.createEmptyBorder("4dlu, 0dlu, 0dlu, 0dlu"));
-                buttonBar.setLayout(new FormLayout(
-                    "$glue, $button, $rgap, $button",
-                    "pref"));
-
-                //---- okButton ----
-                okButton.setText("OK");
-                okButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        okButtonActionPerformed(e);
-                    }
-                });
-                buttonBar.add(okButton, CC.xy(2, 1));
-
-                //---- cancelButton ----
-                cancelButton.setText("Cancel");
-                cancelButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        cancelButtonActionPerformed(e);
-                    }
-                });
-                buttonBar.add(cancelButton, CC.xy(4, 1));
-            }
-            dialogPane.add(buttonBar, BorderLayout.SOUTH);
         }
         add(dialogPane, BorderLayout.CENTER);
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
@@ -266,8 +239,5 @@ public class PnlAssign<T> extends JPanel {
     private JList listAssigned;
     private JButton btnPlus;
     private JButton btnMinux;
-    private JPanel buttonBar;
-    private JButton okButton;
-    private JButton cancelButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

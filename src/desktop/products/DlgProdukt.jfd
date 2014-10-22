@@ -21,7 +21,7 @@ new FormModel {
 					} ) {
 						name: "panel4"
 						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label10"
+							name: "lblSearch"
 							"text": " Suchen"
 							"font": &Font0 new java.awt.Font( "Arial", 0, 22 )
 							"background": new java.awt.Color( 204, 204, 0, 255 )

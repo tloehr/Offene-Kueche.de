@@ -193,7 +193,7 @@
               <string>javax.swing.JButton</string> 
               <void method="setProperty"> 
                <string>text</string> 
-               <string>text</string> 
+               <string>Produkte einzeln bearbeiten</string> 
               </void> 
               <void property="name"> 
                <string>btnSearchEditProducts</string> 

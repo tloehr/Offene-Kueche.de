@@ -10,7 +10,7 @@ new FormModel {
 				name: "dialogPane"
 				"border": sfield com.jgoodies.forms.factories.Borders DIALOG
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-					"$columnSpecs": "180dlu:grow, labelcompgap, 180dlu:grow"
+					"$columnSpecs": "180dlu:grow, unrelgap, 180dlu:grow"
 					"$rowSpecs": "default, linegap, fill:default:grow, linegap, default"
 				} ) {
 					name: "contentPanel"
@@ -22,7 +22,8 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JButton" ) {
 							name: "btnClearSearch"
-							"text": "text"
+							"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
+							"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/16x16/editclear.png" )
 							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnClearSearchActionPerformed", true ) )
 						} )
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) )
@@ -64,31 +65,6 @@ new FormModel {
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "Center"
-				} )
-				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-					"$columnSpecs": "glue, button, relgap, button"
-					"$rowSpecs": "pref"
-				} ) {
-					name: "buttonBar"
-					"border": sfield com.jgoodies.forms.factories.Borders BUTTON_BAR_PAD
-					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "okButton"
-						"text": "OK"
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "okButtonActionPerformed", true ) )
-					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-						"gridX": 2
-						"gridY": 1
-					} )
-					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "cancelButton"
-						"text": "Cancel"
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancelButtonActionPerformed", true ) )
-					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-						"gridX": 4
-						"gridY": 1
-					} )
-				}, new FormLayoutConstraints( class java.lang.String ) {
-					"value": "South"
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "Center"

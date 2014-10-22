@@ -9,6 +9,7 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import entity.*;
 import org.jdesktop.swingx.JXSearchField;
+import tools.Const;
 import tools.PnlAssign;
 import tools.Tools;
 
@@ -29,7 +30,8 @@ public class DlgProdukt extends JDialog {
     private ArrayList<Produkte> myProducts;
     String gtin = null;
     BigDecimal groesse;
-    PnlAssign pnlAllergenes, pnlAdditives;
+    PnlAssign<Allergene> pnlAllergenes;
+    PnlAssign<Additives> pnlAdditives;
     boolean dialogShouldStayOpenedUntilClosed = false;
 
     public DlgProdukt(Frame owner, ArrayList<Produkte> myProducts) {
@@ -51,6 +53,8 @@ public class DlgProdukt extends JDialog {
         xSearchField1.setEnabled(dialogShouldStayOpenedUntilClosed);
         if (dialogShouldStayOpenedUntilClosed) {
             myProducts = new ArrayList<Produkte>();
+            cancelButton.setText("Schliessen");
+            cancelButton.setIcon(Const.icon24stop);
         } else {
             fillEditor();
         }
@@ -96,9 +100,9 @@ public class DlgProdukt extends JDialog {
         fillStoffart();
 
         if (myProducts.size() == 1) {
-            pnlAllergenes = new PnlAssign(new ArrayList(myProducts.get(0).getAllergenes()), AllergeneTools.getAll(), AllergeneTools.getListCellRenderer());
+            pnlAllergenes = new PnlAssign<Allergene>(new ArrayList<Allergene>(myProducts.get(0).getAllergenes()), AllergeneTools.getAll(), AllergeneTools.getListCellRenderer());
             panel4.add(pnlAllergenes, CC.xywh(1, 19, 9, 3));
-            pnlAdditives = new PnlAssign(new ArrayList(myProducts.get(0).getAdditives()), AdditivesTools.getAll(), AdditivesTools.getListCellRenderer());
+            pnlAdditives = new PnlAssign<Additives>(new ArrayList<Additives>(myProducts.get(0).getAdditives()), AdditivesTools.getAll(), AdditivesTools.getListCellRenderer());
             panel4.add(pnlAdditives, CC.xywh(1, 25, 9, 3));
         }
 
@@ -106,7 +110,7 @@ public class DlgProdukt extends JDialog {
             @Override
             public void run() {
                 revalidate();
-                        repaint();
+                repaint();
             }
         });
 
@@ -119,19 +123,19 @@ public class DlgProdukt extends JDialog {
             txtBezeichnung.setEnabled(true);
             txtGTIN.setText(myProducts.get(0).isLoseWare() ? "(lose Ware)" : myProducts.get(0).getGtin());
             txtGTIN.setEnabled(!myProducts.get(0).isLoseWare());
-
+            btnUnverpackt.setEnabled(true);
         } else if (myProducts.size() > 1) {
             txtBezeichnung.setText("(unterschiedliche Werte)");
             txtBezeichnung.setEnabled(false);
             txtGTIN.setText("(unterschiedliche Werte)");
             txtGTIN.setEnabled(false);
-
+            btnUnverpackt.setEnabled(false);
         } else {
             txtBezeichnung.setText("");
             txtBezeichnung.setEnabled(false);
             txtGTIN.setText("");
             txtGTIN.setEnabled(false);
-
+            btnUnverpackt.setEnabled(false);
         }
 
 //        btnUnverpackt.setEnabled(txtGTIN.isEnabled());
@@ -210,10 +214,21 @@ public class DlgProdukt extends JDialog {
                     VorratTools.setzePackungsgroesse(em, produkt);
                 }
 
-
                 if (cmbStoffart.getSelectedIndex() > 0) {
                     produkt.setIngTypes(em.merge((IngTypes) cmbStoffart.getSelectedItem()));
                 }
+
+
+                produkt.getAllergenes().clear();
+                for (Allergene allergene : pnlAllergenes.getAssigned()) {
+                    produkt.getAllergenes().add(em.merge(allergene));
+                }
+
+                produkt.getAdditives().clear();
+                for (Additives additives : pnlAdditives.getAssigned()) {
+                    produkt.getAdditives().add(em.merge(additives));
+                }
+
             }
             em.getTransaction().commit();
         } catch (OptimisticLockException ole) {
@@ -236,6 +251,7 @@ public class DlgProdukt extends JDialog {
     }
 
     private void emptyEditor() {
+        lblSearch.setText(" Suchen");
         txtBezeichnung.setText("");
         txtBezeichnung.setEnabled(false);
         txtGTIN.setText("");
@@ -245,6 +261,10 @@ public class DlgProdukt extends JDialog {
         btnUnverpackt.setEnabled(false);
         txtPackGroesse.setText("");
         txtPackGroesse.setEnabled(false);
+        pnlAdditives.setVisible(false);
+        pnlAllergenes.setVisible(false);
+        pnlAdditives = null;
+        pnlAllergenes = null;
     }
 
     private void btnUnverpacktItemStateChanged(ItemEvent e) {
@@ -274,22 +294,29 @@ public class DlgProdukt extends JDialog {
             // Was genau wird gesucht ?
 
             Produkte foundProduct = null;
+            Vorrat foundVorrat = null;
 
             if (ProdukteTools.isGTIN(suchtext)) {
                 foundProduct = ProdukteTools.getProduct(suchtext);
             }
 
-
             if (foundProduct == null) {
-                foundProduct = VorratTools.findByIDORScanner(suchtext).getProdukt();
+                foundVorrat = VorratTools.findByIDORScanner(suchtext);
+                foundProduct = foundVorrat.getProdukt();
             }
 
             if (foundProduct == null) {
                 emptyEditor();
                 myProducts.clear();
+
+                lblSearch.setText(" Suchen");
+
             } else {
                 myProducts.clear();
                 myProducts.add(foundProduct);
+
+                lblSearch.setText(" Gefunden: ProdID #" + foundProduct.getId() + (foundVorrat == null ? "" : " // VorratID #" + foundVorrat.getId()));
+
                 fillEditor();
             }
         } else {
@@ -303,7 +330,7 @@ public class DlgProdukt extends JDialog {
         dialogPane = new JPanel();
         contentPanel = new JPanel();
         panel4 = new JPanel();
-        label10 = new JLabel();
+        lblSearch = new JLabel();
         xSearchField1 = new JXSearchField();
         label8 = new JLabel();
         label1 = new JLabel();
@@ -343,13 +370,13 @@ public class DlgProdukt extends JDialog {
                         "default, right:default, 3dlu, $lcgap, default:grow, $lcgap, default, $rgap, default, $lcgap, default",
                         "2*($lgap, default), $rgap, 7*($lgap, default), $lgap, default:grow, 2*($lgap, default), $lgap, default:grow, $lgap, default"));
 
-                    //---- label10 ----
-                    label10.setText(" Suchen");
-                    label10.setFont(new Font("Arial", Font.PLAIN, 22));
-                    label10.setBackground(new Color(204, 204, 0));
-                    label10.setOpaque(true);
-                    label10.setForeground(new Color(0, 0, 102));
-                    panel4.add(label10, CC.xywh(1, 2, 11, 1));
+                    //---- lblSearch ----
+                    lblSearch.setText(" Suchen");
+                    lblSearch.setFont(new Font("Arial", Font.PLAIN, 22));
+                    lblSearch.setBackground(new Color(204, 204, 0));
+                    lblSearch.setOpaque(true);
+                    lblSearch.setForeground(new Color(0, 0, 102));
+                    panel4.add(lblSearch, CC.xywh(1, 2, 11, 1));
 
                     //---- xSearchField1 ----
                     xSearchField1.setFont(new Font("Dialog", Font.BOLD, 18));
@@ -505,7 +532,7 @@ public class DlgProdukt extends JDialog {
     private JPanel dialogPane;
     private JPanel contentPanel;
     private JPanel panel4;
-    private JLabel label10;
+    private JLabel lblSearch;
     private JXSearchField xSearchField1;
     private JLabel label8;
     private JLabel label1;

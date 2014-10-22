@@ -965,7 +965,7 @@ public class FrmProdukte extends JInternalFrame {
                     xTaskPane3.setLayout(new VerticalLayout(10));
 
                     //---- btnSearchEditProducts ----
-                    btnSearchEditProducts.setText("text");
+                    btnSearchEditProducts.setText("Produkte einzeln bearbeiten");
                     btnSearchEditProducts.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {

@@ -7,7 +7,6 @@ package desktop;
 import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
-import com.jidesoft.popup.JidePopup;
 import desktop.products.DlgProdukt;
 import entity.*;
 import org.jdesktop.swingx.JXSearchField;
@@ -35,7 +34,7 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
 
     private Pair<Integer, Object> criteria;
     private JPopupMenu menu;
-    private JComponent thisComponent;
+    private JInternalFrame thisComponent;
 
     public FrmIngType() {
         initComponents();
@@ -216,52 +215,39 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
                         }
                     }
 
-                    final JidePopup popup = new JidePopup();
+//                    final JidePopup popup = new JidePopup();
 
                     final PnlAssign<Allergene> pnlAssign = new PnlAssign<Allergene>(listAllergenes, AllergeneTools.getAll(), AllergeneTools.getListCellRenderer());
-                    pnlAssign.addComponentListener(new ComponentAdapter() {
-                        @Override
-                        public void componentHidden(ComponentEvent e) {
-                            popup.hidePopup();
 
-                            if (pnlAssign.getAssigned() == null) return;
 
-                            EntityManager em = Main.getEMF().createEntityManager();
-                            try {
-                                em.getTransaction().begin();
+                    int answer = JOptionPane.showInternalConfirmDialog(thisComponent, pnlAssign, "test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    if (answer == JOptionPane.OK_OPTION) {
+                        if (pnlAssign.getAssigned() == null) return;
 
-                                for (int index : tblTypes.getSelectedRows()) {
-                                    IngTypes myIngType = em.merge(tm.getIngType(index));
-                                    em.lock(myIngType, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-                                    myIngType.getAllergenes().clear();
-                                    for (Allergene allergene : pnlAssign.getAssigned()) {
-                                        myIngType.getAllergenes().add(em.merge(allergene));
-                                    }
+                        EntityManager em = Main.getEMF().createEntityManager();
+                        try {
+                            em.getTransaction().begin();
+
+                            for (int index : tblTypes.getSelectedRows()) {
+                                IngTypes myIngType = em.merge(tm.getIngType(index));
+                                em.lock(myIngType, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+                                myIngType.getAllergenes().clear();
+                                for (Allergene allergene : pnlAssign.getAssigned()) {
+                                    myIngType.getAllergenes().add(em.merge(allergene));
                                 }
-
-                                em.getTransaction().commit();
-                            } catch (OptimisticLockException ole) {
-                                em.getTransaction().rollback();
-                            } catch (Exception exc) {
-                                em.getTransaction().rollback();
-                                Main.fatal(e);
-                            } finally {
-                                em.close();
-                                loadTable();
                             }
 
+                            em.getTransaction().commit();
+                        } catch (OptimisticLockException ole) {
+                            em.getTransaction().rollback();
+                        } catch (Exception exc) {
+                            em.getTransaction().rollback();
+                            Main.fatal(e);
+                        } finally {
+                            em.close();
+                            loadTable();
                         }
-                    });
-
-                    popup.setMovable(false);
-                    popup.getContentPane().setLayout(new BoxLayout(popup.getContentPane(), BoxLayout.LINE_AXIS));
-                    popup.setOwner(tblTypes);
-                    popup.removeExcludedComponent(tblTypes);
-
-                    popup.getContentPane().add(pnlAssign);
-                    popup.setDefaultFocusComponent(pnlAssign);
-
-                    Tools.showPopup(popup, SwingConstants.CENTER);
+                    }
 
 
                 }
@@ -284,52 +270,37 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
                         }
                     }
 
-                    final JidePopup popup = new JidePopup();
-
                     final PnlAssign<Additives> pnlAssign = new PnlAssign<Additives>(listAdditives, AdditivesTools.getAll(), AdditivesTools.getListCellRenderer());
-                    pnlAssign.addComponentListener(new ComponentAdapter() {
-                        @Override
-                        public void componentHidden(ComponentEvent e) {
-                            popup.hidePopup();
 
-                            if (pnlAssign.getAssigned() == null) return;
+                    int answer = JOptionPane.showInternalConfirmDialog(thisComponent, pnlAssign, "test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-                            EntityManager em = Main.getEMF().createEntityManager();
-                            try {
-                                em.getTransaction().begin();
+                    if (answer == JOptionPane.OK_OPTION) {
+                        if (pnlAssign.getAssigned() == null) return;
 
-                                for (int index : tblTypes.getSelectedRows()) {
-                                    IngTypes myIngType = em.merge(tm.getIngType(index));
-                                    em.lock(myIngType, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-                                    myIngType.getAdditives().clear();
-                                    for (Additives additives : pnlAssign.getAssigned()) {
-                                        myIngType.getAdditives().add(em.merge(additives));
-                                    }
+                        EntityManager em = Main.getEMF().createEntityManager();
+                        try {
+                            em.getTransaction().begin();
+
+                            for (int index : tblTypes.getSelectedRows()) {
+                                IngTypes myIngType = em.merge(tm.getIngType(index));
+                                em.lock(myIngType, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+                                myIngType.getAdditives().clear();
+                                for (Additives additives : pnlAssign.getAssigned()) {
+                                    myIngType.getAdditives().add(em.merge(additives));
                                 }
-
-                                em.getTransaction().commit();
-                            } catch (OptimisticLockException ole) {
-                                em.getTransaction().rollback();
-                            } catch (Exception exc) {
-                                em.getTransaction().rollback();
-                                Main.fatal(e);
-                            } finally {
-                                em.close();
-                                loadTable();
                             }
 
+                            em.getTransaction().commit();
+                        } catch (OptimisticLockException ole) {
+                            em.getTransaction().rollback();
+                        } catch (Exception exc) {
+                            em.getTransaction().rollback();
+                            Main.fatal(e);
+                        } finally {
+                            em.close();
+                            loadTable();
                         }
-                    });
-
-                    popup.setMovable(false);
-                    popup.getContentPane().setLayout(new BoxLayout(popup.getContentPane(), BoxLayout.LINE_AXIS));
-                    popup.setOwner(tblTypes);
-                    popup.removeExcludedComponent(tblTypes);
-
-                    popup.getContentPane().add(pnlAssign);
-                    popup.setDefaultFocusComponent(pnlAssign);
-
-                    Tools.showPopup(popup, SwingConstants.CENTER);
+                    }
 
 
                 }
