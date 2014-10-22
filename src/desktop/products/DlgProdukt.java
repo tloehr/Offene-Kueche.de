@@ -49,6 +49,7 @@ public class DlgProdukt extends JDialog {
         IngTypesTools.loadStoffarten(cmbStoffart);
         ((DefaultComboBoxModel) cmbStoffart.getModel()).insertElementAt("(unterschiedliche Werte)", 0);
 
+
         dialogShouldStayOpenedUntilClosed = myProducts == null;
         xSearchField1.setEnabled(dialogShouldStayOpenedUntilClosed);
         if (dialogShouldStayOpenedUntilClosed) {
@@ -116,6 +117,8 @@ public class DlgProdukt extends JDialog {
 
     }
 
+
+
     private void fillBezeichnungGTIN() {
 
         if (myProducts.size() == 1) {
@@ -171,6 +174,7 @@ public class DlgProdukt extends JDialog {
     private void fillStoffart() {
         if (myProducts.size() == 1) {
             cmbStoffart.setSelectedItem(myProducts.get(0).getIngTypes());
+            lblEinheit.setText(ProdukteTools.EINHEIT[myProducts.get(0).getIngTypes().getEinheit()]);
         } else {
             // Testen ob alle markierten Produkte dieselbe Einheit haben
             boolean allegleich = true;
@@ -182,9 +186,12 @@ public class DlgProdukt extends JDialog {
             }
             if (allegleich) {
                 cmbStoffart.setSelectedItem(myProducts.get(0));
+                lblEinheit.setText(ProdukteTools.EINHEIT[myProducts.get(0).getIngTypes().getEinheit()]);
             } else {
                 cmbStoffart.setSelectedIndex(0);
+                lblEinheit.setText("--");
             }
+
 
         }
     }
@@ -199,7 +206,7 @@ public class DlgProdukt extends JDialog {
             em.getTransaction().begin();
             for (Produkte p : myProducts) {
                 Produkte produkt = em.merge(p);
-                em.lock(produkt, LockModeType.OPTIMISTIC);
+                em.lock(produkt, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
 
                 if (txtBezeichnung.isEnabled()) {
                     produkt.setBezeichnung(Tools.catchNull(txtBezeichnung.getText()).trim());
@@ -241,6 +248,9 @@ public class DlgProdukt extends JDialog {
             em.close();
             if (!dialogShouldStayOpenedUntilClosed) {
                 dispose();
+            } else {
+                myProducts.clear();
+                emptyEditor();
             }
         }
 
@@ -265,6 +275,16 @@ public class DlgProdukt extends JDialog {
         pnlAllergenes.setVisible(false);
         pnlAdditives = null;
         pnlAllergenes = null;
+        cmbStoffart.setSelectedIndex(0);
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                revalidate();
+                repaint();
+            }
+        });
+
     }
 
     private void btnUnverpacktItemStateChanged(ItemEvent e) {
@@ -325,6 +345,16 @@ public class DlgProdukt extends JDialog {
         }
     }
 
+    private void cmbStoffartItemStateChanged(ItemEvent e) {
+//        if (e.getStateChange() == ItemEvent.SELECTED){
+//            lblEinheit.setText(ProdukteTools.EINHEIT[((IngTypes) e.getItem()).getEinheit()]);
+//        }
+    }
+
+    private void createUIComponents() {
+        // TODO: add custom component creation code here
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         dialogPane = new JPanel();
@@ -343,6 +373,7 @@ public class DlgProdukt extends JDialog {
         lblEinheit = new JLabel();
         label6 = new JLabel();
         cmbStoffart = new JComboBox();
+        btnEditStoffart = new JButton();
         label7 = new JLabel();
         label9 = new JLabel();
         buttonBar = new JPanel();
@@ -454,8 +485,8 @@ public class DlgProdukt extends JDialog {
                     panel4.add(txtPackGroesse, CC.xy(5, 13));
 
                     //---- lblEinheit ----
-                    lblEinheit.setText("liter");
-                    lblEinheit.setFont(new Font("arial", Font.PLAIN, 18));
+                    lblEinheit.setText("text");
+                    lblEinheit.setFont(new Font("Dialog", Font.PLAIN, 18));
                     panel4.add(lblEinheit, CC.xy(7, 13));
 
                     //---- label6 ----
@@ -465,7 +496,17 @@ public class DlgProdukt extends JDialog {
 
                     //---- cmbStoffart ----
                     cmbStoffart.setFont(new Font("arial", Font.PLAIN, 18));
+                    cmbStoffart.addItemListener(new ItemListener() {
+                        @Override
+                        public void itemStateChanged(ItemEvent e) {
+                            cmbStoffartItemStateChanged(e);
+                        }
+                    });
                     panel4.add(cmbStoffart, CC.xywh(5, 15, 5, 1));
+
+                    //---- btnEditStoffart ----
+                    btnEditStoffart.setText("text");
+                    panel4.add(btnEditStoffart, CC.xy(11, 15));
 
                     //---- label7 ----
                     label7.setText(" Allergene");
@@ -545,6 +586,7 @@ public class DlgProdukt extends JDialog {
     private JLabel lblEinheit;
     private JLabel label6;
     private JComboBox cmbStoffart;
+    private JButton btnEditStoffart;
     private JLabel label7;
     private JLabel label9;
     private JPanel buttonBar;

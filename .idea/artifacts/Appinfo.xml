@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact name="Appinfo">
+    <output-path>$PROJECT_DIR$/out/production/Offene-Kueche.de</output-path>
+    <root id="root">
+      <element id="file-copy" path="$PROJECT_DIR$/appinfo.properties" />
+    </root>
+  </artifact>
+</component>

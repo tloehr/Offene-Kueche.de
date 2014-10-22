@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "5.2.0.0.109" Java: "1.6.0_65" encoding: "UTF-8"
+JFDML JFormDesigner: "5.2.0.0.109" Java: "1.7.0_60" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
@@ -114,8 +114,8 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "lblEinheit"
-							"text": "liter"
-							"font": new java.awt.Font( "arial", 0, 18 )
+							"text": "text"
+							"font": new java.awt.Font( "Dialog", 0, 18 )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 7
 							"gridY": 13
@@ -131,10 +131,18 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JComboBox" ) {
 							name: "cmbStoffart"
 							"font": new java.awt.Font( "arial", 0, 18 )
+							addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbStoffartItemStateChanged", true ) )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 5
 							"gridY": 15
 							"gridWidth": 5
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnEditStoffart"
+							"text": "text"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 11
+							"gridY": 15
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "label7"

@@ -176,7 +176,10 @@ public class Main {
         } else {
             mainframe = new FrmTouch();
         }
-        mainframe.setSize(1280, 1024);
+
+
+        mainframe.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        // mainframe.setSize(1280, 1024);
         mainframe.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 logger.debug(evt.getPropertyName());
