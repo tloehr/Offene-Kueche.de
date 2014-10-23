@@ -3,6 +3,7 @@ package entity;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -111,19 +112,17 @@ public class Produkte {
     @JoinTable(name = "additives2products", joinColumns =
     @JoinColumn(name = "prodid"), inverseJoinColumns =
     @JoinColumn(name = "addid"))
-    private Collection<Additives> additives;
+    private Set<Additives> additives;
+    public Set<Additives> getAdditives() {
+        return additives;
+    }
 //
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "allergene2products", joinColumns =
     @JoinColumn(name = "prodid"), inverseJoinColumns =
     @JoinColumn(name = "allergenid"))
-    private Collection<Allergene> allergenes;
-
-    public Collection<Additives> getAdditives() {
-        return additives;
-    }
-
-    public Collection<Allergene> getAllergenes() {
+    private Set<Allergene> allergenes;
+    public Set<Allergene> getAllergenes() {
         return allergenes;
     }
 

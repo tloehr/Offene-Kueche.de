@@ -127,7 +127,7 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
             lsm.setSelectionInterval(row, row);
         }
 
-        if (e.isPopupTrigger()) {
+        if (SwingUtilities.isRightMouseButton(e)) {
 
             if (menu != null && menu.isVisible()) {
                 menu.setVisible(false);

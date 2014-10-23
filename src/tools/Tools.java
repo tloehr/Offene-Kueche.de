@@ -527,7 +527,9 @@ public class Tools {
             moduleName = ", " + moduleName;
         }
         return Main.appinfo.getProperty("program.PROGNAME") + moduleName + ", v" + Main.appinfo.getProperty("program.VERSION")
-                + "/" + Main.appinfo.getProperty("program.BUILDNUM");
+                + "/" + Main.appinfo.getProperty("program.BUILDNUM") + "/" + Main.appinfo.getProperty("program.BUILDDATE") +
+                (Main.isDebug() ? " (" + Main.getProps().getProperty("javax.persistence.jdbc.url") + ")" : "");
+
 //                +
 //                (OPDE.localocprops.getProperty("debug").equalsIgnoreCase("true") ? " !! DEBUG !!" : "");
     }
@@ -1332,8 +1334,8 @@ public class Tools {
     }
 
     public static void showPopup(JidePopup popup, int location) {
-           showPopup(popup, location, true);
-       }
+        showPopup(popup, location, true);
+    }
 
     private static Point centerOnScreen(JidePopup popup) {
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -1418,8 +1420,6 @@ public class Tools {
         }
         return new Point(x, y);
     }
-
-
 
 
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DataSourceManagerImpl" format="xml" hash="259571186">
+  <component name="DataSourceManagerImpl" format="xml" hash="87432282">
     <data-source source="LOCAL" name="KuechePU" uuid="da4cef5f-77c3-4730-9e2a-be13fb4c683e">
       <driver-ref>mysql</driver-ref>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>

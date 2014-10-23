@@ -87,6 +87,13 @@ public class FrmProdukte extends JInternalFrame {
 //                return LagerTools.LAGERART[l1].compareTo(LagerTools.LAGERART[l2]);
 //            }
 //        });
+//
+//        sorter.addRowSorterListener(new RowSorterListener() {
+//            @Override
+//            public void sorterChanged(RowSorterEvent e) {
+//
+//            }
+//        });
 
         tblProdukt.setRowSorter(sorter);
 
@@ -113,20 +120,27 @@ public class FrmProdukte extends JInternalFrame {
         try {
             em.getTransaction().begin();
             Produkte neuesProdukt = em.merge(target);
-            em.lock(neuesProdukt, LockModeType.OPTIMISTIC);
+            em.lock(neuesProdukt, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
             for (Produkte p : listProducts2Merge) {
                 Produkte altesProdukt = em.merge(p);
-                em.lock(altesProdukt, LockModeType.OPTIMISTIC);
+                em.lock(altesProdukt, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
 
                 for (Vorrat v : altesProdukt.getVorratCollection()) {
                     Vorrat myVorrat = em.merge(v);
                     myVorrat.setProdukt(neuesProdukt);
                 }
-
                 altesProdukt.getVorratCollection().clear();
 
-//                VorratTools.tauscheProdukt(em, altesProdukt, neuesProdukt);
-//                Main.debug("Lösche Produkt (wegen Merge): " + altesProdukt + " (" + altesProdukt.getId() + ")");
+                for (Allergene allergene : altesProdukt.getAllergenes()) {
+                    neuesProdukt.getAllergenes().add(em.merge(allergene));
+                }
+                altesProdukt.getAllergenes().clear();
+
+                for (Additives additives : altesProdukt.getAdditives()) {
+                    neuesProdukt.getAdditives().add(em.merge(additives));
+                }
+                altesProdukt.getAdditives().clear();
+
                 em.remove(altesProdukt);
             }
             em.getTransaction().commit();
@@ -163,7 +177,7 @@ public class FrmProdukte extends JInternalFrame {
             lsm.setSelectionInterval(row, row);
         }
 
-        if (e.isPopupTrigger()) {
+        if (SwingUtilities.isRightMouseButton(e)) {
 
 
             if (menu != null && menu.isVisible()) {
@@ -244,6 +258,7 @@ public class FrmProdukte extends JInternalFrame {
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
                             if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zusammenfassen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
                                 mergeUs(listSelectedProducts, thisProduct);
+                                loadTable();
                             }
                         }
                     });
@@ -915,8 +930,8 @@ public class FrmProdukte extends JInternalFrame {
         setClosable(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-            "134dlu, default:grow",
-            "default:grow"));
+                "134dlu, default:grow",
+                "default:grow"));
 
         //======== jspSearch ========
         {

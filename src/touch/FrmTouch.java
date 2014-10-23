@@ -72,9 +72,7 @@ public class FrmTouch extends JFrame {
         initComponents();
 
         String title = "Touchscreen";
-        if (Main.isDebug()) {
-            title += " (" + Main.getProps().getProperty("javax.persistence.jdbc.url") + ")";
-        }
+
 
         setTitle(tools.Tools.getWindowTitle(title));
 
