@@ -10,6 +10,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import entity.*;
 import org.jdesktop.swingx.JXSearchField;
 import tools.Const;
+import tools.MyJDialog;
 import tools.PnlAssign;
 import tools.Tools;
 
@@ -26,7 +27,8 @@ import java.util.ArrayList;
 /**
  * @author Torsten Löhr
  */
-public class DlgProdukt extends JDialog {
+public class DlgProdukt extends MyJDialog {
+    private final DlgProdukt thisDialog;
     private ArrayList<Produkte> myProducts;
     String gtin = null;
     BigDecimal groesse;
@@ -36,6 +38,7 @@ public class DlgProdukt extends JDialog {
 
     public DlgProdukt(Frame owner, ArrayList<Produkte> myProducts) {
         super(owner);
+        thisDialog = this;
         this.myProducts = myProducts;
         initComponents();
         initDialog();
@@ -107,17 +110,18 @@ public class DlgProdukt extends JDialog {
             pnlAllergenes = null;
 
             pnlAllergenes = new PnlAssign<Allergene>(new ArrayList<Allergene>(myProducts.get(0).getAllergenes()), AllergeneTools.getAll(), AllergeneTools.getListCellRenderer());
-            panel4.add(pnlAllergenes, CC.xywh(1, 19, 9, 3));
+            pnlAssignment.add(pnlAllergenes, CC.xy(1, 3));
             pnlAdditives = new PnlAssign<Additives>(new ArrayList<Additives>(myProducts.get(0).getAdditives()), AdditivesTools.getAll(), AdditivesTools.getListCellRenderer());
-            panel4.add(pnlAdditives, CC.xywh(1, 25, 9, 3));
+            pnlAssignment.add(pnlAdditives, CC.xy(1, 7));
         }
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-//                pack();
                 revalidate();
                 repaint();
+                pack();
+                Tools.centerOnParent(thisDialog);
             }
         });
 
@@ -368,7 +372,7 @@ public class DlgProdukt extends JDialog {
         panel4 = new JPanel();
         lblSearch = new JLabel();
         panel1 = new JPanel();
-        panel2 = new JPanel();
+        pnlAssignment = new JPanel();
         label7 = new JLabel();
         label9 = new JLabel();
         xSearchField1 = new JXSearchField();
@@ -406,8 +410,8 @@ public class DlgProdukt extends JDialog {
                 //======== panel4 ========
                 {
                     panel4.setLayout(new FormLayout(
-                        "default, right:default, 3dlu, $lcgap, default:grow, $lcgap, default, $rgap, 2*(default, $lcgap), default, $ugap, default:grow",
-                        "7*($lgap, default)"));
+                        "right:default, 3dlu, $lcgap, pref:grow, $rgap, 2*(default, $lcgap), default, $ugap, pref",
+                        "7*($lgap, default), $lgap, fill:default:grow"));
 
                     //---- lblSearch ----
                     lblSearch.setText(" Suchen");
@@ -415,20 +419,20 @@ public class DlgProdukt extends JDialog {
                     lblSearch.setBackground(new Color(204, 204, 0));
                     lblSearch.setOpaque(true);
                     lblSearch.setForeground(new Color(0, 0, 102));
-                    panel4.add(lblSearch, CC.xywh(1, 2, 11, 1));
+                    panel4.add(lblSearch, CC.xywh(1, 2, 8, 1));
 
                     //======== panel1 ========
                     {
                         panel1.setBackground(new Color(102, 102, 0));
                         panel1.setLayout(new FlowLayout());
                     }
-                    panel4.add(panel1, CC.xywh(13, 2, 1, 13));
+                    panel4.add(panel1, CC.xywh(10, 2, 1, 15));
 
-                    //======== panel2 ========
+                    //======== pnlAssignment ========
                     {
-                        panel2.setLayout(new FormLayout(
+                        pnlAssignment.setLayout(new FormLayout(
                             "default:grow",
-                            "default, $lgap, default"));
+                            "default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:default:grow"));
 
                         //---- label7 ----
                         label7.setText(" Allergene");
@@ -436,7 +440,7 @@ public class DlgProdukt extends JDialog {
                         label7.setBackground(new Color(204, 0, 204));
                         label7.setOpaque(true);
                         label7.setForeground(Color.cyan);
-                        panel2.add(label7, CC.xy(1, 1));
+                        pnlAssignment.add(label7, CC.xy(1, 1));
 
                         //---- label9 ----
                         label9.setText(" Zusatzstoffe");
@@ -444,9 +448,9 @@ public class DlgProdukt extends JDialog {
                         label9.setBackground(Color.green);
                         label9.setOpaque(true);
                         label9.setForeground(new Color(93, 73, 1));
-                        panel2.add(label9, CC.xy(1, 3));
+                        pnlAssignment.add(label9, CC.xy(1, 5));
                     }
-                    panel4.add(panel2, CC.xywh(15, 2, 1, 13));
+                    panel4.add(pnlAssignment, CC.xywh(12, 2, 1, 15));
 
                     //---- xSearchField1 ----
                     xSearchField1.setFont(new Font("Dialog", Font.BOLD, 18));
@@ -458,7 +462,7 @@ public class DlgProdukt extends JDialog {
                             xSearchField1ActionPerformed(e);
                         }
                     });
-                    panel4.add(xSearchField1, CC.xywh(2, 4, 8, 1));
+                    panel4.add(xSearchField1, CC.xywh(1, 4, 8, 1));
 
                     //---- label8 ----
                     label8.setText(" Produkt Daten");
@@ -466,12 +470,12 @@ public class DlgProdukt extends JDialog {
                     label8.setBackground(new Color(51, 51, 255));
                     label8.setOpaque(true);
                     label8.setForeground(new Color(102, 204, 255));
-                    panel4.add(label8, CC.xywh(1, 6, 11, 1));
+                    panel4.add(label8, CC.xywh(1, 6, 8, 1));
 
                     //---- label1 ----
                     label1.setText("Bezeichnung");
                     label1.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label1, CC.xy(2, 8));
+                    panel4.add(label1, CC.xy(1, 8));
 
                     //---- txtBezeichnung ----
                     txtBezeichnung.setFont(new Font("arial", Font.PLAIN, 18));
@@ -481,12 +485,12 @@ public class DlgProdukt extends JDialog {
                             txtBezeichnungFocusLost(e);
                         }
                     });
-                    panel4.add(txtBezeichnung, CC.xywh(5, 8, 5, 1));
+                    panel4.add(txtBezeichnung, CC.xywh(4, 8, 5, 1));
 
                     //---- label4 ----
                     label4.setText("GTIN");
                     label4.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label4, CC.xy(2, 10));
+                    panel4.add(label4, CC.xy(1, 10));
 
                     //---- txtGTIN ----
                     txtGTIN.setFont(new Font("arial", Font.PLAIN, 18));
@@ -496,7 +500,7 @@ public class DlgProdukt extends JDialog {
                             txtGTINFocusLost(e);
                         }
                     });
-                    panel4.add(txtGTIN, CC.xywh(5, 10, 3, 1));
+                    panel4.add(txtGTIN, CC.xywh(4, 10, 3, 1));
 
                     //---- btnUnverpackt ----
                     btnUnverpackt.setText("unverpackt");
@@ -506,12 +510,12 @@ public class DlgProdukt extends JDialog {
                             btnUnverpacktItemStateChanged(e);
                         }
                     });
-                    panel4.add(btnUnverpackt, CC.xywh(9, 10, 1, 3));
+                    panel4.add(btnUnverpackt, CC.xywh(8, 10, 1, 3));
 
                     //---- label5 ----
                     label5.setText("Packungsgr\u00f6\u00dfe");
                     label5.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label5, CC.xy(2, 12));
+                    panel4.add(label5, CC.xy(1, 12));
 
                     //---- txtPackGroesse ----
                     txtPackGroesse.setFont(new Font("arial", Font.PLAIN, 18));
@@ -521,17 +525,17 @@ public class DlgProdukt extends JDialog {
                             txtPackGroesseFocusLost(e);
                         }
                     });
-                    panel4.add(txtPackGroesse, CC.xy(5, 12));
+                    panel4.add(txtPackGroesse, CC.xy(4, 12));
 
                     //---- lblEinheit ----
                     lblEinheit.setText("text");
                     lblEinheit.setFont(new Font("Dialog", Font.PLAIN, 18));
-                    panel4.add(lblEinheit, CC.xy(7, 12));
+                    panel4.add(lblEinheit, CC.xy(6, 12));
 
                     //---- label6 ----
                     label6.setText("Stoffart");
                     label6.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label6, CC.xy(2, 14));
+                    panel4.add(label6, CC.xy(1, 14));
 
                     //---- cmbStoffart ----
                     cmbStoffart.setFont(new Font("arial", Font.PLAIN, 18));
@@ -541,11 +545,11 @@ public class DlgProdukt extends JDialog {
                             cmbStoffartItemStateChanged(e);
                         }
                     });
-                    panel4.add(cmbStoffart, CC.xywh(5, 14, 5, 1));
+                    panel4.add(cmbStoffart, CC.xywh(4, 14, 3, 1));
 
                     //---- btnEditStoffart ----
                     btnEditStoffart.setText("text");
-                    panel4.add(btnEditStoffart, CC.xy(11, 14));
+                    panel4.add(btnEditStoffart, CC.xy(8, 14));
                 }
                 contentPanel.add(panel4);
             }
@@ -587,7 +591,7 @@ public class DlgProdukt extends JDialog {
             dialogPane.add(buttonBar, BorderLayout.SOUTH);
         }
         contentPane.add(dialogPane, BorderLayout.CENTER);
-        setSize(640, 410);
+        pack();
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
@@ -598,7 +602,7 @@ public class DlgProdukt extends JDialog {
     private JPanel panel4;
     private JLabel lblSearch;
     private JPanel panel1;
-    private JPanel panel2;
+    private JPanel pnlAssignment;
     private JLabel label7;
     private JLabel label9;
     private JXSearchField xSearchField1;

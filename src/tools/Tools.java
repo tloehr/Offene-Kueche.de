@@ -1422,4 +1422,38 @@ public class Tools {
     }
 
 
+    /**
+      * http://stackoverflow.com/questions/2234476/how-to-detect-the-current-display-with-java
+      *
+      * @param myWindow
+      * @return
+      */
+     public static GraphicsDevice getCurrentScreen(JFrame myWindow) {
+
+         GraphicsConfiguration config = myWindow.getGraphicsConfiguration();
+         return config.getDevice();
+
+     }
+
+     public static Rectangle getScreenSize(GraphicsDevice myScreen) {
+         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+         // AFAIK - there are no guarantees that screen devices are in order...
+         // but they have been on every system I've used.
+         GraphicsDevice[] allScreens = env.getScreenDevices();
+         int myScreenIndex = -1;
+         for (int i = 0; i < allScreens.length; i++) {
+             if (allScreens[i].equals(myScreen)) {
+                 myScreenIndex = i;
+                 break;
+             }
+         }
+ //        System.out.println("window is on screen" + myScreenIndex);
+
+         return GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[myScreenIndex].getDefaultConfiguration().getBounds();
+
+
+     }
+
+
 }
