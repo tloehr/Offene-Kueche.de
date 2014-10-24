@@ -27,16 +27,11 @@ public class TKLabel implements Printable {
         this.data = data;
     }
 
-//            hm.put("produkt.bezeichnung", "Cologran");
-//        hm.put("in-store-prefix", "20");
-//        hm.put("vorrat.id", "6743");
-//        hm.put("vorrat.eingang", new Date());
-//        hm.put("user", "tloehr");
     @Override
     public int print(Graphics g, PageFormat pf, int iPage)
             throws PrinterException {
 
-        if (data == null){
+        if (data == null) {
             throw new PrinterException("keine Daten");
         }
 
@@ -90,8 +85,8 @@ public class TKLabel implements Printable {
             g2.setFont(new Font("arial", Font.PLAIN, NORMAL_SIZE * iResMul));
 
             g2.drawString("Lieferant: " + data.get("vorrat.lieferant").toString(), iPosX, iPosY += iAddYN);
-            if (data.containsKey("produkt.gtin")){
-                 g2.drawString("GTIN: " + data.get("produkt.gtin").toString(), iPosX, iPosY += iAddYN);
+            if (data.containsKey("produkt.gtin")) {
+                g2.drawString("GTIN: " + data.get("produkt.gtin").toString(), iPosX, iPosY += iAddYN);
             }
 
             g2.drawString("Eingebucht am: " + DateFormat.getDateInstance().format((Date) data.get("vorrat.eingang")), iPosX, iPosY += iAddYN);
@@ -113,7 +108,7 @@ public class TKLabel implements Printable {
                 }
             });
 
-           
+
         } catch (Exception ex) {
             Main.logger.fatal(ex);
             throw new PrinterException(ex.getMessage());

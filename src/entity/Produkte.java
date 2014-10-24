@@ -113,36 +113,21 @@ public class Produkte {
     @JoinColumn(name = "prodid"), inverseJoinColumns =
     @JoinColumn(name = "addid"))
     private Set<Additives> additives;
+
     public Set<Additives> getAdditives() {
         return additives;
     }
-//
+
+    //
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "allergene2products", joinColumns =
     @JoinColumn(name = "prodid"), inverseJoinColumns =
     @JoinColumn(name = "allergenid"))
     private Set<Allergene> allergenes;
+
     public Set<Allergene> getAllergenes() {
         return allergenes;
     }
-
-    //    public short getLagerart() {
-//        return lagerart;
-//    }
-//
-//    public void setLagerart(short lagerart) {
-//        this.lagerart = lagerart;
-//    }
-//
-//
-//    public short getEinheit() {
-//        return einheit;
-//    }
-//
-//    public void setEinheit(short einheit) {
-//        this.einheit = einheit;
-//    }
-
 
     public BigDecimal getPackGroesse() {
         return packGroesse;

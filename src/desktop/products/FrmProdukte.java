@@ -29,6 +29,9 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,14 +41,39 @@ import java.util.List;
  */
 public class FrmProdukte extends JInternalFrame {
 
-    private Object[] spalten = new Object[]{"Produkt Nr.", "Bezeichnung", "Lagerart", "GTIN", "Packungsgröße", "Einheit", "Stoffart", "Warengruppe"};
     JTree tree;
+    private Object[] spalten = new Object[]{"Produkt Nr.", "Bezeichnung", "Lagerart", "GTIN", "Packungsgröße", "Einheit", "Stoffart", "Warengruppe"};
     private JPopupMenu menu;
 
     private Pair<Integer, Object> criteria;
 
     private JComponent thisComponent;
+    // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+    private JScrollPane jspSearch;
+    private JXTaskPaneContainer pnlSearch;
+    private JXTaskPane xTaskPane1;
+    private JButton btnSearchAll;
+    private JXSearchField xSearchField1;
+    private JXTaskPane xTaskPane3;
+    private JButton btnSearchEditProducts;
+    private JXTaskPane xTaskPane2;
+    private JPanel pnlMain;
+    private JScrollPane jspProdukt;
 
+    //    boolean isOnlySameClassesAreSelected() {
+//        boolean sameClasses = true;
+//        Class prevClass = tree.getSelectionPaths()[0].getLastPathComponent().getClass();
+//        for (TreePath path : tree.getSelectionPaths()) {
+//            Class thisClass = path.getLastPathComponent().getClass();
+//            if (!thisClass.equals(prevClass)) {
+//                sameClasses = false;
+//                break;
+//            }
+//            prevClass = thisClass;
+//        }
+//        return sameClasses;
+//    }
+    private JTable tblProdukt;
 
     public FrmProdukte() {
         initComponents();
@@ -214,6 +242,40 @@ public class FrmProdukte extends JInternalFrame {
             miEdit.setEnabled(rows.length > 0);
             menu.add(miEdit);
 
+            JMenuItem miInfo = new JMenuItem("Vorrat Info");
+            miInfo.setFont(new Font("arial", Font.PLAIN, 18));
+
+            miInfo.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String ids = "";
+                    BigDecimal menge = BigDecimal.ZERO;
+                    int active = 0;
+                    for (Vorrat vorrat : listSelectedProducts.get(0).getVorratCollection()) {
+                        if (!vorrat.isAusgebucht()) {
+                            active++;
+                            ids += vorrat.getId() + ", " + DateFormat.getDateInstance(DateFormat.SHORT).format(vorrat.getEingang()) + (active % 6 == 0 ? "\n" : "; ");
+                            menge = menge.add(VorratTools.getSumme(vorrat));
+                        }
+                    }
+
+                    String text = "Produkt ID: " + listSelectedProducts.get(0).getId() + "\n";
+                    text += listSelectedProducts.get(0).getVorratCollection().size() + " Vorräte insgesamt.\n";
+                    text += "Davon " + active + " noch nicht verbraucht.\n";
+                    if (active > 0) {
+                        text += "Noch vorhandene Gesamtmenge: " + menge.setScale(2, RoundingMode.HALF_UP).toString() + " " + ProdukteTools.EINHEIT[listSelectedProducts.get(0).getIngTypes().getEinheit()] + "\n";
+                        text += "Active IDs: " + ids;
+                    }
+
+
+                    JOptionPane.showInternalMessageDialog(thisComponent, text, "Vorrat Info", JOptionPane.INFORMATION_MESSAGE);
+
+                    Main.debug(text);
+
+                }
+            });
+            miInfo.setEnabled(listSelectedProducts.size() == 1);
+            menu.add(miInfo);
 
             JMenuItem miDelete = new JMenuItem("löschen (inkl. Vorräte)");
             miDelete.setFont(new Font("arial", Font.PLAIN, 18));
@@ -849,7 +911,6 @@ public class FrmProdukte extends JInternalFrame {
         return onlyStoffarten;
     }
 
-
     boolean isAllHaveTheSameWarengruppe() {
         if (!isOnlyStoffartSelected()) {
             return false;
@@ -878,20 +939,6 @@ public class FrmProdukte extends JInternalFrame {
         return onlyWarengruppen;
     }
 
-//    boolean isOnlySameClassesAreSelected() {
-//        boolean sameClasses = true;
-//        Class prevClass = tree.getSelectionPaths()[0].getLastPathComponent().getClass();
-//        for (TreePath path : tree.getSelectionPaths()) {
-//            Class thisClass = path.getLastPathComponent().getClass();
-//            if (!thisClass.equals(prevClass)) {
-//                sameClasses = false;
-//                break;
-//            }
-//            prevClass = thisClass;
-//        }
-//        return sameClasses;
-//    }
-
     private void pnlMainComponentResized(ComponentEvent e) {
         Tools.packTable(tblProdukt, 0);
     }
@@ -906,7 +953,6 @@ public class FrmProdukte extends JInternalFrame {
             }
         });
     }
-
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -1033,19 +1079,5 @@ public class FrmProdukte extends JInternalFrame {
         contentPane.add(pnlMain, CC.xy(2, 1, CC.FILL, CC.FILL));
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
-
-
-    // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    private JScrollPane jspSearch;
-    private JXTaskPaneContainer pnlSearch;
-    private JXTaskPane xTaskPane1;
-    private JButton btnSearchAll;
-    private JXSearchField xSearchField1;
-    private JXTaskPane xTaskPane3;
-    private JButton btnSearchEditProducts;
-    private JXTaskPane xTaskPane2;
-    private JPanel pnlMain;
-    private JScrollPane jspProdukt;
-    private JTable tblProdukt;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }
