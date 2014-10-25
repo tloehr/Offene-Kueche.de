@@ -183,7 +183,7 @@ public class DlgProdukt extends MyJDialog {
     private void fillStoffart() {
         if (myProducts.size() == 1) {
             cmbStoffart.setSelectedItem(myProducts.get(0).getIngTypes());
-            lblEinheit.setText(ProdukteTools.EINHEIT[myProducts.get(0).getIngTypes().getEinheit()]);
+            lblEinheit.setText(IngTypesTools.EINHEIT[myProducts.get(0).getIngTypes().getEinheit()]);
         } else {
             // Testen ob alle markierten Produkte dieselbe Einheit haben
             boolean allegleich = true;
@@ -195,7 +195,7 @@ public class DlgProdukt extends MyJDialog {
             }
             if (allegleich) {
                 cmbStoffart.setSelectedItem(myProducts.get(0));
-                lblEinheit.setText(ProdukteTools.EINHEIT[myProducts.get(0).getIngTypes().getEinheit()]);
+                lblEinheit.setText(IngTypesTools.EINHEIT[myProducts.get(0).getIngTypes().getEinheit()]);
             } else {
                 cmbStoffart.setSelectedIndex(0);
                 lblEinheit.setText("--");
@@ -365,6 +365,9 @@ public class DlgProdukt extends MyJDialog {
         // TODO: add custom component creation code here
     }
 
+    private void thisComponentResized(ComponentEvent e) {
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         dialogPane = new JPanel();
@@ -410,7 +413,7 @@ public class DlgProdukt extends MyJDialog {
                 //======== panel4 ========
                 {
                     panel4.setLayout(new FormLayout(
-                        "right:default, 3dlu, $lcgap, pref:grow, $rgap, 2*(default, $lcgap), default, $ugap, pref",
+                        "right:default, 3dlu, $lcgap, pref:grow, $rgap, 2*(default, $lcgap), default, $ugap, pref:grow",
                         "7*($lgap, default), $lgap, fill:default:grow"));
 
                     //---- lblSearch ----

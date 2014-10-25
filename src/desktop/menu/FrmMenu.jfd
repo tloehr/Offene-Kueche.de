@@ -4,8 +4,8 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JInternalFrame", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-			"$columnSpecs": "default, labelcompgap, pref:grow"
-			"$rowSpecs": "default, linegap, fill:default:grow"
+			"$columnSpecs": "pref:grow"
+			"$rowSpecs": "fill:pref, linegap, fill:default:grow"
 		} ) {
 			name: "this"
 			"visible": true
@@ -13,18 +13,12 @@ new FormModel {
 			"iconifiable": true
 			"maximizable": true
 			"resizable": true
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "label8"
-				"text": "text"
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridWidth": 2
-			} )
 			add( new FormComponent( "com.toedter.calendar.JDateChooser" ) {
 				name: "jdcWeek"
 				"dateFormatString": "'KW'w yyyy"
+				"font": new java.awt.Font( "Dialog", 0, 20 )
 				addEvent( new FormEvent( "java.beans.PropertyChangeListener", "propertyChange", "jdcWeekPropertyChange", true, "date" ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
 				"gridY": 1
 			} )
 			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
@@ -38,7 +32,6 @@ new FormModel {
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridY": 3
-				"gridWidth": 3
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )

@@ -3,17 +3,24 @@ package desktop.menu;
 import Main.Main;
 import com.jidesoft.popup.JidePopup;
 import entity.Menu;
+import entity.Recipes;
 import org.joda.time.LocalDate;
+import tools.Const;
 import tools.GUITools;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Date;
+import java.util.ArrayList;
 
 /**
  * Created by tloehr on 14.10.14.
@@ -24,12 +31,27 @@ public class PnlSingleDayMenu extends JPanel {
     private LocalDate date;
     private JTextField searcher;
     private JidePopup popup;
-    private DefaultListModel dlm;
+    private DefaultListModel<Recipes> dlm;
+    private boolean reactToCaret;
+
+    public Menu getMenu() {
+        return menu;
+    }
 
     public PnlSingleDayMenu(Menu menu, LocalDate date) {
         super();
+
+        reactToCaret = true;
+
+        if (menu == null) {
+            menu = new Menu(date.toDate());
+        }
+
         this.menu = menu;
+
         this.date = menu == null ? date : new LocalDate(menu.getDate());
+
+
         dlm = new DefaultListModel();
         initPanel();
     }
@@ -46,38 +68,48 @@ public class PnlSingleDayMenu extends JPanel {
                 searcherCaretUpdate(e);
             }
         });
+        searcher.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
         topLine.add(searcher);
-        topLine.add(new JButton("X"));
+
+
+        JButton buttonDelete = new JButton("X");
+        buttonDelete.setIcon(Const.icon24remove);
+        buttonDelete.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searcher.setText(null);
+                menu.setRecipe(null);
+            }
+        });
+        topLine.add(buttonDelete);
 
         add(topLine);
-        add(new JLabel(menu == null ? "--" : menu.getRecipe().getTitle()));
+        add(new JLabel(menu.getRecipe() == null ? "--" : menu.getRecipe().getTitle()));
     }
 
 
-    private void searcherCaretUpdate(CaretEvent e){
-
+    private void searcherCaretUpdate(CaretEvent e) {
+        if (!reactToCaret) return;
         if (e.getDot() == 0) return;
 
-        if (popup == null){
+        if (popup == null) {
 
             popup = new JidePopup();
             popup.setMovable(false);
 
-            dlm.clear();
-            dlm.addElement("eins");
-            dlm.addElement("zwei");
-            dlm.addElement("drei");
-            dlm.addElement(new Date());
 
-            final JList list = new JList(dlm);
+            final JList<Recipes> list = new JList(dlm);
             list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
             list.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    if (e.getClickCount() == 2){
-                        Main.debug(list.getSelectedValue());
+                    if (e.getClickCount() == 2) {
+                        menu.setRecipe(list.getSelectedValue());
+                        reactToCaret = false;
+                        searcher.setText(menu.getRecipe().getTitle());
+                        reactToCaret = true;
                         popup.hidePopup();
                     }
                     super.mouseClicked(e);
@@ -86,7 +118,6 @@ public class PnlSingleDayMenu extends JPanel {
 
             popup.setContentPane(new JScrollPane(list));
             popup.removeExcludedComponent(searcher);
-//            popup.setDefaultFocusComponent(txt);
             popup.setOwner(this);
             popup.addPopupMenuListener(new PopupMenuListener() {
                 @Override
@@ -97,7 +128,6 @@ public class PnlSingleDayMenu extends JPanel {
                 @Override
                 public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
                     popup = null;
-                    Main.debug("popupMenuWillBecomeInvisible");
                 }
 
                 @Override
@@ -108,9 +138,27 @@ public class PnlSingleDayMenu extends JPanel {
             GUITools.showPopup(popup, SwingConstants.SOUTH);
         }
 
-        dlm.addElement(new Date());
+        searchRecipes(searcher.getText().trim());
 
 
+    }
+
+
+    private void searchRecipes(String searchPattern) {
+        dlm.clear();
+
+
+        EntityManager em = Main.getEMF().createEntityManager();
+
+        Query query = em.createQuery("SELECT r FROM Recipes r WHERE (r.text LIKE :pattern) OR (r.title LIKE :pattern) ORDER BY r.title ");
+        query.setParameter("pattern", "%" + searchPattern + "%");
+
+        ArrayList<Recipes> listRecipes = new ArrayList<Recipes>(query.getResultList());
+        em.close();
+
+        for (Recipes recipes : listRecipes) {
+            dlm.addElement(recipes);
+        }
     }
 
 }

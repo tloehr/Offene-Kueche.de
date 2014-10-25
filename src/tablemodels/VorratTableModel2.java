@@ -4,7 +4,7 @@
  */
 package tablemodels;
 
-import entity.ProdukteTools;
+import entity.IngTypesTools;
 import entity.Vorrat;
 import entity.VorratTools;
 import tools.Tools;
@@ -122,7 +122,7 @@ public class VorratTableModel2 extends DefaultTableModel implements DeletableTab
                 break;
             }
             case COL_MENGE: {
-                value = Tools.roundScale2(menge.doubleValue()) + " " + ProdukteTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()];
+                value = Tools.roundScale2(menge.doubleValue()) + " " + IngTypesTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()];
                 break;
             }
             default: {

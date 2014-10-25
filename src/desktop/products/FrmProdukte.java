@@ -263,10 +263,9 @@ public class FrmProdukte extends JInternalFrame {
                     text += listSelectedProducts.get(0).getVorratCollection().size() + " Vorräte insgesamt.\n";
                     text += "Davon " + active + " noch nicht verbraucht.\n";
                     if (active > 0) {
-                        text += "Noch vorhandene Gesamtmenge: " + menge.setScale(2, RoundingMode.HALF_UP).toString() + " " + ProdukteTools.EINHEIT[listSelectedProducts.get(0).getIngTypes().getEinheit()] + "\n";
+                        text += "Noch vorhandene Gesamtmenge: " + menge.setScale(2, RoundingMode.HALF_UP).toString() + " " + IngTypesTools.EINHEIT[listSelectedProducts.get(0).getIngTypes().getEinheit()] + "\n";
                         text += "Active IDs: " + ids;
                     }
-
 
                     JOptionPane.showInternalMessageDialog(thisComponent, text, "Vorrat Info", JOptionPane.INFORMATION_MESSAGE);
 
@@ -371,7 +370,7 @@ public class FrmProdukte extends JInternalFrame {
 
             JMenu menuEinheit = new JMenu("Einheit setzen");
             menuEinheit.setFont(new Font("arial", Font.PLAIN, 18));
-            for (final String einheit : ProdukteTools.EINHEIT) {
+            for (final String einheit : IngTypesTools.EINHEIT) {
 
                 JMenuItem miEinheit = new JMenuItem(einheit);
                 miEinheit.addActionListener(new ActionListener() {
@@ -384,7 +383,7 @@ public class FrmProdukte extends JInternalFrame {
                             for (Produkte p : listSelectedProducts) {
                                 Produkte myProdukt = em1.merge(p);
                                 em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-                                myProdukt.getIngTypes().setEinheit((short) ArrayUtils.indexOf(ProdukteTools.EINHEIT, einheit));
+                                myProdukt.getIngTypes().setEinheit((short) ArrayUtils.indexOf(IngTypesTools.EINHEIT, einheit));
                             }
                             em1.getTransaction().commit();
                         } catch (OptimisticLockException ole) {

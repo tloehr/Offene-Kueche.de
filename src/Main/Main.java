@@ -138,15 +138,13 @@ public class Main {
         if (mode != UNKNOWN) {
             props.put("startup", mode == DESKTOP ? "desktop" : "touch");
         }
+
         props.put("eclipselink.session.customizer", "tools.JPAEclipseLinkSessionCustomizer");
 
         emf = Persistence.createEntityManagerFactory("KuechePU", props);
 
-//        em1 = emf.createEntityManager();
         printers = new Printers();
 
-//        logger.info(UIManager.getInstalledLookAndFeels());
-//        UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
         UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 
         css = Tools.readFileAsString(Main.props.getProperty("workdir") + System.getProperty("file.separator") + "standard.css");
@@ -168,18 +166,20 @@ public class Main {
 //        System.exit(0);
 
 
-        //mainframe = new FrmDesktop();
-
         if (mode == DESKTOP) {
             mainframe = new FrmDesktop();
-
+            mainframe.setSize(1366, 720);
         } else {
             mainframe = new FrmTouch();
+            mainframe.setSize(1280, 1024);
         }
 
 
-        mainframe.setExtendedState(JFrame.MAXIMIZED_BOTH);
+//        mainframe.setExtendedState(JFrame.MAXIMIZED_BOTH);
         // mainframe.setSize(1280, 1024);
+
+        // mainframe.setSize(1280, 1024);
+
         mainframe.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 logger.debug(evt.getPropertyName());

@@ -23,6 +23,8 @@ import java.util.ArrayList;
 public class IngTypesTools {
 
 
+    public static final String[] EINHEIT = {"kg", "liter", "Stück"};
+
     public static TableCellRenderer getStorageRenderer() {
         return new TableCellRenderer() {
             @Override
@@ -54,16 +56,16 @@ public class IngTypesTools {
         return new MyTableCellEditor();
     }
 
-    public static IngTypes add(String text, short einheit, Warengruppe warengruppe) {
+    public static IngTypes add(String text, short einheit, short storagetype, Warengruppe warengruppe) {
         IngTypes ingTypes = null;
 
         EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Query query = em.createNamedQuery("Stoffart.findByBezeichnung");
+            Query query = em.createQuery("SELECT s FROM IngTypes s WHERE s.bezeichnung = :bezeichnung");
             query.setParameter("bezeichnung", text.trim());
             if (query.getResultList().isEmpty()) {
                 em.getTransaction().begin();
-                ingTypes = em.merge(new IngTypes(text.trim(), einheit, warengruppe));
+                ingTypes = em.merge(new IngTypes(text.trim(), einheit, storagetype, warengruppe));
                 em.getTransaction().commit();
             } else {
                 ingTypes = (IngTypes) query.getResultList().get(0);
@@ -79,7 +81,7 @@ public class IngTypesTools {
 
     public static void loadStoffarten(JComboBox cmb) {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Stoffart.findAllSorted");
+        Query query = em.createQuery("SELECT s FROM IngTypes s ORDER BY s.bezeichnung");
         try {
             java.util.List stoffarten = query.getResultList();
             cmb.setModel(tools.Tools.newComboboxModel(stoffarten));

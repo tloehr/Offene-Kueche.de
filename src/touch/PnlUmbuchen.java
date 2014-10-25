@@ -165,7 +165,11 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
         EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Query query = em.createNamedQuery("Buchungen.findSUMByLagerAktiv");
+            Query query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " +
+                    // die 0 ist ein kleiner Kniff und wird für das Umbuchen gebraucht.
+                    " WHERE v.lager = :lager AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                    " GROUP BY v");
+
             query.setParameter("lager", (Lager) cmbLager.getSelectedItem());
 
             java.util.List list = query.getResultList();

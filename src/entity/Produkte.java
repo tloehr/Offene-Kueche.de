@@ -21,7 +21,6 @@ import java.util.Set;
         @NamedQuery(name = "Produkte.findByBezeichnung", query = "SELECT p FROM Produkte p WHERE p.bezeichnung = :bezeichnung"),
         @NamedQuery(name = "Produkte.findByGtin", query = "SELECT p FROM Produkte p WHERE p.gtin = :gtin"),
         @NamedQuery(name = "Produkte.findByPackGroesse", query = "SELECT p FROM Produkte p WHERE p.packGroesse = :packGroesse"),
-        @NamedQuery(name = "Produkte.findByStoffart", query = "SELECT p FROM Produkte p WHERE p.ingTypes = :ingTypes"),
         @NamedQuery(name = "Produkte.findByBezeichnungLike", query = "SELECT p FROM Produkte p WHERE p.bezeichnung LIKE :bezeichnung" +
                 "    ORDER BY p.bezeichnung")
 })

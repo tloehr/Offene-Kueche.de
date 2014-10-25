@@ -52,7 +52,7 @@ public class ProdukteTools {
     //public static final Pattern gtin14 = Pattern.compile("^\\d{14}$");
     public static final Pattern gs1128 = Pattern.compile("^(01|02)\\d{14}");
 
-    public static final String EINHEIT[] = {"kg", "liter", "Stueck"};
+//    public static final String EINHEIT[] = {"kg", "liter", "Stueck"};
 
 
     public static ListCellRenderer<Produkte> getListCellRenderer() {
@@ -115,7 +115,7 @@ public class ProdukteTools {
     public static ArrayList<Produkte> getProdukte(IngTypes ingTypes) {
         ArrayList produkte = new ArrayList<Produkte>();
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Produkte.findByStoffart");
+        Query query = em.createQuery("SELECT p FROM Produkte p WHERE p.ingTypes = :ingTypes");
         query.setParameter("ingTypes", ingTypes);
         try {
             produkte = new ArrayList<Produkte>(query.getResultList());

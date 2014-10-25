@@ -5,7 +5,7 @@
 package tablemodels;
 
 import Main.Main;
-import entity.LagerTools;
+import entity.IngTypesTools;
 import entity.Vorrat;
 import entity.VorratTools;
 import tools.Const;
@@ -134,11 +134,11 @@ public class VorratTableModel extends DefaultTableModel implements DeletableTabl
                 break;
             }
             case COL_EINGANGSMENGE: {
-                value = decf.format(VorratTools.getEingangsbestand(vorrat)) + " " + LagerTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()];
+                value = decf.format(VorratTools.getEingangsbestand(vorrat)) + " " + IngTypesTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()];
                 break;
             }
             case COL_RESTMENGE: {
-                value = decf.format(menge) + " " + LagerTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()];
+                value = decf.format(menge) + " " + IngTypesTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()];
                 break;
             }
             case COL_STOFFART: {

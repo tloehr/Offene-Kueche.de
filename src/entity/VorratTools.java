@@ -210,7 +210,7 @@ public class VorratTools {
             hm.put("vorrat.info", vorrat.getProdukt().getGtin());
         } else {
             hm.put("produkt.gtin", "--");
-            hm.put("vorrat.info", getSummeBestand(vorrat) + " " + ProdukteTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()]);
+            hm.put("vorrat.info", getSummeBestand(vorrat) + " " + IngTypesTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()]);
         }
 
 
@@ -228,16 +228,16 @@ public class VorratTools {
      * @param altesProdukt Produkt, dass ersetzt werden soll.
      * @param neuesProdukt Produkt, das als Austausch vorgesehen ist.
      */
-    public static void tauscheProdukt(EntityManager em, Produkte altesProdukt, Produkte neuesProdukt)
-            throws java.lang.IllegalStateException,
-            TransactionRequiredException,
-            PersistenceException {
-        Query query = em.createQuery("UPDATE Vorrat v SET v.produkt = :neu WHERE v.produkt = :alt");
-        query.setParameter("neu", neuesProdukt);
-        query.setParameter("alt", altesProdukt);
-        Main.debug("Tausche Produkt aus: alt(" + altesProdukt + "-" + altesProdukt.getId() + ")\nneu(" + neuesProdukt + "-" + neuesProdukt.getId() + ")");
-        query.executeUpdate();
-    }
+//    public static void tauscheProdukt(EntityManager em, Produkte altesProdukt, Produkte neuesProdukt)
+//            throws java.lang.IllegalStateException,
+//            TransactionRequiredException,
+//            PersistenceException {
+//        Query query = em.createQuery("UPDATE Vorrat v SET v.produkt = :neu WHERE v.produkt = :alt");
+//        query.setParameter("neu", neuesProdukt);
+//        query.setParameter("alt", altesProdukt);
+//        Main.debug("Tausche Produkt aus: alt(" + altesProdukt + "-" + altesProdukt.getId() + ")\nneu(" + neuesProdukt + "-" + neuesProdukt.getId() + ")");
+//        query.executeUpdate();
+//    }
 
     /**
      * Passt die Eingangsbuchung in allen aktiven Vorräten dem Wert aus dem übergebenen Produkt an.

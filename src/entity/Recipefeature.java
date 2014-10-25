@@ -7,6 +7,7 @@ import java.util.Collection;
  * Created by tloehr on 08.10.14.
  */
 @Entity
+@Table(name = "recipefeature")
 public class Recipefeature {
     private String text;
     private short flag;

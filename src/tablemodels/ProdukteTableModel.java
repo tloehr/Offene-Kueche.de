@@ -1,8 +1,8 @@
 package tablemodels;
 
+import entity.IngTypesTools;
 import entity.LagerTools;
 import entity.Produkte;
-import entity.ProdukteTools;
 import tools.Tools;
 
 import javax.swing.table.DefaultTableModel;
@@ -98,7 +98,7 @@ public class ProdukteTableModel extends DefaultTableModel {
                 break;
             }
             case COL_EINHEIT: {
-                value = ProdukteTools.EINHEIT[produkte.getIngTypes().getEinheit()];
+                value = IngTypesTools.EINHEIT[produkte.getIngTypes().getEinheit()];
                 break;
             }
             case COL_STOFFART: {

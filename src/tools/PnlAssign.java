@@ -138,26 +138,26 @@ public class PnlAssign<T> extends JPanel {
         panel1 = new JPanel();
         txtSearch = new JTextField();
         btnClearSearch = new JButton();
-        scrollPane2 = new JScrollPane();
-        listAll = new JList();
         scrollPane3 = new JScrollPane();
         listAssigned = new JList();
+        scrollPane2 = new JScrollPane();
+        listAll = new JList();
         btnPlus = new JButton();
         btnMinux = new JButton();
 
         //======== this ========
         setVisible(true);
-        setLayout(new BorderLayout());
+        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
         //======== dialogPane ========
         {
             dialogPane.setBorder(Borders.createEmptyBorder("9dlu, 9dlu, 9dlu, 9dlu"));
-            dialogPane.setLayout(new BorderLayout());
+            dialogPane.setLayout(new BoxLayout(dialogPane, BoxLayout.X_AXIS));
 
             //======== contentPanel ========
             {
                 contentPanel.setLayout(new FormLayout(
-                    "180dlu:grow, $ugap, 180dlu:grow",
+                    "[pref,150dlu]:grow, $ugap, [pref,150dlu]:grow",
                     "default, $lgap, fill:default:grow, $lgap, default"));
 
                 //======== panel1 ========
@@ -184,13 +184,7 @@ public class PnlAssign<T> extends JPanel {
                     });
                     panel1.add(btnClearSearch);
                 }
-                contentPanel.add(panel1, CC.xy(1, 1));
-
-                //======== scrollPane2 ========
-                {
-                    scrollPane2.setViewportView(listAll);
-                }
-                contentPanel.add(scrollPane2, CC.xy(1, 3, CC.DEFAULT, CC.FILL));
+                contentPanel.add(panel1, CC.xy(1, 1, CC.FILL, CC.FILL));
 
                 //======== scrollPane3 ========
                 {
@@ -199,7 +193,13 @@ public class PnlAssign<T> extends JPanel {
                     listAssigned.setBackground(new Color(255, 204, 153));
                     scrollPane3.setViewportView(listAssigned);
                 }
-                contentPanel.add(scrollPane3, CC.xywh(3, 1, 1, 3, CC.DEFAULT, CC.FILL));
+                contentPanel.add(scrollPane3, CC.xywh(3, 1, 1, 3, CC.FILL, CC.FILL));
+
+                //======== scrollPane2 ========
+                {
+                    scrollPane2.setViewportView(listAll);
+                }
+                contentPanel.add(scrollPane2, CC.xy(1, 3, CC.FILL, CC.FILL));
 
                 //---- btnPlus ----
                 btnPlus.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit_add.png")));
@@ -209,7 +209,7 @@ public class PnlAssign<T> extends JPanel {
                         btnPlusActionPerformed(e);
                     }
                 });
-                contentPanel.add(btnPlus, CC.xy(1, 5));
+                contentPanel.add(btnPlus, CC.xy(1, 5, CC.FILL, CC.FILL));
 
                 //---- btnMinux ----
                 btnMinux.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit_remove.png")));
@@ -219,11 +219,11 @@ public class PnlAssign<T> extends JPanel {
                         btnMinusActionPerformed(e);
                     }
                 });
-                contentPanel.add(btnMinux, CC.xy(3, 5));
+                contentPanel.add(btnMinux, CC.xy(3, 5, CC.FILL, CC.FILL));
             }
-            dialogPane.add(contentPanel, BorderLayout.CENTER);
+            dialogPane.add(contentPanel);
         }
-        add(dialogPane, BorderLayout.CENTER);
+        add(dialogPane);
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
@@ -233,10 +233,10 @@ public class PnlAssign<T> extends JPanel {
     private JPanel panel1;
     private JTextField txtSearch;
     private JButton btnClearSearch;
-    private JScrollPane scrollPane2;
-    private JList listAll;
     private JScrollPane scrollPane3;
     private JList listAssigned;
+    private JScrollPane scrollPane2;
+    private JList listAll;
     private JButton btnPlus;
     private JButton btnMinux;
     // JFormDesigner - End of variables declaration  //GEN-END:variables

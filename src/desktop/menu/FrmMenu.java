@@ -38,12 +38,15 @@ public class FrmMenu extends JInternalFrame {
 
 
         if (menus.isEmpty()) {
-            pnlMain.add(new PnlMenuWeek(new Menuweek()));
+            pnlMain.add(new PnlMenuWeek(new Menuweek(week.toDate())));
         } else {
             for (Menuweek menuweek : menus) {
                 pnlMain.add(new PnlMenuWeek(menuweek));
             }
         }
+
+        jdcWeek.setDate(week.toDate());
+        jdcWeek.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
 
     }
@@ -54,7 +57,6 @@ public class FrmMenu extends JInternalFrame {
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-        label8 = new JLabel();
         jdcWeek = new JDateChooser();
         scrlMain = new JScrollPane();
         pnlMain = new JPanel();
@@ -67,22 +69,19 @@ public class FrmMenu extends JInternalFrame {
         setResizable(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-            "default, $lcgap, pref:grow",
-            "default, $lgap, fill:default:grow"));
-
-        //---- label8 ----
-        label8.setText("text");
-        contentPane.add(label8, CC.xywh(1, 1, 2, 1));
+                "pref:grow",
+                "fill:pref, $lgap, fill:default:grow"));
 
         //---- jdcWeek ----
         jdcWeek.setDateFormatString("'KW'w yyyy");
+        jdcWeek.setFont(new Font("Dialog", Font.PLAIN, 20));
         jdcWeek.addPropertyChangeListener("date", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent e) {
                 jdcWeekPropertyChange(e);
             }
         });
-        contentPane.add(jdcWeek, CC.xy(3, 1));
+        contentPane.add(jdcWeek, CC.xy(1, 1));
 
         //======== scrlMain ========
         {
@@ -93,12 +92,11 @@ public class FrmMenu extends JInternalFrame {
             }
             scrlMain.setViewportView(pnlMain);
         }
-        contentPane.add(scrlMain, CC.xywh(1, 3, 3, 1));
+        contentPane.add(scrlMain, CC.xy(1, 3));
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    private JLabel label8;
     private JDateChooser jdcWeek;
     private JScrollPane scrlMain;
     private JPanel pnlMain;

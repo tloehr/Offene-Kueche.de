@@ -192,8 +192,8 @@ public class PnlPIN extends DefaultTouchPanel {
 
         //======== this ========
         setLayout(new FormLayout(
-            "default:grow, $lcgap, 2*(87dlu, $ugap), 87dlu, $lcgap, default:grow",
-            "default:grow, $lgap, 49dlu, $ugap, 34dlu, 4*($ugap, 82dlu), $lgap, default:grow"));
+            "default:grow, $lcgap, 2*(75dlu, $ugap), 75dlu, $lcgap, default:grow",
+            "default:grow, $lgap, 49dlu, $ugap, 25dlu, 4*($ugap, 75dlu), $lgap, default:grow"));
 
         //======== panel1 ========
         {

@@ -13,14 +13,6 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "stoffart")
-@NamedQueries({
-        @NamedQuery(name = "Stoffart.findAll", query = "SELECT s FROM IngTypes s"),
-        @NamedQuery(name = "Stoffart.findAllSorted", query = "SELECT s FROM IngTypes s ORDER BY s.bezeichnung"),
-        @NamedQuery(name = "Stoffart.findById", query = "SELECT s FROM IngTypes s WHERE s.id = :id"),
-        @NamedQuery(name = "Stoffart.findByBezeichnungLike", query = "SELECT s FROM IngTypes s WHERE s.bezeichnung LIKE :bezeichnung"),
-        @NamedQuery(name = "Stoffart.findByBezeichnung", query = "SELECT s FROM IngTypes s WHERE s.bezeichnung = :bezeichnung"),
-        @NamedQuery(name = "Stoffart.findByEinheit", query = "SELECT s FROM IngTypes s WHERE s.einheit = :einheit"),
-        @NamedQuery(name = "Stoffart.findByWarengruppe", query = "SELECT s FROM IngTypes s WHERE s.warengruppe = :warengruppe")})
 public class IngTypes implements Comparable<IngTypes> {
 
 
@@ -34,10 +26,11 @@ public class IngTypes implements Comparable<IngTypes> {
         this.warengruppe = warengruppe;
     }
 
-    public IngTypes(String bezeichnung, short einheit, Warengruppe warengruppe) {
+    public IngTypes(String bezeichnung, short einheit, short storagetype, Warengruppe warengruppe) {
         this.bezeichnung = bezeichnung;
         this.einheit = einheit;
         this.warengruppe = warengruppe;
+        this.lagerart = storagetype;
     }
 
 
@@ -66,10 +59,11 @@ public class IngTypes implements Comparable<IngTypes> {
         this.id = id;
     }
 
-    private String bezeichnung;
 
     @javax.persistence.Column(name = "Bezeichnung", nullable = false, insertable = true, updatable = true, length = 45, precision = 0)
     @Basic
+    private String bezeichnung;
+
     public String getBezeichnung() {
         return bezeichnung;
     }
@@ -78,10 +72,11 @@ public class IngTypes implements Comparable<IngTypes> {
         this.bezeichnung = bezeichnung;
     }
 
-    private short einheit;
 
     @javax.persistence.Column(name = "Einheit", nullable = false, insertable = true, updatable = true, length = 5, precision = 0)
     @Basic
+    private short einheit;
+
     public short getEinheit() {
         return einheit;
     }
@@ -89,6 +84,14 @@ public class IngTypes implements Comparable<IngTypes> {
     public void setEinheit(short einheit) {
         this.einheit = einheit;
     }
+
+
+    /**
+     * Relationen
+     */
+    @JoinColumn(name = "warengruppe_ID", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    private Warengruppe warengruppe;
 
     public Warengruppe getWarengruppe() {
         return warengruppe;
@@ -99,12 +102,6 @@ public class IngTypes implements Comparable<IngTypes> {
     }
 
 
-    /**
-     * Relationen
-     */
-    @JoinColumn(name = "warengruppe_ID", referencedColumnName = "ID")
-    @ManyToOne(optional = false)
-    private Warengruppe warengruppe;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "ingTypes")
     private Collection<Produkte> produkteCollection;
 
@@ -137,6 +134,9 @@ public class IngTypes implements Comparable<IngTypes> {
     @JoinColumn(name = "recipeid"), inverseJoinColumns =
     @JoinColumn(name = "typeid"))
     private Set<Recipes> recipes;
+    public Set<Recipes> getRecipes() {
+        return recipes;
+    }
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "types2menu", joinColumns =
@@ -161,8 +161,17 @@ public class IngTypes implements Comparable<IngTypes> {
 
         if (einheit != ingTypes.einheit) return false;
         if (id != ingTypes.id) return false;
-        //if (warengruppeId != stoffart.warengruppeId) return false;
+        if (lagerart != ingTypes.lagerart) return false;
+        if (additives != null ? !additives.equals(ingTypes.additives) : ingTypes.additives != null) return false;
+        if (allergenes != null ? !allergenes.equals(ingTypes.allergenes) : ingTypes.allergenes != null) return false;
         if (bezeichnung != null ? !bezeichnung.equals(ingTypes.bezeichnung) : ingTypes.bezeichnung != null)
+            return false;
+        if (menus != null ? !menus.equals(ingTypes.menus) : ingTypes.menus != null) return false;
+        if (produkteCollection != null ? !produkteCollection.equals(ingTypes.produkteCollection) : ingTypes.produkteCollection != null)
+            return false;
+        if (recipes != null ? !recipes.equals(ingTypes.recipes) : ingTypes.recipes != null) return false;
+        if (version != null ? !version.equals(ingTypes.version) : ingTypes.version != null) return false;
+        if (warengruppe != null ? !warengruppe.equals(ingTypes.warengruppe) : ingTypes.warengruppe != null)
             return false;
 
         return true;
@@ -170,10 +179,17 @@ public class IngTypes implements Comparable<IngTypes> {
 
     @Override
     public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
+        int result = (int) lagerart;
+        result = 31 * result + (int) (id ^ (id >>> 32));
         result = 31 * result + (bezeichnung != null ? bezeichnung.hashCode() : 0);
         result = 31 * result + (int) einheit;
-        //result = 31 * result + (int) (warengruppeId ^ (warengruppeId >>> 32));
+        result = 31 * result + (warengruppe != null ? warengruppe.hashCode() : 0);
+        result = 31 * result + (produkteCollection != null ? produkteCollection.hashCode() : 0);
+        result = 31 * result + (allergenes != null ? allergenes.hashCode() : 0);
+        result = 31 * result + (additives != null ? additives.hashCode() : 0);
+        result = 31 * result + (recipes != null ? recipes.hashCode() : 0);
+        result = 31 * result + (menus != null ? menus.hashCode() : 0);
+        result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;
     }
 

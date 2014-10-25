@@ -64,7 +64,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
         this.pp = pp;
         //firstTime = true;
         initComponents();
-        myInitComponents();
+        initPanel();
 
         pageprinter = Main.printers.getPrinters().get("pageprinter");
         etiprinter1 = Main.printers.getPrinters().get(Main.getProps().getProperty("etitype1"));
@@ -231,10 +231,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
         CardLayout cl = (CardLayout) (pnlStoffart.getLayout());
         cl.show(pnlStoffart, "select");
         stoffartEdit = false;
-
-//        if (splitWarengruppe.getDividerLocation() <= 10) {
-//            Tools.showSide(splitWarengruppe, Tools.LEFT_UPPER_SIDE, 400);
-//        }
         setWarengruppeEnabled(false);
     }
 
@@ -267,13 +263,13 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 aktuelleBuchung.setProdukt(produkt);
 
                 //lblProdukt.setText(produkt.getBezeichnung());
-                info(produkt.getBezeichnung() +(produkt.isLoseWare() ? "" : ", "+produkt.getPackGroesse() + " " + ProdukteTools.EINHEIT[produkt.getIngTypes().getEinheit()])  , lblProdukt);
+                info(produkt.getBezeichnung() + (produkt.isLoseWare() ? "" : ", " + produkt.getPackGroesse() + " " + IngTypesTools.EINHEIT[produkt.getIngTypes().getEinheit()]), lblProdukt);
 
-                lblProdInfo.setText(String.valueOf("ProdNr.: " + produkt.getId()) + ", " + (produkt.isLoseWare() ? "[lose Ware]" : produkt.getPackGroesse() + " " + ProdukteTools.EINHEIT[produkt.getIngTypes().getEinheit()]));
+                lblProdInfo.setText(String.valueOf("ProdNr.: " + produkt.getId()) + ", " + (produkt.isLoseWare() ? "[lose Ware]" : produkt.getPackGroesse() + " " + IngTypesTools.EINHEIT[produkt.getIngTypes().getEinheit()]));
 
                 // Menge wird immer eingeschaltet. Bei Produkten mit einer GTIN kann man aber nicht mehr Menge einbuchen
                 // als eine Packung hat, damit kann man Anbrüche einbuchen.
-                lblEinheit.setText(LagerTools.EINHEIT[produkt.getIngTypes().getEinheit()]);
+                lblEinheit.setText(IngTypesTools.EINHEIT[produkt.getIngTypes().getEinheit()]);
                 // Faktor, wenn das Produkt verpackt ist.
                 txtFaktorSetEnabled(produkt.getGtin() != null);
                 if (produkt.getGtin() != null) {
@@ -368,7 +364,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
                 em.getTransaction().commit();
 
-                Tools.log(txtLog, "EINBUCHUNG " + aktuelleBuchung.getFaktor() + "x '" + aktuelleBuchung.getProdukt().getBezeichnung() + "' á " + aktuelleBuchung.getMenge() + " " + ProdukteTools.EINHEIT[aktuelleBuchung.getProdukt().getIngTypes().getEinheit()]);
+                Tools.log(txtLog, "EINBUCHUNG " + aktuelleBuchung.getFaktor() + "x '" + aktuelleBuchung.getProdukt().getBezeichnung() + "' á " + aktuelleBuchung.getMenge() + " " + IngTypesTools.EINHEIT[aktuelleBuchung.getProdukt().getIngTypes().getEinheit()]);
 
                 if (!btnNoPrinter.isSelected()) {
                     Collections.sort(printList); // Sortieren nach den PrimaryKeys
@@ -456,18 +452,19 @@ public class PnlWareneingang extends DefaultTouchPanel {
     }
 
     private void btnApplyStoffartActionPerformed(ActionEvent e) {
-//        if (warengruppeEdit) {
-//            btnApplyWarengruppe.doClick();
-//        }
-//
-//        if (!txtNewStoffart.getText().isEmpty() && cmbWarengruppe.getSelectedItem() != null) {
-//            Stoffart stoffart = StoffartTools.add(txtNewStoffart.getText(), (short) cmbEinheit.getSelectedIndex(), (Warengruppe) cmbWarengruppe.getSelectedItem());
-//            StoffartTools.loadStoffarten(cmbStoffart);
-//            cmbStoffart.setSelectedItem(stoffart);
-//        }
-//        CardLayout cl = (CardLayout) (pnlStoffart.getLayout());
-//        cl.show(pnlStoffart, "select");
-//        stoffartEdit = false;
+        if (warengruppeEdit) {
+            btnApplyWarengruppe.doClick();
+        }
+
+        if (!txtNewStoffart.getText().isEmpty() && cmbWarengruppe.getSelectedItem() != null) {
+            IngTypes ingTypes = IngTypesTools.add(txtNewStoffart.getText(), (short) cmbUnit.getSelectedIndex(), (short) cmbStorageType.getSelectedIndex(), (Warengruppe) cmbWarengruppe.getSelectedItem());
+
+            IngTypesTools.loadStoffarten(cmbStoffart);
+            cmbStoffart.setSelectedItem(ingTypes);
+        }
+        CardLayout cl = (CardLayout) (pnlStoffart.getLayout());
+        cl.show(pnlStoffart, "select");
+        stoffartEdit = false;
 
     }
 
@@ -716,6 +713,12 @@ public class PnlWareneingang extends DefaultTouchPanel {
         }
     }
 
+    private void cmbUnitItemStateChanged(ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            lblUnit1.setText(IngTypesTools.EINHEIT[cmbUnit.getSelectedIndex()]);
+        }
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         pnlMain = new JPanel();
@@ -772,7 +775,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
         txtGTIN = new JTextField();
         lbl4 = new JLabel();
         txtPackGroesse = new JTextField();
-        lblEinheit1 = new JLabel();
+        lblUnit1 = new JLabel();
         lbl2 = new JLabel();
         pnlStoffart = new JPanel();
         pnlSelStoffart = new JPanel();
@@ -780,6 +783,11 @@ public class PnlWareneingang extends DefaultTouchPanel {
         btnAddStoffart = new JButton();
         pnlAddStoffart = new JPanel();
         txtNewStoffart = new JTextField();
+        hSpacer1 = new JPanel(null);
+        cmbUnit = new JComboBox();
+        hSpacer2 = new JPanel(null);
+        cmbStorageType = new JComboBox();
+        hSpacer3 = new JPanel(null);
         btnApplyStoffart = new JButton();
         btnCancelStoffart = new JButton();
         lbl3 = new JLabel();
@@ -1457,10 +1465,10 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 });
                 pnlAddProduct.add(txtPackGroesse, CC.xy(3, 7));
 
-                //---- lblEinheit1 ----
-                lblEinheit1.setText("text");
-                lblEinheit1.setFont(new Font("sansserif", Font.PLAIN, 24));
-                pnlAddProduct.add(lblEinheit1, CC.xy(5, 7));
+                //---- lblUnit1 ----
+                lblUnit1.setText("text");
+                lblUnit1.setFont(new Font("sansserif", Font.PLAIN, 24));
+                pnlAddProduct.add(lblUnit1, CC.xy(5, 7));
 
                 //---- lbl2 ----
                 lbl2.setLabelFor(txtProdBezeichnung);
@@ -1518,6 +1526,23 @@ public class PnlWareneingang extends DefaultTouchPanel {
                             }
                         });
                         pnlAddStoffart.add(txtNewStoffart);
+                        pnlAddStoffart.add(hSpacer1);
+
+                        //---- cmbUnit ----
+                        cmbUnit.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                        cmbUnit.addItemListener(new ItemListener() {
+                            @Override
+                            public void itemStateChanged(ItemEvent e) {
+                                cmbUnitItemStateChanged(e);
+                            }
+                        });
+                        pnlAddStoffart.add(cmbUnit);
+                        pnlAddStoffart.add(hSpacer2);
+
+                        //---- cmbStorageType ----
+                        cmbStorageType.setFont(new Font("SansSerif", Font.PLAIN, 24));
+                        pnlAddStoffart.add(cmbStorageType);
+                        pnlAddStoffart.add(hSpacer3);
 
                         //---- btnApplyStoffart ----
                         btnApplyStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -1724,7 +1749,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private JTextField txtGTIN;
     private JLabel lbl4;
     private JTextField txtPackGroesse;
-    private JLabel lblEinheit1;
+    private JLabel lblUnit1;
     private JLabel lbl2;
     private JPanel pnlStoffart;
     private JPanel pnlSelStoffart;
@@ -1732,6 +1757,11 @@ public class PnlWareneingang extends DefaultTouchPanel {
     private JButton btnAddStoffart;
     private JPanel pnlAddStoffart;
     private JTextField txtNewStoffart;
+    private JPanel hSpacer1;
+    private JComboBox cmbUnit;
+    private JPanel hSpacer2;
+    private JComboBox cmbStorageType;
+    private JPanel hSpacer3;
     private JButton btnApplyStoffart;
     private JButton btnCancelStoffart;
     private JLabel lbl3;
@@ -1749,9 +1779,11 @@ public class PnlWareneingang extends DefaultTouchPanel {
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
 
-    // Vorbereitungen, die ich neben dem Designer noch treffen muss.
-    private void myInitComponents() {
+    private void initPanel() {
         aktuelleBuchung = new Buchung();
+
+        cmbUnit.setModel(new DefaultComboBoxModel(IngTypesTools.EINHEIT));
+        cmbStorageType.setModel(new DefaultComboBoxModel(LagerTools.LAGERART));
 
         df = DateFormat.getDateInstance();
         tf = DateFormat.getTimeInstance();

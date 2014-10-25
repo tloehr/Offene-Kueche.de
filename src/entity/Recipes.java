@@ -9,10 +9,6 @@ import java.util.Collection;
 @Entity
 @Table(name = "recipes")
 public class Recipes {
-    private String title;
-    private String text;
-    private Collection<Recipefeature> features;
-
     @Id
     @Column(name = "id", nullable = false, insertable = true, updatable = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +24,8 @@ public class Recipes {
 
     @Basic
     @Column(name = "title", nullable = false, insertable = true, updatable = true, length = 500)
+    private String title;
+
     public String getTitle() {
         return title;
     }
@@ -38,6 +36,8 @@ public class Recipes {
 
     @Basic
     @Column(name = "text", nullable = true, insertable = true, updatable = true, length = 16777215)
+    private String text;
+
     public String getText() {
         return text;
     }
@@ -50,6 +50,8 @@ public class Recipes {
     @JoinTable(name = "recipe2feature", joinColumns =
     @JoinColumn(name = "recipeid"), inverseJoinColumns =
     @JoinColumn(name = "featureid"))
+    private Collection<Recipefeature> features;
+
     public Collection<Recipefeature> getFeatures() {
         return features;
     }
@@ -57,6 +59,17 @@ public class Recipes {
     public void setFeatures(Collection<Recipefeature> features) {
         this.features = features;
     }
+
+
+//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "recipe")
+//        private Collection<Menu> menuCollection;
+//
+//        public Collection<Menu> getMenuCollection() {
+//            return menuCollection;
+//        }
+//
+
+
 
     @Version
     @Column(name = "version")
@@ -71,9 +84,10 @@ public class Recipes {
         Recipes recipes = (Recipes) o;
 
         if (id != recipes.id) return false;
-        if (version != recipes.version) return false;
+        if (features != null ? !features.equals(recipes.features) : recipes.features != null) return false;
         if (text != null ? !text.equals(recipes.text) : recipes.text != null) return false;
         if (title != null ? !title.equals(recipes.title) : recipes.title != null) return false;
+        if (version != null ? !version.equals(recipes.version) : recipes.version != null) return false;
 
         return true;
     }
@@ -83,8 +97,13 @@ public class Recipes {
         int result = (int) (id ^ (id >>> 32));
         result = 31 * result + (title != null ? title.hashCode() : 0);
         result = 31 * result + (text != null ? text.hashCode() : 0);
-        result = 31 * result + (int) (version ^ (version >>> 32));
+        result = 31 * result + (features != null ? features.hashCode() : 0);
+        result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;
     }
 
+    @Override
+    public String toString() {
+        return title;
+    }
 }

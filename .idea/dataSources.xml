@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DataSourceManagerImpl" format="xml" hash="87432282">
+  <component name="DataSourceManagerImpl" format="xml" hash="3544705053">
     <data-source source="LOCAL" name="KuechePU" uuid="da4cef5f-77c3-4730-9e2a-be13fb4c683e">
       <driver-ref>mysql</driver-ref>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
@@ -9,7 +9,7 @@
       <user-password>dfcedfc8df87dfc0dfc5dfd8df87dfdfdfc1df87dfc9</user-password>
       <libraries>
         <library>
-          <url>file://C:\Users\Torsten\Documents\lib\mysql-connector-java-5.1.31-bin.jar</url>
+          <url>file://$PROJECT_DIR$/../../lib/mysql-connector-java-5.1.31-bin.jar</url>
         </library>
       </libraries>
     </data-source>

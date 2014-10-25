@@ -27,21 +27,19 @@ public class LagerTools {
     public static final short LAGERART_TROCKENLAGER = 4;
     public static final short LAGERART_NORMAL = 5;
 
-    public static final String EINHEIT[] = {"kg", "liter", "Stück"};
-
 
     public static TableCellRenderer getEinheitTableCellRenderer() {
         return new TableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                return new DefaultTableCellRenderer().getTableCellRendererComponent(table, EINHEIT[(Short) value], isSelected, hasFocus, row, column);
+                return new DefaultTableCellRenderer().getTableCellRendererComponent(table, IngTypesTools.EINHEIT[(Short) value], isSelected, hasFocus, row, column);
             }
         };
     }
 
     public static class MyEinheitTableCellEditor extends DefaultCellEditor {
         MyEinheitTableCellEditor() {
-            super(new JComboBox<String>(new DefaultComboBoxModel<String>(EINHEIT)));
+            super(new JComboBox<String>(new DefaultComboBoxModel<String>(IngTypesTools.EINHEIT)));
             setClickCountToStart(2);
         }
 

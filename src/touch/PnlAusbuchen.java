@@ -8,7 +8,7 @@ package touch;
 import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
-import entity.LagerTools;
+import entity.IngTypesTools;
 import entity.ProdukteTools;
 import entity.Vorrat;
 import entity.VorratTools;
@@ -227,7 +227,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
 
     private void showVorrat() {
         info(vorrat.getProdukt().getBezeichnung(), lblVorrat);
-        lblEinheit.setText(LagerTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()]);
+        lblEinheit.setText(IngTypesTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()]);
         txtMenge.setText(format.format(VorratTools.getSummeBestand(vorrat)));
         txtMenge.setEnabled(true);
         btnKomplettAusbuchen.setEnabled(true);

@@ -16,7 +16,7 @@ new FormModel {
 				} ) {
 					name: "contentPanel"
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-						"$columnSpecs": "right:default, 3dlu, labelcompgap, pref:grow, relgap, default, labelcompgap, default, labelcompgap, default, unrelgap, pref"
+						"$columnSpecs": "right:default, 3dlu, labelcompgap, pref:grow, relgap, default, labelcompgap, default, labelcompgap, default, unrelgap, pref:grow"
 						"$rowSpecs": "linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, fill:default:grow"
 					} ) {
 						name: "panel4"
