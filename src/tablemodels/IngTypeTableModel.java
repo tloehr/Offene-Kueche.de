@@ -7,7 +7,6 @@ import entity.Warengruppe;
 
 import javax.persistence.EntityManager;
 import javax.persistence.OptimisticLockException;
-import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.text.DateFormat;
 import java.util.List;
@@ -82,10 +81,11 @@ public class IngTypeTableModel extends DefaultTableModel {
             fireTableCellUpdated(row, column);
 
         } catch (OptimisticLockException ole) {
-            JOptionPane.showMessageDialog(Main.mainframe,
-                    "Ein oder mehere Objekt(e) wurden in der Zwischenzeit verändert. Änderung wird nicht angenommen.",
-                    "Zugriffskonflikt",
-                    JOptionPane.WARNING_MESSAGE);
+            Main.warn(ole);
+//            JOptionPane.showMessageDialog(Main.mainframe,
+//                    "Ein oder mehere Objekt(e) wurden in der Zwischenzeit verändert. Änderung wird nicht angenommen.",
+//                    "Zugriffskonflikt",
+//                    JOptionPane.WARNING_MESSAGE);
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }

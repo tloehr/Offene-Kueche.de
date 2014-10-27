@@ -239,6 +239,7 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
 
                             em.getTransaction().commit();
                         } catch (OptimisticLockException ole) {
+                            Main.warn(ole);
                             em.getTransaction().rollback();
                         } catch (Exception exc) {
                             em.getTransaction().rollback();
@@ -292,6 +293,7 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
 
                             em.getTransaction().commit();
                         } catch (OptimisticLockException ole) {
+                            Main.warn(ole);
                             em.getTransaction().rollback();
                         } catch (Exception exc) {
                             em.getTransaction().rollback();

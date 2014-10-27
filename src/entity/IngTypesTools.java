@@ -150,6 +150,7 @@ public class IngTypesTools {
 
 
         } catch (OptimisticLockException ole) {
+            Main.warn(ole);
             em.getTransaction().rollback();
         } catch (Exception e) {
             em.getTransaction().rollback();

@@ -1,5 +1,7 @@
 package entity;
 
+import tools.Const;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -13,6 +15,110 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "buchungen")
+
+
+@NamedQueries({
+        @NamedQuery(name = "Buchungen.findAll", query = "SELECT b FROM Buchungen b"),
+        @NamedQuery(name = "Buchungen.findById", query = "SELECT b FROM Buchungen b WHERE b.id = :id"),
+        @NamedQuery(name = "Buchungen.findByVorrat", query = "SELECT b FROM Buchungen b WHERE b.vorrat = :vorrat"),
+        @NamedQuery(name = "Buchungen.findByMenge", query = "SELECT b FROM Buchungen b WHERE b.menge = :menge"),
+        @NamedQuery(name = "Buchungen.findByDatum", query = "SELECT b FROM Buchungen b WHERE b.datum = :datum"),
+        @NamedQuery(name = "Buchungen.findByMitarbeiter", query = "SELECT b FROM Buchungen b WHERE b.mitarbeiter = :mitarbeiter"),
+        @NamedQuery(name = "Buchungen.findByText", query = "SELECT b FROM Buchungen b WHERE b.text = :text"),
+        // BY Vorrat
+        @NamedQuery(name = "Buchungen.findSUMByVorratAktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v = :vorrat AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByVorratAlle", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v = :vorrat " +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByVorratInaktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v = :vorrat AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        // BY EINGANGSDATUM
+        @NamedQuery(name = "Buchungen.findSUMByVorratDatumAktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.eingang BETWEEN :eingang1 AND :eingang2 AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByVorratDatumAlle", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.eingang BETWEEN :eingang1 AND :eingang2 " +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByVorratDatumInaktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.eingang BETWEEN :eingang1 AND :eingang2  AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        // BY BEZEICHNUNG
+        @NamedQuery(name = "Buchungen.findSUMByProduktBezeichnungAktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.produkt.bezeichnung LIKE :bezeichnung AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByProduktBezeichnungAlle", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.produkt.bezeichnung LIKE :bezeichnung " +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByProduktBezeichnungInaktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.produkt.bezeichnung LIKE :bezeichnung AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        // BY PRODUKT
+        @NamedQuery(name = "Buchungen.findSUMByProduktAktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.produkt = :produkt AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByProduktAlle", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.produkt = :produkt " +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByProduktInaktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.produkt = :produkt AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        // BY LAGER
+        @NamedQuery(name = "Buchungen.findSUMByLagerAktiv", query = "SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                " WHERE v.lager = :lager AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByLagerAlle", query = "SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                " WHERE v.lager = :lager " +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByLagerInaktiv", query = "SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                " WHERE v.lager = :lager AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        // BY LAGERART
+        @NamedQuery(name = "Buchungen.findSUMByLagerartAktiv", query = "SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                " WHERE v.lager.lagerart = :lagerart AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByLagerartAlle", query = "SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                " WHERE v.lager.lagerart = :lagerart " +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByLagerartInaktiv", query = "SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                " WHERE v.lager.lagerart = :lagerart AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        // BY WARENGRUPPE
+        @NamedQuery(name = "Buchungen.findSUMByWarengruppeAktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.produkt.ingTypes.warengruppe = :warengruppe AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByWarengruppeAlle", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.produkt.ingTypes.warengruppe = :warengruppe " +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByWarengruppeInaktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.produkt.ingTypes.warengruppe = :warengruppe AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        // BY LIEFERANT
+        @NamedQuery(name = "Buchungen.findSUMByLieferantAktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.lieferant = :lieferant AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByLieferantAlle", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.lieferant = :lieferant " +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByLieferantInakiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.lieferant = :lieferant AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        // ALLE
+        @NamedQuery(name = "Buchungen.findSUMByAlleAlle", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByAlleAktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByAlleInaktiv", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findSUMByAlleAngebrochenen", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                " WHERE v.anbruch < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES + " AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                " GROUP BY v"),
+        @NamedQuery(name = "Buchungen.findByStatus", query = "SELECT b FROM Buchungen b WHERE b.status = :status")})
+
 public class Buchungen {
     @javax.persistence.Column(name = "ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
     @Id

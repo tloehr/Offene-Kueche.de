@@ -29,8 +29,6 @@ public class Produkte {
     public Produkte() {
         this.id = 0l;
         this.bezeichnung = "";
-//        this.lagerart = -1;
-//        this.einheit = -1;
         this.gtin = null;
         this.packGroesse = BigDecimal.ONE.negate();
         this.ingTypes = null;
@@ -73,16 +71,6 @@ public class Produkte {
     public void setGtin(String gtin) {
         this.gtin = gtin;
     }
-
-//
-//    @javax.persistence.Column(name = "Lagerart", nullable = false, insertable = true, updatable = true, length = 5, precision = 0)
-//    @Basic
-//    private short lagerart;
-//
-//
-//    @javax.persistence.Column(name = "Einheit", nullable = false, insertable = true, updatable = true, length = 5, precision = 0)
-//    @Basic
-//    private short einheit;
 
 
     @javax.persistence.Column(name = "PackGroesse", nullable = true, insertable = true, updatable = true, length = 12, precision = 4)
@@ -157,9 +145,7 @@ public class Produkte {
 
         Produkte produkte = (Produkte) o;
 
-//        if (einheit != produkte.einheit) return false;
         if (id != produkte.id) return false;
-//        if (lagerart != produkte.lagerart) return false;
         if (bezeichnung != null ? !bezeichnung.equals(produkte.bezeichnung) : produkte.bezeichnung != null)
             return false;
         if (gtin != null ? !gtin.equals(produkte.gtin) : produkte.gtin != null) return false;

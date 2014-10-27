@@ -461,7 +461,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                             em.getTransaction().commit();
                             loadVorratTable();
                         } catch (OptimisticLockException ole) {
-                            Main.logger.info(ole);
+                            Main.warn(ole);
                             em.getTransaction().rollback();
                         } catch (Exception e1) {
                             em.getTransaction().rollback();
@@ -492,7 +492,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                             em.getTransaction().commit();
                             loadVorratTable();
                         } catch (OptimisticLockException ole) {
-                            Main.logger.info(ole);
+                            Main.warn(ole);
                             em.getTransaction().rollback();
                         } catch (Exception e1) {
                             em.getTransaction().rollback();
@@ -525,7 +525,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                             em.getTransaction().commit();
                             loadVorratTable();
                         } catch (OptimisticLockException ole) {
-                            Main.logger.info(ole);
+                            Main.warn(ole);
                             em.getTransaction().rollback();
                         } catch (Exception e1) {
                             em.getTransaction().rollback();
@@ -565,7 +565,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                                     em.getTransaction().commit();
                                     loadVorratTable();
                                 } catch (OptimisticLockException ole) {
-                                    Main.logger.info(ole);
+                                    Main.warn(ole);
                                     em.getTransaction().rollback();
                                 } catch (Exception e1) {
                                     em.getTransaction().rollback();
@@ -612,7 +612,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                                     em.getTransaction().commit();
                                     loadVorratTable();
                                 } catch (OptimisticLockException ole) {
-                                    Main.logger.info(ole);
+                                    Main.warn(ole);
                                     em.getTransaction().rollback();
                                 } catch (Exception e1) {
                                     em.getTransaction().rollback();

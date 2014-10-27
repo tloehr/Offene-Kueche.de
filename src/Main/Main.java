@@ -47,6 +47,10 @@ public class Main {
     public static javax.swing.JFrame mainframe;
     private static boolean animation;
     private static boolean debug = false;
+
+
+
+    private static boolean devmode = false;
     private static String css = "";
 
     /**
@@ -168,14 +172,15 @@ public class Main {
 
         if (mode == DESKTOP) {
             mainframe = new FrmDesktop();
-            mainframe.setSize(1366, 720);
+//            mainframe.setSize(1366, 720);
         } else {
             mainframe = new FrmTouch();
-            mainframe.setSize(1280, 1024);
+//            mainframe.setSize(1280, 1024);
         }
 
 
-//        mainframe.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+        mainframe.setExtendedState(JFrame.MAXIMIZED_BOTH);
         // mainframe.setSize(1280, 1024);
 
         // mainframe.setSize(1280, 1024);
@@ -225,8 +230,15 @@ public class Main {
         return debug;
     }
 
+
+    public static void warn(Object msg) {
+        JOptionPane.showMessageDialog(getMainframe(), msg, "!! Wichtiger Hinweis !!", JOptionPane.WARNING_MESSAGE);
+        logger.warn(msg);
+    }
+
     public static void error(Object msg) {
         logger.error(msg);
+        fatal(msg);
     }
 
 
@@ -279,6 +291,14 @@ public class Main {
                 .create("d");
         opts.addOption(debugmode);
 
+
+        Option devoption = OptionBuilder
+                       .hasOptionalArg()
+                       .withLongOpt("experimental")
+                       .withDescription("Schaltet experimentelle Funktionen ein.")
+                       .create("x");
+               opts.addOption(devoption);
+
         BasicParser parser = new BasicParser();
         CommandLine cl = null;
         String footer = "http://www.Offene-Pflege.de";
@@ -303,6 +323,7 @@ public class Main {
         }
 
         debug = cl.hasOption("d");
+        devmode = cl.hasOption("x");
 
         if (cl.hasOption("m")) {
             String climode = cl.getOptionValue("m");
@@ -312,6 +333,10 @@ public class Main {
         }
 
     }
+
+    public static boolean isDevmode() {
+            return devmode;
+        }
 
     private static void checkForDefaultProps() {
         if (!props.containsKey("startup")) {

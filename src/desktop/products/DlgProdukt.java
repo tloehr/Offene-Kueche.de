@@ -248,7 +248,7 @@ public class DlgProdukt extends MyJDialog {
             }
             em.getTransaction().commit();
         } catch (OptimisticLockException ole) {
-            Main.logger.info(ole);
+            Main.warn(ole);
             em.getTransaction().rollback();
         } catch (Exception e) {
             Main.debug(e);

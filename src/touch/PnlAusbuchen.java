@@ -91,12 +91,11 @@ public class PnlAusbuchen extends DefaultTouchPanel {
                             sp.bell();
                             clearVorrat();
                         } catch (OptimisticLockException ole) {
-                            Main.logger.info(ole);
                             em.getTransaction().rollback();
+                            Main.warn(ole);
                         } catch (Exception e1) {
                             em.getTransaction().rollback();
                             Main.fatal(e1);
-                            e1.printStackTrace();
                         } finally {
                             em.close();
                         }
@@ -140,11 +139,12 @@ public class PnlAusbuchen extends DefaultTouchPanel {
             vorrat = myVorrat;
             clearVorrat();
         } catch (OptimisticLockException ole) {
-            Main.logger.info(ole);
+            Main.warn(ole);
             em.getTransaction().rollback();
         } catch (Exception ex) {
             em.getTransaction().rollback();
             clearVorrat();
+            Main.fatal(ex);
         } finally {
             em.close();
         }
@@ -185,11 +185,12 @@ public class PnlAusbuchen extends DefaultTouchPanel {
             clearVorrat();
             //success("Ausbuchung erfolgreich");
         } catch (OptimisticLockException ole) {
-            Main.logger.info(ole);
+            Main.warn(ole);
             em.getTransaction().rollback();
         } catch (Exception ex) {
             em.getTransaction().rollback();
             clearVorrat();
+            Main.fatal(ex);
         } finally {
             em.close();
         }
@@ -211,8 +212,9 @@ public class PnlAusbuchen extends DefaultTouchPanel {
             clearVorrat();
 
         } catch (OptimisticLockException ole) {
-            Main.logger.info(ole);
+
             em.getTransaction().rollback();
+            Main.warn(ole);
         } catch (OutOfRangeException ex) {
             clearVorrat();
             Tools.log(txtLog, "Menge falsch. Mindestens: " + format.format(ex.getValidMin()) + " Höchstens: " + format.format(ex.getValidMax()));
@@ -220,6 +222,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
             em.getTransaction().rollback();
         } catch (Exception te) {
             em.getTransaction().rollback();
+            Main.fatal(te);
         } finally {
             em.close();
         }
@@ -294,8 +297,8 @@ public class PnlAusbuchen extends DefaultTouchPanel {
 
         //======== this ========
         setLayout(new FormLayout(
-            "default, $lcgap, default:grow, $lcgap, default, $lcgap, pref, $lcgap, default",
-            "default, 4*($lgap, fill:50dlu), $lgap, fill:default:grow, $lgap, fill:50dlu, $lgap, default"));
+                "default, $lcgap, default:grow, $lcgap, default, $lcgap, pref, $lcgap, default",
+                "default, 4*($lgap, fill:50dlu), $lgap, fill:default:grow, $lgap, fill:50dlu, $lgap, default"));
 
         //---- txtSearch ----
         txtSearch.setFont(new Font("sansserif", Font.BOLD, 36));

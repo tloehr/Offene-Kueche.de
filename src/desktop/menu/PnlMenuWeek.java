@@ -91,8 +91,8 @@ public class PnlMenuWeek extends JPanel {
 
         //======== this ========
         setLayout(new FormLayout(
-                "default:grow",
-                "15*(default, $lgap), fill:default:grow"));
+            "default:grow",
+            "15*(default, $lgap), fill:default:grow"));
         add(cmbFeature, CC.xy(1, 1));
 
         //---- lblMon ----

@@ -236,8 +236,8 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             }
             em.getTransaction().commit();
         } catch (OptimisticLockException ole) {
-            Main.logger.info(ole);
             em.getTransaction().rollback();
+            Main.warn(ole);
         } catch (Exception ex) {
             em.getTransaction().rollback();
             Main.fatal(ex);

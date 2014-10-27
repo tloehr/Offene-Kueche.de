@@ -93,7 +93,7 @@ public class FrmDesktop extends JFrame {
 
         lblJDBC.setText(Main.getProps().getProperty("javax.persistence.jdbc.url"));
 
-        menuweekMenuItem.setEnabled(Main.isDebug());
+        menuweekMenuItem.setEnabled(Main.isDevmode());
 
     }
 

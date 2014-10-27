@@ -69,8 +69,8 @@ public class FrmMenu extends JInternalFrame {
         setResizable(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-                "pref:grow",
-                "fill:pref, $lgap, fill:default:grow"));
+            "pref:grow",
+            "fill:pref, $lgap, fill:default:grow"));
 
         //---- jdcWeek ----
         jdcWeek.setDateFormatString("'KW'w yyyy");
