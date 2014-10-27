@@ -70,7 +70,7 @@ public class ProdukteTools {
         if (!search.equals("")) {
             if (isGTIN(search)) {
                 EntityManager em = Main.getEMF().createEntityManager();
-                Query query = em.createNamedQuery("Produkte.findByGtin");
+                Query query = em.createQuery("SELECT p FROM Produkte p WHERE p.gtin = :gtin");
                 query.setParameter("gtin", getGTIN(search));
 
                 try {
@@ -82,7 +82,7 @@ public class ProdukteTools {
                 }
             } else { // Falls die Suche NICHT nur aus Zahlen besteht, dann nach Namen suchen.
                 EntityManager em = Main.getEMF().createEntityManager();
-                Query query = em.createNamedQuery("Produkte.findByBezeichnungLike");
+                Query query = em.createQuery("SELECT p FROM Produkte p WHERE p.bezeichnung LIKE :bezeichnung ORDER BY p.bezeichnung");
                 query.setParameter("bezeichnung", "%" + search + "%");
                 try {
                     produkte = query.getResultList();

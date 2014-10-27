@@ -96,7 +96,7 @@ public class FrmProdukte extends JInternalFrame {
 
         if (criteria.getFirst() == Const.ALLE) {
             EntityManager em = Main.getEMF().createEntityManager();
-            Query query = em.createNamedQuery("Produkte.findAllSorted");
+            Query query = em.createQuery("SELECT p FROM Produkte p ORDER BY p.bezeichnung");
             list = query.getResultList();
             em.close();
         } else if (criteria.getFirst() == Const.NAME_NR) {

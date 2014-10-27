@@ -170,6 +170,32 @@ public class Main {
 //        System.exit(0);
 
 
+//        EntityManager em = emf.createEntityManager();
+//
+//        Produkte produkte =  em.find(Produkte.class, new Long(1160l));
+//
+//        em.close();
+//
+//
+//        em = emf.createEntityManager();
+//
+//        try{
+//            em.getTransaction().begin();
+//
+//            Produkte p = em.merge(produkte);
+//            em.lock(p, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+//            p.setBezeichnung("test1a1a");
+//
+//            em.getTransaction().commit();
+//
+//        } catch (Exception e){
+//            Main.fatal(e);
+//        } finally {
+//            em.close();
+//        }
+//
+//        System.exit(0);
+
         if (mode == DESKTOP) {
             mainframe = new FrmDesktop();
 //            mainframe.setSize(1366, 720);

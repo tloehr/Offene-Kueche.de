@@ -71,15 +71,18 @@ public class DlgProdukt extends MyJDialog {
 
 
     private void txtGTINFocusLost(FocusEvent e) {
-        if (myProducts.get(0).getGtin() == null && myProducts.get(0).getGtin() != txtGTIN.getText())
-            if (ProdukteTools.isGTIN(txtGTIN.getText())) {
-                if (ProdukteTools.isGTINinUse(txtGTIN.getText())) {
-                    txtGTIN.setText("(GTIN wird schon verwendet)");
-                    gtin = null;
-                } else {
-                    gtin = txtGTIN.getText();
-                }
+//        if (myProducts.get(0).getGtin() == null && myProducts.get(0).getGtin() != txtGTIN.getText())
+        if (ProdukteTools.isGTIN(txtGTIN.getText())) {
+            if (ProdukteTools.isGTINinUse(txtGTIN.getText())) {
+                txtGTIN.setText("(GTIN wird schon verwendet)");
+                gtin = null;
+            } else {
+                gtin = txtGTIN.getText();
             }
+        } else {
+            txtGTIN.setText(null);
+            gtin = null;
+        }
     }
 
     private void txtPackGroesseFocusLost(FocusEvent e) {
@@ -214,25 +217,35 @@ public class DlgProdukt extends MyJDialog {
         try {
             em.getTransaction().begin();
             for (Produkte p : myProducts) {
+
+//                Produkte p2 = em.find(Produkte.class, p.getId())
+
                 Produkte produkt = em.merge(p);
                 em.lock(produkt, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+
+
+//                produkt.setBezeichnung(new Date().toString());
 
                 if (txtBezeichnung.isEnabled()) {
                     produkt.setBezeichnung(Tools.catchNull(txtBezeichnung.getText()).trim());
                 }
+//                                produkt.setBezeichnung("abhach1111i");
+
 
                 if (gtin != null) {
                     produkt.setGtin(gtin);
                 }
-
-                if (groesse != null) {
-                    produkt.setPackGroesse(groesse);
-                    VorratTools.setzePackungsgroesse(em, produkt);
-                }
-
-                if (cmbStoffart.getSelectedIndex() > 0) {
-                    produkt.setIngTypes(em.merge((IngTypes) cmbStoffart.getSelectedItem()));
-                }
+//
+////                produkt.setGtin("12345678");
+//
+//                if (groesse != null) {
+//                    produkt.setPackGroesse(groesse);
+//                    VorratTools.setzePackungsgroesse(em, produkt);
+//                }
+//
+//                if (cmbStoffart.getSelectedIndex() > 0) {
+//                    produkt.setIngTypes(em.merge((IngTypes) cmbStoffart.getSelectedItem()));
+//                }
 
 
                 produkt.getAllergenes().clear();
@@ -248,11 +261,11 @@ public class DlgProdukt extends MyJDialog {
             }
             em.getTransaction().commit();
         } catch (OptimisticLockException ole) {
+            em.getTransaction().rollback();
             Main.warn(ole);
-            em.getTransaction().rollback();
         } catch (Exception e) {
-            Main.debug(e);
             em.getTransaction().rollback();
+            Main.debug(e);
         } finally {
             em.close();
             if (!dialogShouldStayOpenedUntilClosed) {
@@ -413,8 +426,8 @@ public class DlgProdukt extends MyJDialog {
                 //======== panel4 ========
                 {
                     panel4.setLayout(new FormLayout(
-                        "right:default, 3dlu, $lcgap, pref:grow, $rgap, 2*(default, $lcgap), default, $ugap, pref:grow",
-                        "7*($lgap, default), $lgap, fill:default:grow"));
+                            "right:default, 3dlu, $lcgap, pref:grow, $rgap, 2*(default, $lcgap), default, $ugap, pref:grow",
+                            "7*($lgap, default), $lgap, fill:default:grow"));
 
                     //---- lblSearch ----
                     lblSearch.setText(" Suchen");
@@ -434,8 +447,8 @@ public class DlgProdukt extends MyJDialog {
                     //======== pnlAssignment ========
                     {
                         pnlAssignment.setLayout(new FormLayout(
-                            "default:grow",
-                            "default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:default:grow"));
+                                "default:grow",
+                                "default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:default:grow"));
 
                         //---- label7 ----
                         label7.setText(" Allergene");
@@ -562,8 +575,8 @@ public class DlgProdukt extends MyJDialog {
             {
                 buttonBar.setBorder(new EmptyBorder(12, 0, 0, 0));
                 buttonBar.setLayout(new GridBagLayout());
-                ((GridBagLayout)buttonBar.getLayout()).columnWidths = new int[] {0, 85, 80};
-                ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
+                ((GridBagLayout) buttonBar.getLayout()).columnWidths = new int[]{0, 85, 80};
+                ((GridBagLayout) buttonBar.getLayout()).columnWeights = new double[]{1.0, 0.0, 0.0};
 
                 //---- okButton ----
                 okButton.setText("OK");
@@ -575,8 +588,8 @@ public class DlgProdukt extends MyJDialog {
                     }
                 });
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 0, 5), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- cancelButton ----
                 cancelButton.setText("Abbrechen");
@@ -588,8 +601,8 @@ public class DlgProdukt extends MyJDialog {
                     }
                 });
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 0, 0), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 0, 0), 0, 0));
             }
             dialogPane.add(buttonBar, BorderLayout.SOUTH);
         }

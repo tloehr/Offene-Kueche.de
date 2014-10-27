@@ -6,37 +6,17 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * Created by IntelliJ IDEA.
- * User: tloehr
- * Date: 29.06.11
- * Time: 14:33
- * To change this template use File | Settings | File Templates.
+ * Created by tloehr on 27.10.14.
  */
 @Entity
 @Table(name = "produkte")
-@NamedQueries({
-        @NamedQuery(name = "Produkte.findAll", query = "SELECT p FROM Produkte p"),
-        @NamedQuery(name = "Produkte.findAllSorted", query = "SELECT p FROM Produkte p ORDER BY p.bezeichnung"),
-        @NamedQuery(name = "Produkte.findById", query = "SELECT p FROM Produkte p WHERE p.id = :id"),
-        @NamedQuery(name = "Produkte.findByBezeichnung", query = "SELECT p FROM Produkte p WHERE p.bezeichnung = :bezeichnung"),
-        @NamedQuery(name = "Produkte.findByGtin", query = "SELECT p FROM Produkte p WHERE p.gtin = :gtin"),
-        @NamedQuery(name = "Produkte.findByPackGroesse", query = "SELECT p FROM Produkte p WHERE p.packGroesse = :packGroesse"),
-        @NamedQuery(name = "Produkte.findByBezeichnungLike", query = "SELECT p FROM Produkte p WHERE p.bezeichnung LIKE :bezeichnung" +
-                "    ORDER BY p.bezeichnung")
-})
 public class Produkte {
 
     public Produkte() {
-        this.id = 0l;
-        this.bezeichnung = "";
-        this.gtin = null;
-        this.packGroesse = BigDecimal.ONE.negate();
-        this.ingTypes = null;
     }
 
-
-    @javax.persistence.Column(name = "ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
     @Id
+    @Column(name = "ID", nullable = false, insertable = true, updatable = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
@@ -48,10 +28,10 @@ public class Produkte {
         this.id = id;
     }
 
+    @Basic
+    @Column(name = "Bezeichnung", nullable = false, insertable = true, updatable = true, length = 1000)
     private String bezeichnung;
 
-    @javax.persistence.Column(name = "Bezeichnung", nullable = false, insertable = true, updatable = true, length = 1000, precision = 0)
-    @Basic
     public String getBezeichnung() {
         return bezeichnung;
     }
@@ -60,10 +40,10 @@ public class Produkte {
         this.bezeichnung = bezeichnung;
     }
 
+    @Basic
+    @Column(name = "GTIN", nullable = true, insertable = true, updatable = true, length = 14)
     private String gtin;
 
-    @javax.persistence.Column(name = "GTIN", nullable = true, insertable = true, updatable = true, length = 14, precision = 0)
-    @Basic
     public String getGtin() {
         return gtin;
     }
@@ -72,10 +52,18 @@ public class Produkte {
         this.gtin = gtin;
     }
 
-
-    @javax.persistence.Column(name = "PackGroesse", nullable = true, insertable = true, updatable = true, length = 12, precision = 4)
     @Basic
+    @Column(name = "PackGroesse", nullable = true, insertable = true, updatable = true, precision = 2)
     private BigDecimal packGroesse;
+
+    public BigDecimal getPackGroesse() {
+        return packGroesse;
+    }
+
+    public void setPackGroesse(BigDecimal packGroesse) {
+        this.packGroesse = packGroesse;
+    }
+
 
     @Version
     @Column(name = "version")
@@ -95,6 +83,14 @@ public class Produkte {
     @ManyToOne(optional = false)
     private IngTypes ingTypes;
 
+    public IngTypes getIngTypes() {
+        return ingTypes;
+    }
+
+    public void setIngTypes(IngTypes ingTypes) {
+        this.ingTypes = ingTypes;
+    }
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "additives2products", joinColumns =
     @JoinColumn(name = "prodid"), inverseJoinColumns =
@@ -105,7 +101,10 @@ public class Produkte {
         return additives;
     }
 
-    //
+    public void setAdditives(Set<Additives> additives) {
+        this.additives = additives;
+    }
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "allergene2products", joinColumns =
     @JoinColumn(name = "prodid"), inverseJoinColumns =
@@ -116,27 +115,14 @@ public class Produkte {
         return allergenes;
     }
 
-    public BigDecimal getPackGroesse() {
-        return packGroesse;
+    public void setAllergenes(Set<Allergene> allergenes) {
+        this.allergenes = allergenes;
     }
-
-    public void setPackGroesse(BigDecimal packGroesse) {
-        this.packGroesse = packGroesse;
-    }
-
 
     public boolean isLoseWare() {
         return gtin == null;
     }
 
-
-    public IngTypes getIngTypes() {
-        return ingTypes;
-    }
-
-    public void setIngTypes(IngTypes ingTypes) {
-        this.ingTypes = ingTypes;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -146,6 +132,7 @@ public class Produkte {
         Produkte produkte = (Produkte) o;
 
         if (id != produkte.id) return false;
+        if (version != produkte.version) return false;
         if (bezeichnung != null ? !bezeichnung.equals(produkte.bezeichnung) : produkte.bezeichnung != null)
             return false;
         if (gtin != null ? !gtin.equals(produkte.gtin) : produkte.gtin != null) return false;
@@ -161,7 +148,7 @@ public class Produkte {
         result = 31 * result + (bezeichnung != null ? bezeichnung.hashCode() : 0);
         result = 31 * result + (gtin != null ? gtin.hashCode() : 0);
         result = 31 * result + (packGroesse != null ? packGroesse.hashCode() : 0);
-
+        result = 31 * result + (int) (version ^ (version >>> 32));
         return result;
     }
 
@@ -169,4 +156,5 @@ public class Produkte {
     public String toString() {
         return bezeichnung;
     }
+
 }
