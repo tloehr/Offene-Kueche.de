@@ -262,6 +262,21 @@ public class VorratTools {
         Main.debug("Korrigiere Eingangsbuchungen für  Produkt(" + produkt + "-" + produkt.getId() + ")");
     }
 
+
+    public static void setzePackungsgroesse(Produkte produkt) {
+        for (Vorrat vorrat : produkt.getVorratCollection()) {
+            if (!vorrat.isAusgebucht()) {
+                for (Buchungen buchung : vorrat.getBuchungenCollection()) {
+                    if (buchung.getStatus() == BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND) {
+                        buchung.setMenge(produkt.getPackGroesse());
+                    }
+                }
+            }
+        }
+
+//        Main.debug("Korrigiere Eingangsbuchungen für  Produkt(" + produkt + "-" + produkt.getId() + ")");
+    }
+
     public static BigDecimal getEingangsbestand(Vorrat vorrat)
             throws PersistenceException {
         EntityManager em = Main.getEMF().createEntityManager();

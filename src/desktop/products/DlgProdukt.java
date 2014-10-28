@@ -35,23 +35,25 @@ public class DlgProdukt extends MyJDialog {
     PnlAssign<Allergene> pnlAllergenes;
     PnlAssign<Additives> pnlAdditives;
     boolean dialogShouldStayOpenedUntilClosed = false;
+    boolean initPhase = true;
 
     public DlgProdukt(Frame owner, ArrayList<Produkte> myProducts) {
         super(owner);
         thisDialog = this;
         this.myProducts = myProducts;
+        initPhase = true;
         initComponents();
         initDialog();
-//        pack();
+        initPhase = false;
         setVisible(true);
     }
 
     private void initDialog() {
+
         setTitle(Tools.getWindowTitle("Produkt(e) bearbeiten"));
 
         IngTypesTools.loadStoffarten(cmbStoffart);
         ((DefaultComboBoxModel) cmbStoffart.getModel()).insertElementAt("(unterschiedliche Werte)", 0);
-
 
         dialogShouldStayOpenedUntilClosed = myProducts == null;
         xSearchField1.setEnabled(dialogShouldStayOpenedUntilClosed);
@@ -118,6 +120,7 @@ public class DlgProdukt extends MyJDialog {
             pnlAssignment.add(pnlAdditives, CC.xy(1, 7));
         }
 
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -139,6 +142,7 @@ public class DlgProdukt extends MyJDialog {
             txtGTIN.setText(myProducts.get(0).isLoseWare() ? "(lose Ware)" : myProducts.get(0).getGtin());
             txtGTIN.setEnabled(!myProducts.get(0).isLoseWare());
             btnUnverpackt.setEnabled(true);
+            btnUnverpackt.setSelected(myProducts.get(0).isLoseWare());
         } else if (myProducts.size() > 1) {
             txtBezeichnung.setText("(unterschiedliche Werte)");
             txtBezeichnung.setEnabled(false);
@@ -153,7 +157,6 @@ public class DlgProdukt extends MyJDialog {
             btnUnverpackt.setEnabled(false);
         }
 
-//        btnUnverpackt.setEnabled(txtGTIN.isEnabled());
     }
 
     private void fillPackgroesse() {
@@ -218,35 +221,28 @@ public class DlgProdukt extends MyJDialog {
             em.getTransaction().begin();
             for (Produkte p : myProducts) {
 
-//                Produkte p2 = em.find(Produkte.class, p.getId())
-
                 Produkte produkt = em.merge(p);
                 em.lock(produkt, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-
-
-//                produkt.setBezeichnung(new Date().toString());
 
                 if (txtBezeichnung.isEnabled()) {
                     produkt.setBezeichnung(Tools.catchNull(txtBezeichnung.getText()).trim());
                 }
-//                                produkt.setBezeichnung("abhach1111i");
-
 
                 if (gtin != null) {
                     produkt.setGtin(gtin);
                 }
-//
-////                produkt.setGtin("12345678");
-//
-//                if (groesse != null) {
-//                    produkt.setPackGroesse(groesse);
-//                    VorratTools.setzePackungsgroesse(em, produkt);
-//                }
-//
-//                if (cmbStoffart.getSelectedIndex() > 0) {
-//                    produkt.setIngTypes(em.merge((IngTypes) cmbStoffart.getSelectedItem()));
-//                }
 
+                if (groesse != null) {
+                    produkt.setPackGroesse(groesse);
+                    VorratTools.setzePackungsgroesse(produkt);
+                }
+//
+                if (cmbStoffart.getSelectedIndex() > 0) {
+                    IngTypes ingType = (IngTypes) cmbStoffart.getSelectedItem();
+                    if (!ingType.equals(produkt.getIngTypes())) {
+                        produkt.setIngTypes(em.merge(ingType));
+                    }
+                }
 
                 produkt.getAllergenes().clear();
                 for (Allergene allergene : pnlAllergenes.getAssigned()) {
@@ -311,6 +307,9 @@ public class DlgProdukt extends MyJDialog {
     }
 
     private void btnUnverpacktItemStateChanged(ItemEvent e) {
+
+        if (initPhase) return;
+
         if (e.getStateChange() == ItemEvent.SELECTED) {
             txtGTIN.setText("(lose Ware)");
             txtPackGroesse.setText("(lose Ware)");

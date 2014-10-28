@@ -528,7 +528,7 @@ public class Tools {
         }
         return Main.appinfo.getProperty("program.PROGNAME") + moduleName + ", v" + Main.appinfo.getProperty("program.VERSION")
                 + "/" + Main.appinfo.getProperty("program.BUILDNUM") + "/" + Main.appinfo.getProperty("program.BUILDDATE") +
-                (Main.isDebug() ? " (" + Main.getProps().getProperty("javax.persistence.jdbc.url") + ")" : "");
+                (Main.isDebug() ? " (" + Main.getJdbcurl() + ")" : "");
 
 //                +
 //                (OPDE.localocprops.getProperty("debug").equalsIgnoreCase("true") ? " !! DEBUG !!" : "");

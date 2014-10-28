@@ -91,7 +91,7 @@ public class FrmDesktop extends JFrame {
         sp.start();
         soundMenuItem.setSelected(Main.getProps().getProperty("sound").equalsIgnoreCase("on"));
 
-        lblJDBC.setText(Main.getProps().getProperty("javax.persistence.jdbc.url"));
+        lblJDBC.setText(Main.getJdbcurl());
 
         menuweekMenuItem.setEnabled(Main.isDevmode());
 

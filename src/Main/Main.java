@@ -19,11 +19,13 @@ import touch.FrmTouch;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.swing.*;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 
 /**
@@ -39,7 +41,7 @@ public class Main {
 
     public static Logger logger;
     private static EntityManagerFactory emf;
-//    private static EntityManager em1;
+    //    private static EntityManager em1;
     private static Mitarbeiter currentUser;
     public static SortedProperties props = new SortedProperties();
     public static SortedProperties appinfo = new SortedProperties();
@@ -47,7 +49,8 @@ public class Main {
     public static javax.swing.JFrame mainframe;
     private static boolean animation;
     private static boolean debug = false;
-
+    private static String jdbcurl = "";
+    private static Dimension startResolution = null;
 
 
     private static boolean devmode = false;
@@ -66,6 +69,10 @@ public class Main {
 
     public static JFrame getMainframe() {
         return mainframe;
+    }
+
+    public static String getJdbcurl() {
+        return jdbcurl;
     }
 
     /**
@@ -92,7 +99,7 @@ public class Main {
             }
         });
 
-        auswertungKommandozeile(args);
+        parseCommandline(args);
 
         try {
             // Lade Build Informationen   2
@@ -131,10 +138,10 @@ public class Main {
         }
 
         // timeout
-        if (props.containsKey("timeout")){
+        if (props.containsKey("timeout")) {
             try {
                 TIMEOUT = Integer.parseInt(props.getProperty("timeout"));
-            } catch (NumberFormatException nfe){
+            } catch (NumberFormatException nfe) {
                 TIMEOUT = 30;
             }
         }
@@ -143,9 +150,15 @@ public class Main {
             props.put("startup", mode == DESKTOP ? "desktop" : "touch");
         }
 
-        props.put("eclipselink.session.customizer", "tools.JPAEclipseLinkSessionCustomizer");
-
-        emf = Persistence.createEntityManagerFactory("KuechePU", props);
+        Properties jpaProps = new Properties();
+        jpaProps.put("javax.persistence.jdbc.user", props.getProperty("javax.persistence.jdbc.user"));
+        jpaProps.put("javax.persistence.jdbc.password", props.getProperty("javax.persistence.jdbc.password"));
+        jpaProps.put("javax.persistence.jdbc.driver", props.getProperty("javax.persistence.jdbc.driver"));
+        jdbcurl = (jdbcurl == null ? props.getProperty("javax.persistence.jdbc.url") : jdbcurl);
+        jpaProps.put("javax.persistence.jdbc.url", jdbcurl);
+        jpaProps.put("eclipselink.cache.shared.default", "false");
+        jpaProps.put("eclipselink.session.customizer", "tools.JPAEclipseLinkSessionCustomizer");
+        emf = Persistence.createEntityManagerFactory("KuechePU", jpaProps);
 
         printers = new Printers();
 
@@ -204,9 +217,14 @@ public class Main {
 //            mainframe.setSize(1280, 1024);
         }
 
+        if (startResolution != null) {
+            mainframe.setSize(startResolution);
+            Tools.center(getMainframe());
+        } else {
+            mainframe.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        }
 
 
-        mainframe.setExtendedState(JFrame.MAXIMIZED_BOTH);
         // mainframe.setSize(1280, 1024);
 
         // mainframe.setSize(1280, 1024);
@@ -298,20 +316,19 @@ public class Main {
         return css;
     }
 
-    static void auswertungKommandozeile(String[] args) {
+    static void parseCommandline(String[] args) {
         // Hier erfolgt die Unterscheidung, in welchem Modus OPDE gestartet wurde.
         Options opts = new Options();
         //opts.addOption("m", "mode", true, "Legt den Modus fest, in dem das Programm gestartet wird. Mögliche Werte sind desktop oder touch.");
 
         Option desktopmode = OptionBuilder
-                .hasOptionalArg()
+                .hasArg()
                 .withLongOpt("mode")
                 .withDescription("Legt den Modus fest, in dem das Programm gestartet wird. Mögliche Werte sind desktop oder touch.")
                 .create("m");
         opts.addOption(desktopmode);
 
         Option debugmode = OptionBuilder
-                .hasOptionalArg()
                 .withLongOpt("debug")
                 .withDescription("Schaltet die Debug-Ausgaben ein.")
                 .create("d");
@@ -319,11 +336,20 @@ public class Main {
 
 
         Option devoption = OptionBuilder
-                       .hasOptionalArg()
-                       .withLongOpt("experimental")
-                       .withDescription("Schaltet experimentelle Funktionen ein.")
-                       .create("x");
-               opts.addOption(devoption);
+                .withLongOpt("experimental")
+                .withDescription("Schaltet experimentelle Funktionen ein.")
+                .create("x");
+        opts.addOption(devoption);
+
+        Option resOption = OptionBuilder
+                .hasArg()
+                .withLongOpt("resolution")
+                .withDescription("Dadurch kann die Größe des Fensters zu Beginn festgelegt werden. Ansonsten wird das Fenster so gross wie möglich.")
+                .create("r");
+        opts.addOption(resOption);
+
+        opts.addOption(OptionBuilder.withLongOpt("jdbc").hasArg().withDescription("Damit kannst Du eine andere JDBC Url für Deine Datenbank angeben. Ignoriert die Angaben in der kueche.properties. Ist nur für Test-Zwecke gedacht.").create("j"));
+
 
         BasicParser parser = new BasicParser();
         CommandLine cl = null;
@@ -350,6 +376,24 @@ public class Main {
 
         debug = cl.hasOption("d");
         devmode = cl.hasOption("x");
+        jdbcurl = cl.hasOption("j") ? cl.getOptionValue("j") : null;
+
+
+        startResolution = null;
+        if (cl.hasOption("r")) {
+            String res = cl.getOptionValue("r");
+            StringTokenizer st = new StringTokenizer(res, "x");
+            if (st.countTokens() == 2) {
+                String width = st.nextToken();
+                String height = st.nextToken();
+
+                try {
+                    startResolution = new Dimension(Integer.parseInt(width), Integer.parseInt(height));
+                } catch (NumberFormatException nfe) {
+                    startResolution = null;
+                }
+            }
+        }
 
         if (cl.hasOption("m")) {
             String climode = cl.getOptionValue("m");
@@ -361,8 +405,8 @@ public class Main {
     }
 
     public static boolean isDevmode() {
-            return devmode;
-        }
+        return devmode;
+    }
 
     private static void checkForDefaultProps() {
         if (!props.containsKey("startup")) {

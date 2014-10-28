@@ -159,20 +159,7 @@ public class IngTypes implements Comparable<IngTypes> {
 
         IngTypes ingTypes = (IngTypes) o;
 
-        if (einheit != ingTypes.einheit) return false;
         if (id != ingTypes.id) return false;
-        if (lagerart != ingTypes.lagerart) return false;
-        if (additives != null ? !additives.equals(ingTypes.additives) : ingTypes.additives != null) return false;
-        if (allergenes != null ? !allergenes.equals(ingTypes.allergenes) : ingTypes.allergenes != null) return false;
-        if (bezeichnung != null ? !bezeichnung.equals(ingTypes.bezeichnung) : ingTypes.bezeichnung != null)
-            return false;
-        if (menus != null ? !menus.equals(ingTypes.menus) : ingTypes.menus != null) return false;
-        if (produkteCollection != null ? !produkteCollection.equals(ingTypes.produkteCollection) : ingTypes.produkteCollection != null)
-            return false;
-        if (recipes != null ? !recipes.equals(ingTypes.recipes) : ingTypes.recipes != null) return false;
-        if (version != null ? !version.equals(ingTypes.version) : ingTypes.version != null) return false;
-        if (warengruppe != null ? !warengruppe.equals(ingTypes.warengruppe) : ingTypes.warengruppe != null)
-            return false;
 
         return true;
     }
@@ -184,7 +171,7 @@ public class IngTypes implements Comparable<IngTypes> {
         result = 31 * result + (bezeichnung != null ? bezeichnung.hashCode() : 0);
         result = 31 * result + (int) einheit;
         result = 31 * result + (warengruppe != null ? warengruppe.hashCode() : 0);
-        result = 31 * result + (produkteCollection != null ? produkteCollection.hashCode() : 0);
+
         result = 31 * result + (allergenes != null ? allergenes.hashCode() : 0);
         result = 31 * result + (additives != null ? additives.hashCode() : 0);
         result = 31 * result + (recipes != null ? recipes.hashCode() : 0);
