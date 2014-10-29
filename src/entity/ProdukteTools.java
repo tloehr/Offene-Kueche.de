@@ -1,6 +1,7 @@
 package entity;
 
 import Main.Main;
+import tools.Tools;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -200,6 +201,32 @@ public class ProdukteTools {
         }
         Main.logger.debug(l.getFirma());
         return l;
+    }
+
+    public static String getAllergenesAndAdditivesAsHTML(Produkte produkte) {
+        if (produkte.getAdditives().isEmpty() && produkte.getAllergenes().isEmpty()) return null;
+
+        String html = "";
+
+        if (!produkte.getAllergenes().isEmpty()) {
+            html += "<h2>Allergene</h2>";
+            html += "<ul>";
+            for (Allergene allergene : produkte.getAllergenes()) {
+                html += "<li>" + allergene.getKennung() + " " + Tools.left(allergene.getText(), 25) + "</li>";
+            }
+            html += "</ul>";
+        }
+
+        if (!produkte.getAdditives().isEmpty()) {
+            html += "<h2>Zusatzstoffe</h2>";
+            html += "<ul>";
+            for (Additives additives : produkte.getAdditives()) {
+                html += "<li>" + additives.getSymbol() + " " + Tools.left(additives.getText(), 25) + "</li>";
+            }
+            html += "</ul>";
+        }
+
+        return html;
     }
 
     public static Produkte getProduct(String gtin) {

@@ -2,7 +2,9 @@ package entity;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -13,6 +15,14 @@ import java.util.Set;
 public class Produkte {
 
     public Produkte() {
+    }
+
+    public Produkte(IngTypes ingTypes) {
+        this.ingTypes = ingTypes;
+        this.additives = new HashSet<Additives>();
+        this.allergenes = new HashSet<Allergene>();
+        this.vorratCollection = new ArrayList<Vorrat>();
+        this.version = 0l;
     }
 
     @Id
@@ -132,12 +142,7 @@ public class Produkte {
         Produkte produkte = (Produkte) o;
 
         if (id != produkte.id) return false;
-        if (version != produkte.version) return false;
-        if (bezeichnung != null ? !bezeichnung.equals(produkte.bezeichnung) : produkte.bezeichnung != null)
-            return false;
-        if (gtin != null ? !gtin.equals(produkte.gtin) : produkte.gtin != null) return false;
-        if (packGroesse != null ? !packGroesse.equals(produkte.packGroesse) : produkte.packGroesse != null)
-            return false;
+
 
         return true;
     }

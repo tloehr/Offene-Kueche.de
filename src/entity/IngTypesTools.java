@@ -93,6 +93,25 @@ public class IngTypesTools {
     }
 
 
+    public static IngTypes getFirstType() {
+        IngTypes result = null;
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createQuery("SELECT s FROM IngTypes s ORDER BY s.bezeichnung");
+        query.setMaxResults(1);
+
+        try {
+            result = (IngTypes) query.getResultList().get(0);
+
+        } catch (Exception e) { // nicht gefunden
+            result = null;
+        } finally {
+            em.close();
+        }
+
+        return result;
+    }
+
+
     public static long getNumOfProducts(IngTypes ingTypes) {
         long num = 0;
         EntityManager em = Main.getEMF().createEntityManager();

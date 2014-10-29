@@ -8,7 +8,6 @@ import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import entity.*;
-import org.jdesktop.swingx.VerticalLayout;
 import org.pushingpixels.trident.Timeline;
 import printer.Printers;
 import tablemodels.VorratTableModel2;
@@ -402,7 +401,6 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         panel2 = new JPanel();
         btnClear = new JButton();
         btnPrint = new JButton();
-        separator1 = new JSeparator();
         btnToUnbekannt = new JButton();
         btnAusbuchen = new JButton();
         btnUmbuchen = new JButton();
@@ -414,11 +412,11 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         //======== defaultTouchPanel1 ========
         {
             defaultTouchPanel1.setLayout(new FormLayout(
-                    "276dlu, $lcgap, pref:grow, $lcgap, center:default",
-                    "4*(30dlu, $lgap), fill:default:grow, $lgap, default"));
+                "276dlu, $lcgap, pref:grow, $lcgap, center:default",
+                "4*(30dlu, $lgap), fill:default:grow, $lgap, default"));
 
             //---- txtSearch ----
-            txtSearch.setFont(new Font("arial", Font.BOLD, 24));
+            txtSearch.setFont(new Font("sansserif", Font.BOLD, 24));
             txtSearch.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -430,7 +428,6 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                 public void focusGained(FocusEvent e) {
                     txtSearchFocusGained(e);
                 }
-
                 @Override
                 public void focusLost(FocusEvent e) {
                     txtSearchFocusLost(e);
@@ -446,14 +443,14 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
             //---- lblProdukt ----
             lblProdukt.setText(" ");
-            lblProdukt.setFont(new Font("arial", Font.BOLD, 24));
+            lblProdukt.setFont(new Font("sansserif", Font.BOLD, 24));
             lblProdukt.setHorizontalAlignment(SwingConstants.CENTER);
             lblProdukt.setBackground(new Color(204, 204, 255));
             lblProdukt.setOpaque(true);
             defaultTouchPanel1.add(lblProdukt, CC.xywh(1, 3, 5, 1, CC.DEFAULT, CC.FILL));
 
             //---- cmbLieferant ----
-            cmbLieferant.setFont(new Font("arial", Font.PLAIN, 24));
+            cmbLieferant.setFont(new Font("sansserif", Font.PLAIN, 24));
             cmbLieferant.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
@@ -463,7 +460,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             defaultTouchPanel1.add(cmbLieferant, CC.xywh(1, 5, 5, 1, CC.DEFAULT, CC.FILL));
 
             //---- cmbLager ----
-            cmbLager.setFont(new Font("arial", Font.PLAIN, 24));
+            cmbLager.setFont(new Font("sansserif", Font.PLAIN, 24));
             cmbLager.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
@@ -482,7 +479,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
                     //---- txtLog ----
                     txtLog.setBackground(Color.lightGray);
-                    txtLog.setFont(new Font("arial", Font.PLAIN, 18));
+                    txtLog.setFont(new Font("sansserif", Font.PLAIN, 18));
                     txtLog.setWrapStyleWord(true);
                     txtLog.setLineWrap(true);
                     txtLog.setEditable(false);
@@ -495,7 +492,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                 label1.setBackground(new Color(51, 51, 255));
                 label1.setForeground(Color.yellow);
                 label1.setOpaque(true);
-                label1.setFont(new Font("arial", Font.BOLD, 24));
+                label1.setFont(new Font("sansserif", Font.BOLD, 24));
                 label1.setHorizontalAlignment(SwingConstants.CENTER);
                 pnlLog.add(label1, BorderLayout.NORTH);
             }
@@ -506,7 +503,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                 pnlVorraete.setLayout(new BorderLayout());
 
                 //---- title1 ----
-                title1.setFont(new Font("arial", Font.BOLD, 24));
+                title1.setFont(new Font("sansserif", Font.BOLD, 24));
                 title1.setText("Vorr\u00e4te zur \u00dcberpr\u00fcfung");
                 title1.setBackground(new Color(51, 255, 51));
                 title1.setOpaque(true);
@@ -517,7 +514,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                 {
 
                     //---- tblVorrat ----
-                    tblVorrat.setFont(new Font("arial", Font.PLAIN, 18));
+                    tblVorrat.setFont(new Font("sansserif", Font.PLAIN, 18));
                     tblVorrat.setAutoCreateRowSorter(true);
                     tblVorrat.setRowHeight(20);
                     scrollPane2.setViewportView(tblVorrat);
@@ -536,7 +533,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
             //======== panel2 ========
             {
-                panel2.setLayout(new VerticalLayout(10));
+                panel2.setLayout(new BoxLayout(panel2, BoxLayout.PAGE_AXIS));
 
                 //---- btnClear ----
                 btnClear.setToolTipText("Logbuch l\u00f6schen");
@@ -559,7 +556,6 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                     }
                 });
                 panel2.add(btnPrint);
-                panel2.add(separator1);
 
                 //---- btnToUnbekannt ----
                 btnToUnbekannt.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/db_status.png")));
@@ -586,7 +582,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
             //---- btnUmbuchen ----
             btnUmbuchen.setText("Umbuchen");
-            btnUmbuchen.setFont(new Font("arial", Font.BOLD, 24));
+            btnUmbuchen.setFont(new Font("sansserif", Font.BOLD, 24));
             btnUmbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/apply.png")));
             btnUmbuchen.setEnabled(false);
             btnUmbuchen.addActionListener(new ActionListener() {
@@ -595,7 +591,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                     btnUmbuchenActionPerformed(e);
                 }
             });
-            defaultTouchPanel1.add(btnUmbuchen, CC.xywh(1, 11, 5, 1));
+            defaultTouchPanel1.add(btnUmbuchen, CC.xywh(1, 11, 3, 1));
 
             //---- btnSofortUmbuchen ----
             btnSofortUmbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/agt_member.png")));
@@ -640,7 +636,6 @@ public class PnlUmbuchen extends DefaultTouchPanel {
     private JPanel panel2;
     private JButton btnClear;
     private JButton btnPrint;
-    private JSeparator separator1;
     private JButton btnToUnbekannt;
     private JButton btnAusbuchen;
     private JButton btnUmbuchen;

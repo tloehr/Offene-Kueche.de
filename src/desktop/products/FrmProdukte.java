@@ -15,7 +15,6 @@ import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
 import tablemodels.ProdukteTableModel;
 import tools.Const;
-import tools.Pair;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
@@ -42,10 +41,10 @@ import java.util.List;
 public class FrmProdukte extends JInternalFrame {
 
     JTree tree;
-    private Object[] spalten = new Object[]{"Produkt Nr.", "Bezeichnung", "Lagerart", "GTIN", "Packungsgröße", "Einheit", "Stoffart", "Warengruppe"};
+    private Object[] spalten = new Object[]{"Produkt Nr.", "Bezeichnung", "Lagerart", "GTIN", "Packungsgröße", "Zusatz/Allergene", "Einheit", "Stoffart", "Warengruppe"};
     private JPopupMenu menu;
 
-    private Pair<Integer, Object> criteria;
+//    private Pair<Integer, Object> criteria;
 
     private JComponent thisComponent;
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
@@ -59,57 +58,119 @@ public class FrmProdukte extends JInternalFrame {
     private JXTaskPane xTaskPane2;
     private JPanel pnlMain;
     private JScrollPane jspProdukt;
-
-    //    boolean isOnlySameClassesAreSelected() {
-//        boolean sameClasses = true;
-//        Class prevClass = tree.getSelectionPaths()[0].getLastPathComponent().getClass();
-//        for (TreePath path : tree.getSelectionPaths()) {
-//            Class thisClass = path.getLastPathComponent().getClass();
-//            if (!thisClass.equals(prevClass)) {
-//                sameClasses = false;
-//                break;
-//            }
-//            prevClass = thisClass;
-//        }
-//        return sameClasses;
-//    }
     private JTable tblProdukt;
+    // JFormDesigner - End of variables declaration  //GEN-END:variables
+
+
+    private ProdukteTableModel ptm;
+    private TableRowSorter<ProdukteTableModel> sorter;
+
+    RowFilter<ProdukteTableModel, Integer> warengruppeFilter;
+    Warengruppe warengruppeFilterKriterium = null;
+
+    RowFilter<ProdukteTableModel, Integer> ingTypeFilter;
+    IngTypes ingTypeFilterKriterium = null;
+
+    RowFilter<ProdukteTableModel, Integer> textFilter;
+    String textKriterium = null;
 
     public FrmProdukte() {
         initComponents();
         thisComponent = this;
-        criteria = new Pair<Integer, Object>(Const.ALLE, null);
+//        criteria = new Pair<Integer, Object>(Const.ALLE, null);
+        createFilters();
         loadTable();
+
         createTree();
         setTitle(Tools.getWindowTitle("Produkte-Verwaltung"));
         pack();
     }
 
+    private void createFilters() {
+        warengruppeFilter = new RowFilter<ProdukteTableModel, Integer>() {
+            @Override
+            public boolean include(Entry<? extends ProdukteTableModel, ? extends Integer> entry) {
+                if (warengruppeFilterKriterium == null) return true;
+
+                int row = entry.getIdentifier();
+                Produkte produkt = entry.getModel().getProdukt(row);
+
+
+                return produkt.getIngTypes().getWarengruppe().equals(warengruppeFilterKriterium);
+            }
+        };
+        warengruppeFilterKriterium = null;
+
+        ingTypeFilter = new RowFilter<ProdukteTableModel, Integer>() {
+            @Override
+            public boolean include(Entry<? extends ProdukteTableModel, ? extends Integer> entry) {
+                if (ingTypeFilterKriterium == null) return true;
+
+                int row = entry.getIdentifier();
+                Produkte produkt = entry.getModel().getProdukt(row);
+
+
+                return produkt.getIngTypes().equals(ingTypeFilterKriterium);
+            }
+        };
+        ingTypeFilterKriterium = null;
+
+        textFilter = new RowFilter<ProdukteTableModel, Integer>() {
+            @Override
+            public boolean include(Entry<? extends ProdukteTableModel, ? extends Integer> entry) {
+                if (textKriterium == null || textKriterium.isEmpty()) return true;
+
+                int row = entry.getIdentifier();
+                Produkte produkt = entry.getModel().getProdukt(row);
+
+                return produkt.getBezeichnung().indexOf(textKriterium.trim()) >= 0 ||
+                        Tools.catchNull(produkt.getGtin()).indexOf(textKriterium.trim()) >= 0 ||
+                        produkt.getIngTypes().getBezeichnung().indexOf(textKriterium.trim()) >= 0 ||
+                        produkt.getIngTypes().getWarengruppe().getBezeichnung().indexOf(textKriterium.trim()) >= 0;
+            }
+        };
+        textKriterium = null;
+    }
+
     private void xSearchField1ActionPerformed(ActionEvent e) {
-        criteria = new Pair<Integer, Object>(Const.NAME_NR, xSearchField1.getText());
-        loadTable();
+        textKriterium = xSearchField1.getText();
+        sorter.setRowFilter(textFilter);
+
     }
 
     private void loadTable() {
 
+
         List list = null;
 
-        if (criteria.getFirst() == Const.ALLE) {
-            EntityManager em = Main.getEMF().createEntityManager();
-            Query query = em.createQuery("SELECT p FROM Produkte p ORDER BY p.bezeichnung");
-            list = query.getResultList();
-            em.close();
-        } else if (criteria.getFirst() == Const.NAME_NR) {
-            list = ProdukteTools.searchProdukte(criteria.getSecond().toString());
-        } else if (criteria.getFirst() == Const.STOFFART) {
-            list = ProdukteTools.getProdukte((IngTypes) criteria.getSecond());
-        } else if (criteria.getFirst() == Const.WARENGRUPPE) {
-            list = ProdukteTools.searchProdukte((Warengruppe) criteria.getSecond());
-        }
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createQuery("SELECT p FROM Produkte p ORDER BY p.bezeichnung");
+        list = query.getResultList();
+        em.close();
 
-        tblProdukt.setModel(new ProdukteTableModel(list, spalten));
 
-        TableRowSorter sorter = new TableRowSorter(tblProdukt.getModel());
+//        if (criteria.getFirst() == Const.ALLE) {
+//            EntityManager em = Main.getEMF().createEntityManager();
+//            Query query = em.createQuery("SELECT p FROM Produkte p ORDER BY p.bezeichnung");
+//            list = query.getResultList();
+//            em.close();
+//        } else if (criteria.getFirst() == Const.NAME_NR) {
+//            list = ProdukteTools.searchProdukte(criteria.getSecond().toString());
+//        } else if (criteria.getFirst() == Const.STOFFART) {
+//            list = ProdukteTools.getProdukte((IngTypes) criteria.getSecond());
+//        } else if (criteria.getFirst() == Const.WARENGRUPPE) {
+//            list = ProdukteTools.searchProdukte((Warengruppe) criteria.getSecond());
+//        }
+
+        ptm = new ProdukteTableModel(list, spalten);
+
+        tblProdukt.setModel(ptm);
+
+        sorter = new TableRowSorter(ptm);
+
+
+        sorter.setRowFilter(null);
+
 //        sorter.setComparator(ProdukteTableModel.COL_LAGERART, new Comparator<Short>() {
 //            public int compare(Short l1, Short l2) {
 //                return LagerTools.LAGERART[l1].compareTo(LagerTools.LAGERART[l2]);
@@ -122,8 +183,19 @@ public class FrmProdukte extends JInternalFrame {
 //
 //            }
 //        });
+        sorter.setSortsOnUpdates(true);
 
         tblProdukt.setRowSorter(sorter);
+
+//        tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_ZUSATZSTOFFE).setCellRenderer(new TableCellRenderer() {
+//            @Override
+//            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+//                JComponent component = (JComponent) new DefaultTableCellRenderer().getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+//                String html = ProdukteTools.getAllergenesAndAdditivesAsHTML(((ProdukteTableModel) table.getModel()).getProdukt(row));
+//                component.setToolTipText(html == null ? null : "<html>" + html + "</html>");
+//                return component;
+//            }
+//        });
 
         tblProdukt.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
@@ -132,8 +204,9 @@ public class FrmProdukte extends JInternalFrame {
     }
 
     private void btnSearchAllActionPerformed(ActionEvent e) {
-        criteria = new Pair<Integer, Object>(Const.ALLE, null);
-        loadTable();
+        sorter.setRowFilter(null);
+//        criteria = new Pair<Integer, Object>(Const.ALLE, null);
+//        loadTable();
     }
 
     private boolean mergeUs(ArrayList<Produkte> listProducts2Merge, Produkte target) {
@@ -151,7 +224,7 @@ public class FrmProdukte extends JInternalFrame {
             em.lock(neuesProdukt, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
             for (Produkte p : listProducts2Merge) {
                 Produkte altesProdukt = em.merge(p);
-                em.lock(altesProdukt, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+//                em.lock(altesProdukt, LockModeType.OPTIMISTIC);
 
                 for (Vorrat v : altesProdukt.getVorratCollection()) {
                     Vorrat myVorrat = em.merge(v);
@@ -169,6 +242,7 @@ public class FrmProdukte extends JInternalFrame {
                 }
                 altesProdukt.getAdditives().clear();
 
+                ptm.remove(altesProdukt);
                 em.remove(altesProdukt);
             }
             em.getTransaction().commit();
@@ -178,6 +252,7 @@ public class FrmProdukte extends JInternalFrame {
         } catch (OptimisticLockException ole) {
             Main.warn(ole);
             em.getTransaction().rollback();
+            loadTable();
         } catch (Exception e) {
             em.getTransaction().rollback();
             Main.fatal(e);
@@ -216,6 +291,7 @@ public class FrmProdukte extends JInternalFrame {
             Tools.unregisterListeners(menu);
             menu = new JPopupMenu();
 
+
             JMenuItem miEdit = new JMenuItem("Markierte Produkte bearbeiten");
             miEdit.setFont(new Font("arial", Font.PLAIN, 18));
             final int[] rows = tblProdukt.getSelectedRows();
@@ -236,8 +312,17 @@ public class FrmProdukte extends JInternalFrame {
                         final int thisRow = tblProdukt.convertRowIndexToModel(rows[finalR]);
                         listProdukte.add(((ProdukteTableModel) tblProdukt.getModel()).getProdukt(thisRow));
                     }
-                    new DlgProdukt(Main.mainframe, listProdukte);
-                    loadTable();
+                    final DlgProdukt dlg = new DlgProdukt(Main.mainframe, listProdukte);
+                    dlg.addComponentListener(new ComponentAdapter() {
+                        @Override
+                        public void componentHidden(ComponentEvent e) {
+                            super.componentHidden(e);
+                            ptm.update(dlg.getEditedProducts());
+                        }
+                    });
+
+
+//                    loadTable();
                 }
             });
             miEdit.setEnabled(rows.length > 0);
@@ -290,6 +375,7 @@ public class FrmProdukte extends JInternalFrame {
                             if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
                                 Produkte myProdukt = em1.merge(p);
                                 em1.remove(myProdukt);
+                                ptm.remove(myProdukt);
                             }
                         }
                         em1.getTransaction().commit();
@@ -301,9 +387,9 @@ public class FrmProdukte extends JInternalFrame {
                         Main.fatal(e);
                     } finally {
                         em1.close();
-                        loadTable();
+//                        loadTable();
                     }
-                    loadTable();
+//                    loadTable();
                 }
             });
             miDelete.setEnabled(listSelectedProducts.size() > 0 && Main.getCurrentUser().isAdmin());
@@ -321,7 +407,7 @@ public class FrmProdukte extends JInternalFrame {
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
                             if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zusammenfassen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
                                 mergeUs(listSelectedProducts, thisProduct);
-                                loadTable();
+//                                loadTable();
                             }
                         }
                     });
@@ -351,6 +437,7 @@ public class FrmProdukte extends JInternalFrame {
                                 myProdukt.getIngTypes().setLagerart((short) ArrayUtils.indexOf(LagerTools.LAGERART, lagerart));
                             }
                             em1.getTransaction().commit();
+                            ptm.update(listSelectedProducts);
                         } catch (OptimisticLockException ole) {
                             Main.warn(ole);
                             em1.getTransaction().rollback();
@@ -359,7 +446,7 @@ public class FrmProdukte extends JInternalFrame {
                             Main.fatal(e);
                         } finally {
                             em1.close();
-                            loadTable();
+//                            loadTable();
                         }
 //                        }
                     }
@@ -389,6 +476,7 @@ public class FrmProdukte extends JInternalFrame {
                                 myProdukt.getIngTypes().setEinheit((short) ArrayUtils.indexOf(IngTypesTools.EINHEIT, einheit));
                             }
                             em1.getTransaction().commit();
+                            ptm.update(listSelectedProducts);
                         } catch (OptimisticLockException ole) {
                             Main.warn(ole);
                             em1.getTransaction().rollback();
@@ -397,7 +485,7 @@ public class FrmProdukte extends JInternalFrame {
                             Main.fatal(e);
                         } finally {
                             em1.close();
-                            loadTable();
+//                            loadTable();
                         }
 //                        }
                     }
@@ -438,6 +526,7 @@ public class FrmProdukte extends JInternalFrame {
                                             myProdukt.setIngTypes(em1.merge(ingTypes));
                                         }
                                         em1.getTransaction().commit();
+                                        ptm.update(listSelectedProducts);
                                     } catch (OptimisticLockException ole) {
                                         Main.warn(ole);
                                         em1.getTransaction().rollback();
@@ -446,7 +535,7 @@ public class FrmProdukte extends JInternalFrame {
                                         Main.fatal(e);
                                     } finally {
                                         em1.close();
-                                        loadTable();
+//                                        loadTable();
                                     }
                                 }
                             }
@@ -890,11 +979,13 @@ public class FrmProdukte extends JInternalFrame {
 
 
                     if (lastComponent.getUserObject() instanceof IngTypes) {
-                        criteria = new Pair<Integer, Object>(Const.STOFFART, lastComponent.getUserObject());
-                        loadTable();
+                        ingTypeFilterKriterium = (IngTypes) lastComponent.getUserObject();
+                        sorter.setRowFilter(ingTypeFilter);
                     } else if (lastComponent.getUserObject() instanceof Warengruppe) {
-                        criteria = new Pair<Integer, Object>(Const.WARENGRUPPE, lastComponent.getUserObject());
-                        loadTable();
+                        warengruppeFilterKriterium = (Warengruppe) lastComponent.getUserObject();
+                        sorter.setRowFilter(warengruppeFilter);
+//                        criteria = new Pair<Integer, Object>(Const.WARENGRUPPE, lastComponent.getUserObject());
+//                        loadTable();
                     }
 
                 }
@@ -955,12 +1046,12 @@ public class FrmProdukte extends JInternalFrame {
     }
 
     private void btnSearchEditProductsActionPerformed(ActionEvent e) {
-        DlgProdukt dlg = new DlgProdukt(Main.mainframe, null);
+        final DlgProdukt dlg = new DlgProdukt(Main.mainframe, null);
         dlg.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentHidden(ComponentEvent e) {
                 super.componentHidden(e);
-                loadTable();
+                ptm.update(dlg.getEditedProducts());
             }
         });
     }
@@ -1018,6 +1109,8 @@ public class FrmProdukte extends JInternalFrame {
                     xSearchField1.setPrompt("Suchtext hier eingeben");
                     xSearchField1.setFont(new Font("sansserif", Font.PLAIN, 18));
                     xSearchField1.setMinimumSize(new Dimension(230, 36));
+                    xSearchField1.setSearchMode(JXSearchField.SearchMode.REGULAR);
+                    xSearchField1.setInstantSearchDelay(5000);
                     xSearchField1.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -1090,5 +1183,5 @@ public class FrmProdukte extends JInternalFrame {
         contentPane.add(pnlMain, CC.xy(2, 1, CC.FILL, CC.FILL));
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
-    // JFormDesigner - End of variables declaration  //GEN-END:variables
+
 }

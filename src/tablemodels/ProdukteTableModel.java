@@ -23,22 +23,64 @@ public class ProdukteTableModel extends DefaultTableModel {
     public static final int COL_LAGERART = 2;
     public static final int COL_GTIN = 3;
     public static final int COL_PACKGROESSE = 4;
-    public static final int COL_EINHEIT = 5;
-    public static final int COL_STOFFART = 6;
-    public static final int COL_WARENGRUPPE = 7;
+    public static final int COL_ZUSATZSTOFFE = 5;
+    public static final int COL_EINHEIT = 6;
+    public static final int COL_STOFFART = 7;
+    public static final int COL_WARENGRUPPE = 8;
 
-    private List data;
+    private List<Produkte> data;
 
     public List getData() {
         return data;
     }
 
+    public void setData(List<Produkte> data) {
+        this.data = data;
+        fireTableDataChanged();
+    }
+
     private DateFormat df;
 
-    public ProdukteTableModel(List data, Object[] columnNames) {
+    public ProdukteTableModel(List<Produkte> data, Object[] columnNames) {
         this.data = data;
         setColumnIdentifiers(columnNames);
         df = DateFormat.getDateInstance(DateFormat.DEFAULT);
+    }
+
+
+    @Override
+    public void removeRow(int row) {
+        data.remove(row);
+        fireTableRowsDeleted(row, row);
+    }
+
+    public void remove(Produkte produkt) {
+        if (!data.contains(produkt)) return;
+        removeRow(data.indexOf(produkt));
+
+    }
+
+    public void add(Produkte produkt) {
+        data.add(produkt);
+        fireTableRowsInserted(data.size() - 1, data.size() - 1);
+    }
+
+    public void update(Produkte produkt) {
+        if (!data.contains(produkt)) return;
+        int row = data.indexOf(produkt);
+        data.set(row, produkt);
+        fireTableRowsUpdated(row, row);
+    }
+
+
+    public void update(List<Produkte> update) {
+        for (Produkte prod : update) {
+            if (data.contains(prod)) {
+                update(prod);
+            } else {
+                add(prod);
+            }
+        }
     }
 
 
@@ -69,13 +111,13 @@ public class ProdukteTableModel extends DefaultTableModel {
     }
 
     public Produkte getProdukt(int row) {
-        return (Produkte) data.get(row);
+        return data.get(row);
     }
 
     @Override
     public Object getValueAt(int row, int column) {
         Object value;
-        Produkte produkte = (Produkte) data.get(row);
+        Produkte produkte = data.get(row);
         switch (column) {
             case COL_ID: {
                 value = produkte.getId();
@@ -103,6 +145,10 @@ public class ProdukteTableModel extends DefaultTableModel {
             }
             case COL_STOFFART: {
                 value = produkte.getIngTypes().getBezeichnung();
+                break;
+            }
+            case COL_ZUSATZSTOFFE: {
+                value = "A" + produkte.getAllergenes().size() + "/Z" + produkte.getAdditives().size();
                 break;
             }
             case COL_WARENGRUPPE: {

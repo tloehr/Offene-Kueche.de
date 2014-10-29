@@ -140,6 +140,17 @@
                 <int>36</int> 
                </object> 
               </void> 
+              <void method="setProperty"> 
+               <string>searchMode</string> 
+               <object class="java.lang.Enum" method="valueOf"> 
+                <class>org.jdesktop.swingx.JXSearchField$SearchMode</class> 
+                <string>REGULAR</string> 
+               </object> 
+              </void> 
+              <void method="setProperty"> 
+               <string>instantSearchDelay</string> 
+               <int>5000</int> 
+              </void> 
               <void property="name"> 
                <string>xSearchField1</string> 
               </void> 

@@ -518,6 +518,21 @@ public class Tools {
         }
     }
 
+    public static String left(String text, int size) {
+         return left(text, size, "...");
+     }
+
+     public static String left(String text, int size, String abrev) {
+         //        OPDE.debug("IN: " + text);
+         int originalLaenge = text.length();
+         int max = Math.min(size, originalLaenge);
+         text = text.substring(0, max);
+         if (max < originalLaenge) {
+             text += abrev;
+         }
+         return text;
+     }
+
 
     /**
      * Gibt eine einheitliche Titelzeile für alle Fenster zurück.

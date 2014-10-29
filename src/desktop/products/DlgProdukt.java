@@ -37,10 +37,18 @@ public class DlgProdukt extends MyJDialog {
     boolean dialogShouldStayOpenedUntilClosed = false;
     boolean initPhase = true;
 
+    ArrayList<Produkte> editedProducts;
+
+    public ArrayList<Produkte> getEditedProducts() {
+        return editedProducts;
+    }
+
     public DlgProdukt(Frame owner, ArrayList<Produkte> myProducts) {
         super(owner);
         thisDialog = this;
         this.myProducts = myProducts;
+        editedProducts = new ArrayList<Produkte>();
+
         initPhase = true;
         initComponents();
         initDialog();
@@ -57,6 +65,7 @@ public class DlgProdukt extends MyJDialog {
 
         dialogShouldStayOpenedUntilClosed = myProducts == null;
         xSearchField1.setEnabled(dialogShouldStayOpenedUntilClosed);
+        btnNew.setEnabled(dialogShouldStayOpenedUntilClosed);
         if (dialogShouldStayOpenedUntilClosed) {
             myProducts = new ArrayList<Produkte>();
             cancelButton.setText("Schliessen");
@@ -214,6 +223,7 @@ public class DlgProdukt extends MyJDialog {
     private void okButtonActionPerformed(ActionEvent evt) {
 
         if (myProducts.isEmpty()) return;
+        if (txtBezeichnung.isEnabled() && txtBezeichnung.getText().trim().isEmpty()) return;
 
         EntityManager em = Main.getEMF().createEntityManager();
 
@@ -254,6 +264,8 @@ public class DlgProdukt extends MyJDialog {
                     produkt.getAdditives().add(em.merge(additives));
                 }
 
+                editedProducts.add(produkt);
+
             }
             em.getTransaction().commit();
         } catch (OptimisticLockException ole) {
@@ -261,7 +273,7 @@ public class DlgProdukt extends MyJDialog {
             Main.warn(ole);
         } catch (Exception e) {
             em.getTransaction().rollback();
-            Main.debug(e);
+            Main.fatal(e);
         } finally {
             em.close();
             if (!dialogShouldStayOpenedUntilClosed) {
@@ -290,8 +302,8 @@ public class DlgProdukt extends MyJDialog {
         btnUnverpackt.setEnabled(false);
         txtPackGroesse.setText("");
         txtPackGroesse.setEnabled(false);
-        if (pnlAllergenes != null) panel4.remove(pnlAllergenes);
-        if (pnlAdditives != null) panel4.remove(pnlAdditives);
+        if (pnlAllergenes != null) pnlAssignment.remove(pnlAllergenes);
+        if (pnlAdditives != null) pnlAssignment.remove(pnlAdditives);
         pnlAdditives = null;
         pnlAllergenes = null;
         cmbStoffart.setSelectedIndex(0);
@@ -311,11 +323,13 @@ public class DlgProdukt extends MyJDialog {
         if (initPhase) return;
 
         if (e.getStateChange() == ItemEvent.SELECTED) {
+            btnUnverpackt.setText("unverpackt");
             txtGTIN.setText("(lose Ware)");
             txtPackGroesse.setText("(lose Ware)");
         } else {
+            btnUnverpackt.setText("verpackt");
             txtGTIN.setText(Tools.catchNull(myProducts.get(0).getGtin()));
-            txtPackGroesse.setText(myProducts.get(0).getPackGroesse().toString());
+            txtPackGroesse.setText(Tools.catchNull(myProducts.get(0).getPackGroesse().toString(), "1"));
         }
 
 
@@ -330,7 +344,6 @@ public class DlgProdukt extends MyJDialog {
 
     private void xSearchField1ActionPerformed(ActionEvent e) {
         String suchtext = xSearchField1.getText().trim();
-
 
         if (!suchtext.isEmpty()) {
             // Was genau wird gesucht ?
@@ -380,6 +393,15 @@ public class DlgProdukt extends MyJDialog {
     private void thisComponentResized(ComponentEvent e) {
     }
 
+    private void btnNewActionPerformed(ActionEvent e) {
+        myProducts.clear();
+        emptyEditor();
+
+        myProducts.add(new Produkte(IngTypesTools.getFirstType()));
+        lblSearch.setText(" Neueingabe");
+        fillEditor();
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         dialogPane = new JPanel();
@@ -404,6 +426,7 @@ public class DlgProdukt extends MyJDialog {
         cmbStoffart = new JComboBox();
         btnEditStoffart = new JButton();
         buttonBar = new JPanel();
+        btnNew = new JButton();
         okButton = new JButton();
         cancelButton = new JButton();
 
@@ -425,8 +448,8 @@ public class DlgProdukt extends MyJDialog {
                 //======== panel4 ========
                 {
                     panel4.setLayout(new FormLayout(
-                            "right:default, 3dlu, $lcgap, pref:grow, $rgap, 2*(default, $lcgap), default, $ugap, pref:grow",
-                            "7*($lgap, default), $lgap, fill:default:grow"));
+                        "right:default, 3dlu, $lcgap, pref:grow, $rgap, 2*(default, $lcgap), default, $ugap, pref:grow",
+                        "7*($lgap, default), $lgap, fill:default:grow"));
 
                     //---- lblSearch ----
                     lblSearch.setText(" Suchen");
@@ -446,8 +469,8 @@ public class DlgProdukt extends MyJDialog {
                     //======== pnlAssignment ========
                     {
                         pnlAssignment.setLayout(new FormLayout(
-                                "default:grow",
-                                "default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:default:grow"));
+                            "default:grow",
+                            "default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:default:grow"));
 
                         //---- label7 ----
                         label7.setText(" Allergene");
@@ -574,8 +597,21 @@ public class DlgProdukt extends MyJDialog {
             {
                 buttonBar.setBorder(new EmptyBorder(12, 0, 0, 0));
                 buttonBar.setLayout(new GridBagLayout());
-                ((GridBagLayout) buttonBar.getLayout()).columnWidths = new int[]{0, 85, 80};
-                ((GridBagLayout) buttonBar.getLayout()).columnWeights = new double[]{1.0, 0.0, 0.0};
+                ((GridBagLayout)buttonBar.getLayout()).columnWidths = new int[] {0, 85, 80};
+                ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
+
+                //---- btnNew ----
+                btnNew.setText("Neu");
+                btnNew.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit_add.png")));
+                btnNew.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        btnNewActionPerformed(e);
+                    }
+                });
+                buttonBar.add(btnNew, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
+                    new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- okButton ----
                 okButton.setText("OK");
@@ -587,8 +623,8 @@ public class DlgProdukt extends MyJDialog {
                     }
                 });
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 0, 5), 0, 0));
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- cancelButton ----
                 cancelButton.setText("Abbrechen");
@@ -600,8 +636,8 @@ public class DlgProdukt extends MyJDialog {
                     }
                 });
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 0, 0), 0, 0));
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 0, 0), 0, 0));
             }
             dialogPane.add(buttonBar, BorderLayout.SOUTH);
         }
@@ -634,6 +670,7 @@ public class DlgProdukt extends MyJDialog {
     private JComboBox cmbStoffart;
     private JButton btnEditStoffart;
     private JPanel buttonBar;
+    private JButton btnNew;
     private JButton okButton;
     private JButton cancelButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
