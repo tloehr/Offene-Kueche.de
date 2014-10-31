@@ -40,7 +40,7 @@ import java.util.Collections;
 /**
  * @author Torsten Löhr
  */
-public class PnlWareneingang extends DefaultTouchPanel {
+public class PnlWareneingang extends JInternalFrame {
     private int currentMode;
     private final int MODE_EDIT_PRODUCT = 1;
     private final int MODE_WARENEINGANG = 2;
@@ -129,6 +129,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
     }
 
     private void btnNoPrinterItemStateChanged(ItemEvent e) {
+        if (e.getStateChange() != ItemEvent.SELECTED) return;
         Main.getProps().put("touch1printer", "3");
     }
 
@@ -618,16 +619,19 @@ public class PnlWareneingang extends DefaultTouchPanel {
     }
 
     private void btnEtiketten1ItemStateChanged(ItemEvent e) {
+        if (e.getStateChange() != ItemEvent.SELECTED) return;
         Main.getProps().put("touch1printer", "0");
         txtSearch.requestFocus();
     }
 
     private void btnEtiketten2ItemStateChanged(ItemEvent e) {
+        if (e.getStateChange() != ItemEvent.SELECTED) return;
         Main.getProps().put("touch1printer", "1");
         txtSearch.requestFocus();
     }
 
     private void btnPagePrinterItemStateChanged(ItemEvent e) {
+        if (e.getStateChange() != ItemEvent.SELECTED) return;
         Main.getProps().put("touch1printer", "2");
         txtSearch.requestFocus();
     }
@@ -812,13 +816,15 @@ public class PnlWareneingang extends DefaultTouchPanel {
         //======== this ========
         setMinimumSize(new Dimension(500, 300));
         setPreferredSize(new Dimension(500, 300));
+        setVisible(true);
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 thisComponentResized(e);
             }
         });
-        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        Container contentPane = getContentPane();
+        contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.X_AXIS));
 
         //======== pnlMain ========
         {
@@ -830,15 +836,15 @@ public class PnlWareneingang extends DefaultTouchPanel {
             //======== pnlEingang ========
             {
                 pnlEingang.setLayout(new FormLayout(
-                        "default, $lcgap, default:grow",
-                        "fill:default:grow"));
+                    "default, $lcgap, default:grow",
+                    "fill:default:grow"));
 
                 //======== pnlEingangLinks ========
                 {
                     pnlEingangLinks.setBorder(new EtchedBorder());
                     pnlEingangLinks.setLayout(new FormLayout(
-                            "$lcgap, 160dlu, $rgap, $glue",
-                            "$rgap, $lgap, fill:default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:default, $lgap, $nlgap"));
+                        "$lcgap, 160dlu, $rgap, $glue",
+                        "$rgap, $lgap, fill:default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:default, $lgap, $nlgap"));
 
                     //---- txtSearch ----
                     txtSearch.setFont(new Font("sansserif", Font.PLAIN, 24));
@@ -899,9 +905,9 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 //======== pnlEingangRechts ========
                 {
                     pnlEingangRechts.setLayout(new FormLayout(
-                            "$rgap, 2*($lcgap, default:grow), $lcgap, default, $lcgap, $rgap",
-                            "$rgap, $lgap, 20dlu, 4*($lgap, fill:default), $lgap, fill:default:grow, 2*($lgap, fill:default)"));
-                    ((FormLayout) pnlEingangRechts.getLayout()).setColumnGroups(new int[][]{{3, 5}});
+                        "$rgap, 2*($lcgap, default:grow), $lcgap, default, $lcgap, $rgap",
+                        "$rgap, $lgap, 20dlu, 4*($lgap, fill:default), $lgap, fill:default:grow, 2*($lgap, fill:default)"));
+                    ((FormLayout)pnlEingangRechts.getLayout()).setColumnGroups(new int[][] {{3, 5}});
 
                     //---- lblProdukt ----
                     lblProdukt.setText(" ");
@@ -923,7 +929,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
                             public void focusGained(FocusEvent e) {
                                 txtFaktorFocusGained(e);
                             }
-
                             @Override
                             public void focusLost(FocusEvent e) {
                                 txtFaktorFocusLost(e);
@@ -1023,7 +1028,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
                             public void focusGained(FocusEvent e) {
                                 txtMengeFocusGained(e);
                             }
-
                             @Override
                             public void focusLost(FocusEvent e) {
                                 txtMengeFocusLost(e);
@@ -1067,49 +1071,49 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
                             //---- cmbLieferant ----
                             cmbLieferant.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                            cmbLieferant.setModel(new DefaultComboBoxModel(new String[]{
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3",
-                                    "item 1",
-                                    "item 2",
-                                    "item 1",
-                                    "item 1",
-                                    "item 2",
-                                    "item 3"
+                            cmbLieferant.setModel(new DefaultComboBoxModel(new String[] {
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 3",
+                                "item 1",
+                                "item 2",
+                                "item 1",
+                                "item 1",
+                                "item 2",
+                                "item 3"
                             }));
                             cmbLieferant.addFocusListener(new FocusAdapter() {
                                 @Override
@@ -1202,10 +1206,10 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
                             //---- cmbLager ----
                             cmbLager.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                            cmbLager.setModel(new DefaultComboBoxModel(new String[]{
-                                    "item 1",
-                                    "item 2",
-                                    "item 3"
+                            cmbLager.setModel(new DefaultComboBoxModel(new String[] {
+                                "item 1",
+                                "item 2",
+                                "item 3"
                             }));
                             cmbLager.addFocusListener(new FocusAdapter() {
                                 @Override
@@ -1382,8 +1386,8 @@ public class PnlWareneingang extends DefaultTouchPanel {
             //======== pnlAddProduct ========
             {
                 pnlAddProduct.setLayout(new FormLayout(
-                        "default, $lcgap, default:grow, $lcgap, default",
-                        "fill:default, $rgap, 5*(default, $lgap), fill:default:grow"));
+                    "default, $lcgap, default:grow, $lcgap, default",
+                    "fill:default, $rgap, 5*(default, $lgap), fill:default:grow"));
 
                 //---- lbl1 ----
                 lbl1.setLabelFor(txtProdBezeichnung);
@@ -1438,7 +1442,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
                     public void focusGained(FocusEvent e) {
                         txtGTINFocusGained(e);
                     }
-
                     @Override
                     public void focusLost(FocusEvent e) {
                         txtGTINFocusLost(e);
@@ -1495,10 +1498,10 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
                         //---- cmbStoffart ----
                         cmbStoffart.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                        cmbStoffart.setModel(new DefaultComboBoxModel(new String[]{
-                                "item 1",
-                                "item 2",
-                                "item 3"
+                        cmbStoffart.setModel(new DefaultComboBoxModel(new String[] {
+                            "item 1",
+                            "item 2",
+                            "item 3"
                         }));
                         cmbStoffart.addItemListener(new ItemListener() {
                             @Override
@@ -1596,10 +1599,10 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
                         //---- cmbWarengruppe ----
                         cmbWarengruppe.setFont(new Font("SansSerif", Font.PLAIN, 24));
-                        cmbWarengruppe.setModel(new DefaultComboBoxModel(new String[]{
-                                "item 1",
-                                "item 2",
-                                "item 3"
+                        cmbWarengruppe.setModel(new DefaultComboBoxModel(new String[] {
+                            "item 1",
+                            "item 2",
+                            "item 3"
                         }));
                         cmbWarengruppe.addItemListener(new ItemListener() {
                             @Override
@@ -1692,7 +1695,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
             }
             pnlMain.add(pnlAddProduct, "produkt");
         }
-        add(pnlMain);
+        contentPane.add(pnlMain);
 
         //---- buttonGroup1 ----
         ButtonGroup buttonGroup1 = new ButtonGroup();
@@ -1964,7 +1967,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
     private void loadWarengruppe() {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Warengruppe.findAllSorted");
+        Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung");
         try {
             java.util.List warengruppe = query.getResultList();
             cmbWarengruppe.setModel(tools.Tools.newComboboxModel(warengruppe));
@@ -1974,16 +1977,6 @@ public class PnlWareneingang extends DefaultTouchPanel {
             em.close();
         }
     }
-
-//    private void loadStoffarten() {
-//        Query query = em.createNamedQuery("Stoffart.findAllSorted");
-//        try {
-//            java.util.List stoffarten = query.getResultList();
-//            cmbStoffart.setModel(tools.Tools.newComboboxModel(stoffarten));
-//        } catch (Exception e) { // nicht gefunden
-//            //
-//        }
-//    }
 
 
     private void success(String message, JLabel lbl) {

@@ -167,54 +167,11 @@ public class Main {
         css = Tools.readFileAsString(Main.props.getProperty("workdir") + System.getProperty("file.separator") + "standard.css");
 
 
-//        Query q = em1.createNamedQuery("Vorrat.findById");
-//        q.setParameter("id", 1l);
-//        List<Vorrat> list = q.getResultList();
-//        HashMap attrib = new HashMap();
-//        attrib.put("produkt.bezeichnung","Hähnchenbrustfilet, natur, zerlegt, gegart, gerührt, geschüttelt und paniert");
-//        attrib.put("produkt.gtin","20006419");
-//        attrib.put("vorrat.eingang","12.08.2011");
-//        attrib.put("vorrat.lieferant","Möllers, Köln");
-//        attrib.put("system.in-store-prefix","20");
-//        attrib.put("vorrat.userlang","Siepermann, Thorsten");
-//        attrib.put("vorrat.id","4561");
-//        logger.debug(printers.getPrinter("epl2").getForms().get("etikett-vorrat-95x48").getForm(attrib));
-//
-//        System.exit(0);
-
-
-//        EntityManager em = emf.createEntityManager();
-//
-//        Produkte produkte =  em.find(Produkte.class, new Long(1160l));
-//
-//        em.close();
-//
-//
-//        em = emf.createEntityManager();
-//
-//        try{
-//            em.getTransaction().begin();
-//
-//            Produkte p = em.merge(produkte);
-//            em.lock(p, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-//            p.setBezeichnung("test1a1a");
-//
-//            em.getTransaction().commit();
-//
-//        } catch (Exception e){
-//            Main.fatal(e);
-//        } finally {
-//            em.close();
-//        }
-//
-//        System.exit(0);
 
         if (mode == DESKTOP) {
             mainframe = new FrmDesktop();
-//            mainframe.setSize(1366, 720);
         } else {
             mainframe = new FrmTouch();
-//            mainframe.setSize(1280, 1024);
         }
 
         if (startResolution != null) {
@@ -223,18 +180,11 @@ public class Main {
         } else {
             mainframe.setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
-
-
-        // mainframe.setSize(1280, 1024);
-
-        // mainframe.setSize(1280, 1024);
-
         mainframe.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 logger.debug(evt.getPropertyName());
             }
         });
-
         mainframe.setVisible(true);
 
     }

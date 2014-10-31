@@ -18,7 +18,7 @@ public class LieferantenTools {
         Lieferanten lieferant = null;
         EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Query query = em.createNamedQuery("Lieferanten.findByFirma");
+            Query query = em.createQuery("SELECT l FROM Lieferanten l WHERE l.firma = :firma");
             query.setParameter("firma", firma.trim());
             if (query.getResultList().isEmpty()) {
                 em.getTransaction().begin();

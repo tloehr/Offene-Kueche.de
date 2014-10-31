@@ -58,7 +58,7 @@ public class WarengruppeTools {
         Warengruppe warengruppe = null;
         EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Query query = em.createNamedQuery("Warengruppe.findByBezeichnung");
+            Query query = em.createQuery("SELECT w FROM Warengruppe w WHERE w.bezeichnung = :bezeichnung");
             query.setParameter("bezeichnung", text.trim());
             if (query.getResultList().isEmpty()) {
                 em.getTransaction().begin();

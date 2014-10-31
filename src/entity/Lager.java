@@ -11,18 +11,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "lager")
-@NamedQueries({
-        @NamedQuery(name = "Lager.findAll", query = "SELECT l FROM Lager l"),
-        @NamedQuery(name = "Lager.findAllSorted", query = "SELECT l FROM Lager l ORDER BY l.bezeichnung"),
-        @NamedQuery(name = "Lager.findByLagerartSorted", query = "SELECT l FROM Lager l WHERE l.lagerart = :lagerart ORDER BY l.bezeichnung"),
-        @NamedQuery(name = "Lager.findById", query = "SELECT l FROM Lager l WHERE l.id = :id"),
-        @NamedQuery(name = "Lager.findByBezeichnung", query = "SELECT l FROM Lager l WHERE l.bezeichnung = :bezeichnung"),
-        @NamedQuery(name = "Lager.findByLagerart", query = "SELECT l FROM Lager l WHERE l.lagerart = :lagerart"),
-        @NamedQuery(name = "Lager.findByOrt", query = "SELECT l FROM Lager l WHERE l.ort = :ort")})
-
 public class Lager {
-
-
     public Lager() {
         this.id = 0l;
     }

@@ -66,7 +66,7 @@ public class LagerTools {
 
         EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Query query = em.createNamedQuery("Lager.findByBezeichnung");
+            Query query = em.createQuery("SELECT l FROM Lager l WHERE l.bezeichnung = :bezeichnung");
             query.setParameter("bezeichnung", bezeichnung.trim());
             if (query.getResultList().isEmpty()) {
                 em.getTransaction().begin();
@@ -93,7 +93,7 @@ public class LagerTools {
     public static Lager getUnbekannt() {
         Lager lager = null;
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Lager.findByLagerart");
+        Query query = em.createQuery("SELECT l FROM Lager l WHERE l.lagerart = :lagerart");
         query.setParameter("lagerart", LAGERART_UNBEKANNT);
         lager = (Lager) query.getSingleResult();
         em.close();

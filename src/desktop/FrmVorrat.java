@@ -39,6 +39,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyVetoException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -70,7 +71,12 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         myInit();
         pack();
         initphase = false;
-        thisComponentResized(null);
+        try {
+            setMaximum(true);
+        } catch (PropertyVetoException e) {
+            //nop
+        }
+//        thisComponentResized(null);
     }
 
     private void loadVorratTable() {
@@ -89,60 +95,179 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
 //        Tools.resetBackground(pnlSuche);
 
-        String strQueryAddendum = "Alle";
-        if (btnAktiv.isSelected()) {
-            strQueryAddendum = "Aktiv";
-        } else if (btnInaktiv.isSelected()) {
-            strQueryAddendum = "Inaktiv";
-        }
+//        String strQueryAddendum = "Alle";
+//        if (btnAktiv.isSelected()) {
+//            strQueryAddendum = "Aktiv";
+//        } else if (btnInaktiv.isSelected()) {
+//            strQueryAddendum = "Inaktiv";
+//        }
 
         try {
             EntityManager em = Main.getEMF().createEntityManager();
             if (suche == null) {
-                query = em.createNamedQuery("Buchungen.findSUMByAlle" + strQueryAddendum);
+
+                if (btnAktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else if (btnInaktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " GROUP BY v");
+                }
+
             } else if (suche.getFirst() == Const.DATUM) {
+                if (btnAktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.eingang BETWEEN :eingang1 AND :eingang2 AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else if (btnInaktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.eingang BETWEEN :eingang1 AND :eingang2  AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.eingang BETWEEN :eingang1 AND :eingang2 " +
+                            " GROUP BY v");
+                }
+
                 Date eingang = (Date) suche.getSecond();
-                query = em.createNamedQuery("Buchungen.findSUMByVorratDatum" + strQueryAddendum);
                 query.setParameter("eingang1", new Date(Tools.startOfDay(eingang)));
                 query.setParameter("eingang2", new Date(Tools.endOfDay(eingang)));
             } else if (suche.getFirst() == Const.PRODUKT) {
+                if (btnAktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.produkt = :produkt AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else if (btnInaktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.produkt = :produkt AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.produkt = :produkt " +
+                            " GROUP BY v");
+                }
                 Produkte produkt = (Produkte) suche.getSecond();
-                query = em.createNamedQuery("Buchungen.findSUMByProdukt" + strQueryAddendum);
                 query.setParameter("produkt", produkt);
             } else if (suche.getFirst() == Const.VORRAT) {
+                if (btnAktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v = :vorrat AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else if (btnInaktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v = :vorrat AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v = :vorrat " +
+                            " GROUP BY v");
+                }
                 Vorrat vorrat = (Vorrat) suche.getSecond();
-                query = em.createNamedQuery("Buchungen.findSUMByVorrat" + strQueryAddendum);
                 query.setParameter("vorrat", vorrat);
             } else if (suche.getFirst() == Const.LAGER) {
                 initphase = true;
                 cmbWarengruppe.setSelectedIndex(0);
                 cmbLieferant.setSelectedIndex(0);
                 initphase = false;
+
+                if (btnAktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                            " WHERE v.lager = :lager AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else if (btnInaktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                            " WHERE v.lager = :lager AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else {
+                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                            " WHERE v.lager = :lager " +
+                            " GROUP BY v");
+                }
+
                 Lager lager = (Lager) suche.getSecond();
-                query = em.createNamedQuery("Buchungen.findSUMByLager" + strQueryAddendum);
                 query.setParameter("lager", lager);
             } else if (suche.getFirst() == Const.WARENGRUPPE) {
                 initphase = true;
                 cmbLager.setSelectedIndex(0);
                 cmbLieferant.setSelectedIndex(0);
                 initphase = false;
+
+                if (btnAktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.produkt.ingTypes.warengruppe = :warengruppe AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else if (btnInaktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.produkt.ingTypes.warengruppe = :warengruppe AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.produkt.ingTypes.warengruppe = :warengruppe " +
+                            " GROUP BY v");
+                }
+
                 Warengruppe warengruppe = (Warengruppe) suche.getSecond();
-                query = em.createNamedQuery("Buchungen.findSUMByWarengruppe" + strQueryAddendum);
                 query.setParameter("warengruppe", warengruppe);
             } else if (suche.getFirst() == Const.LIEFERANT) {
                 initphase = true;
                 cmbLager.setSelectedIndex(0);
                 cmbWarengruppe.setSelectedIndex(0);
                 initphase = false;
+
+                if (btnAktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.lieferant = :lieferant AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else if (btnInaktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.lieferant = :lieferant AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.lieferant = :lieferant " +
+                            " GROUP BY v");
+                }
+
                 Lieferanten lieferant = (Lieferanten) suche.getSecond();
-                query = em.createNamedQuery("Buchungen.findSUMByLieferant" + strQueryAddendum);
                 query.setParameter("lieferant", lieferant);
             } else if (suche.getFirst() == Const.PRODUKTNAME) {
-                query = em.createNamedQuery("Buchungen.findSUMByProduktBezeichnung" + strQueryAddendum);
+
+                if (btnAktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.produkt.bezeichnung LIKE :bezeichnung AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else if (btnInaktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.produkt.bezeichnung LIKE :bezeichnung AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else {
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                            " WHERE v.produkt.bezeichnung LIKE :bezeichnung " +
+                            " GROUP BY v");
+                }
+
                 query.setParameter("bezeichnung", "%" + suche.getSecond().toString().trim() + "%");
             } else if (suche.getFirst() == Const.LAGERART) {
+
+                if (btnAktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                            " WHERE v.lager.lagerart = :lagerart AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else if (btnInaktiv.isSelected()) {
+                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                            " WHERE v.lager.lagerart = :lagerart AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
+                            " GROUP BY v");
+                } else {
+                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                            " WHERE v.lager.lagerart = :lagerart " +
+                            " GROUP BY v");
+                }
                 short lagerart = (Short) suche.getSecond();
-                query = em.createNamedQuery("Buchungen.findSUMByLagerart" + strQueryAddendum);
                 query.setParameter("lagerart", lagerart);
             }
 
@@ -238,7 +363,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
     private void loadWarengruppe() {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Warengruppe.findAllSorted");
+        Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung");
         java.util.List warengruppe = query.getResultList();
         warengruppe.add(0, "<html><i>nach Warengruppe</i></html>");
         cmbWarengruppe.setModel(tools.Tools.newComboboxModel(warengruppe));
@@ -247,7 +372,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
     private void loadLager() {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Lager.findAllSorted");
+        Query query = em.createQuery("SELECT l FROM Lager l ORDER BY l.bezeichnung");
         java.util.List lager = query.getResultList();
         lager.add(0, "<html><i>nach Lager</i></html>");
         cmbLager.setModel(tools.Tools.newComboboxModel(lager));
@@ -263,7 +388,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
     private void loadLieferanten() {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Lieferanten.findAllSorted");
+        Query query = em.createQuery("SELECT l FROM Lieferanten l ORDER BY l.firma");
         java.util.List lieferanten = query.getResultList();
         lieferanten.add(0, "<html><i>nach Lieferanten</i></html>");
         cmbLieferant.setModel(tools.Tools.newComboboxModel(lieferanten));
@@ -537,12 +662,45 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
             });
             menu.add(itemZurueckBuchen);
 
+            menu.add(compFactory.createSeparator("Korrekturen", SwingConstants.CENTER));
+            JMenuItem itemChangeProduct = new JMenuItem("Produkt neu zuweisen", Const.icon24undo);
+            itemChangeProduct.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                        int[] rows = tblVorrat.getSelectedRows();
+                        //                        VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+                        EntityManager em = Main.getEMF().createEntityManager();
+                        try {
+                            em.getTransaction().begin();
+                            for (int r = 0; r < rows.length; r++) {
+                                int row = tblVorrat.convertRowIndexToModel(rows[r]);
+                                Vorrat vorrat = em.merge(tm.getVorrat(row));
+                                em.lock(vorrat, LockModeType.OPTIMISTIC);
+                                VorratTools.reaktivieren(em, vorrat);
+                            }
+                            em.getTransaction().commit();
+                            loadVorratTable();
+                        } catch (OptimisticLockException ole) {
+                            Main.warn(ole);
+                            em.getTransaction().rollback();
+                        } catch (Exception e1) {
+                            em.getTransaction().rollback();
+                        } finally {
+                            em.close();
+                        }
+                    }
+
+            });
+            menu.add(itemChangeProduct);
+
+
             menu.add(compFactory.createSeparator("Zuweisen", SwingConstants.CENTER));
             JMenu menuLager = new JMenu("Lager");
             menuLager.setIcon(Const.icon24box);
 
             EntityManager em = Main.getEMF().createEntityManager();
-            Query query = em.createNamedQuery("Lager.findAllSorted");
+            Query query = em.createQuery("SELECT l FROM Lager l ORDER BY l.bezeichnung");
             try {
                 for (final Lager lager : new ArrayList<Lager>(query.getResultList())) {
                     JMenuItem mi = new JMenuItem(lager.getBezeichnung());
@@ -589,7 +747,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
             menuLieferanten.setIcon(Const.icon24truck);
 
             em = Main.getEMF().createEntityManager();
-            query = em.createNamedQuery("Lieferanten.findAllSorted");
+            query = em.createQuery("SELECT l FROM Lieferanten l ORDER BY l.firma");
             try {
                 for (final Lieferanten lieferant : new ArrayList<Lieferanten>(query.getResultList())) {
                     JMenuItem mi = new JMenuItem(lieferant.getFirma() + Tools.catchNull(lieferant.getOrt(), ", ", ""));

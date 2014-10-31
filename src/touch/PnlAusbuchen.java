@@ -17,6 +17,7 @@ import org.jdesktop.swingx.border.DropShadowBorder;
 import org.pushingpixels.trident.Timeline;
 import org.pushingpixels.trident.callback.TimelineCallback;
 import threads.SoundProcessor;
+import tools.Const;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
@@ -67,8 +68,9 @@ public class PnlAusbuchen extends DefaultTouchPanel {
             }
             if (id != 0) {
                 EntityManager em = Main.getEMF().createEntityManager();
-                Query query1 = em.createNamedQuery("Vorrat.findByIdActive");
+                Query query1 = em.createQuery("SELECT v FROM Vorrat v WHERE v.id = :id AND v.ausgang = :ausgang");
                 query1.setParameter("id", id);
+                query1.setParameter("ausgang", Const.DATE_BIS_AUF_WEITERES);
                 java.util.List<Vorrat> vorraete = query1.getResultList();
                 em.close();
                 if (vorraete.size() == 1) {
@@ -105,9 +107,7 @@ public class PnlAusbuchen extends DefaultTouchPanel {
                     vorrat = null;
                     try {
                         em = Main.getEMF().createEntityManager();
-                        Query query2 = em.createNamedQuery("Vorrat.findById");
-                        query2.setParameter("id", id);
-                        Vorrat meinVorrat = (Vorrat) query2.getSingleResult();
+                        Vorrat meinVorrat = vorrat = em.find(Vorrat.class, id);
                         Tools.log(txtLog, "[" + id + "] \"" + meinVorrat.getProdukt().getBezeichnung() + "\" wurde bereits ausgebucht");
                         sp.warning();
                     } catch (Exception e2) {

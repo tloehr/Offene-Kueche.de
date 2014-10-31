@@ -25,36 +25,70 @@ public class IngTypesTools {
 
     public static final String[] EINHEIT = {"kg", "liter", "Stück"};
 
-    public static TableCellRenderer getStorageRenderer() {
+//    public static TableCellRenderer getStorageRenderer() {
+//        return new TableCellRenderer() {
+//            @Override
+//            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+//                return new DefaultTableCellRenderer().getTableCellRendererComponent(table, LagerTools.LAGERART[(Short) value], isSelected, hasFocus, row, column);
+//            }
+//        };
+//    }
+//
+//    public static class MyTableCellEditor extends DefaultCellEditor {
+//        MyTableCellEditor() {
+//            super(new JComboBox<String>(new DefaultComboBoxModel<String>(LagerTools.LAGERART)));
+//            setClickCountToStart(2);
+//        }
+//
+//        @Override
+//        public Object getCellEditorValue() {
+//            return new Integer(((JComboBox<String>) editorComponent).getSelectedIndex()).shortValue();
+//        }
+//
+//        @Override
+//        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+//            ((JComboBox) editorComponent).setSelectedIndex((Short) value);
+//            return editorComponent;
+//        }
+//    }
+//
+
+
+    public static TableCellRenderer getTableCellRenderer() {
         return new TableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                return new DefaultTableCellRenderer().getTableCellRendererComponent(table, LagerTools.LAGERART[(Short) value], isSelected, hasFocus, row, column);
+                return new DefaultTableCellRenderer().getTableCellRendererComponent(table, ((IngTypes) value).getBezeichnung(), isSelected, hasFocus, row, column);
             }
         };
     }
 
     public static class MyTableCellEditor extends DefaultCellEditor {
         MyTableCellEditor() {
-            super(new JComboBox<String>(new DefaultComboBoxModel<String>(LagerTools.LAGERART)));
+            super(new JComboBox<IngTypes>(new DefaultComboBoxModel<IngTypes>(getAll().toArray(new IngTypes[]{}))));
             setClickCountToStart(2);
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            return new Integer(((JComboBox<String>) editorComponent).getSelectedIndex()).shortValue();
+            ((JComboBox<IngTypes>) editorComponent).setRenderer(new ListCellRenderer<IngTypes>() {
+                @Override
+                public Component getListCellRendererComponent(JList<? extends IngTypes> list, IngTypes ingType, int index, boolean isSelected, boolean cellHasFocus) {
+                    return new DefaultListCellRenderer().getListCellRendererComponent(list, ingType.getBezeichnung(), index, isSelected, cellHasFocus);
+                }
+            });
         }
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            ((JComboBox) editorComponent).setSelectedIndex((Short) value);
+            ((JComboBox) editorComponent).setSelectedItem(value);
             return editorComponent;
         }
     }
 
-    public static TableCellEditor getStorageEditor() {
+    public static TableCellEditor getTableCellEditor() {
         return new MyTableCellEditor();
     }
+
+//    public static TableCellEditor getStorageEditor() {
+//        return new MyTableCellEditor();
+//    }
 
     public static IngTypes add(String text, short einheit, short storagetype, Warengruppe warengruppe) {
         IngTypes ingTypes = null;
@@ -77,6 +111,20 @@ public class IngTypesTools {
         }
 
         return ingTypes;
+    }
+
+    public static ArrayList<IngTypes> getAll() {
+        ArrayList<IngTypes> list = new ArrayList<IngTypes>();
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createQuery("SELECT s FROM IngTypes s ORDER BY s.bezeichnung");
+        try {
+            list.addAll(query.getResultList());
+        } catch (Exception e) { // nicht gefunden
+            Main.fatal(e);
+        } finally {
+            em.close();
+        }
+        return list;
     }
 
     public static void loadStoffarten(JComboBox cmb) {

@@ -65,129 +65,7 @@ public class FrmUser extends JInternalFrame {
         pack();
     }
 
-    /**
-     * Um mit den Karten umzugehen gibt es verschiedene Ansätze. Das Programm kann nur mit den Gemalto GemClub-Memo Cards
-     * umgehen. Obwohl diese Karten viele weitere Funktionen haben benutzen wir hier nur die sog. IssuerArea. Falls die
-     * Karte noch für andere Funktionen benutzt werden sollte, spricht nichts dagegen. Alles was dieses Programm braucht
-     * sind zwei Words aus der Issuer Area.
-     * <p/>
-     * Dieser Button setzt kein eigenen FormMode. Das geht so schnell und steht auch in modalen Dialogen,
-     * dass sich das nicht lohnt.
-     *
-     * @param e
-     */
-    private void btnCardActionPerformed(ActionEvent e) {
 
-//        cardmonitor.setSuspended(true);
-//        while (!cardmonitor.isWaiting()) {
-//            try {
-//                Main.logger.debug("Waiting for CardMonitor to sleep");
-//                Thread.currentThread().sleep(1000);
-//            } catch (InterruptedException e1) {
-//                e1.printStackTrace();
-//            }
-//        }
-//        Main.logger.debug("CardMonitor sleeping");
-//
-//        try {
-//            card = cardmonitor.getTerminal().connect("T=0");
-//        } catch (CardException e1) {
-//            e1.printStackTrace();
-//        }
-//
-//        // 1) Ist die Karte abgeschlossen ?
-//        if (!userMode) {
-//            if (JOptionPane.showInternalConfirmDialog(this.getDesktopPane(),
-//                    "Diese Karte wurde (noch) nicht für die Verwendung mit diesem Programm vorbereitet.\n" +
-//                            "Möchten Sie das jetzt nachholen ?\n" +
-//                            "Das kann nicht rückgägngig gemacht werden.",
-//                    "Unvorbereitete GemClub-Memo Karte",
-//                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-//
-//
-//                // Freie CardID suchen
-//                // Etwas naiver Ansatz, aber die Wahrscheinlichkeit,
-//                // dass diese Schleife 2x durchlaufen werden muss
-//                // ist EXTREM gering.
-//                long newCardID = 0l;
-//
-//                boolean cardIDisFree = false;
-//                while (!cardIDisFree) {
-//                    newCardID = new Random().nextLong();
-//                    if (newCardID < Long.MAX_VALUE) {
-//                        EntityManager em = Main.getEMF().createEntityManager();
-//                        Query query = em.createNamedQuery("Mitarbeiter.findByCardID");
-//                        query.setParameter("cardId", newCardID);
-//                        try {
-//                            query.getSingleResult();
-//                            cardIDisFree = false;
-//                        } catch (Exception e1) {
-//                            cardIDisFree = true;
-//                        }
-//                        em.close();
-//                    }
-//                }
-//
-//                try {
-//                    Tools.command_apdu(card, Tools.APDU_VERIFY, null);
-//                    Tools.command_apdu(card, Tools.APDU_UPDATE, Tools.longToByteLSB(newCardID));
-//                    Tools.command_apdu(card, Tools.APDU_SWITCH_TO_USERMODE, null);
-//                    cardID = newCardID;
-//                    userMode = true;
-//                } catch (CardException e1) {
-//                    e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-//                }
-//
-//            }
-//        }
-//
-//
-//        // Der userMode wird evtl. im vorhergehenden Block geändert. Daher
-//        // hier eine erneute Kontrolle.
-//        if (userMode) {
-//            Mitarbeiter karteninhaber;
-//            EntityManager em = Main.getEMF().createEntityManager();
-//            Query query = em.createNamedQuery("Mitarbeiter.findByCardID");
-//            query.setParameter("cardId", cardID);
-//            try {
-//                karteninhaber = (Mitarbeiter) query.getSingleResult();
-//            } catch (Exception e1) {
-//                karteninhaber = null;
-//            }
-//            em.close();
-//
-//            if (!currentMA.equals(karteninhaber)) { // Diese Karte gehört jemand anderem oder ist neu.
-//                if (JOptionPane.showInternalConfirmDialog(this.getDesktopPane(),
-//                        (karteninhaber == null ? "Diese Karte gehört bisher noch niemandem.\n " : "Diese Karte gehört " + MitarbeiterTools.getUserString(karteninhaber) + ".\n ") +
-//                                "Soll sie nun " + MitarbeiterTools.getUserString(currentMA) + " zugeordnet werden ?\n",
-//                        "Fremde/Neue Benutzerkarte",
-//                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-//
-//
-//                    if (karteninhaber != null) {
-//                        karteninhaber.setCardId(0l);
-//                    }
-//                    currentMA.setCardId(cardID);
-//
-//                    em = Main.getEMF().createEntityManager();
-//                    try {
-//                        em.getTransaction().begin();
-//                        if (karteninhaber != null) {
-//                            em.merge(karteninhaber);
-//                        }
-//                        em.merge(currentMA);
-//                        em.getTransaction().commit();
-//                    } catch (Exception e1) {
-//                        // Pech
-//                        em.getTransaction().rollback();
-//                    } finally {
-//                        em.close();
-//                    }
-//                }
-//            }
-//        }
-//        cardmonitor.setSuspended(false);
-    }
 
 
     private void setUserList() {
@@ -195,9 +73,9 @@ public class FrmUser extends JInternalFrame {
 
         EntityManager em = Main.getEMF().createEntityManager();
         if (cbArchiv.isSelected()) {
-            query = em.createNamedQuery("Mitarbeiter.findAllSorted");
+            query = em.createQuery("SELECT m FROM Mitarbeiter m ORDER BY m.name, m.vorname");
         } else {
-            query = em.createNamedQuery("Mitarbeiter.findActiveSorted");
+            query = em.createQuery("SELECT m FROM Mitarbeiter m WHERE (m.md5Key IS NOT null OR m.pin IS NOT null) ORDER BY m.name, m.vorname");
         }
 
         try {
@@ -368,7 +246,7 @@ public class FrmUser extends JInternalFrame {
 
 //        if (formMode == MODE_NEW || formMode == MODE_EDIT) {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Mitarbeiter.findByUsername");
+        Query query = em.createQuery("SELECT m FROM Mitarbeiter m WHERE m.username = :username");
         query.setParameter("username", txtUsername.getText());
         java.util.List<Mitarbeiter> ma = query.getResultList();
         em.close();

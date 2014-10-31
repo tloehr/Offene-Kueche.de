@@ -51,6 +51,11 @@ public class FrmDesktop extends JFrame {
         return (FrmIngType) types;
     }
 
+    public FrmProdukte getProductsFrame() {
+            return (FrmProdukte) produkte;
+        }
+
+
     public FrmDesktop() {
         initComponents();
 
@@ -241,6 +246,7 @@ public class FrmDesktop extends JFrame {
         ausbuchenMenuItem.setEnabled(false);
 
         desktopPane.add(ausbuchen);
+
         ausbuchen.setVisible(true);
 
         try {

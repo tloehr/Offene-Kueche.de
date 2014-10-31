@@ -32,7 +32,7 @@ public class VorratTools {
      */
     public static BigDecimal getSummeBestand(Vorrat vorrat) {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Vorrat.Buchungen.summeBestand");
+        Query query = em.createQuery("SELECT SUM(b.menge) FROM Buchungen b JOIN b.vorrat v WHERE b.vorrat = :vorrat");
         BigDecimal bestand = new BigDecimal(-1);
         query.setParameter("vorrat", vorrat);
         try {
@@ -186,7 +186,7 @@ public class VorratTools {
 
     public static HashMap getVorrat4Printing(Vorrat vorrat) {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Vorrat.findMitarbeiter");
+        Query query = em.createQuery("SELECT b.mitarbeiter FROM Buchungen b JOIN b.vorrat v WHERE b.status = 1 and b.vorrat = :vorrat");
         query.setParameter("vorrat", vorrat);
         Mitarbeiter mitarbeiter = null;
 
@@ -316,12 +316,9 @@ public class VorratTools {
 
             if (id != 0) {
                 EntityManager em = Main.getEMF().createEntityManager();
-                Query query1 = em.createNamedQuery("Vorrat.findById");
-
-                query1.setParameter("id", id);
 
                 try {
-                    vorrat = (Vorrat) query1.getSingleResult();
+                    vorrat = em.find(Vorrat.class, id);
                 } catch (Exception e1) {
                     vorrat = null;
                 } finally {

@@ -281,7 +281,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
     private void loadLieferant() {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Lieferanten.findAllSorted");
+        Query query = em.createQuery("SELECT l FROM Lieferanten l ORDER BY l.firma");
         try {
             java.util.List lieferant = query.getResultList();
             lieferant.add(0, "<html><i>Lieferant nicht &auml;ndern</i></html>");
@@ -609,7 +609,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
 
     private void myInit() {
-        cmbLager.setModel(tools.Tools.newComboboxModel("Lager.findAllSorted"));
+        cmbLager.setModel(tools.Tools.newComboboxModel("SELECT l FROM Lager l ORDER BY l.bezeichnung"));
         cmbLager.setSelectedIndex(Integer.parseInt(Main.getProps().getProperty("touch" + MODULENUMBER + "lager")));
         loadLieferant();
         cmbLieferant.setSelectedIndex(0);

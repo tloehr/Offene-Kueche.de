@@ -8,7 +8,7 @@
    <object class="com.jformdesigner.model.FormRoot"> 
     <void method="add"> 
      <object class="com.jformdesigner.model.FormContainer"> 
-      <string>javax.swing.JPanel</string> 
+      <string>javax.swing.JInternalFrame</string> 
       <object class="com.jformdesigner.model.FormLayoutManager"> 
        <class>javax.swing.BoxLayout</class> 
       </object> 
@@ -25,6 +25,10 @@
         <int>500</int> 
         <int>300</int> 
        </object> 
+      </void> 
+      <void method="setProperty"> 
+       <string>visible</string> 
+       <boolean>true</boolean> 
       </void> 
       <void method="addEvent"> 
        <object class="com.jformdesigner.model.FormEvent"> 

@@ -11,18 +11,6 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "mitarbeiter")
-@NamedQueries({
-        @NamedQuery(name = "Mitarbeiter.findAll", query = "SELECT m FROM Mitarbeiter m"),
-        @NamedQuery(name = "Mitarbeiter.findById", query = "SELECT m FROM Mitarbeiter m WHERE m.id = :id"),
-        @NamedQuery(name = "Mitarbeiter.findForLogin", query = "SELECT m FROM Mitarbeiter m WHERE m.username = :username AND m.md5Key = :mD5Key"),
-        @NamedQuery(name = "Mitarbeiter.findAllSorted", query = "SELECT m FROM Mitarbeiter m ORDER BY m.name, m.vorname"),
-        @NamedQuery(name = "Mitarbeiter.findActiveSorted", query = "SELECT m FROM Mitarbeiter m WHERE (m.md5Key IS NOT null OR m.pin IS NOT null) ORDER BY m.name, m.vorname"),
-        @NamedQuery(name = "Mitarbeiter.findByUsername", query = "SELECT m FROM Mitarbeiter m WHERE m.username = :username"),
-        @NamedQuery(name = "Mitarbeiter.findByName", query = "SELECT m FROM Mitarbeiter m WHERE m.name = :name"),
-        @NamedQuery(name = "Mitarbeiter.findByVorname", query = "SELECT m FROM Mitarbeiter m WHERE m.vorname = :vorname"),
-        @NamedQuery(name = "Mitarbeiter.findByIsAdmin", query = "SELECT m FROM Mitarbeiter m WHERE m.isAdmin = :isAdmin"),
-        @NamedQuery(name = "Mitarbeiter.findByMD5Key", query = "SELECT m FROM Mitarbeiter m WHERE m.md5Key = :md5Key")
-})
 public class Mitarbeiter {
 
 

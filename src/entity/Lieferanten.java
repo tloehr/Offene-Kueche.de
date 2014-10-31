@@ -11,17 +11,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "lieferanten")
-@NamedQueries({
-        @NamedQuery(name = "Lieferanten.findAll", query = "SELECT l FROM Lieferanten l"),
-        @NamedQuery(name = "Lieferanten.findAllSorted", query = "SELECT l FROM Lieferanten l ORDER BY l.firma"),
-        @NamedQuery(name = "Lieferanten.findById", query = "SELECT l FROM Lieferanten l WHERE l.id = :id"),
-        @NamedQuery(name = "Lieferanten.findByFirma", query = "SELECT l FROM Lieferanten l WHERE l.firma = :firma"),
-        @NamedQuery(name = "Lieferanten.findByName", query = "SELECT l FROM Lieferanten l WHERE l.name = :name"),
-        @NamedQuery(name = "Lieferanten.findByVorname", query = "SELECT l FROM Lieferanten l WHERE l.vorname = :vorname"),
-        @NamedQuery(name = "Lieferanten.findByStrasse", query = "SELECT l FROM Lieferanten l WHERE l.strasse = :strasse"),
-        @NamedQuery(name = "Lieferanten.findByOrt", query = "SELECT l FROM Lieferanten l WHERE l.ort = :ort"),
-        @NamedQuery(name = "Lieferanten.findByTel", query = "SELECT l FROM Lieferanten l WHERE l.tel = :tel"),
-        @NamedQuery(name = "Lieferanten.findByFax", query = "SELECT l FROM Lieferanten l WHERE l.fax = :fax")})
+
 public class Lieferanten {
 
 

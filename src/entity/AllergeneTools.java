@@ -23,6 +23,69 @@ public class AllergeneTools {
     }
 
 
+//    public static class MyTableCellEditor implements TableCellEditor {
+//
+//
+//
+//
+//        MyTableCellEditor() {
+////            super(new JComboBox<IngTypes>(new DefaultComboBoxModel<IngTypes>(getAll().toArray(new IngTypes[]{}))));
+////            setClickCountToStart(2);
+////            ((JComboBox<IngTypes>) editorComponent).setRenderer(new ListCellRenderer<IngTypes>() {
+////                @Override
+////                public Component getListCellRendererComponent(JList<? extends IngTypes> list, IngTypes ingType, int index, boolean isSelected, boolean cellHasFocus) {
+////                    return new DefaultListCellRenderer().getListCellRendererComponent(list, ingType.getBezeichnung(), index, isSelected, cellHasFocus);
+////                }
+////            });
+//        }
+//
+//        @Override
+//        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+//            ((JComboBox) editorComponent).setSelectedItem(value);
+//            return editorComponent;
+//        }
+//
+//        @Override
+//        public Object getCellEditorValue() {
+//            return null;
+//        }
+//
+//        @Override
+//        public boolean isCellEditable(EventObject anEvent) {
+//            return false;
+//        }
+//
+//        @Override
+//        public boolean shouldSelectCell(EventObject anEvent) {
+//            return false;
+//        }
+//
+//        @Override
+//        public boolean stopCellEditing() {
+//            return false;
+//        }
+//
+//        @Override
+//        public void cancelCellEditing() {
+//
+//        }
+//
+//        @Override
+//        public void addCellEditorListener(CellEditorListener l) {
+//
+//        }
+//
+//        @Override
+//        public void removeCellEditorListener(CellEditorListener l) {
+//
+//        }
+//    }
+//
+//    public static TableCellEditor getTableCellEditor() {
+//        return new MyTableCellEditor();
+//    }
+
+
     public static ArrayList<Allergene> getAll() {
         ArrayList<Allergene> list = new ArrayList<Allergene>();
 

@@ -15,23 +15,6 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "vorrat")
-@NamedQueries({
-        @NamedQuery(name = "Vorrat.findAll", query = "SELECT v FROM Vorrat v"),
-        @NamedQuery(name = "Vorrat.findById", query = "SELECT v FROM Vorrat v WHERE v.id = :id"),
-        // @NamedQuery(name = "Vorrat.findByIdMenge", query = "SELECT v, SUM(b.menge) WHERE v.id = :id"),
-        @NamedQuery(name = "Vorrat.Buchungen.findVorraete", query = "SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v WHERE v.ausgang = :ausgang GROUP BY v"),
-        @NamedQuery(name = "Vorrat.Buchungen.summeBestand", query = "SELECT SUM(b.menge) FROM Buchungen b JOIN b.vorrat v WHERE b.vorrat = :vorrat"),
-        @NamedQuery(name = "Vorrat.findMitarbeiter", query = "SELECT b.mitarbeiter FROM Buchungen b JOIN b.vorrat v WHERE b.status = 1 and b.vorrat = :vorrat"),
-        @NamedQuery(name = "Vorrat.findByIdActive", query = "SELECT v FROM Vorrat v WHERE v.id = :id AND v.ausgang = '9999-12-31 23:59:59'"),
-        @NamedQuery(name = "Vorrat.findByProdukt", query = "SELECT v FROM Vorrat v WHERE v.produkt = :produkt"),
-        @NamedQuery(name = "Vorrat.findByProdukte", query = "SELECT v FROM Vorrat v WHERE v.produkt IN :produkte"),
-        @NamedQuery(name = "Vorrat.findByLager", query = "SELECT v FROM Vorrat v WHERE v.lager = :lager "),
-        @NamedQuery(name = "Vorrat.findByLieferant", query = "SELECT v FROM Vorrat v WHERE v.lieferant = :lieferant"),
-        // Erweiterung für Suche innerhalb eines Tages
-        @NamedQuery(name = "Vorrat.findByEingang", query = "SELECT v FROM Vorrat v WHERE v.eingang >= :eingang1 AND v.eingang <= :eingang2"),
-        @NamedQuery(name = "Vorrat.findByAnbruch", query = "SELECT v FROM Vorrat v WHERE v.anbruch = :anbruch"),
-        @NamedQuery(name = "Vorrat.findByAusgang", query = "SELECT v FROM Vorrat v WHERE v.ausgang = :ausgang")})
-
 
 public class Vorrat {
 

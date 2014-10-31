@@ -36,7 +36,7 @@ public class DlgWarengruppe extends JDialog {
 
     private void txtWarengruppeCaretUpdate(CaretEvent e) {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery("Warengruppe.findByBezeichnung");
+        Query query = em.createQuery("SELECT w FROM Warengruppe w WHERE w.bezeichnung = :bezeichnung");
         query.setParameter("bezeichnung", txtWarengruppe.getText());
         try {
             List warengruppen = query.getResultList();

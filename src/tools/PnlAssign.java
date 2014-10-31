@@ -19,6 +19,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Set;
 
 /**
  * @author Torsten Löhr
@@ -28,6 +29,11 @@ public class PnlAssign<T> extends JPanel {
     private ArrayList<T> assigned;
     private final ArrayList<T> all;
     private final ListCellRenderer<T> cellRenderer;
+
+
+    public PnlAssign(Set<T> assigned, ArrayList<T> all, ListCellRenderer<T> cellRenderer) {
+        this(new ArrayList<T>(assigned), all, cellRenderer);
+    }
 
     public PnlAssign(ArrayList<T> assigned, ArrayList<T> all, ListCellRenderer<T> cellRenderer) {
         this.assigned = assigned;
@@ -157,8 +163,8 @@ public class PnlAssign<T> extends JPanel {
             //======== contentPanel ========
             {
                 contentPanel.setLayout(new FormLayout(
-                    "[pref,150dlu]:grow, $ugap, [pref,150dlu]:grow",
-                    "default, $lgap, fill:default:grow, $lgap, default"));
+                        "[pref,150dlu]:grow, $ugap, [pref,150dlu]:grow",
+                        "default, $lgap, fill:default:grow, $lgap, default"));
 
                 //======== panel1 ========
                 {

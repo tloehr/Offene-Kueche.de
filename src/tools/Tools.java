@@ -334,9 +334,9 @@ public class Tools {
     }
 
 
-    public static DefaultComboBoxModel newComboboxModel(String namedQuery, Object[]... params) {
+    public static DefaultComboBoxModel newComboboxModel(String jpql, Object[]... params) {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createNamedQuery(namedQuery);
+        Query query = em.createQuery(jpql);
         if (params != null) {
             for (Object[] param : params) {
                 query.setParameter(param[0].toString(), param[1]);

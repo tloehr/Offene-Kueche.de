@@ -7,14 +7,15 @@ package desktop.products;
 import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jidesoft.popup.JidePopup;
 import entity.*;
-import org.apache.commons.lang.ArrayUtils;
 import org.jdesktop.swingx.JXSearchField;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
 import tablemodels.ProdukteTableModel;
 import tools.Const;
+import tools.PnlAssign;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
@@ -22,12 +23,15 @@ import javax.persistence.LockModeType;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.Query;
 import javax.swing.*;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.TableRowSorter;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyVetoException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DateFormat;
@@ -41,8 +45,9 @@ import java.util.List;
 public class FrmProdukte extends JInternalFrame {
 
     JTree tree;
-    private Object[] spalten = new Object[]{"Produkt Nr.", "Bezeichnung", "Lagerart", "GTIN", "Packungsgröße", "Zusatz/Allergene", "Einheit", "Stoffart", "Warengruppe"};
+
     private JPopupMenu menu;
+    private JidePopup popup;
 
 //    private Pair<Integer, Object> criteria;
 
@@ -73,16 +78,22 @@ public class FrmProdukte extends JInternalFrame {
 
     RowFilter<ProdukteTableModel, Integer> textFilter;
     String textKriterium = null;
+    Vorrat foundStock = null;
 
     public FrmProdukte() {
         initComponents();
         thisComponent = this;
 //        criteria = new Pair<Integer, Object>(Const.ALLE, null);
         createFilters();
-        loadTable();
+        reload();
 
         createTree();
         setTitle(Tools.getWindowTitle("Produkte-Verwaltung"));
+        try {
+            setMaximum(true);
+        } catch (PropertyVetoException e) {
+            //nop
+        }
         pack();
     }
 
@@ -123,10 +134,14 @@ public class FrmProdukte extends JInternalFrame {
                 int row = entry.getIdentifier();
                 Produkte produkt = entry.getModel().getProdukt(row);
 
-                return produkt.getBezeichnung().indexOf(textKriterium.trim()) >= 0 ||
+                return (foundStock != null && foundStock.getProdukt().equals(produkt)) ||
+                        produkt.getBezeichnung().indexOf(textKriterium.trim()) >= 0 ||
+                        Long.toString(produkt.getId()).equals(textKriterium.trim()) ||
                         Tools.catchNull(produkt.getGtin()).indexOf(textKriterium.trim()) >= 0 ||
                         produkt.getIngTypes().getBezeichnung().indexOf(textKriterium.trim()) >= 0 ||
                         produkt.getIngTypes().getWarengruppe().getBezeichnung().indexOf(textKriterium.trim()) >= 0;
+
+
             }
         };
         textKriterium = null;
@@ -134,11 +149,12 @@ public class FrmProdukte extends JInternalFrame {
 
     private void xSearchField1ActionPerformed(ActionEvent e) {
         textKriterium = xSearchField1.getText();
+        foundStock = VorratTools.findByIDORScanner(textKriterium.trim());
         sorter.setRowFilter(textFilter);
 
     }
 
-    private void loadTable() {
+    public void reload() {
 
 
         List list = null;
@@ -162,9 +178,12 @@ public class FrmProdukte extends JInternalFrame {
 //            list = ProdukteTools.searchProdukte((Warengruppe) criteria.getSecond());
 //        }
 
-        ptm = new ProdukteTableModel(list, spalten);
-
+        ptm = new ProdukteTableModel(list, true);
         tblProdukt.setModel(ptm);
+
+        tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_INGTYPE).setCellRenderer(IngTypesTools.getTableCellRenderer());
+        tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_INGTYPE).setCellEditor(IngTypesTools.getTableCellEditor());
+
 
         sorter = new TableRowSorter(ptm);
 
@@ -187,7 +206,7 @@ public class FrmProdukte extends JInternalFrame {
 
         tblProdukt.setRowSorter(sorter);
 
-//        tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_ZUSATZSTOFFE).setCellRenderer(new TableCellRenderer() {
+//        tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_ADDITIVES).setCellRenderer(new TableCellRenderer() {
 //            @Override
 //            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 //                JComponent component = (JComponent) new DefaultTableCellRenderer().getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -206,7 +225,7 @@ public class FrmProdukte extends JInternalFrame {
     private void btnSearchAllActionPerformed(ActionEvent e) {
         sorter.setRowFilter(null);
 //        criteria = new Pair<Integer, Object>(Const.ALLE, null);
-//        loadTable();
+//        reload();
     }
 
     private boolean mergeUs(ArrayList<Produkte> listProducts2Merge, Produkte target) {
@@ -252,7 +271,7 @@ public class FrmProdukte extends JInternalFrame {
         } catch (OptimisticLockException ole) {
             Main.warn(ole);
             em.getTransaction().rollback();
-            loadTable();
+            reload();
         } catch (Exception e) {
             em.getTransaction().rollback();
             Main.fatal(e);
@@ -264,14 +283,17 @@ public class FrmProdukte extends JInternalFrame {
 
     private void tblProduktMousePressed(MouseEvent e) {
 
-        final ProdukteTableModel tm = (ProdukteTableModel) tblProdukt.getModel();
-        if (tm.getRowCount() == 0) {
+
+        if (ptm.getRowCount() == 0) {
             return;
         }
+
+
         Point p = e.getPoint();
         final int col = tblProdukt.columnAtPoint(p);
         final int row = tblProdukt.rowAtPoint(p);
         ListSelectionModel lsm = tblProdukt.getSelectionModel();
+
 
         //lsm.setSelectionInterval(row, row);
         boolean singleRowSelected = lsm.getMaxSelectionIndex() == lsm.getMinSelectionIndex();
@@ -280,6 +302,136 @@ public class FrmProdukte extends JInternalFrame {
         if (singleRowSelected) {
             lsm.setSelectionInterval(row, row);
         }
+
+        if (SwingUtilities.isLeftMouseButton(e) && col == ProdukteTableModel.COL_ALLERGENES && e.getClickCount() == 2) {
+            if (popup != null && popup.isVisible()) {
+                popup.hidePopup();
+            }
+
+            Tools.unregisterListeners(popup);
+            popup = new JidePopup();
+            final int thisRow = tblProdukt.convertRowIndexToModel(row);
+            final PnlAssign<Allergene> pnlAssign = new PnlAssign<Allergene>(ptm.getProdukt(thisRow).getAllergenes(), AllergeneTools.getAll(), AllergeneTools.getListCellRenderer());
+
+            popup.setMovable(false);
+            popup.setTransient(true);
+            popup.setContentPane(pnlAssign);
+            popup.setDefaultFocusComponent(pnlAssign);
+
+            popup.addPopupMenuListener(new PopupMenuListener() {
+                @Override
+                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+
+                }
+
+                @Override
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+                    if (pnlAssign.getAssigned() == null) return;
+
+                    EntityManager em = Main.getEMF().createEntityManager();
+                    try {
+                        em.getTransaction().begin();
+
+                        Produkte product = em.merge(ptm.getProdukt(thisRow));
+                        em.lock(product, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+
+                        product.getAllergenes().clear();
+                        for (Allergene allergene : pnlAssign.getAssigned()) {
+                            product.getAllergenes().add(em.merge(allergene));
+                        }
+
+                        em.getTransaction().commit();
+
+                        ptm.update(product);
+                    } catch (OptimisticLockException ole) {
+                        Main.warn(ole);
+                        em.getTransaction().rollback();
+                    } catch (Exception exc) {
+                        em.getTransaction().rollback();
+                        Main.fatal(e);
+                    } finally {
+                        em.close();
+                    }
+                }
+
+                @Override
+                public void popupMenuCanceled(PopupMenuEvent e) {
+
+                }
+            });
+
+            SwingUtilities.convertPointToScreen(p, tblProdukt);
+
+            popup.showPopup(p.x - (pnlAssign.getPreferredSize().width / 2), p.y + 10);
+
+        }
+
+
+        if (SwingUtilities.isLeftMouseButton(e) && col == ProdukteTableModel.COL_ADDITIVES && e.getClickCount() == 2) {
+            if (popup != null && popup.isVisible()) {
+                popup.hidePopup();
+            }
+
+            Tools.unregisterListeners(popup);
+            popup = new JidePopup();
+            final int thisRow = tblProdukt.convertRowIndexToModel(row);
+            final PnlAssign<Additives> pnlAssign = new PnlAssign<Additives>(ptm.getProdukt(thisRow).getAdditives(), AdditivesTools.getAll(), AdditivesTools.getListCellRenderer());
+
+            popup.setMovable(false);
+            popup.setTransient(true);
+            popup.setContentPane(pnlAssign);
+            popup.setDefaultFocusComponent(pnlAssign);
+
+            popup.addPopupMenuListener(new PopupMenuListener() {
+                @Override
+                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+
+                }
+
+                @Override
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+                    if (pnlAssign.getAssigned() == null) return;
+
+                    EntityManager em = Main.getEMF().createEntityManager();
+                    try {
+                        em.getTransaction().begin();
+
+                        Produkte product = em.merge(ptm.getProdukt(thisRow));
+                        em.lock(product, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+
+                        product.getAdditives().clear();
+                        for (Additives additive : pnlAssign.getAssigned()) {
+                            product.getAdditives().add(em.merge(additive));
+                        }
+
+                        em.getTransaction().commit();
+
+                        ptm.update(product);
+                    } catch (OptimisticLockException ole) {
+                        Main.warn(ole);
+                        em.getTransaction().rollback();
+                    } catch (Exception exc) {
+                        em.getTransaction().rollback();
+                        Main.fatal(e);
+                    } finally {
+                        em.close();
+                    }
+                }
+
+                @Override
+                public void popupMenuCanceled(PopupMenuEvent e) {
+
+                }
+            });
+
+            SwingUtilities.convertPointToScreen(p, tblProdukt);
+
+            popup.showPopup(p.x - (pnlAssign.getPreferredSize().width / 2), p.y + 10);
+
+        }
+
 
         if (SwingUtilities.isRightMouseButton(e)) {
 
@@ -322,7 +474,7 @@ public class FrmProdukte extends JInternalFrame {
                     });
 
 
-//                    loadTable();
+//                    reload();
                 }
             });
             miEdit.setEnabled(rows.length > 0);
@@ -387,9 +539,9 @@ public class FrmProdukte extends JInternalFrame {
                         Main.fatal(e);
                     } finally {
                         em1.close();
-//                        loadTable();
+//                        reload();
                     }
-//                    loadTable();
+//                    reload();
                 }
             });
             miDelete.setEnabled(listSelectedProducts.size() > 0 && Main.getCurrentUser().isAdmin());
@@ -407,7 +559,7 @@ public class FrmProdukte extends JInternalFrame {
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
                             if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zusammenfassen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
                                 mergeUs(listSelectedProducts, thisProduct);
-//                                loadTable();
+//                                reload();
                             }
                         }
                     });
@@ -419,138 +571,138 @@ public class FrmProdukte extends JInternalFrame {
             }
 
 
-            JMenu menuLagerart = new JMenu("Lagerart setzen");
-            menuLagerart.setFont(new Font("arial", Font.PLAIN, 18));
-            for (final String lagerart : LagerTools.LAGERART) {
-
-                JMenuItem miLagerart = new JMenuItem(lagerart);
-                miLagerart.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-//                        if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-                        EntityManager em1 = Main.getEMF().createEntityManager();
-                        try {
-                            em1.getTransaction().begin();
-                            for (Produkte p : listSelectedProducts) {
-                                Produkte myProdukt = em1.merge(p);
-                                em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-                                myProdukt.getIngTypes().setLagerart((short) ArrayUtils.indexOf(LagerTools.LAGERART, lagerart));
-                            }
-                            em1.getTransaction().commit();
-                            ptm.update(listSelectedProducts);
-                        } catch (OptimisticLockException ole) {
-                            Main.warn(ole);
-                            em1.getTransaction().rollback();
-                        } catch (Exception exc) {
-                            em1.getTransaction().rollback();
-                            Main.fatal(e);
-                        } finally {
-                            em1.close();
-//                            loadTable();
-                        }
+//            JMenu menuLagerart = new JMenu("Lagerart setzen");
+//            menuLagerart.setFont(new Font("arial", Font.PLAIN, 18));
+//            for (final String lagerart : LagerTools.LAGERART) {
+//
+//                JMenuItem miLagerart = new JMenuItem(lagerart);
+//                miLagerart.addActionListener(new ActionListener() {
+//                    @Override
+//                    public void actionPerformed(ActionEvent e) {
+////                        if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+//                        EntityManager em1 = Main.getEMF().createEntityManager();
+//                        try {
+//                            em1.getTransaction().begin();
+//                            for (Produkte p : listSelectedProducts) {
+//                                Produkte myProdukt = em1.merge(p);
+//                                em1.lock(myProdukt, LockModeType.OPTIMISTIC);
+//                                myProdukt.getIngTypes().setLagerart((short) ArrayUtils.indexOf(LagerTools.LAGERART, lagerart));
+//                            }
+//                            em1.getTransaction().commit();
+//                            ptm.update(listSelectedProducts);
+//                        } catch (OptimisticLockException ole) {
+//                            Main.warn(ole);
+//                            em1.getTransaction().rollback();
+//                        } catch (Exception exc) {
+//                            em1.getTransaction().rollback();
+//                            Main.fatal(e);
+//                        } finally {
+//                            em1.close();
+////                            reload();
 //                        }
-                    }
-                });
-                menuLagerart.add(miLagerart);
-
-
-            }
-            menu.add(menuLagerart);
-
-
-            JMenu menuEinheit = new JMenu("Einheit setzen");
-            menuEinheit.setFont(new Font("arial", Font.PLAIN, 18));
-            for (final String einheit : IngTypesTools.EINHEIT) {
-
-                JMenuItem miEinheit = new JMenuItem(einheit);
-                miEinheit.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-//                        if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-                        EntityManager em1 = Main.getEMF().createEntityManager();
-                        try {
-                            em1.getTransaction().begin();
-                            for (Produkte p : listSelectedProducts) {
-                                Produkte myProdukt = em1.merge(p);
-                                em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-                                myProdukt.getIngTypes().setEinheit((short) ArrayUtils.indexOf(IngTypesTools.EINHEIT, einheit));
-                            }
-                            em1.getTransaction().commit();
-                            ptm.update(listSelectedProducts);
-                        } catch (OptimisticLockException ole) {
-                            Main.warn(ole);
-                            em1.getTransaction().rollback();
-                        } catch (Exception exc) {
-                            em1.getTransaction().rollback();
-                            Main.fatal(e);
-                        } finally {
-                            em1.close();
-//                            loadTable();
-                        }
+////                        }
+//                    }
+//                });
+//                menuLagerart.add(miLagerart);
+//
+//
+//            }
+//            menu.add(menuLagerart);
+//
+//
+//            JMenu menuEinheit = new JMenu("Einheit setzen");
+//            menuEinheit.setFont(new Font("arial", Font.PLAIN, 18));
+//            for (final String einheit : IngTypesTools.EINHEIT) {
+//
+//                JMenuItem miEinheit = new JMenuItem(einheit);
+//                miEinheit.addActionListener(new ActionListener() {
+//                    @Override
+//                    public void actionPerformed(ActionEvent e) {
+////                        if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+//                        EntityManager em1 = Main.getEMF().createEntityManager();
+//                        try {
+//                            em1.getTransaction().begin();
+//                            for (Produkte p : listSelectedProducts) {
+//                                Produkte myProdukt = em1.merge(p);
+//                                em1.lock(myProdukt, LockModeType.OPTIMISTIC);
+//                                myProdukt.getIngTypes().setEinheit((short) ArrayUtils.indexOf(IngTypesTools.EINHEIT, einheit));
+//                            }
+//                            em1.getTransaction().commit();
+//                            ptm.update(listSelectedProducts);
+//                        } catch (OptimisticLockException ole) {
+//                            Main.warn(ole);
+//                            em1.getTransaction().rollback();
+//                        } catch (Exception exc) {
+//                            em1.getTransaction().rollback();
+//                            Main.fatal(e);
+//                        } finally {
+//                            em1.close();
+////                            reload();
 //                        }
-                    }
-                });
-                menuEinheit.add(miEinheit);
-            }
-            menu.add(menuEinheit);
-
-            JMenu menuPopupAssign = new JMenu("zuweisen zu Stoffart");
-            menuPopupAssign.setFont(new Font("arial", Font.PLAIN, 18));
-
-
-            EntityManager em = Main.getEMF().createEntityManager();
-            try {
-                Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung ");
-                ArrayList<Warengruppe> listWarengruppen = new ArrayList<Warengruppe>(query.getResultList());
-
-
-                for (Warengruppe warengruppe : listWarengruppen) {
-
-                    JMenu menuWarengruppe = new JMenu(warengruppe.getBezeichnung());
-
-                    ArrayList<IngTypes> listStoffarten = new ArrayList<IngTypes>(warengruppe.getIngTypesCollection());
-                    Collections.sort(listStoffarten);
-
-                    for (final IngTypes ingTypes : listStoffarten) {
-                        JMenuItem miStoffart = new JMenuItem(ingTypes.getBezeichnung());
-                        miStoffart.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-                                    EntityManager em1 = Main.getEMF().createEntityManager();
-                                    try {
-                                        em1.getTransaction().begin();
-                                        for (Produkte p : listSelectedProducts) {
-                                            Produkte myProdukt = em1.merge(p);
-                                            em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-                                            myProdukt.setIngTypes(em1.merge(ingTypes));
-                                        }
-                                        em1.getTransaction().commit();
-                                        ptm.update(listSelectedProducts);
-                                    } catch (OptimisticLockException ole) {
-                                        Main.warn(ole);
-                                        em1.getTransaction().rollback();
-                                    } catch (Exception exc) {
-                                        em1.getTransaction().rollback();
-                                        Main.fatal(e);
-                                    } finally {
-                                        em1.close();
-//                                        loadTable();
-                                    }
-                                }
-                            }
-                        });
-                        menuWarengruppe.add(miStoffart);
-                    }
-                    menuPopupAssign.add(menuWarengruppe);
-                }
-            } catch (Exception exc) {
-                Main.fatal(exc);
-            } finally {
-                em.close();
-            }
-
-            menu.add(menuPopupAssign);
+////                        }
+//                    }
+//                });
+//                menuEinheit.add(miEinheit);
+//            }
+//            menu.add(menuEinheit);
+//
+//            JMenu menuPopupAssign = new JMenu("zuweisen zu Stoffart");
+//            menuPopupAssign.setFont(new Font("arial", Font.PLAIN, 18));
+//
+//
+//            EntityManager em = Main.getEMF().createEntityManager();
+//            try {
+//                Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung ");
+//                ArrayList<Warengruppe> listWarengruppen = new ArrayList<Warengruppe>(query.getResultList());
+//
+//
+//                for (Warengruppe warengruppe : listWarengruppen) {
+//
+//                    JMenu menuWarengruppe = new JMenu(warengruppe.getBezeichnung());
+//
+//                    ArrayList<IngTypes> listStoffarten = new ArrayList<IngTypes>(warengruppe.getIngTypesCollection());
+//                    Collections.sort(listStoffarten);
+//
+//                    for (final IngTypes ingTypes : listStoffarten) {
+//                        JMenuItem miStoffart = new JMenuItem(ingTypes.getBezeichnung());
+//                        miStoffart.addActionListener(new ActionListener() {
+//                            @Override
+//                            public void actionPerformed(ActionEvent e) {
+//                                if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+//                                    EntityManager em1 = Main.getEMF().createEntityManager();
+//                                    try {
+//                                        em1.getTransaction().begin();
+//                                        for (Produkte p : listSelectedProducts) {
+//                                            Produkte myProdukt = em1.merge(p);
+//                                            em1.lock(myProdukt, LockModeType.OPTIMISTIC);
+//                                            myProdukt.setIngTypes(em1.merge(ingTypes));
+//                                        }
+//                                        em1.getTransaction().commit();
+//                                        ptm.update(listSelectedProducts);
+//                                    } catch (OptimisticLockException ole) {
+//                                        Main.warn(ole);
+//                                        em1.getTransaction().rollback();
+//                                    } catch (Exception exc) {
+//                                        em1.getTransaction().rollback();
+//                                        Main.fatal(e);
+//                                    } finally {
+//                                        em1.close();
+////                                        reload();
+//                                    }
+//                                }
+//                            }
+//                        });
+//                        menuWarengruppe.add(miStoffart);
+//                    }
+//                    menuPopupAssign.add(menuWarengruppe);
+//                }
+//            } catch (Exception exc) {
+//                Main.fatal(exc);
+//            } finally {
+//                em.close();
+//            }
+//
+//            menu.add(menuPopupAssign);
 
 
             menu.show(tblProdukt, (int) p.getX(), (int) p.getY());
@@ -985,7 +1137,7 @@ public class FrmProdukte extends JInternalFrame {
                         warengruppeFilterKriterium = (Warengruppe) lastComponent.getUserObject();
                         sorter.setRowFilter(warengruppeFilter);
 //                        criteria = new Pair<Integer, Object>(Const.WARENGRUPPE, lastComponent.getUserObject());
-//                        loadTable();
+//                        reload();
                     }
 
                 }
