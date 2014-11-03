@@ -293,12 +293,12 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         btnMengeAusbuchen = new JButton();
         btnSofortBuchen = new JToggleButton();
         scrollPane1 = new JScrollPane();
-        txtLog = new JTextArea();
+        txtLog = new JTextPane();
 
         //======== this ========
         setLayout(new FormLayout(
-                "default, $lcgap, default:grow, $lcgap, default, $lcgap, pref, $lcgap, default",
-                "default, 4*($lgap, fill:50dlu), $lgap, fill:default:grow, $lgap, fill:50dlu, $lgap, default"));
+            "default, $lcgap, default:grow, $lcgap, default, $lcgap, pref, $lcgap, default",
+            "default, 4*($lgap, fill:50dlu), $lgap, fill:default:grow, $lgap, fill:50dlu, $lgap, default"));
 
         //---- txtSearch ----
         txtSearch.setFont(new Font("sansserif", Font.BOLD, 36));
@@ -400,8 +400,6 @@ public class PnlAusbuchen extends DefaultTouchPanel {
 
             //---- txtLog ----
             txtLog.setFont(new Font("sansserif", Font.PLAIN, 24));
-            txtLog.setLineWrap(true);
-            txtLog.setWrapStyleWord(true);
             txtLog.setBackground(Color.lightGray);
             txtLog.setEditable(false);
             scrollPane1.setViewportView(txtLog);
@@ -495,6 +493,6 @@ public class PnlAusbuchen extends DefaultTouchPanel {
     private JButton btnMengeAusbuchen;
     private JToggleButton btnSofortBuchen;
     private JScrollPane scrollPane1;
-    private JTextArea txtLog;
+    private JTextPane txtLog;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

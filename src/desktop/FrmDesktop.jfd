@@ -305,33 +305,84 @@
            <string>stammdatenMenu</string> 
           </void> 
           <void method="add"> 
-           <object class="com.jformdesigner.model.FormComponent"> 
-            <string>javax.swing.JMenuItem</string> 
-            <void method="setProperty"> 
-             <string>accelerator</string> 
-             <object class="javax.swing.KeyStroke" method="getKeyStroke"> 
-              <int>86</int> 
-              <int>520</int> 
-              <boolean>false</boolean> 
-             </object> 
-            </void> 
+           <object class="com.jformdesigner.model.FormContainer"> 
+            <string>javax.swing.JMenu</string> 
+            <object class="com.jformdesigner.model.FormLayoutManager"> 
+             <class>javax.swing.JMenu</class> 
+            </object> 
             <void method="setProperty"> 
              <string>text</string> 
-             <string>Vorrat</string> 
+             <string>Vorräte</string> 
             </void> 
             <void method="setProperty"> 
              <string>font</string> 
-             <object idref="Font1"/> 
+             <object class="java.awt.Font"> 
+              <string>SansSerif</string> 
+              <int>0</int> 
+              <int>18</int> 
+             </object> 
             </void> 
             <void property="name"> 
-             <string>vorraeteMenuItem</string> 
+             <string>MenuStocks</string> 
             </void> 
-            <void method="addEvent"> 
-             <object class="com.jformdesigner.model.FormEvent"> 
-              <string>java.awt.event.ActionListener</string> 
-              <string>actionPerformed</string> 
-              <string>vorraeteMenuItemActionPerformed</string> 
-              <boolean>true</boolean> 
+            <void method="add"> 
+             <object class="com.jformdesigner.model.FormComponent"> 
+              <string>javax.swing.JMenuItem</string> 
+              <void method="setProperty"> 
+               <string>accelerator</string> 
+               <object class="javax.swing.KeyStroke" method="getKeyStroke"> 
+                <int>86</int> 
+                <int>520</int> 
+                <boolean>false</boolean> 
+               </object> 
+              </void> 
+              <void method="setProperty"> 
+               <string>text</string> 
+               <string>Bearbeiten</string> 
+              </void> 
+              <void method="setProperty"> 
+               <string>font</string> 
+               <object idref="Font1"/> 
+              </void> 
+              <void property="name"> 
+               <string>vorraeteMenuItem</string> 
+              </void> 
+              <void method="addEvent"> 
+               <object class="com.jformdesigner.model.FormEvent"> 
+                <string>java.awt.event.ActionListener</string> 
+                <string>actionPerformed</string> 
+                <string>vorraeteMenuItemActionPerformed</string> 
+                <boolean>true</boolean> 
+               </object> 
+              </void> 
+             </object> 
+            </void> 
+            <void method="add"> 
+             <object class="com.jformdesigner.model.FormComponent"> 
+              <string>javax.swing.JMenuItem</string> 
+              <void method="setProperty"> 
+               <string>text</string> 
+               <string>Vorrat/Produkt Zuordnung</string> 
+              </void> 
+              <void method="setProperty"> 
+               <string>font</string> 
+               <object class="java.awt.Font"> 
+                <string>SansSerif</string> 
+                <int>0</int> 
+                <int>18</int> 
+               </object> 
+              </void> 
+              <void property="name"> 
+               <string>menuItemStock2productFixing</string> 
+              </void> 
+              <void method="addEvent"> 
+               <object class="com.jformdesigner.model.FormEvent"> 
+                <string>java.awt.event.ActionListener</string> 
+                <string>actionPerformed</string> 
+                <string>menuItemStock2productFixingActionPerformed</string> 
+                <boolean>true</boolean> 
+               </object> 
+              </void> 
              </object> 
             </void> 
            </object> 

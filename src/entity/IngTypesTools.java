@@ -127,7 +127,7 @@ public class IngTypesTools {
         return list;
     }
 
-    public static void loadStoffarten(JComboBox cmb) {
+    public static void loadInto(JComboBox cmb) {
         EntityManager em = Main.getEMF().createEntityManager();
         Query query = em.createQuery("SELECT s FROM IngTypes s ORDER BY s.bezeichnung");
         try {

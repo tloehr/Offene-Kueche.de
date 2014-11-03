@@ -197,9 +197,6 @@ public class Vorrat {
                 ", eingang=" + eingang +
                 ", anbruch=" + anbruch +
                 ", ausgang=" + ausgang +
-                ", lieferant=" + lieferant +
-                ", lager=" + lager +
-                ", produkt=" + produkt +
                 '}';
     }
 }

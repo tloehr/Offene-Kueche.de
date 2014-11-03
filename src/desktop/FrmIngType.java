@@ -7,7 +7,6 @@ package desktop;
 import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
-import desktop.products.DlgProdukt;
 import entity.*;
 import org.jdesktop.swingx.JXSearchField;
 import org.jdesktop.swingx.JXTaskPane;
@@ -21,8 +20,6 @@ import javax.persistence.LockModeType;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.Query;
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -168,37 +165,37 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
             }
 
 
-            if (tblTypes.getSelectedRows().length == 1) {
-
-                final IngTypes thisIngType = tm.getIngType(row);
-
-                JMenu miPopupProducts = new JMenu("Produkte anzeigen (" + thisIngType.getProdukteCollection().size() + ")");
-                miPopupProducts.setFont(new Font("arial", Font.PLAIN, 18));
-
-                final ArrayList<IngTypes> listSelectedTypes = new ArrayList<IngTypes>();
-                for (int thisRow : tblTypes.getSelectedRows()) {
-                    listSelectedTypes.add(tm.getIngType(thisRow));
-                }
-
-                final JList<Produkte> jListProdukte = new JList<Produkte>(thisIngType.getProdukteCollection().toArray(new Produkte[]{}));
-                jListProdukte.setCellRenderer(ProdukteTools.getListCellRenderer());
-                jListProdukte.setVisibleRowCount(30);
-                jListProdukte.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                jListProdukte.addListSelectionListener(new ListSelectionListener() {
-                    @Override
-                    public void valueChanged(ListSelectionEvent e) {
-                        if (e.getValueIsAdjusting()) return;
-                        ArrayList<Produkte> listProdukte = new ArrayList<Produkte>();
-                        listProdukte.add(jListProdukte.getSelectedValue());
-                        new DlgProdukt(Main.mainframe, listProdukte);
-                        loadTable();
-                    }
-                });
-                miPopupProducts.add(new JScrollPane(jListProdukte));
-
-                menu.add(miPopupProducts);
-                menu.add(new JSeparator());
-            }
+//            if (tblTypes.getSelectedRows().length == 1) {
+//
+//                final IngTypes thisIngType = tm.getIngType(row);
+//
+//                JMenu miPopupProducts = new JMenu("Produkte anzeigen (" + thisIngType.getProdukteCollection().size() + ")");
+//                miPopupProducts.setFont(new Font("arial", Font.PLAIN, 18));
+//
+//                final ArrayList<IngTypes> listSelectedTypes = new ArrayList<IngTypes>();
+//                for (int thisRow : tblTypes.getSelectedRows()) {
+//                    listSelectedTypes.add(tm.getIngType(thisRow));
+//                }
+//
+//                final JList<Produkte> jListProdukte = new JList<Produkte>(thisIngType.getProdukteCollection().toArray(new Produkte[]{}));
+//                jListProdukte.setCellRenderer(ProdukteTools.getListCellRenderer());
+//                jListProdukte.setVisibleRowCount(30);
+//                jListProdukte.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//                jListProdukte.addListSelectionListener(new ListSelectionListener() {
+//                    @Override
+//                    public void valueChanged(ListSelectionEvent e) {
+//                        if (e.getValueIsAdjusting()) return;
+//                        ArrayList<Produkte> listProdukte = new ArrayList<Produkte>();
+//                        listProdukte.add(jListProdukte.getSelectedValue());
+//                        new DlgProdukt(Main.mainframe, listProdukte);
+//                        loadTable();
+//                    }
+//                });
+//                miPopupProducts.add(new JScrollPane(jListProdukte));
+//
+//                menu.add(miPopupProducts);
+//                menu.add(new JSeparator());
+//            }
 
             final JMenuItem miAllergics = new JMenuItem("Allergene zuordnen");
             miAllergics.setFont(new Font("arial", Font.PLAIN, 18));

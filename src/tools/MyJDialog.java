@@ -74,4 +74,9 @@ public class MyJDialog extends JDialog {
         Tools.centerOnParent(this);
         super.setVisible(b);
     }
+
+    public void setMaximized(){
+        setSize(getParent().getSize());
+        Tools.center(this);
+    }
 }

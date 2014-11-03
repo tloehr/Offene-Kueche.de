@@ -78,7 +78,10 @@ public class ProdukteTableModel extends DefaultTableModel {
     }
 
     public void update(Produkte produkt) {
-        if (!data.contains(produkt)) return;
+        if (!data.contains(produkt)){
+            add(produkt);
+            return;
+        }
         int row = data.indexOf(produkt);
         data.set(row, produkt);
         fireTableRowsUpdated(row, row);

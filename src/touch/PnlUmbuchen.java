@@ -391,7 +391,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         cmbLager = new JComboBox();
         pnlLog = new JPanel();
         logScrollPane = new JScrollPane();
-        txtLog = new JTextArea();
+        txtLog = new JTextPane();
         label1 = new JLabel();
         pnlVorraete = new JPanel();
         title1 = new JLabel();
@@ -480,8 +480,6 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                     //---- txtLog ----
                     txtLog.setBackground(Color.lightGray);
                     txtLog.setFont(new Font("sansserif", Font.PLAIN, 18));
-                    txtLog.setWrapStyleWord(true);
-                    txtLog.setLineWrap(true);
                     txtLog.setEditable(false);
                     logScrollPane.setViewportView(txtLog);
                 }
@@ -609,7 +607,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
 
     private void myInit() {
-        cmbLager.setModel(tools.Tools.newComboboxModel("SELECT l FROM Lager l ORDER BY l.bezeichnung"));
+        cmbLager.setModel(tools.Tools.newComboboxModel(LagerTools.getAll()));
         cmbLager.setSelectedIndex(Integer.parseInt(Main.getProps().getProperty("touch" + MODULENUMBER + "lager")));
         loadLieferant();
         cmbLieferant.setSelectedIndex(0);
@@ -626,7 +624,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
     private JComboBox cmbLager;
     private JPanel pnlLog;
     private JScrollPane logScrollPane;
-    private JTextArea txtLog;
+    private JTextPane txtLog;
     private JLabel label1;
     private JPanel pnlVorraete;
     private JLabel title1;

@@ -129,6 +129,8 @@ public class ProdukteTools {
         return produkte;
     }
 
+
+
     public static boolean isGTIN(String s) {
         return getGTIN(s) != null;
     }

@@ -4,6 +4,7 @@ import Main.Main;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.util.ArrayList;
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,5 +34,20 @@ public class LieferantenTools {
             em.close();
         }
         return lieferant;
+    }
+
+
+    public static ArrayList<Lieferanten> getAll() {
+        ArrayList<Lieferanten> list = new ArrayList<Lieferanten>();
+
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query queryMin = em.createQuery("SELECT l FROM Lieferanten l ORDER BY l.firma ASC ");
+
+        list.addAll(queryMin.getResultList());
+
+        em.close();
+
+        return list;
+
     }
 }

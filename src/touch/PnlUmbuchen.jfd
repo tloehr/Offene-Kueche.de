@@ -245,7 +245,7 @@
             </void> 
             <void method="add"> 
              <object class="com.jformdesigner.model.FormComponent"> 
-              <string>javax.swing.JTextArea</string> 
+              <string>javax.swing.JTextPane</string> 
               <void method="setProperty"> 
                <string>background</string> 
                <object class="java.awt.Color" field="lightGray"/> 
@@ -257,14 +257,6 @@
                 <int>0</int> 
                 <int>18</int> 
                </object> 
-              </void> 
-              <void method="setProperty"> 
-               <string>wrapStyleWord</string> 
-               <boolean>true</boolean> 
-              </void> 
-              <void method="setProperty"> 
-               <string>lineWrap</string> 
-               <boolean>true</boolean> 
               </void> 
               <void method="setProperty"> 
                <string>editable</string> 

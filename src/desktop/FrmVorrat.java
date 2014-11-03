@@ -39,7 +39,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyVetoException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -71,12 +70,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         myInit();
         pack();
         initphase = false;
-        try {
-            setMaximum(true);
-        } catch (PropertyVetoException e) {
-            //nop
-        }
-//        thisComponentResized(null);
+
     }
 
     private void loadVorratTable() {
@@ -1180,7 +1174,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
         prepareSearchArea();
         loadVorratTable();
-        initBuchungenTable();
+        // initBuchungenTable();
 
 
         //btnPrintLabels.setEnabled(Main.props.containsKey("labelPrinter") && Main.props.containsKey("receiptPrinter"));

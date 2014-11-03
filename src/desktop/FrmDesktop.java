@@ -9,6 +9,7 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import desktop.menu.FrmMenu;
 import desktop.products.FrmProdukte;
+import desktop.products.FrmReassignProduct;
 import entity.Mitarbeiter;
 import org.apache.commons.collections.Closure;
 import threads.HeapStat;
@@ -30,7 +31,7 @@ import java.beans.PropertyVetoException;
  */
 public class FrmDesktop extends JFrame {
     //    boolean ADMIN = true;
-    JInternalFrame einbuchen, ausbuchen, umbuchen, produkte, types, menuweek;
+    JInternalFrame einbuchen, ausbuchen, umbuchen, produkte, types, menuweek, stock2product;
     FrmVorrat vorrat = null;
     FrmUser user = null;
     HeapStat hs;
@@ -52,8 +53,8 @@ public class FrmDesktop extends JFrame {
     }
 
     public FrmProdukte getProductsFrame() {
-            return (FrmProdukte) produkte;
-        }
+        return (FrmProdukte) produkte;
+    }
 
 
     public FrmDesktop() {
@@ -204,12 +205,22 @@ public class FrmDesktop extends JFrame {
     }
 
     private void vorraeteMenuItemActionPerformed(ActionEvent e) {
+        if (vorrat != null) {
+            vorrat.toFront();
+            return;
+        }
+
         vorrat = new FrmVorrat();
         vorrat.addInternalFrameListener(myFrameListener);
-        vorraeteMenuItem.setEnabled(false);
+//        vorraeteMenuItem.setEnabled(false);
         desktopPane.add(vorrat);
         Tools.centerOnParent(desktopPane, vorrat);
         vorrat.toFront();
+        try {
+            vorrat.setMaximum(true);
+        } catch (PropertyVetoException e1) {
+            e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
     }
 
 //    private void druckerMenuItemActionPerformed(ActionEvent e) {
@@ -263,9 +274,14 @@ public class FrmDesktop extends JFrame {
     }
 
     private void produkteMenuItemActionPerformed(ActionEvent e) {
+        if (produkte != null) {
+            produkte.toFront();
+            return;
+        }
+
         produkte = new FrmProdukte();
         produkte.addInternalFrameListener(myFrameListener);
-        produkteMenuItem.setEnabled(false);
+//        produkteMenuItem.setEnabled(false);
         desktopPane.add(produkte);
         Tools.centerOnParent(desktopPane, produkte);
         produkte.toFront();
@@ -351,6 +367,27 @@ public class FrmDesktop extends JFrame {
     }
 
 
+    private void menuItemStock2productFixingActionPerformed(ActionEvent e) {
+
+        if (stock2product != null) {
+            stock2product.toFront();
+            return;
+        }
+
+        stock2product = new FrmReassignProduct(pp);
+        stock2product.addInternalFrameListener(myFrameListener);
+
+        desktopPane.add(stock2product);
+        Tools.centerOnParent(desktopPane, stock2product);
+        stock2product.toFront();
+        try {
+            stock2product.setMaximum(true);
+        } catch (PropertyVetoException e1) {
+            e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+    }
+
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         menuBar = new JMenuBar();
@@ -358,7 +395,9 @@ public class FrmDesktop extends JFrame {
         logoutMenuItem = new JMenuItem();
         exitMenuItem = new JMenuItem();
         stammdatenMenu = new JMenu();
+        MenuStocks = new JMenu();
         vorraeteMenuItem = new JMenuItem();
+        menuItemStock2productFixing = new JMenuItem();
         produkteMenuItem = new JMenuItem();
         typeMenuItem = new JMenuItem();
         menuweekMenuItem = new JMenuItem();
@@ -435,17 +474,35 @@ public class FrmDesktop extends JFrame {
                 stammdatenMenu.setText("Stammdaten");
                 stammdatenMenu.setFont(new Font("sansserif", Font.PLAIN, 18));
 
-                //---- vorraeteMenuItem ----
-                vorraeteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.ALT_MASK));
-                vorraeteMenuItem.setText("Vorrat");
-                vorraeteMenuItem.setFont(new Font("sansserif", Font.PLAIN, 18));
-                vorraeteMenuItem.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        vorraeteMenuItemActionPerformed(e);
-                    }
-                });
-                stammdatenMenu.add(vorraeteMenuItem);
+                //======== MenuStocks ========
+                {
+                    MenuStocks.setText("Vorr\u00e4te");
+                    MenuStocks.setFont(new Font("SansSerif", Font.PLAIN, 18));
+
+                    //---- vorraeteMenuItem ----
+                    vorraeteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.ALT_MASK));
+                    vorraeteMenuItem.setText("Bearbeiten");
+                    vorraeteMenuItem.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    vorraeteMenuItem.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            vorraeteMenuItemActionPerformed(e);
+                        }
+                    });
+                    MenuStocks.add(vorraeteMenuItem);
+
+                    //---- menuItemStock2productFixing ----
+                    menuItemStock2productFixing.setText("Vorrat/Produkt Zuordnung");
+                    menuItemStock2productFixing.setFont(new Font("SansSerif", Font.PLAIN, 18));
+                    menuItemStock2productFixing.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            menuItemStock2productFixingActionPerformed(e);
+                        }
+                    });
+                    MenuStocks.add(menuItemStock2productFixing);
+                }
+                stammdatenMenu.add(MenuStocks);
 
                 //---- produkteMenuItem ----
                 produkteMenuItem.setText("Produkte");
@@ -597,7 +654,9 @@ public class FrmDesktop extends JFrame {
     private JMenuItem logoutMenuItem;
     private JMenuItem exitMenuItem;
     private JMenu stammdatenMenu;
+    private JMenu MenuStocks;
     private JMenuItem vorraeteMenuItem;
+    private JMenuItem menuItemStock2productFixing;
     private JMenuItem produkteMenuItem;
     private JMenuItem typeMenuItem;
     private JMenuItem menuweekMenuItem;
@@ -653,7 +712,7 @@ public class FrmDesktop extends JFrame {
             } else if (e.getSource() instanceof FrmVorrat) {
                 vorrat.removeInternalFrameListener(myFrameListener);
                 vorrat = null;
-                vorraeteMenuItem.setEnabled(true);
+//                vorraeteMenuItem.setEnabled(true);
 //            } else if (e.getSource() instanceof FrmPrinterSelection) {
 //                drucker.removeInternalFrameListener(myFrameListener);
 //                drucker = null;
@@ -665,7 +724,6 @@ public class FrmDesktop extends JFrame {
             } else if (e.getSource() instanceof FrmProdukte) {
                 produkte.removeInternalFrameListener(myFrameListener);
                 produkte = null;
-                produkteMenuItem.setEnabled(true);
             } else if (e.getSource() instanceof FrmIngType) {
                 types.removeInternalFrameListener(myFrameListener);
                 types = null;
@@ -674,6 +732,9 @@ public class FrmDesktop extends JFrame {
                 menuweek.removeInternalFrameListener(myFrameListener);
                 menuweek = null;
                 menuweekMenuItem.setEnabled(true);
+            } else if (e.getSource() instanceof FrmReassignProduct) {
+                stock2product.removeInternalFrameListener(myFrameListener);
+                stock2product = null;
             }
             super.internalFrameClosed(e);
         }

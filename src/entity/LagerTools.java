@@ -9,6 +9,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Created by IntelliJ IDEA.
@@ -98,5 +99,19 @@ public class LagerTools {
         lager = (Lager) query.getSingleResult();
         em.close();
         return lager;
+    }
+
+    public static ArrayList<Lager> getAll() {
+        ArrayList<Lager> list = new ArrayList<Lager>();
+
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query queryMin = em.createQuery("SELECT l FROM Lager l ORDER BY l.bezeichnung ASC ");
+
+        list.addAll(queryMin.getResultList());
+
+        em.close();
+
+        return list;
+
     }
 }

@@ -16,8 +16,8 @@ new FormModel {
 				} ) {
 					name: "contentPanel"
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-						"$columnSpecs": "right:default, 3dlu, labelcompgap, pref:grow, relgap, default, labelcompgap, default, labelcompgap, default, unrelgap, pref:grow"
-						"$rowSpecs": "linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, fill:default:grow"
+						"$columnSpecs": "pref, 3dlu, labelcompgap, pref:grow, relgap, default, labelcompgap, pref, labelcompgap, default, unrelgap, pref:grow"
+						"$rowSpecs": "linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, fill:default:grow"
 					} ) {
 						name: "panel4"
 						add( new FormComponent( "javax.swing.JLabel" ) {
@@ -37,7 +37,7 @@ new FormModel {
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 10
 							"gridY": 2
-							"gridHeight": 15
+							"gridHeight": 13
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 							"$columnSpecs": "default:grow"
@@ -65,7 +65,7 @@ new FormModel {
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 12
 							"gridY": 2
-							"gridHeight": 15
+							"gridHeight": 13
 						} )
 						add( new FormComponent( "org.jdesktop.swingx.JXSearchField" ) {
 							name: "xSearchField1"
@@ -151,29 +151,6 @@ new FormModel {
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 6
 							"gridY": 12
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label6"
-							"text": "Stoffart"
-							"font": #Font2
-						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-							"gridY": 14
-						} )
-						add( new FormComponent( "javax.swing.JComboBox" ) {
-							name: "cmbStoffart"
-							"font": new java.awt.Font( "arial", 0, 18 )
-							addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbStoffartItemStateChanged", true ) )
-						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-							"gridX": 4
-							"gridY": 14
-							"gridWidth": 3
-						} )
-						add( new FormComponent( "javax.swing.JButton" ) {
-							name: "btnEditStoffart"
-							"text": "text"
-						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-							"gridX": 8
-							"gridY": 14
 						} )
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {

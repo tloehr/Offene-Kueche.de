@@ -13,8 +13,6 @@ import org.pushingpixels.trident.callback.TimelineCallback;
 import org.pushingpixels.trident.callback.TimelineCallbackAdapter;
 import org.pushingpixels.trident.ease.Spline;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.swing.table.DefaultTableColumnModel;
@@ -334,20 +332,20 @@ public class Tools {
     }
 
 
-    public static DefaultComboBoxModel newComboboxModel(String jpql, Object[]... params) {
-        EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createQuery(jpql);
-        if (params != null) {
-            for (Object[] param : params) {
-                query.setParameter(param[0].toString(), param[1]);
-            }
-        }
-
-        DefaultComboBoxModel dcbm = newComboboxModel(query.getResultList());
-
-        em.close();
-        return dcbm;
-    }
+//    public static DefaultComboBoxModel newComboboxModel(String jpql, Object[]... params) {
+//        EntityManager em = Main.getEMF().createEntityManager();
+//        Query query = em.createQuery(jpql);
+//        if (params != null) {
+//            for (Object[] param : params) {
+//                query.setParameter(param[0].toString(), param[1]);
+//            }
+//        }
+//
+//        DefaultComboBoxModel dcbm = newComboboxModel(query.getResultList());
+//
+//        em.close();
+//        return dcbm;
+//    }
 
     public static DefaultComboBoxModel newComboboxModel(List list) {
         DefaultComboBoxModel model = new DefaultComboBoxModel();
@@ -1039,6 +1037,7 @@ public class Tools {
 //            newTxt = newTxt.substring(newTxt.length() - 750);
 //        }
         txt.setText(newTxt);
+
     }
 
     public static void storeStringToFile(String filename, String str) {

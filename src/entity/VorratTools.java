@@ -14,10 +14,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.transaction.TransactionRequiredException;
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author tloehr
@@ -151,6 +148,8 @@ public class VorratTools {
             em.persist(buchungen);
             Vorrat myVorrat = em.merge(vorrat);
 
+            em.lock(myVorrat, LockModeType.OPTIMISTIC);
+
             // Mit dieser Ausbuchung ist der Vorrat aufgebraucht.
             // Also Ausgang setzen.
             if (summe.compareTo(menge) == 0) {
@@ -182,6 +181,24 @@ public class VorratTools {
         if (vorrat.isAusgebucht()) return;
 
         ausbuchen(vorrat, getSummeBestand(vorrat), buchungstext);
+    }
+
+
+    public static ArrayList<Vorrat> getActiveStocks(Produkte product) {
+        ArrayList stocks = new ArrayList<Vorrat>();
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createQuery("SELECT v FROM Vorrat v WHERE v.produkt = :product AND v.ausgang = :tfn");
+        query.setParameter("product", product);
+        query.setParameter("tfn", Const.DATE_BIS_AUF_WEITERES);
+        try {
+            stocks = new ArrayList<Produkte>(query.getResultList());
+        } catch (Exception e1) { // nicht gefunden
+            stocks = null;
+        } finally {
+            em.close();
+        }
+
+        return stocks;
     }
 
     public static HashMap getVorrat4Printing(Vorrat vorrat) {

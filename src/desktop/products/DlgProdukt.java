@@ -8,10 +8,11 @@ import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import entity.*;
+import org.apache.commons.collections.Closure;
 import org.jdesktop.swingx.JXSearchField;
-import tools.Const;
 import tools.MyJDialog;
 import tools.PnlAssign;
+import tools.PnlIngTradeType;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
@@ -29,50 +30,74 @@ import java.util.ArrayList;
  */
 public class DlgProdukt extends MyJDialog {
     private final DlgProdukt thisDialog;
-    private ArrayList<Produkte> myProducts;
+    //    private ArrayList<Produkte> myProducts;
     String gtin = null;
     BigDecimal groesse;
     PnlAssign<Allergene> pnlAllergenes;
     PnlAssign<Additives> pnlAdditives;
+
+    Produkte product;
+
     boolean dialogShouldStayOpenedUntilClosed = false;
     boolean initPhase = true;
+    private PnlIngTradeType pnlIngTradeType;
 
-    ArrayList<Produkte> editedProducts;
+//    ArrayList<Produkte> editedProducts;
 
-    public ArrayList<Produkte> getEditedProducts() {
-        return editedProducts;
-    }
+//    public ArrayList<Produkte> getEditedProducts() {
+//        return editedProducts;
+//    }
 
-    public DlgProdukt(Frame owner, ArrayList<Produkte> myProducts) {
+    public DlgProdukt(Frame owner, Produkte product) {
         super(owner);
+        this.product = product;
         thisDialog = this;
-        this.myProducts = myProducts;
-        editedProducts = new ArrayList<Produkte>();
 
         initPhase = true;
         initComponents();
         initDialog();
         initPhase = false;
+
+        txtBezeichnung.requestFocus();
+
         setVisible(true);
+
+
+//        setMaximized();
+
     }
 
     private void initDialog() {
 
         setTitle(Tools.getWindowTitle("Produkt(e) bearbeiten"));
 
-        IngTypesTools.loadStoffarten(cmbStoffart);
-        ((DefaultComboBoxModel) cmbStoffart.getModel()).insertElementAt("(unterschiedliche Werte)", 0);
+        pnlIngTradeType = new PnlIngTradeType(product.getIngTypes(), new Closure() {
+            @Override
+            public void execute(Object o) {
+                if (o == null) {
+                    return;
+                } else if (o instanceof IngTypes) {
+                    product.setIngTypes((IngTypes) o);
+                    lblEinheit.setText(IngTypesTools.EINHEIT[product.getIngTypes().getEinheit()]);
+                } else {
+                    Main.debug(o);
+                }
+            }
+        }, PnlIngTradeType.SIZE_MEDIUM);
 
-        dialogShouldStayOpenedUntilClosed = myProducts == null;
+        panel4.add(pnlIngTradeType, CC.xywh(1, 14, 8, 1));
+        lblEinheit.setText(IngTypesTools.EINHEIT[product.getIngTypes().getEinheit()]);
+
+        dialogShouldStayOpenedUntilClosed = false;
         xSearchField1.setEnabled(dialogShouldStayOpenedUntilClosed);
         btnNew.setEnabled(dialogShouldStayOpenedUntilClosed);
-        if (dialogShouldStayOpenedUntilClosed) {
-            myProducts = new ArrayList<Produkte>();
-            cancelButton.setText("Schliessen");
-            cancelButton.setIcon(Const.icon24stop);
-        } else {
-            fillEditor();
-        }
+//        if (dialogShouldStayOpenedUntilClosed) {
+//            myProducts = new ArrayList<Produkte>();
+//            cancelButton.setText("Schliessen");
+//            cancelButton.setIcon(Const.icon24stop);
+//        } else {
+        fillEditor();
+//        }
 
     }
 
@@ -115,19 +140,16 @@ public class DlgProdukt extends MyJDialog {
     private void fillEditor() {
         fillBezeichnungGTIN();
         fillPackgroesse();
-        fillStoffart();
 
-        if (myProducts.size() == 1) {
-            if (pnlAllergenes != null) panel4.remove(pnlAllergenes);
-            if (pnlAdditives != null) panel4.remove(pnlAdditives);
-            pnlAdditives = null;
-            pnlAllergenes = null;
+        if (pnlAllergenes != null) panel4.remove(pnlAllergenes);
+        if (pnlAdditives != null) panel4.remove(pnlAdditives);
+        pnlAdditives = null;
+        pnlAllergenes = null;
 
-            pnlAllergenes = new PnlAssign<Allergene>(new ArrayList<Allergene>(myProducts.get(0).getAllergenes()), AllergeneTools.getAll(), AllergeneTools.getListCellRenderer());
-            pnlAssignment.add(pnlAllergenes, CC.xy(1, 3));
-            pnlAdditives = new PnlAssign<Additives>(new ArrayList<Additives>(myProducts.get(0).getAdditives()), AdditivesTools.getAll(), AdditivesTools.getListCellRenderer());
-            pnlAssignment.add(pnlAdditives, CC.xy(1, 7));
-        }
+        pnlAllergenes = new PnlAssign<Allergene>(new ArrayList<Allergene>(product.getAllergenes()), AllergeneTools.getAll(), AllergeneTools.getListCellRenderer());
+        pnlAssignment.add(pnlAllergenes, CC.xy(1, 3));
+        pnlAdditives = new PnlAssign<Additives>(new ArrayList<Additives>(product.getAdditives()), AdditivesTools.getAll(), AdditivesTools.getListCellRenderer());
+        pnlAssignment.add(pnlAdditives, CC.xy(1, 7));
 
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -145,128 +167,132 @@ public class DlgProdukt extends MyJDialog {
 
     private void fillBezeichnungGTIN() {
 
-        if (myProducts.size() == 1) {
-            txtBezeichnung.setText(myProducts.get(0).getBezeichnung());
-            txtBezeichnung.setEnabled(true);
-            txtGTIN.setText(myProducts.get(0).isLoseWare() ? "(lose Ware)" : myProducts.get(0).getGtin());
-            txtGTIN.setEnabled(!myProducts.get(0).isLoseWare());
-            btnUnverpackt.setEnabled(true);
-            btnUnverpackt.setSelected(myProducts.get(0).isLoseWare());
-        } else if (myProducts.size() > 1) {
-            txtBezeichnung.setText("(unterschiedliche Werte)");
-            txtBezeichnung.setEnabled(false);
-            txtGTIN.setText("(unterschiedliche Werte)");
-            txtGTIN.setEnabled(false);
-            btnUnverpackt.setEnabled(false);
-        } else {
-            txtBezeichnung.setText("");
-            txtBezeichnung.setEnabled(false);
-            txtGTIN.setText("");
-            txtGTIN.setEnabled(false);
-            btnUnverpackt.setEnabled(false);
-        }
+        initPhase = true;
 
+
+        txtBezeichnung.setText(product.getBezeichnung());
+        txtBezeichnung.setEnabled(true);
+        txtGTIN.setText(product.isLoseWare() ? "(lose Ware)" : product.getGtin());
+        txtGTIN.setEnabled(!product.isLoseWare());
+        btnUnverpackt.setEnabled(true);
+        btnUnverpackt.setSelected(product.isLoseWare());
+//        } else if (myProducts.size() > 1) {
+//            txtBezeichnung.setText("(unterschiedliche Werte)");
+//            txtBezeichnung.setEnabled(false);
+//            txtGTIN.setText("(unterschiedliche Werte)");
+//            txtGTIN.setEnabled(false);
+//            btnUnverpackt.setEnabled(false);
+//        } else {
+//            txtBezeichnung.setText("");
+//            txtBezeichnung.setEnabled(false);
+//            txtGTIN.setText("");
+//            txtGTIN.setEnabled(false);
+//            btnUnverpackt.setEnabled(false);
+//        }
+        initPhase = false;
     }
 
     private void fillPackgroesse() {
 
-        if (myProducts.size() == 1) {
-            txtPackGroesse.setText(myProducts.get(0).getGtin() == null ? "(lose Ware)" : myProducts.get(0).getPackGroesse().toString());
-            txtPackGroesse.setEnabled(!myProducts.get(0).isLoseWare());
-        } else {
-            // Testen ob alle markierten Produkte dieselbe Packungsgröße haben und nicht lose sind.
-            boolean allegleich = true;
-            boolean loseware = false;
-
-            for (Produkte produkt : myProducts) {
-                if (produkt.isLoseWare()) {
-                    loseware = true;
-                    break;
-                }
-
-                if (myProducts.get(0).getPackGroesse().compareTo(produkt.getPackGroesse()) != 0) {
-                    allegleich = false;
-                    break;
-                }
-            }
-            txtPackGroesse.setText(loseware ? "(lose Ware enthalten)" : (allegleich ? myProducts.get(0).getPackGroesse().toString() : "(unterschiedliche Werte)"));
-            txtPackGroesse.setEnabled(!loseware);
-        }
+//        if (myProducts.size() == 1) {
+        txtPackGroesse.setText(product.getGtin() == null ? "(lose Ware)" : product.getPackGroesse().toString());
+        txtPackGroesse.setEnabled(!product.isLoseWare());
+//        } else {
+//            // Testen ob alle markierten Produkte dieselbe Packungsgröße haben und nicht lose sind.
+//            boolean allegleich = true;
+//            boolean loseware = false;
+//
+//            for (Produkte produkt : myProducts) {
+//                if (produkt.isLoseWare()) {
+//                    loseware = true;
+//                    break;
+//                }
+//
+//                if (myProducts.get(0).getPackGroesse().compareTo(produkt.getPackGroesse()) != 0) {
+//                    allegleich = false;
+//                    break;
+//                }
+//            }
+//            txtPackGroesse.setText(loseware ? "(lose Ware enthalten)" : (allegleich ? myProducts.get(0).getPackGroesse().toString() : "(unterschiedliche Werte)"));
+//            txtPackGroesse.setEnabled(!loseware);
+//        }
     }
 
 
-    private void fillStoffart() {
-        if (myProducts.size() == 1) {
-            cmbStoffart.setSelectedItem(myProducts.get(0).getIngTypes());
-            lblEinheit.setText(IngTypesTools.EINHEIT[myProducts.get(0).getIngTypes().getEinheit()]);
-        } else {
-            // Testen ob alle markierten Produkte dieselbe Einheit haben
-            boolean allegleich = true;
-            for (Produkte produkt : myProducts) {
-                if (!myProducts.get(0).getIngTypes().equals(produkt.getIngTypes())) {
-                    allegleich = false;
-                    break;
-                }
-            }
-            if (allegleich) {
-                cmbStoffart.setSelectedItem(myProducts.get(0));
-                lblEinheit.setText(IngTypesTools.EINHEIT[myProducts.get(0).getIngTypes().getEinheit()]);
-            } else {
-                cmbStoffart.setSelectedIndex(0);
-                lblEinheit.setText("--");
-            }
-
-
-        }
-    }
+//    private void fillStoffart() {
+//        if (myProducts.size() == 1) {
+//            cmbStoffart.setSelectedItem(myProducts.get(0).getIngTypes());
+//            lblEinheit.setText(IngTypesTools.EINHEIT[myProducts.get(0).getIngTypes().getEinheit()]);
+//        } else {
+//            // Testen ob alle markierten Produkte dieselbe Einheit haben
+//            boolean allegleich = true;
+//            for (Produkte produkt : myProducts) {
+//                if (!myProducts.get(0).getIngTypes().equals(produkt.getIngTypes())) {
+//                    allegleich = false;
+//                    break;
+//                }
+//            }
+//            if (allegleich) {
+//                cmbStoffart.setSelectedItem(myProducts.get(0));
+//                lblEinheit.setText(IngTypesTools.EINHEIT[myProducts.get(0).getIngTypes().getEinheit()]);
+//            } else {
+//                cmbStoffart.setSelectedIndex(0);
+//                lblEinheit.setText("--");
+//            }
+//
+//
+//        }
+//    }
 
     private void okButtonActionPerformed(ActionEvent evt) {
 
-        if (myProducts.isEmpty()) return;
+//        if (myProducts.isEmpty()) return;
         if (txtBezeichnung.isEnabled() && txtBezeichnung.getText().trim().isEmpty()) return;
 
         EntityManager em = Main.getEMF().createEntityManager();
 
         try {
             em.getTransaction().begin();
-            for (Produkte p : myProducts) {
+//            for (Produkte p : myProducts) {
 
-                Produkte produkt = em.merge(p);
-                em.lock(produkt, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+            Produkte produkt = em.merge(product);
+            em.lock(produkt, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
 
-                if (txtBezeichnung.isEnabled()) {
-                    produkt.setBezeichnung(Tools.catchNull(txtBezeichnung.getText()).trim());
-                }
-
-                if (gtin != null) {
-                    produkt.setGtin(gtin);
-                }
-
-                if (groesse != null) {
-                    produkt.setPackGroesse(groesse);
-                    VorratTools.setzePackungsgroesse(produkt);
-                }
-//
-                if (cmbStoffart.getSelectedIndex() > 0) {
-                    IngTypes ingType = (IngTypes) cmbStoffart.getSelectedItem();
-                    if (!ingType.equals(produkt.getIngTypes())) {
-                        produkt.setIngTypes(em.merge(ingType));
-                    }
-                }
-
-                produkt.getAllergenes().clear();
-                for (Allergene allergene : pnlAllergenes.getAssigned()) {
-                    produkt.getAllergenes().add(em.merge(allergene));
-                }
-
-                produkt.getAdditives().clear();
-                for (Additives additives : pnlAdditives.getAssigned()) {
-                    produkt.getAdditives().add(em.merge(additives));
-                }
-
-                editedProducts.add(produkt);
-
+            if (txtBezeichnung.isEnabled()) {
+                produkt.setBezeichnung(Tools.catchNull(txtBezeichnung.getText()).trim());
             }
+
+            if (gtin != null) {
+                produkt.setGtin(gtin);
+            }
+
+            if (groesse != null) {
+                produkt.setPackGroesse(groesse);
+                VorratTools.setzePackungsgroesse(produkt);
+            }
+//
+//                if (cmbStoffart.getSelectedIndex() > 0) {
+//                    IngTypes ingType = (IngTypes) cmbStoffart.getSelectedItem();
+//                    if (!ingType.equals(produkt.getIngTypes())) {
+//                        produkt.setIngTypes(em.merge(ingType));
+//                    }
+//                }
+
+            produkt.getAllergenes().clear();
+            for (Allergene allergene : pnlAllergenes.getAssigned()) {
+                produkt.getAllergenes().add(em.merge(allergene));
+            }
+
+            produkt.getAdditives().clear();
+            for (Additives additives : pnlAdditives.getAssigned()) {
+                produkt.getAdditives().add(em.merge(additives));
+            }
+
+            product = produkt;
+
+//                editedProducts.add(produkt);
+
+//            }
             em.getTransaction().commit();
         } catch (OptimisticLockException ole) {
             em.getTransaction().rollback();
@@ -279,7 +305,7 @@ public class DlgProdukt extends MyJDialog {
             if (!dialogShouldStayOpenedUntilClosed) {
                 dispose();
             } else {
-                myProducts.clear();
+
                 emptyEditor();
             }
         }
@@ -306,7 +332,7 @@ public class DlgProdukt extends MyJDialog {
         if (pnlAdditives != null) pnlAssignment.remove(pnlAdditives);
         pnlAdditives = null;
         pnlAllergenes = null;
-        cmbStoffart.setSelectedIndex(0);
+//        cmbStoffart.setSelectedIndex(0);
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -320,24 +346,28 @@ public class DlgProdukt extends MyJDialog {
 
     private void btnUnverpacktItemStateChanged(ItemEvent e) {
 
+
+        btnUnverpackt.setText(e.getStateChange() == ItemEvent.SELECTED ? "unverpackt" : "verpackt");
+
+        txtPackGroesse.setEnabled(e.getStateChange() != ItemEvent.SELECTED);
+        txtGTIN.setEnabled(e.getStateChange() != ItemEvent.SELECTED);
+
         if (initPhase) return;
 
         if (e.getStateChange() == ItemEvent.SELECTED) {
-            btnUnverpackt.setText("unverpackt");
+
             txtGTIN.setText("(lose Ware)");
             txtPackGroesse.setText("(lose Ware)");
         } else {
-            btnUnverpackt.setText("verpackt");
-            txtGTIN.setText(Tools.catchNull(myProducts.get(0).getGtin()));
-            txtPackGroesse.setText(Tools.catchNull(myProducts.get(0).getPackGroesse().toString(), "1"));
+//            btnUnverpackt.setText("verpackt");
+            txtGTIN.setText(Tools.catchNull(product.getGtin()));
+            txtPackGroesse.setText("1");
+            txtGTIN.requestFocus();
         }
 
 
 //        myProducts.setGtin(null);
 //        myProducts.setPackGroesse(BigDecimal.ZERO);
-
-        txtPackGroesse.setEnabled(e.getStateChange() == ItemEvent.DESELECTED);
-        txtGTIN.setEnabled(e.getStateChange() == ItemEvent.DESELECTED);
 
 
     }
@@ -362,42 +392,40 @@ public class DlgProdukt extends MyJDialog {
 
             if (foundProduct == null) {
                 emptyEditor();
-                myProducts.clear();
+//                myProducts.clear();
 
                 lblSearch.setText(" Suchen");
 
             } else {
-                myProducts.clear();
-                myProducts.add(foundProduct);
+//                myProducts.clear();
+//                myProducts.add(foundProduct);
 
                 lblSearch.setText(" Gefunden: ProdID #" + foundProduct.getId() + (foundVorrat == null ? "" : " // VorratID #" + foundVorrat.getId()));
 
                 fillEditor();
             }
         } else {
-            myProducts.clear();
+//            myProducts.clear();
             emptyEditor();
         }
     }
 
-    private void cmbStoffartItemStateChanged(ItemEvent e) {
-//        if (e.getStateChange() == ItemEvent.SELECTED){
-//            lblEinheit.setText(ProdukteTools.EINHEIT[((IngTypes) e.getItem()).getEinheit()]);
-//        }
+    public Produkte getProduct() {
+        return product;
     }
+
 
     private void createUIComponents() {
         // TODO: add custom component creation code here
     }
 
-    private void thisComponentResized(ComponentEvent e) {
-    }
 
     private void btnNewActionPerformed(ActionEvent e) {
-        myProducts.clear();
+//        myProducts.clear();
         emptyEditor();
+        xSearchField1.setEnabled(false);
 
-        myProducts.add(new Produkte(IngTypesTools.getFirstType()));
+//        myProducts.add(new Produkte(IngTypesTools.getFirstType()));
         lblSearch.setText(" Neueingabe");
         fillEditor();
     }
@@ -422,9 +450,6 @@ public class DlgProdukt extends MyJDialog {
         label5 = new JLabel();
         txtPackGroesse = new JTextField();
         lblEinheit = new JLabel();
-        label6 = new JLabel();
-        cmbStoffart = new JComboBox();
-        btnEditStoffart = new JButton();
         buttonBar = new JPanel();
         btnNew = new JButton();
         okButton = new JButton();
@@ -448,8 +473,8 @@ public class DlgProdukt extends MyJDialog {
                 //======== panel4 ========
                 {
                     panel4.setLayout(new FormLayout(
-                        "right:default, 3dlu, $lcgap, pref:grow, $rgap, 2*(default, $lcgap), default, $ugap, pref:grow",
-                        "7*($lgap, default), $lgap, fill:default:grow"));
+                        "pref, 3dlu, $lcgap, pref:grow, $rgap, default, $lcgap, pref, $lcgap, default, $ugap, pref:grow",
+                        "6*($lgap, default), $lgap, fill:default:grow"));
 
                     //---- lblSearch ----
                     lblSearch.setText(" Suchen");
@@ -464,7 +489,7 @@ public class DlgProdukt extends MyJDialog {
                         panel1.setBackground(new Color(102, 102, 0));
                         panel1.setLayout(new FlowLayout());
                     }
-                    panel4.add(panel1, CC.xywh(10, 2, 1, 15));
+                    panel4.add(panel1, CC.xywh(10, 2, 1, 13));
 
                     //======== pnlAssignment ========
                     {
@@ -488,7 +513,7 @@ public class DlgProdukt extends MyJDialog {
                         label9.setForeground(new Color(93, 73, 1));
                         pnlAssignment.add(label9, CC.xy(1, 5));
                     }
-                    panel4.add(pnlAssignment, CC.xywh(12, 2, 1, 15));
+                    panel4.add(pnlAssignment, CC.xywh(12, 2, 1, 13));
 
                     //---- xSearchField1 ----
                     xSearchField1.setFont(new Font("Dialog", Font.BOLD, 18));
@@ -569,25 +594,6 @@ public class DlgProdukt extends MyJDialog {
                     lblEinheit.setText("text");
                     lblEinheit.setFont(new Font("Dialog", Font.PLAIN, 18));
                     panel4.add(lblEinheit, CC.xy(6, 12));
-
-                    //---- label6 ----
-                    label6.setText("Stoffart");
-                    label6.setFont(new Font("arial", Font.PLAIN, 18));
-                    panel4.add(label6, CC.xy(1, 14));
-
-                    //---- cmbStoffart ----
-                    cmbStoffart.setFont(new Font("arial", Font.PLAIN, 18));
-                    cmbStoffart.addItemListener(new ItemListener() {
-                        @Override
-                        public void itemStateChanged(ItemEvent e) {
-                            cmbStoffartItemStateChanged(e);
-                        }
-                    });
-                    panel4.add(cmbStoffart, CC.xywh(4, 14, 3, 1));
-
-                    //---- btnEditStoffart ----
-                    btnEditStoffart.setText("text");
-                    panel4.add(btnEditStoffart, CC.xy(8, 14));
                 }
                 contentPanel.add(panel4);
             }
@@ -666,9 +672,6 @@ public class DlgProdukt extends MyJDialog {
     private JLabel label5;
     private JTextField txtPackGroesse;
     private JLabel lblEinheit;
-    private JLabel label6;
-    private JComboBox cmbStoffart;
-    private JButton btnEditStoffart;
     private JPanel buttonBar;
     private JButton btnNew;
     private JButton okButton;

@@ -31,7 +31,6 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyVetoException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DateFormat;
@@ -89,11 +88,7 @@ public class FrmProdukte extends JInternalFrame {
 
         createTree();
         setTitle(Tools.getWindowTitle("Produkte-Verwaltung"));
-        try {
-            setMaximum(true);
-        } catch (PropertyVetoException e) {
-            //nop
-        }
+
         pack();
     }
 
@@ -151,7 +146,7 @@ public class FrmProdukte extends JInternalFrame {
         textKriterium = xSearchField1.getText();
         foundStock = VorratTools.findByIDORScanner(textKriterium.trim());
         sorter.setRowFilter(textFilter);
-
+        xSearchField1.selectAll();
     }
 
     public void reload() {
@@ -223,7 +218,8 @@ public class FrmProdukte extends JInternalFrame {
     }
 
     private void btnSearchAllActionPerformed(ActionEvent e) {
-        sorter.setRowFilter(null);
+//        sorter.setRowFilter(null);
+        reload();
 //        criteria = new Pair<Integer, Object>(Const.ALLE, null);
 //        reload();
     }
@@ -458,26 +454,25 @@ public class FrmProdukte extends JInternalFrame {
             miEdit.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    ArrayList<Produkte> listProdukte = new ArrayList<Produkte>(rows.length);
-                    for (int r = 0; r < rows.length; r++) {
-                        final int finalR = r;
-                        final int thisRow = tblProdukt.convertRowIndexToModel(rows[finalR]);
-                        listProdukte.add(((ProdukteTableModel) tblProdukt.getModel()).getProdukt(thisRow));
-                    }
-                    final DlgProdukt dlg = new DlgProdukt(Main.mainframe, listProdukte);
+//                    ArrayList<Produkte> listProdukte = new ArrayList<Produkte>(rows.length);
+//                    for (int r = 0; r < rows.length; r++) {
+//                        final int finalR = r;
+//                        final int thisRow = tblProdukt.convertRowIndexToModel(rows[finalR]);
+//                        listProdukte.add(((ProdukteTableModel) tblProdukt.getModel()).getProdukt(thisRow));
+//                    }
+                    final DlgProdukt dlg = new DlgProdukt(Main.mainframe, listSelectedProducts.get(0));
                     dlg.addComponentListener(new ComponentAdapter() {
                         @Override
                         public void componentHidden(ComponentEvent e) {
                             super.componentHidden(e);
-                            ptm.update(dlg.getEditedProducts());
+
+                            ptm.update(dlg.getProduct());
                         }
                     });
 
-
-//                    reload();
                 }
             });
-            miEdit.setEnabled(rows.length > 0);
+            miEdit.setEnabled(listSelectedProducts.size() == 1);
             menu.add(miEdit);
 
             JMenuItem miInfo = new JMenuItem("Vorrat Info");
@@ -524,7 +519,7 @@ public class FrmProdukte extends JInternalFrame {
                     try {
                         em1.getTransaction().begin();
                         for (Produkte p : listSelectedProducts) {
-                            if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+                            if (JOptionPane.showConfirmDialog(thisComponent, "Das Produkt "+p.getId()+" hat "+ p.getVorratCollection().size()+" Vorräte.\nWirklich löschen ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
                                 Produkte myProdukt = em1.merge(p);
                                 em1.remove(myProdukt);
                                 ptm.remove(myProdukt);
@@ -1198,12 +1193,15 @@ public class FrmProdukte extends JInternalFrame {
     }
 
     private void btnSearchEditProductsActionPerformed(ActionEvent e) {
-        final DlgProdukt dlg = new DlgProdukt(Main.mainframe, null);
+//        ArrayList<Produkte> list = new ArrayList<Produkte>();
+//        list.add(new Produkte(IngTypesTools.getFirstType()));
+
+        final DlgProdukt dlg = new DlgProdukt(Main.mainframe, new Produkte(IngTypesTools.getFirstType()));
         dlg.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentHidden(ComponentEvent e) {
                 super.componentHidden(e);
-                ptm.update(dlg.getEditedProducts());
+                ptm.update(dlg.getProduct());
             }
         });
     }

@@ -75,6 +75,19 @@ public class WarengruppeTools {
         return warengruppe;
     }
 
+    public static void loadInto(JComboBox cmb) {
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createQuery("SELECT w from Warengruppe w ORDER BY w.bezeichnung");
+        try {
+            java.util.List warengruppe = query.getResultList();
+            cmb.setModel(tools.Tools.newComboboxModel(warengruppe));
+        } catch (Exception e) { // nicht gefunden
+            //
+        } finally {
+            em.close();
+        }
+    }
+
 
     public static long getNumOfProducts(Warengruppe warengruppe) {
         long num = 0;

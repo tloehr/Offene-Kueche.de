@@ -37,7 +37,7 @@ public class DlgType extends JDialog {
 //        ((DefaultComboBoxModel) cmbLagerart.getModel()).insertElementAt("(unterschiedliche Werte)", 0);
 //        cmbEinheit.setModel(new DefaultComboBoxModel(ProdukteTools.EINHEIT));
 //        ((DefaultComboBoxModel) cmbEinheit.getModel()).insertElementAt("(unterschiedliche Werte)", 0);
-//        StoffartTools.loadStoffarten(cmbStoffart);
+//        StoffartTools.loadInto(cmbStoffart);
 //        ((DefaultComboBoxModel) cmbStoffart.getModel()).insertElementAt("(unterschiedliche Werte)", 0);
 //        fillEditor();
 //        setTitle(Tools.getWindowTitle("Produkt(e) bearbeiten"));

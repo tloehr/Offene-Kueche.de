@@ -5,20 +5,25 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JInternalFrame", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 			"$columnSpecs": "default:grow"
-			"$rowSpecs": "default, linegap, fill:default:grow, linegap, default, linegap, default, linegap, default"
+			"$rowSpecs": "default, linegap, fill:default:grow, linegap, default, linegap, fill:default:grow, linegap, default, linegap, default, linegap, default"
 		} ) {
 			name: "this"
 			"visible": true
+			"closable": true
+			"iconifiable": true
+			"maximizable": true
+			"resizable": true
 			add( new FormComponent( "org.jdesktop.swingx.JXSearchField" ) {
 				name: "xSearchField1"
 				"font": new java.awt.Font( "SansSerif", 0, 18 )
 				"searchMode": enum org.jdesktop.swingx.JXSearchField$SearchMode REGULAR
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "xSearchField1ActionPerformed", true ) )
+				addEvent( new FormEvent( "java.awt.event.FocusListener", "focusGained", "xSearchField1FocusGained", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) )
 			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 				name: "scrollPane1"
 				add( new FormComponent( "javax.swing.JTextArea" ) {
-					name: "label1"
+					name: "txtSource"
 					"text": "text"
 					"font": new java.awt.Font( "SansSerif", 0, 18 )
 					"editable": false
@@ -29,21 +34,56 @@ new FormModel {
 				"gridX": 1
 				"gridY": 3
 			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
+				name: "panel2"
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "label1"
+					"text": "soll geändert werden in"
+					"font": new java.awt.Font( "SansSerif", 0, 18 )
+				} )
+				add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+					name: "hSpacer1"
+				} )
+				add( new FormComponent( "org.jdesktop.swingx.JXSearchField" ) {
+					name: "xSearchField2"
+					"searchMode": enum org.jdesktop.swingx.JXSearchField$SearchMode REGULAR
+					"font": new java.awt.Font( "SansSerif", 0, 18 )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "xSearchField2ActionPerformed", true ) )
+					addEvent( new FormEvent( "java.awt.event.FocusListener", "focusGained", "xSearchField2FocusGained", true ) )
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 5
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane2"
+				add( new FormComponent( "javax.swing.JTextArea" ) {
+					name: "txtDestination"
+					"editable": false
+					"wrapStyleWord": true
+					"lineWrap": true
+					"font": new java.awt.Font( "SansSerif", 0, 18 )
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 1
+				"gridY": 7
+			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "btnChangeSingle"
 				"text": "Nur diesen einen Ändern"
 				"font": &Font0 new java.awt.Font( "SansSerif", 0, 18 )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnChangeSingleActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
-				"gridY": 5
+				"gridY": 9
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "btnChangeAll"
 				"text": "Alle ändern, die da sind"
 				"font": #Font0
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnChangeAllActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
-				"gridY": 7
+				"gridY": 11
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
 				"axis": 0
@@ -83,12 +123,12 @@ new FormModel {
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
-				"gridY": 9
+				"gridY": 13
 				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 685, 300 )
+			"size": new java.awt.Dimension( 725, 605 )
 		} )
 		add( new FormNonVisual( "javax.swing.ButtonGroup" ) {
 			name: "buttonGroup1"

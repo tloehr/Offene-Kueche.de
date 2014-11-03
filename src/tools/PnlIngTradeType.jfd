@@ -1,0 +1,134 @@
+JFDML JFormDesigner: "5.2.0.0.109" Java: "1.6.0_65" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+			"axis": 0
+		} ) {
+			name: "this"
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default:grow"
+				"$rowSpecs": "default, linegap, default"
+			} ) {
+				name: "panel1"
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
+					name: "pnlStoffart"
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
+						name: "pnlSelStoffart"
+						add( new FormComponent( "javax.swing.JComboBox" ) {
+							name: "cmbStoffart"
+							"font": &Font0 new java.awt.Font( "SansSerif", 0, 24 )
+							"model": &DefaultComboBoxModel0 new javax.swing.DefaultComboBoxModel {
+								selectedItem: "item 1"
+								addElement( "item 1" )
+								addElement( "item 2" )
+								addElement( "item 3" )
+							}
+							addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbStoffartItemStateChanged", true ) )
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnAddStoffart"
+							"font": #Font0
+							"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/32x32/edit_add.png" )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnAddStoffartActionPerformed", true ) )
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "select"
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
+						name: "pnlAddStoffart"
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "txtNewStoffart"
+							"font": #Font0
+							"text": " "
+						} )
+						add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+							name: "hSpacer1"
+						} )
+						add( new FormComponent( "javax.swing.JComboBox" ) {
+							name: "cmbUnit"
+							"font": &Font1 new java.awt.Font( "SansSerif", 0, 24 )
+							addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbUnitItemStateChanged", true ) )
+						} )
+						add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+							name: "hSpacer2"
+						} )
+						add( new FormComponent( "javax.swing.JComboBox" ) {
+							name: "cmbStorageType"
+							"font": #Font1
+						} )
+						add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+							name: "hSpacer3"
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnApplyStoffart"
+							"font": #Font0
+							"icon": &SwingIcon0 new com.jformdesigner.model.SwingIcon( 0, "/artwork/32x32/ok.png" )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnApplyStoffartActionPerformed", true ) )
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnCancelStoffart"
+							"font": #Font0
+							"icon": &SwingIcon1 new com.jformdesigner.model.SwingIcon( 0, "/artwork/32x32/cancel.png" )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnCancelStoffartActionPerformed", true ) )
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "add"
+					} )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
+					name: "pnlWarengruppe"
+					"enabled": false
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
+						name: "pnlSelWarengruppe"
+						add( new FormComponent( "javax.swing.JComboBox" ) {
+							name: "cmbTradeType"
+							"font": #Font0
+							"model": #DefaultComboBoxModel0
+							addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbTradeTypeItemStateChanged", true ) )
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnAddWarengruppe"
+							"font": #Font0
+							"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/32x32/edit_add.png" )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnAddWarengruppeActionPerformed", true ) )
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "select"
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
+						name: "pnlAddWarengruppe"
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "txtNewWarengruppe"
+							"font": #Font0
+							"text": " "
+						} )
+						add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+							name: "hSpacer4"
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnApplyWarengruppe"
+							"font": #Font0
+							"icon": #SwingIcon0
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnApplyWarengruppeActionPerformed", true ) )
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnCancelWarengruppe"
+							"font": #Font0
+							"icon": #SwingIcon1
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnCancelWarengruppeActionPerformed", true ) )
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "add"
+					} )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridY": 3
+				} )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 620, 300 )
+		} )
+	}
+}
