@@ -232,6 +232,7 @@ public class ProdukteTools {
     }
 
     public static Produkte getProduct(String gtin) {
+        if (gtin == null) return null;
         Produkte product = null;
         EntityManager em = Main.getEMF().createEntityManager();
         Query query = em.createQuery("SELECT p FROM Produkte p WHERE p.gtin = :gtin");

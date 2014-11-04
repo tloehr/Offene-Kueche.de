@@ -300,6 +300,8 @@ public class Main {
 
         opts.addOption(OptionBuilder.withLongOpt("jdbc").hasArg().withDescription("Damit kannst Du eine andere JDBC Url für Deine Datenbank angeben. Ignoriert die Angaben in der kueche.properties. Ist nur für Test-Zwecke gedacht.").create("j"));
 
+        opts.addOption(OptionBuilder.withLongOpt("listprinters").withDescription("Listet alle Drucker auf, die das Programm finden kann.").create("p"));
+
 
         BasicParser parser = new BasicParser();
         CommandLine cl = null;
@@ -321,6 +323,13 @@ public class Main {
             HelpFormatter f = new HelpFormatter();
             f.printHelp("Kueche.jar [OPTION]", "Version " + getProps().getProperty("program.VERSION")
                     + " Build:" + getProps().getProperty("program.BUILDNUM"), opts, footer);
+            System.exit(0);
+        }
+
+        if (cl.hasOption("p")) {
+
+            System.out.println(Printers.getAllPrinters());
+
             System.exit(0);
         }
 

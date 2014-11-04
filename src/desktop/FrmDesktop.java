@@ -215,6 +215,11 @@ public class FrmDesktop extends JFrame {
 //        vorraeteMenuItem.setEnabled(false);
         desktopPane.add(vorrat);
         Tools.centerOnParent(desktopPane, vorrat);
+        try {
+            vorrat.setMaximum(true);
+        } catch (PropertyVetoException e1) {
+            e1.printStackTrace();
+        }
         vorrat.toFront();
         try {
             vorrat.setMaximum(true);
@@ -426,6 +431,7 @@ public class FrmDesktop extends JFrame {
             public void windowClosing(WindowEvent e) {
                 formWindowClosing(e);
             }
+
             @Override
             public void windowOpened(WindowEvent e) {
                 formWindowOpened(e);
@@ -433,8 +439,8 @@ public class FrmDesktop extends JFrame {
         });
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-            "default:grow",
-            "$ugap, fill:default:grow, fill:default"));
+                "default:grow",
+                "$ugap, fill:default:grow, fill:default"));
 
         //======== menuBar ========
         {

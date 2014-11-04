@@ -44,12 +44,17 @@ import java.util.List;
 public class FrmProdukte extends JInternalFrame {
 
     JTree tree;
+    RowFilter<ProdukteTableModel, Integer> warengruppeFilter;
+    Warengruppe warengruppeFilterKriterium = null;
 
+    //    private Pair<Integer, Object> criteria;
+    RowFilter<ProdukteTableModel, Integer> ingTypeFilter;
+    IngTypes ingTypeFilterKriterium = null;
+    RowFilter<ProdukteTableModel, Integer> textFilter;
+    String textKriterium = null;
+    Vorrat foundStock = null;
     private JPopupMenu menu;
     private JidePopup popup;
-
-//    private Pair<Integer, Object> criteria;
-
     private JComponent thisComponent;
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     private JScrollPane jspSearch;
@@ -64,20 +69,8 @@ public class FrmProdukte extends JInternalFrame {
     private JScrollPane jspProdukt;
     private JTable tblProdukt;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
-
-
     private ProdukteTableModel ptm;
     private TableRowSorter<ProdukteTableModel> sorter;
-
-    RowFilter<ProdukteTableModel, Integer> warengruppeFilter;
-    Warengruppe warengruppeFilterKriterium = null;
-
-    RowFilter<ProdukteTableModel, Integer> ingTypeFilter;
-    IngTypes ingTypeFilterKriterium = null;
-
-    RowFilter<ProdukteTableModel, Integer> textFilter;
-    String textKriterium = null;
-    Vorrat foundStock = null;
 
     public FrmProdukte() {
         initComponents();
@@ -91,6 +84,7 @@ public class FrmProdukte extends JInternalFrame {
 
         pack();
     }
+
 
     private void createFilters() {
         warengruppeFilter = new RowFilter<ProdukteTableModel, Integer>() {
@@ -309,10 +303,12 @@ public class FrmProdukte extends JInternalFrame {
             final int thisRow = tblProdukt.convertRowIndexToModel(row);
             final PnlAssign<Allergene> pnlAssign = new PnlAssign<Allergene>(ptm.getProdukt(thisRow).getAllergenes(), AllergeneTools.getAll(), AllergeneTools.getListCellRenderer());
 
-            popup.setMovable(false);
+//            popup.setMovable(true);
             popup.setTransient(true);
-            popup.setContentPane(pnlAssign);
-            popup.setDefaultFocusComponent(pnlAssign);
+            popup.setOwner(tblProdukt);
+            popup.getContentPane().add(pnlAssign);
+            popup.setFocusable(true);
+            popup.setDefaultFocusComponent(pnlAssign.getDefaultFocusComponent());
 
             popup.addPopupMenuListener(new PopupMenuListener() {
                 @Override
@@ -348,6 +344,7 @@ public class FrmProdukte extends JInternalFrame {
                         Main.fatal(e);
                     } finally {
                         em.close();
+                        popup = null;
                     }
                 }
 
@@ -376,8 +373,10 @@ public class FrmProdukte extends JInternalFrame {
 
             popup.setMovable(false);
             popup.setTransient(true);
-            popup.setContentPane(pnlAssign);
-            popup.setDefaultFocusComponent(pnlAssign);
+            popup.setOwner(tblProdukt);
+            popup.getContentPane().add(pnlAssign);
+            popup.setFocusable(true);
+            popup.setDefaultFocusComponent(pnlAssign.getDefaultFocusComponent());
 
             popup.addPopupMenuListener(new PopupMenuListener() {
                 @Override
@@ -413,6 +412,7 @@ public class FrmProdukte extends JInternalFrame {
                         Main.fatal(e);
                     } finally {
                         em.close();
+                        popup = null;
                     }
                 }
 
@@ -1206,6 +1206,10 @@ public class FrmProdukte extends JInternalFrame {
         });
     }
 
+    private void xSearchField1FocusGained(FocusEvent e) {
+        xSearchField1.selectAll();
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         jspSearch = new JScrollPane();
@@ -1265,6 +1269,12 @@ public class FrmProdukte extends JInternalFrame {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             xSearchField1ActionPerformed(e);
+                        }
+                    });
+                    xSearchField1.addFocusListener(new FocusAdapter() {
+                        @Override
+                        public void focusGained(FocusEvent e) {
+                            xSearchField1FocusGained(e);
                         }
                     });
                     xTaskPane1.add(xSearchField1);

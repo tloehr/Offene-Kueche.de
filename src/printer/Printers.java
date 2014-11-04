@@ -55,32 +55,11 @@ public class Printers {
     public static final int DRUCK_BON1 = 3;
     public static final int DRUCK_BON2 = 4;
     public static final int DRUCK_LASER = 5;
+    private final String CONFIGFILE = "printers.xml";
     //public static int[] drucker
     private HashMap<String, Printer> printers;
-    private final String CONFIGFILE = "printers.xml";
     private HashMap tags;
-
-
-    public HashBean[] getPrinterTypeArray() {
-        return printerTypeArray;
-    }
-
     private HashBean[] printerTypeArray;
-
-    public HashMap<String, Printer> getPrinters() {
-        return printers;
-    }
-
-//    public Printer getPrinter(String type) {
-//        Printer p = null;
-//        Iterator<Printer> it = printers.iterator();
-//        boolean found = false;
-//        while (!found && it.hasNext()) {
-//            p = it.next();
-//            found = p.getType().equals(type);
-//        }
-//        return (!found ? null : p);
-//    }
 
     public Printers() {
         initTags();
@@ -95,6 +74,152 @@ public class Printers {
         } catch (IOException iOException) {
             Main.logger.fatal(iOException);
         }
+    }
+
+    public static String getAllPrinters() {
+
+        String text = "";
+        PrintService[] prservices = PrintServiceLookup.lookupPrintServices(null, null);
+        for (int i = 0; i < prservices.length; i++) {
+            text += "  " + i + ":  " + prservices[i] + "\n";
+
+        }
+        return text;
+    }
+
+//    public Printer getPrinter(String type) {
+//        Printer p = null;
+//        Iterator<Printer> it = printers.iterator();
+//        boolean found = false;
+//        while (!found && it.hasNext()) {
+//            p = it.next();
+//            found = p.getType().equals(type);
+//        }
+//        return (!found ? null : p);
+//    }
+
+    /**
+     * Standard Druck Routine. Nimmt einen HTML Text entgegen und öffnet den lokal installierten Browser damit.
+     * Erstellt temporäre Dateien im temp Verzeichnis kueche<irgendwas>.html
+     *
+     * @param parent
+     * @param html
+     * @param addPrintJScript - Auf Wunsch kann an das HTML automatisch eine JScript Druckroutine angehangen werden.
+     */
+    public static void print(Component parent, String html, boolean addPrintJScript) {
+        try {
+            // Create temp file.
+            File temp = File.createTempFile("kueche", ".html");
+
+            // Delete temp file when program exits.
+            temp.deleteOnExit();
+
+            if (addPrintJScript) {
+                html = "<html><head><script type=\"text/javascript\">"
+                        + "window.onload = function() {"
+                        + "window.print();"
+                        + "}</script>"
+                        + Main.getCSS()
+                        + "</head><body>" + Tools.htmlUmlautConversion(html)
+                        + "<hr/><span id=\"fonttext\"><b>Ende des Berichtes</b><br/>http://www.offene-pflege.de/component/content/article/3-informationen/16-kueche</span></body></html>";
+            } else {
+                html = "<html><head>" + Main.getCSS() + "</head><body>" + Tools.htmlUmlautConversion(html)
+                        + "<hr/><span id=\"fonttext\"><b>Ende des Berichtes</b><br/>http://www.offene-pflege.de/component/content/article/3-informationen/16-kueche</span></body></html>";
+            }
+
+            Main.logger.debug(html);
+
+            // Write to temp file
+            BufferedWriter out = new BufferedWriter(new FileWriter(temp));
+            out.write(html);
+
+            out.close();
+            Tools.handleFile(parent, temp.getAbsolutePath(), Desktop.Action.OPEN);
+        } catch (IOException e) {
+            new DlgException(e);
+        }
+    }
+
+    public HashBean[] getPrinterTypeArray() {
+        return printerTypeArray;
+    }
+
+    public HashMap<String, Printer> getPrinters() {
+        return printers;
+    }
+
+    private void initTags() {
+        tags = new HashMap(17);
+        tags.put("EscposInitPrinter", ESCPOS_INIT_PRINTER);
+        tags.put("EscposDoubleHeightOn", ESCPOS_DOUBLE_HEIGHT_ON);
+        tags.put("EscposDoubleHeightOff", ESCPOS_DOUBLE_STRIKE_OFF);
+        tags.put("EscposDoubleWidthOn", ESCPOS_DOUBLE_WIDTH_ON);
+        tags.put("EscposDoubleWidthOff", ESCPOS_DOUBLE_WIDTH_OFF);
+        tags.put("EscposEmphasizedOn", ESCPOS_EMPHASIZED_ON);
+        tags.put("EscposEmphasizedOff", ESCPOS_EMPHASIZED_OFF);
+        tags.put("EscposUnderlineOn", ESCPOS_UNDERLINE_ON);
+        tags.put("EscposUnderlineOff", ESCPOS_UNDERLINE_OFF);
+        tags.put("EscposDoubleStrikeOn", ESCPOS_DOUBLE_STRIKE_ON);
+        tags.put("EscposDoubleStrikeOff", ESCPOS_DOUBLE_STRIKE_OFF);
+        tags.put("EscposPrintColor1", ESCPOS_PRINT_COLOR1);
+        tags.put("EscposPrintColor2", ESCPOS_PRINT_COLOR2);
+        tags.put("EscposCharacterTablePC437", ESCPOS_CHARACTER_TABLE_PC437);
+        tags.put("EscposCharacterTablePC850", ESCPOS_CHARACTER_TABLE_PC850);
+        tags.put("EscposFullCut", ESCPOS_FULL_CUT);
+        tags.put("EscposPartialCut", ESCPOS_PARTIAL_CUT);
+    }
+
+    /**
+     *
+     */
+    public void print(Object printData, String printer, DocFlavor flavor) {
+
+        // Set print attributes:
+        PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+        aset.add(MediaSizeName.ISO_A4);
+
+        try {
+            DocPrintJob pj = getPrintService(printer).createPrintJob();
+            Doc doc = new SimpleDoc(printData, flavor, null);
+            pj.print(doc, aset);
+        } catch (PrintException pe) {
+            Main.logger.fatal(pe);
+        }
+    }
+
+    public PrintService getPrintService(String printername) throws PrintException {
+
+        PrintService ps = null;
+
+//        if (psprinter) {
+//            ps = postscript;
+//        } else {
+//            ps = label;
+//        }
+
+        if (ps == null) {
+
+            PrintService[] prservices = PrintServiceLookup.lookupPrintServices(null, null);
+            int idxPrintService = -1;
+            for (int i = 0; i < prservices.length; i++) {
+                Main.debug("  " + i + ":  " + prservices[i]);
+                if (prservices[i].getName().equals(printername)) {
+                    idxPrintService = i;
+                }
+            }
+            if (idxPrintService < 0) {
+                throw new PrintException("Service for " + printername + " not found.");
+            }
+            ps = prservices[idxPrintService];
+        }
+
+//        if (psprinter) {
+//            postscript = ps;
+//        } else {
+//            label = ps;
+//        }
+
+        return ps;
     }
 
     private class XMLHandler extends DefaultHandler {
@@ -193,123 +318,6 @@ public class Printers {
 
         }
     } // private class HandlerFragenStruktur
-
-    private void initTags() {
-        tags = new HashMap(17);
-        tags.put("EscposInitPrinter", ESCPOS_INIT_PRINTER);
-        tags.put("EscposDoubleHeightOn", ESCPOS_DOUBLE_HEIGHT_ON);
-        tags.put("EscposDoubleHeightOff", ESCPOS_DOUBLE_STRIKE_OFF);
-        tags.put("EscposDoubleWidthOn", ESCPOS_DOUBLE_WIDTH_ON);
-        tags.put("EscposDoubleWidthOff", ESCPOS_DOUBLE_WIDTH_OFF);
-        tags.put("EscposEmphasizedOn", ESCPOS_EMPHASIZED_ON);
-        tags.put("EscposEmphasizedOff", ESCPOS_EMPHASIZED_OFF);
-        tags.put("EscposUnderlineOn", ESCPOS_UNDERLINE_ON);
-        tags.put("EscposUnderlineOff", ESCPOS_UNDERLINE_OFF);
-        tags.put("EscposDoubleStrikeOn", ESCPOS_DOUBLE_STRIKE_ON);
-        tags.put("EscposDoubleStrikeOff", ESCPOS_DOUBLE_STRIKE_OFF);
-        tags.put("EscposPrintColor1", ESCPOS_PRINT_COLOR1);
-        tags.put("EscposPrintColor2", ESCPOS_PRINT_COLOR2);
-        tags.put("EscposCharacterTablePC437", ESCPOS_CHARACTER_TABLE_PC437);
-        tags.put("EscposCharacterTablePC850", ESCPOS_CHARACTER_TABLE_PC850);
-        tags.put("EscposFullCut", ESCPOS_FULL_CUT);
-        tags.put("EscposPartialCut", ESCPOS_PARTIAL_CUT);
-    }
-
-
-    /**
-     *
-     */
-    public void print(Object printData, String printer, DocFlavor flavor) {
-
-        // Set print attributes:
-        PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
-        aset.add(MediaSizeName.ISO_A4);
-
-        try {
-            DocPrintJob pj = getPrintService(printer).createPrintJob();
-            Doc doc = new SimpleDoc(printData, flavor, null);
-            pj.print(doc, aset);
-        } catch (PrintException pe) {
-            Main.logger.fatal(pe);
-        }
-    }
-
-    public PrintService getPrintService(String printername) throws PrintException {
-
-        PrintService ps = null;
-
-//        if (psprinter) {
-//            ps = postscript;
-//        } else {
-//            ps = label;
-//        }
-
-        if (ps == null) {
-
-            PrintService[] prservices = PrintServiceLookup.lookupPrintServices(null, null);
-            int idxPrintService = -1;
-            for (int i = 0; i < prservices.length; i++) {
-                Main.debug("  " + i + ":  " + prservices[i]);
-                if (prservices[i].getName().equals(printername)) {
-                    idxPrintService = i;
-                }
-            }
-            if (idxPrintService < 0) {
-                throw new PrintException("Service for " + printername + " not found.");
-            }
-            ps = prservices[idxPrintService];
-        }
-
-//        if (psprinter) {
-//            postscript = ps;
-//        } else {
-//            label = ps;
-//        }
-
-        return ps;
-    }
-
-    /**
-     * Standard Druck Routine. Nimmt einen HTML Text entgegen und öffnet den lokal installierten Browser damit.
-     * Erstellt temporäre Dateien im temp Verzeichnis kueche<irgendwas>.html
-     *
-     * @param parent
-     * @param html
-     * @param addPrintJScript - Auf Wunsch kann an das HTML automatisch eine JScript Druckroutine angehangen werden.
-     */
-    public static void print(Component parent, String html, boolean addPrintJScript) {
-        try {
-            // Create temp file.
-            File temp = File.createTempFile("kueche", ".html");
-
-            // Delete temp file when program exits.
-            temp.deleteOnExit();
-
-            if (addPrintJScript) {
-                html = "<html><head><script type=\"text/javascript\">"
-                        + "window.onload = function() {"
-                        + "window.print();"
-                        + "}</script>"
-                        + Main.getCSS()
-                        + "</head><body>" + Tools.htmlUmlautConversion(html)
-                        + "<hr/><span id=\"fonttext\"><b>Ende des Berichtes</b><br/>http://www.offene-pflege.de/component/content/article/3-informationen/16-kueche</span></body></html>";
-            } else {
-                html = "<html><head>" + Main.getCSS() + "</head><body>" + Tools.htmlUmlautConversion(html)
-                        + "<hr/><span id=\"fonttext\"><b>Ende des Berichtes</b><br/>http://www.offene-pflege.de/component/content/article/3-informationen/16-kueche</span></body></html>";
-            }
-
-            Main.logger.debug(html);
-
-            // Write to temp file
-            BufferedWriter out = new BufferedWriter(new FileWriter(temp));
-            out.write(html);
-
-            out.close();
-            Tools.handleFile(parent, temp.getAbsolutePath(), Desktop.Action.OPEN);
-        } catch (IOException e) {
-            new DlgException(e);
-        }
-    }
 
 //    private static void printPrintServiceAttributesAndDocFlavors(PrintService prserv) {
 //        String s1 = null, s2;

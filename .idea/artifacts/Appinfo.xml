@@ -1,9 +1,6 @@
 <component name="ArtifactManager">
   <artifact build-on-make="true" name="Appinfo">
-    <output-path>$PROJECT_DIR$/out/production/Kueche</output-path>
-    <properties id="ant-preprocessing">
-      <options enabled="true" />
-    </properties>
+    <output-path>$PROJECT_DIR$/out/production/Offene-Kueche.de</output-path>
     <root id="root">
       <element id="file-copy" path="$PROJECT_DIR$/appinfo.properties" />
     </root>

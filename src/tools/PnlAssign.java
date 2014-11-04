@@ -35,6 +35,10 @@ public class PnlAssign<T> extends JPanel {
         this(new ArrayList<T>(assigned), all, cellRenderer);
     }
 
+    public JTextField getDefaultFocusComponent() {
+        return txtSearch;
+    }
+
     public PnlAssign(ArrayList<T> assigned, ArrayList<T> all, ListCellRenderer<T> cellRenderer) {
         this.assigned = assigned;
         this.all = all;
@@ -157,7 +161,7 @@ public class PnlAssign<T> extends JPanel {
 
         //======== dialogPane ========
         {
-            dialogPane.setBorder(Borders.createEmptyBorder("9dlu, 9dlu, 9dlu, 9dlu"));
+            dialogPane.setBorder(Borders.createEmptyBorder("7dlu, 7dlu, 7dlu, 7dlu"));
             dialogPane.setLayout(new BoxLayout(dialogPane, BoxLayout.X_AXIS));
 
             //======== contentPanel ========

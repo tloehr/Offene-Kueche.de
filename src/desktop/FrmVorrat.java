@@ -662,28 +662,28 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
 
-                        int[] rows = tblVorrat.getSelectedRows();
-                        //                        VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
-                        EntityManager em = Main.getEMF().createEntityManager();
-                        try {
-                            em.getTransaction().begin();
-                            for (int r = 0; r < rows.length; r++) {
-                                int row = tblVorrat.convertRowIndexToModel(rows[r]);
-                                Vorrat vorrat = em.merge(tm.getVorrat(row));
-                                em.lock(vorrat, LockModeType.OPTIMISTIC);
-                                VorratTools.reaktivieren(em, vorrat);
-                            }
-                            em.getTransaction().commit();
-                            loadVorratTable();
-                        } catch (OptimisticLockException ole) {
-                            Main.warn(ole);
-                            em.getTransaction().rollback();
-                        } catch (Exception e1) {
-                            em.getTransaction().rollback();
-                        } finally {
-                            em.close();
+                    int[] rows = tblVorrat.getSelectedRows();
+                    //                        VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+                    EntityManager em = Main.getEMF().createEntityManager();
+                    try {
+                        em.getTransaction().begin();
+                        for (int r = 0; r < rows.length; r++) {
+                            int row = tblVorrat.convertRowIndexToModel(rows[r]);
+                            Vorrat vorrat = em.merge(tm.getVorrat(row));
+                            em.lock(vorrat, LockModeType.OPTIMISTIC);
+                            VorratTools.reaktivieren(em, vorrat);
                         }
+                        em.getTransaction().commit();
+                        loadVorratTable();
+                    } catch (OptimisticLockException ole) {
+                        Main.warn(ole);
+                        em.getTransaction().rollback();
+                    } catch (Exception e1) {
+                        em.getTransaction().rollback();
+                    } finally {
+                        em.close();
                     }
+                }
 
             });
             menu.add(itemChangeProduct);
@@ -1086,11 +1086,11 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         contentPane.setLayout(contentPaneLayout);
         contentPaneLayout.setHorizontalGroup(
                 contentPaneLayout.createParallelGroup()
-                        .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 1313, Short.MAX_VALUE)
+                        .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 1315, Short.MAX_VALUE)
         );
         contentPaneLayout.setVerticalGroup(
                 contentPaneLayout.createParallelGroup()
-                        .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 671, Short.MAX_VALUE)
+                        .addComponent(pnlMain, GroupLayout.DEFAULT_SIZE, 662, Short.MAX_VALUE)
         );
 
         //---- buttonGroup1 ----
