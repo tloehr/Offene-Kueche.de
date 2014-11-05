@@ -70,6 +70,12 @@ public class Recipes {
 //
 
 
+    public Recipes() {
+    }
+
+    public Recipes(String title) {
+        this.title = title;
+    }
 
     @Version
     @Column(name = "version")

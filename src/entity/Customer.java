@@ -1,7 +1,6 @@
 package entity;
 
 import javax.persistence.*;
-import java.util.Collection;
 
 /**
  * Created by tloehr on 08.10.14.
@@ -167,15 +166,7 @@ public class Customer {
     }
 
 
-    @JoinColumn(name = "customerid", referencedColumnName = "id", nullable = false)
-    @OneToMany
-    private Collection<Menuweek2Customer> menuweek2Customers;
 
-    public Collection<Menuweek2Customer> getMenuweek2Customers() {
-        return menuweek2Customers;
-    }
 
-    public void setMenuweek2Customers(Collection<Menuweek2Customer> menuweek2Customers) {
-        this.menuweek2Customers = menuweek2Customers;
-    }
+
 }

@@ -20,6 +20,5 @@
         <class>entity.Customergroups</class>
         <class>entity.Recipefeature</class>
         <class>entity.Menuweek</class>
-        <class>entity.Menuweek2Customer</class>
     </persistence-unit>
 </persistence>

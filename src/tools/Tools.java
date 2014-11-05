@@ -347,10 +347,10 @@ public class Tools {
 //        return dcbm;
 //    }
 
-    public static DefaultComboBoxModel newComboboxModel(List list) {
-        DefaultComboBoxModel model = new DefaultComboBoxModel();
+    public static <T> DefaultComboBoxModel<T> newComboboxModel(ArrayList<T> list) {
+        DefaultComboBoxModel<T> model = new DefaultComboBoxModel<T>();
         if (list != null) {
-            Iterator it = list.iterator();
+            Iterator<T> it = list.iterator();
             while (it.hasNext()) {
                 model.addElement(it.next());
             }

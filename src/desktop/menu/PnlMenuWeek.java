@@ -4,11 +4,18 @@
 
 package desktop.menu;
 
+import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
+import entity.Customer;
 import entity.Menuweek;
+import entity.RecipeFeatureTools;
+import entity.Recipefeature;
 import org.joda.time.LocalDate;
+import tools.Tools;
 
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -37,7 +44,9 @@ public class PnlMenuWeek extends JPanel {
     }
 
 
-    private void initPanel(){
+    private void initPanel() {
+
+        cmbFeature.setModel(Tools.newComboboxModel(RecipeFeatureTools.getAll()));
 
         sdf = new SimpleDateFormat(format);
 
@@ -59,25 +68,74 @@ public class PnlMenuWeek extends JPanel {
 
         int y = 5;
         int h = 4;
-        add(mon, CC.xy(1, y+(h*0)));
-        add(tue, CC.xy(1, y+(h*1)));
-        add(wed, CC.xy(1, y+(h*2)));
-        add(thu, CC.xy(1, y+(h*3)));
-        add(fri, CC.xy(1, y+(h*4)));
-        add(sat, CC.xy(1, y+(h*5)));
-        add(sun, CC.xy(1, y+(h*6)));
-
+        add(mon, CC.xy(1, y + (h * 0)));
+        add(tue, CC.xy(1, y + (h * 1)));
+        add(wed, CC.xy(1, y + (h * 2)));
+        add(thu, CC.xy(1, y + (h * 3)));
+        add(fri, CC.xy(1, y + (h * 4)));
+        add(sat, CC.xy(1, y + (h * 5)));
+        add(sun, CC.xy(1, y + (h * 6)));
 
 
     }
 
     private void btnSaveActionPerformed(ActionEvent e) {
-        // TODO add your code here
+        EntityManager em = Main.getEMF().createEntityManager();
+        try {
+            em.getTransaction().begin();
+            Menuweek myMenuweek = em.merge(menuweek);
+            em.lock(myMenuweek, LockModeType.OPTIMISTIC);
+
+            entity.Menu monMenu = em.merge(mon.getMenu());
+            em.lock(monMenu, LockModeType.OPTIMISTIC);
+            myMenuweek.setMon(monMenu);
+
+            entity.Menu tueMenu = em.merge(tue.getMenu());
+            em.lock(tueMenu, LockModeType.OPTIMISTIC);
+            myMenuweek.setTue(tueMenu);
+
+            entity.Menu wedMenu = em.merge(wed.getMenu());
+            em.lock(wedMenu, LockModeType.OPTIMISTIC);
+            myMenuweek.setWed(wedMenu);
+
+            entity.Menu thuMenu = em.merge(thu.getMenu());
+            em.lock(thuMenu, LockModeType.OPTIMISTIC);
+            myMenuweek.setThu(thuMenu);
+
+            entity.Menu friMenu = em.merge(fri.getMenu());
+            em.lock(friMenu, LockModeType.OPTIMISTIC);
+            myMenuweek.setFri(friMenu);
+
+            entity.Menu satMenu = em.merge(sat.getMenu());
+            em.lock(satMenu, LockModeType.OPTIMISTIC);
+            myMenuweek.setSat(satMenu);
+
+            entity.Menu sunMenu = em.merge(sun.getMenu());
+            em.lock(sunMenu, LockModeType.OPTIMISTIC);
+            myMenuweek.setSun(sunMenu);
+
+            myMenuweek.setRecipefeature(em.merge((Recipefeature) cmbFeature.getSelectedItem()));
+
+            myMenuweek.getCustomers().clear();
+            myMenuweek.getCustomers().addAll(lstCustomers.getSelectedValuesList());
+
+            em.getTransaction().commit();
+        } catch (Exception ex) {
+            Main.fatal(ex);
+        } finally {
+            em.close();
+        }
+    }
+
+    private void btnAddCustomerActionPerformed(ActionEvent e) {
+        adhjakd;
     }
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-        cmbFeature = new JComboBox();
+        cmbFeature = new JComboBox<Recipefeature>();
+        scrollPane1 = new JScrollPane();
+        lstCustomers = new JList<Customer>();
         lblMon = new JLabel();
         lblTue = new JLabel();
         lblWed = new JLabel();
@@ -85,15 +143,23 @@ public class PnlMenuWeek extends JPanel {
         lblFri = new JLabel();
         lblSat = new JLabel();
         lblSun = new JLabel();
+        panel2 = new JPanel();
+        btnAddCustomer = new JButton();
         panel1 = new JPanel();
         btnSave = new JButton();
         btnRevert = new JButton();
 
         //======== this ========
         setLayout(new FormLayout(
-            "default:grow",
+            "default:grow, $lcgap, default",
             "15*(default, $lgap), fill:default:grow"));
-        add(cmbFeature, CC.xy(1, 1));
+        add(cmbFeature, CC.xywh(1, 1, 3, 1));
+
+        //======== scrollPane1 ========
+        {
+            scrollPane1.setViewportView(lstCustomers);
+        }
+        add(scrollPane1, CC.xywh(3, 3, 1, 25));
 
         //---- lblMon ----
         lblMon.setText("text");
@@ -132,6 +198,23 @@ public class PnlMenuWeek extends JPanel {
         lblSun.setForeground(Color.red);
         add(lblSun, CC.xy(1, 27, CC.CENTER, CC.DEFAULT));
 
+        //======== panel2 ========
+        {
+            panel2.setLayout(new BoxLayout(panel2, BoxLayout.X_AXIS));
+
+            //---- btnAddCustomer ----
+            btnAddCustomer.setText(null);
+            btnAddCustomer.setIcon(new ImageIcon(getClass().getResource("/artwork/16x16/edit_add.png")));
+            btnAddCustomer.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    btnAddCustomerActionPerformed(e);
+                }
+            });
+            panel2.add(btnAddCustomer);
+        }
+        add(panel2, CC.xy(3, 29, CC.RIGHT, CC.DEFAULT));
+
         //======== panel1 ========
         {
             panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
@@ -150,12 +233,14 @@ public class PnlMenuWeek extends JPanel {
             btnRevert.setText("revert");
             panel1.add(btnRevert);
         }
-        add(panel1, CC.xy(1, 31, CC.RIGHT, CC.DEFAULT));
+        add(panel1, CC.xywh(1, 31, 3, 1, CC.RIGHT, CC.DEFAULT));
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    private JComboBox cmbFeature;
+    private JComboBox<Recipefeature> cmbFeature;
+    private JScrollPane scrollPane1;
+    private JList<Customer> lstCustomers;
     private JLabel lblMon;
     private JLabel lblTue;
     private JLabel lblWed;
@@ -163,6 +248,8 @@ public class PnlMenuWeek extends JPanel {
     private JLabel lblFri;
     private JLabel lblSat;
     private JLabel lblSun;
+    private JPanel panel2;
+    private JButton btnAddCustomer;
     private JPanel panel1;
     private JButton btnSave;
     private JButton btnRevert;

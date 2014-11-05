@@ -1,0 +1,41 @@
+JFDML JFormDesigner: "5.2.0.0.109" Java: "1.6.0_65" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+			"$columnSpecs": "default:grow"
+			"$rowSpecs": "default, linegap, pref, linegap, default, linegap, default, linegap, default"
+		} ) {
+			name: "this"
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "lblPrt1"
+				"text": "Drucker 1"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 1
+				"gridY": 1
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "cmbPhysicalPrinter1"
+				addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbPhysicalPrinter1ItemStateChanged", true ) )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 3
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "cmbLogicalPrinter1"
+				addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbLogicalPrinter1ItemStateChanged", true ) )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 5
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "cmbForm1"
+				addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbForm1ItemStateChanged", true ) )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 7
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 400, 300 )
+		} )
+	}
+}

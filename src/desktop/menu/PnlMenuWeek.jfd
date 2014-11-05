@@ -4,15 +4,30 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-			"$columnSpecs": "default:grow"
+			"$columnSpecs": "default:grow, labelcompgap, default"
 			"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, fill:default:grow"
 		} ) {
 			name: "this"
 			add( new FormComponent( "javax.swing.JComboBox" ) {
 				name: "cmbFeature"
+				auxiliary() {
+					"JavaCodeGenerator.typeParameters": "Recipefeature"
+				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 1
+				"gridWidth": 3
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane1"
+				add( new FormComponent( "javax.swing.JList" ) {
+					name: "lstCustomers"
+					auxiliary() {
+						"JavaCodeGenerator.typeParameters": "Customer"
+					}
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"gridHeight": 25
+				"gridY": 3
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "lblMon"
@@ -79,6 +94,21 @@ new FormModel {
 				"gridY": 27
 				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints CENTER
 			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+				"axis": 0
+			} ) {
+				name: "panel2"
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnAddCustomer"
+					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/16x16/edit_add.png" )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnAddCustomerActionPerformed", true ) )
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"gridY": 29
+				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints RIGHT
+			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
 				name: "panel1"
 				add( new FormComponent( "javax.swing.JButton" ) {
@@ -93,6 +123,7 @@ new FormModel {
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridY": 31
 				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints RIGHT
+				"gridWidth": 3
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )

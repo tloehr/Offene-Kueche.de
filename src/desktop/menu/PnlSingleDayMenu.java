@@ -16,10 +16,7 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 
 /**
@@ -68,13 +65,19 @@ public class PnlSingleDayMenu extends JPanel {
                 searcherCaretUpdate(e);
             }
         });
+        searcher.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                super.focusLost(e);
+                searcherFocusLostListener(e);
+            }
+        });
         searcher.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
         topLine.add(searcher);
 
 
-        JButton buttonDelete = new JButton("X");
-        buttonDelete.setIcon(Const.icon24remove);
+        JButton buttonDelete = new JButton(Const.icon24remove);
         buttonDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -85,7 +88,35 @@ public class PnlSingleDayMenu extends JPanel {
         topLine.add(buttonDelete);
 
         add(topLine);
-        add(new JLabel(menu.getRecipe() == null ? "--" : menu.getRecipe().getTitle()));
+//        add(new JLabel(menu.getRecipe() == null ? "--" : menu.getRecipe().getTitle()));
+    }
+
+    private void searcherFocusLostListener(FocusEvent e) {
+        if (!searcher.getText().trim().isEmpty() && dlm.isEmpty()) {
+            if (JOptionPane.showInternalConfirmDialog(Main.getMainframe(), "Das Rezept kenne ich noch gar nicht.\n" +
+                            "Achte darauf, dass alles richtig geschrieben ist\n\n" +
+                            "Soll ich das mit aufnehmen ?", "Neues Rezept",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE)
+                    == JOptionPane.YES_OPTION) {
+
+//                   menu.setRecipe(new Recipes(searcher.getText().trim()));
+
+                EntityManager em = Main.getEMF().createEntityManager();
+                try {
+                    em.getTransaction().begin();
+                    Recipes newRecipe = em.merge(new Recipes(searcher.getText().trim()));
+                    em.getTransaction().commit();
+
+                    menu.setRecipe(newRecipe);
+
+                } catch (Exception ex) {
+                    Main.fatal(ex);
+                } finally {
+                    em.close();
+                }
+            }
+        }
     }
 
 

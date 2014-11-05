@@ -257,6 +257,8 @@ public class FrmProdukte extends JInternalFrame {
             em.getTransaction().commit();
             success = true;
 
+            ptm.update(neuesProdukt);
+
 
         } catch (OptimisticLockException ole) {
             Main.warn(ole);
@@ -303,7 +305,6 @@ public class FrmProdukte extends JInternalFrame {
             final int thisRow = tblProdukt.convertRowIndexToModel(row);
             final PnlAssign<Allergene> pnlAssign = new PnlAssign<Allergene>(ptm.getProdukt(thisRow).getAllergenes(), AllergeneTools.getAll(), AllergeneTools.getListCellRenderer());
 
-//            popup.setMovable(true);
             popup.setTransient(true);
             popup.setOwner(tblProdukt);
             popup.getContentPane().add(pnlAssign);

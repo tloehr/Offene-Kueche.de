@@ -4,6 +4,8 @@ import org.joda.time.LocalDate;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by tloehr on 14.10.14.
@@ -137,12 +139,22 @@ public class Menuweek {
     }
 
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "menuweek2customer", joinColumns =
+    @JoinColumn(name = "menuweekid"), inverseJoinColumns =
+    @JoinColumn(name = "customerid"))
+    private Set<Customer> customers;
+
+    public Set<Customer> getCustomers() {
+        return customers;
+    }
+
     public Menuweek(Date week) {
         this.week = new LocalDate(week).dayOfWeek().withMinimumValue().toDateTimeAtStartOfDay().toDate();
+        customers = new HashSet<Customer>();
     }
 
     public Menuweek() {
-
     }
 
     @Version

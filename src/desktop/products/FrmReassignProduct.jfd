@@ -51,6 +51,15 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "xSearchField2ActionPerformed", true ) )
 					addEvent( new FormEvent( "java.awt.event.FocusListener", "focusGained", "xSearchField2FocusGained", true ) )
 				} )
+				add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+					name: "hSpacer2"
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnAddProduct"
+					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_add.png" )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnAddProductActionPerformed", true ) )
+				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridY": 5
 			} )

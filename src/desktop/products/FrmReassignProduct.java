@@ -8,10 +8,7 @@ import Main.Main;
 import beans.PrintListElement;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
-import entity.Produkte;
-import entity.ProdukteTools;
-import entity.Vorrat;
-import entity.VorratTools;
+import entity.*;
 import org.jdesktop.swingx.JXSearchField;
 import printer.Form;
 import printer.Printer;
@@ -64,10 +61,10 @@ public class FrmReassignProduct extends JInternalFrame {
             Main.getProps().put("reassign1printer", "3");
         }
 
-        btnPrt1.setSelected(Main.getProps().getProperty("touch1printer").equals("0"));
-        btnPrt2.setSelected(Main.getProps().getProperty("touch1printer").equals("1"));
-        btnPrtPage.setSelected(Main.getProps().getProperty("touch1printer").equals("2"));
-        btnPrtNone.setSelected(Main.getProps().getProperty("touch1printer").equals("3"));
+        btnPrt1.setSelected(Main.getProps().getProperty("reassign1printer").equals("0"));
+        btnPrt2.setSelected(Main.getProps().getProperty("reassign1printer").equals("1"));
+        btnPrtPage.setSelected(Main.getProps().getProperty("reassign1printer").equals("2"));
+        btnPrtNone.setSelected(Main.getProps().getProperty("reassign1printer").equals("3"));
 
 
     }
@@ -289,22 +286,42 @@ public class FrmReassignProduct extends JInternalFrame {
             String gtin = ProdukteTools.getGTIN(xSearchField2.getText().trim());
             productDestination = ProdukteTools.getProduct(gtin);
 
-            if (productDestination == null) {
-                txtDestination.setText("Hab nichts gefunden.");
-                return;
-            }
+
         }
+//
+//        String text = "Produkt: [" + productDestination.getId() + "] " + productDestination.getBezeichnung() + (!productDestination.isLoseWare() ? ", GTIN: " + productDestination.getGtin() : "") + "\n";
+//        text += vorratDestination == null ? "" : "Angegebener Vorrat: " + vorratDestination.toString() + "\n";
 
-        String text = "Produkt: [" + productDestination.getId() + "] " + productDestination.getBezeichnung() + (!productDestination.isLoseWare() ? ", GTIN: " + productDestination.getGtin() : "") + "\n";
-        text += vorratDestination == null ? "" : "Angegebener Vorrat: " + vorratDestination.toString() + "\n";
-
-        txtDestination.setText(text);
+        txtDestination.setText(getTextDestination());
 
         xSearchField2.requestFocus();
     }
 
     private void xSearchField2FocusGained(FocusEvent e) {
         xSearchField2.selectAll();
+    }
+
+    private void btnAddProductActionPerformed(ActionEvent e) {
+
+        final DlgProdukt dlg = new DlgProdukt(Main.mainframe, new Produkte(IngTypesTools.getFirstType()));
+        dlg.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                super.componentHidden(e);
+                productDestination = dlg.getProduct();
+                txtDestination.setText(getTextDestination());
+                xSearchField2.requestFocus();
+            }
+        });
+    }
+
+    private String getTextDestination() {
+        if (productDestination == null) {
+            return "Hab nichts gefunden.";
+        }
+        String text = "Produkt: [" + productDestination.getId() + "] " + productDestination.getBezeichnung() + (!productDestination.isLoseWare() ? ", GTIN: " + productDestination.getGtin() : "") + "\n";
+        text += vorratDestination == null ? "" : "Angegebener Vorrat: " + vorratDestination.toString() + "\n";
+        return text;
     }
 
     private void initComponents() {
@@ -316,6 +333,8 @@ public class FrmReassignProduct extends JInternalFrame {
         label1 = new JLabel();
         hSpacer1 = new JPanel(null);
         xSearchField2 = new JXSearchField();
+        hSpacer2 = new JPanel(null);
+        btnAddProduct = new JButton();
         scrollPane2 = new JScrollPane();
         txtDestination = new JTextArea();
         btnChangeSingle = new JButton();
@@ -334,8 +353,8 @@ public class FrmReassignProduct extends JInternalFrame {
         setResizable(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-                "default:grow",
-                "default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:default:grow, 3*($lgap, default)"));
+            "default:grow",
+            "default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:default:grow, 3*($lgap, default)"));
 
         //---- xSearchField1 ----
         xSearchField1.setFont(new Font("SansSerif", Font.PLAIN, 18));
@@ -393,6 +412,18 @@ public class FrmReassignProduct extends JInternalFrame {
                 }
             });
             panel2.add(xSearchField2);
+            panel2.add(hSpacer2);
+
+            //---- btnAddProduct ----
+            btnAddProduct.setText(null);
+            btnAddProduct.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit_add.png")));
+            btnAddProduct.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    btnAddProductActionPerformed(e);
+                }
+            });
+            panel2.add(btnAddProduct);
         }
         contentPane.add(panel2, CC.xy(1, 5));
 
@@ -501,6 +532,8 @@ public class FrmReassignProduct extends JInternalFrame {
     private JLabel label1;
     private JPanel hSpacer1;
     private JXSearchField xSearchField2;
+    private JPanel hSpacer2;
+    private JButton btnAddProduct;
     private JScrollPane scrollPane2;
     private JTextArea txtDestination;
     private JButton btnChangeSingle;
