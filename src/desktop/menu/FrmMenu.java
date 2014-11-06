@@ -4,13 +4,15 @@
 
 package desktop.menu;
 
-import com.jgoodies.forms.factories.CC;
-import com.jgoodies.forms.layout.FormLayout;
+import Main.Main;
 import com.toedter.calendar.JDateChooser;
 import entity.Menuweek;
 import entity.MenuweekTools;
+import entity.Recipefeature;
+import org.apache.commons.collections.Closure;
 import org.joda.time.LocalDate;
 
+import javax.persistence.EntityManager;
 import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
@@ -22,7 +24,9 @@ import java.util.ArrayList;
  */
 public class FrmMenu extends JInternalFrame {
     LocalDate week;
-
+    ArrayList<Menuweek> menus;
+//    JScrollPane scrlMain;
+    JPanel pnlMain;
 
     public FrmMenu() {
         week = new LocalDate().dayOfWeek().withMinimumValue();
@@ -30,18 +34,62 @@ public class FrmMenu extends JInternalFrame {
         initFrame();
     }
 
+    public void addMenu(final Menuweek menuweek) {
+        menus.add(menuweek);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                pnlMain.add(new PnlMenuWeek(menuweek, new Closure() {
+                    @Override
+                    public void execute(Object o) {
+                        Main.debug(o);
+                    }
+                }));
+                revalidate();
+                repaint();
+            }
+        });
+    }
+
+    public void deleteMenu(final Menuweek menuweek, final PnlMenuWeek pnlMenuWeek) {
+        menus.remove(menuweek);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                pnlMain.remove(pnlMenuWeek);
+                revalidate();
+                repaint();
+            }
+        });
+    }
+
     private void initFrame() {
-        ArrayList<Menuweek> menus = MenuweekTools.getAll(week);
+        menus = MenuweekTools.getAll(week);
+        pnlMain = new JPanel(new GridLayout(1,0,10,0));
+        add(new JScrollPane(pnlMain), BorderLayout.CENTER);
+
+        EntityManager em = Main.getEMF().createEntityManager();
+        Recipefeature featureNormal = em.find(Recipefeature.class, 4l);
+        em.close();
 
         pnlMain.removeAll();
-        pnlMain.setLayout(new GridLayout(1, Math.max(1, menus.size()), 5, 5));
 
 
         if (menus.isEmpty()) {
-            pnlMain.add(new PnlMenuWeek(new Menuweek(week.toDate())));
+            pnlMain.add(new PnlMenuWeek(new Menuweek(week.toDate(), featureNormal), new Closure() {
+                @Override
+                public void execute(Object o) {
+                    Main.debug(o);
+                }
+            }));
         } else {
             for (Menuweek menuweek : menus) {
-                pnlMain.add(new PnlMenuWeek(menuweek));
+                pnlMain.add(new PnlMenuWeek(menuweek, new Closure() {
+                    @Override
+                    public void execute(Object o) {
+                        Main.debug(o);
+                    }
+                }));
             }
         }
 
@@ -58,8 +106,6 @@ public class FrmMenu extends JInternalFrame {
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         jdcWeek = new JDateChooser();
-        scrlMain = new JScrollPane();
-        pnlMain = new JPanel();
 
         //======== this ========
         setVisible(true);
@@ -68,9 +114,7 @@ public class FrmMenu extends JInternalFrame {
         setMaximizable(true);
         setResizable(true);
         Container contentPane = getContentPane();
-        contentPane.setLayout(new FormLayout(
-            "pref:grow",
-            "fill:pref, $lgap, fill:default:grow"));
+        contentPane.setLayout(new BorderLayout());
 
         //---- jdcWeek ----
         jdcWeek.setDateFormatString("'KW'w yyyy");
@@ -81,24 +125,11 @@ public class FrmMenu extends JInternalFrame {
                 jdcWeekPropertyChange(e);
             }
         });
-        contentPane.add(jdcWeek, CC.xy(1, 1));
-
-        //======== scrlMain ========
-        {
-
-            //======== pnlMain ========
-            {
-                pnlMain.setLayout(new GridLayout(1, 1, 5, 5));
-            }
-            scrlMain.setViewportView(pnlMain);
-        }
-        contentPane.add(scrlMain, CC.xy(1, 3));
+        contentPane.add(jdcWeek, BorderLayout.NORTH);
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     private JDateChooser jdcWeek;
-    private JScrollPane scrlMain;
-    private JPanel pnlMain;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

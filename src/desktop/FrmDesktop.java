@@ -56,6 +56,9 @@ public class FrmDesktop extends JFrame {
         return (FrmProdukte) produkte;
     }
 
+    public FrmMenu getMenuweek() {
+        return (FrmMenu) menuweek;
+    }
 
     public FrmDesktop() {
         initComponents();

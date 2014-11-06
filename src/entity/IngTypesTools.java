@@ -132,7 +132,7 @@ public class IngTypesTools {
         Query query = em.createQuery("SELECT s FROM IngTypes s ORDER BY s.bezeichnung");
         try {
             java.util.List stoffarten = query.getResultList();
-            cmb.setModel(tools.Tools.newComboboxModel(stoffarten));
+            cmb.setModel(tools.Tools.newComboboxModel(new ArrayList<IngTypes>(stoffarten)));
         } catch (Exception e) { // nicht gefunden
             //
         } finally {

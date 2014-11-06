@@ -149,7 +149,8 @@ public class Menuweek {
         return customers;
     }
 
-    public Menuweek(Date week) {
+    public Menuweek(Date week, Recipefeature recipefeature) {
+        this.recipefeature = recipefeature;
         this.week = new LocalDate(week).dayOfWeek().withMinimumValue().toDateTimeAtStartOfDay().toDate();
         customers = new HashSet<Customer>();
     }

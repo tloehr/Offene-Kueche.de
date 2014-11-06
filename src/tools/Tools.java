@@ -332,6 +332,21 @@ public class Tools {
     }
 
 
+    public static <T> DefaultListModel<T> newListModel(List<T> listAll, HashSet<T> without) {
+        DefaultListModel<T> listModel = new DefaultListModel<T>();
+        if (listAll != null) {
+            Iterator<T> it = listAll.iterator();
+            while (it.hasNext()) {
+                T t = it.next();
+                if (!without.contains(t)) {
+                    listModel.addElement(t);
+                }
+            }
+        }
+        return listModel;
+    }
+
+
 //    public static DefaultComboBoxModel newComboboxModel(String jpql, Object[]... params) {
 //        EntityManager em = Main.getEMF().createEntityManager();
 //        Query query = em.createQuery(jpql);
@@ -517,19 +532,19 @@ public class Tools {
     }
 
     public static String left(String text, int size) {
-         return left(text, size, "...");
-     }
+        return left(text, size, "...");
+    }
 
-     public static String left(String text, int size, String abrev) {
-         //        OPDE.debug("IN: " + text);
-         int originalLaenge = text.length();
-         int max = Math.min(size, originalLaenge);
-         text = text.substring(0, max);
-         if (max < originalLaenge) {
-             text += abrev;
-         }
-         return text;
-     }
+    public static String left(String text, int size, String abrev) {
+        //        OPDE.debug("IN: " + text);
+        int originalLaenge = text.length();
+        int max = Math.min(size, originalLaenge);
+        text = text.substring(0, max);
+        if (max < originalLaenge) {
+            text += abrev;
+        }
+        return text;
+    }
 
 
     /**
@@ -1437,37 +1452,37 @@ public class Tools {
 
 
     /**
-      * http://stackoverflow.com/questions/2234476/how-to-detect-the-current-display-with-java
-      *
-      * @param myWindow
-      * @return
-      */
-     public static GraphicsDevice getCurrentScreen(JFrame myWindow) {
+     * http://stackoverflow.com/questions/2234476/how-to-detect-the-current-display-with-java
+     *
+     * @param myWindow
+     * @return
+     */
+    public static GraphicsDevice getCurrentScreen(JFrame myWindow) {
 
-         GraphicsConfiguration config = myWindow.getGraphicsConfiguration();
-         return config.getDevice();
+        GraphicsConfiguration config = myWindow.getGraphicsConfiguration();
+        return config.getDevice();
 
-     }
+    }
 
-     public static Rectangle getScreenSize(GraphicsDevice myScreen) {
-         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    public static Rectangle getScreenSize(GraphicsDevice myScreen) {
+        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
-         // AFAIK - there are no guarantees that screen devices are in order...
-         // but they have been on every system I've used.
-         GraphicsDevice[] allScreens = env.getScreenDevices();
-         int myScreenIndex = -1;
-         for (int i = 0; i < allScreens.length; i++) {
-             if (allScreens[i].equals(myScreen)) {
-                 myScreenIndex = i;
-                 break;
-             }
-         }
- //        System.out.println("window is on screen" + myScreenIndex);
+        // AFAIK - there are no guarantees that screen devices are in order...
+        // but they have been on every system I've used.
+        GraphicsDevice[] allScreens = env.getScreenDevices();
+        int myScreenIndex = -1;
+        for (int i = 0; i < allScreens.length; i++) {
+            if (allScreens[i].equals(myScreen)) {
+                myScreenIndex = i;
+                break;
+            }
+        }
+        //        System.out.println("window is on screen" + myScreenIndex);
 
-         return GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[myScreenIndex].getDefaultConfiguration().getBounds();
+        return GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[myScreenIndex].getDefaultConfiguration().getBounds();
 
 
-     }
+    }
 
 
 }

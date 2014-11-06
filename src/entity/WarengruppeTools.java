@@ -80,7 +80,7 @@ public class WarengruppeTools {
         Query query = em.createQuery("SELECT w from Warengruppe w ORDER BY w.bezeichnung");
         try {
             java.util.List warengruppe = query.getResultList();
-            cmb.setModel(tools.Tools.newComboboxModel(warengruppe));
+            cmb.setModel(tools.Tools.newComboboxModel(new ArrayList<Warengruppe>(warengruppe)));
         } catch (Exception e) { // nicht gefunden
             //
         } finally {

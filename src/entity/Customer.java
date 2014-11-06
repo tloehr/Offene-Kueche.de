@@ -153,20 +153,37 @@ public class Customer {
         this.email = email;
     }
 
-    @JoinColumn(name = "group", referencedColumnName = "id", nullable = false)
-    @ManyToOne(optional = false)
-    private Customergroups group;
+//    @JoinColumn(name = "group", referencedColumnName = "id", nullable = false)
+//    @ManyToOne(optional = false)
+//    private Customergroups group;
+//
+//    public Customergroups getGroup() {
+//        return group;
+//    }
+//
+//    public void setGroup(Customergroups group) {
+//        this.group = group;
+//    }
 
-    public Customergroups getGroup() {
-        return group;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Customer customer = (Customer) o;
+
+        if (id != customer.id) return false;
+        if (abbrev != null ? !abbrev.equals(customer.abbrev) : customer.abbrev != null) return false;
+
+        return true;
     }
 
-    public void setGroup(Customergroups group) {
-        this.group = group;
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (abbrev != null ? abbrev.hashCode() : 0);
+
+        return result;
     }
-
-
-
-
-
 }

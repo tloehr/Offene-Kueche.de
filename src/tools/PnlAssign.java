@@ -7,7 +7,6 @@ package tools;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
-import org.apache.commons.lang.ArrayUtils;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -19,6 +18,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -26,7 +26,7 @@ import java.util.Set;
  */
 public class PnlAssign<T> extends JPanel {
 
-    private ArrayList<T> assigned;
+    private HashSet<T> assigned;
     private final ArrayList<T> all;
     private final ListCellRenderer<T> cellRenderer;
 
@@ -40,7 +40,7 @@ public class PnlAssign<T> extends JPanel {
     }
 
     public PnlAssign(ArrayList<T> assigned, ArrayList<T> all, ListCellRenderer<T> cellRenderer) {
-        this.assigned = assigned;
+        this.assigned = new HashSet<T>(assigned);
         this.all = all;
         this.cellRenderer = cellRenderer;
         initComponents();
@@ -48,8 +48,8 @@ public class PnlAssign<T> extends JPanel {
     }
 
     private void initPanel() {
-        listAll.setModel(Tools.newListModel(all));
-        listAssigned.setModel(Tools.newListModel(assigned));
+        listAll.setModel(Tools.newListModel(all, assigned));
+        listAssigned.setModel(Tools.newListModel(new ArrayList<T>(assigned)));
 
         listAll.setCellRenderer(cellRenderer);
         listAssigned.setCellRenderer(cellRenderer);
@@ -88,41 +88,23 @@ public class PnlAssign<T> extends JPanel {
         for (T t : Collections.list(((DefaultListModel<T>) listAssigned.getModel()).elements())) {
             assigned.add(t);
         }
-        return assigned;
+        return new ArrayList<T>(assigned);
     }
 
-//    private void okButtonActionPerformed(ActionEvent e) {
-//        assigned.clear();
-//        for (T t : Collections.list(((DefaultListModel<T>) listAssigned.getModel()).elements())) {
-//            assigned.add(t);
-//        }
-//        setVisible(false);
-//    }
 
     private void btnPlusActionPerformed(ActionEvent e) {
-        for (int index : listAll.getSelectedIndices()) {
-            if (!((DefaultListModel<T>) listAssigned.getModel()).contains(((DefaultListModel<T>) listAll.getModel()).getElementAt(index))) {
-                ((DefaultListModel<T>) listAssigned.getModel()).addElement(((DefaultListModel<T>) listAll.getModel()).getElementAt(index));
-            }
-        }
+        assigned.addAll(listAll.getSelectedValuesList());
+
+        listAll.setModel(Tools.newListModel(all, assigned));
+        listAssigned.setModel(Tools.newListModel(new ArrayList<T>(assigned)));
     }
 
     private void btnMinusActionPerformed(ActionEvent e) {
-        // a little complicated but it doesnt work as a simple "removeElement" because the model changes during the process.
-        assigned.clear();
-        for (int index = 0; index < listAssigned.getModel().getSize(); index++) {
-            if (!ArrayUtils.contains(listAssigned.getSelectedIndices(), index)) {
-                assigned.add(((DefaultListModel<T>) listAssigned.getModel()).getElementAt(index));
-            }
-        }
+        assigned.removeAll(listAssigned.getSelectedValuesList());
 
-        listAssigned.setModel(Tools.newListModel(assigned));
+        listAll.setModel(Tools.newListModel(all, assigned));
+        listAssigned.setModel(Tools.newListModel(new ArrayList<T>(assigned)));
     }
-
-//    private void cancelButtonActionPerformed(ActionEvent e) {
-//        assigned = null;
-//        setVisible(false);
-//    }
 
     private void txtSearchActionPerformed(ActionEvent e) {
         ArrayList<T> searchList = new ArrayList<T>();
@@ -133,12 +115,12 @@ public class PnlAssign<T> extends JPanel {
                 searchList.add(t);
             }
         }
-        listAll.setModel(Tools.newListModel(searchList));
+        listAll.setModel(Tools.newListModel(searchList, assigned));
     }
 
     private void btnClearSearchActionPerformed(ActionEvent e) {
         txtSearch.setText(null);
-        listAll.setModel(Tools.newListModel(all));
+        listAll.setModel(Tools.newListModel(all, assigned));
     }
 
     private void initComponents() {
@@ -236,6 +218,7 @@ public class PnlAssign<T> extends JPanel {
         add(dialogPane);
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
+
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     private JPanel dialogPane;

@@ -71,6 +71,10 @@ public class Main {
         return mainframe;
     }
 
+    public static FrmDesktop getDesktop(){
+        return (FrmDesktop) mainframe;
+    }
+
     public static String getJdbcurl() {
         return jdbcurl;
     }

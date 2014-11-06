@@ -49,16 +49,76 @@ public class Menu {
         this.text = text;
     }
 
-    @JoinColumn(name = "recipeid", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private Recipes recipe;
+    @JoinColumn(name = "starterid", referencedColumnName = "id")
+    @ManyToOne(optional = true)
+    private Recipes starter;
 
-    public Recipes getRecipe() {
-        return recipe;
+    public Recipes getStarter() {
+        return starter;
     }
 
-    public void setRecipe(Recipes recipe) {
-        this.recipe = recipe;
+    public void setStarter(Recipes starter) {
+        this.starter = starter;
+    }
+
+    @JoinColumn(name = "mainid", referencedColumnName = "id")
+    @ManyToOne(optional = false)
+    private Recipes maincourse;
+
+    public Recipes getMaincourse() {
+        return maincourse;
+    }
+
+    public void setMaincourse(Recipes maincourse) {
+        this.maincourse = maincourse;
+    }
+
+    @JoinColumn(name = "sauceid", referencedColumnName = "id")
+    @ManyToOne(optional = true)
+    private Recipes sauce;
+
+    public Recipes getSauce() {
+        return sauce;
+    }
+
+    public void setSauce(Recipes sauce) {
+        this.sauce = sauce;
+    }
+
+    @JoinColumn(name = "sidevegid", referencedColumnName = "id")
+    @ManyToOne(optional = true)
+    private Recipes sideveggie;
+
+    public Recipes getSideveggie() {
+        return sideveggie;
+    }
+
+    public void setSideveggie(Recipes sideveggie) {
+        this.sideveggie = sideveggie;
+    }
+
+    @JoinColumn(name = "sidedishid", referencedColumnName = "id")
+    @ManyToOne(optional = true)
+    private Recipes sidedish;
+
+    public Recipes getSidedish() {
+        return sidedish;
+    }
+
+    public void setSidedish(Recipes sidedish) {
+        this.sidedish = sidedish;
+    }
+
+    @JoinColumn(name = "dessertid", referencedColumnName = "id")
+    @ManyToOne(optional = true)
+    private Recipes dessert;
+
+    public Recipes getDessert() {
+        return dessert;
+    }
+
+    public void setDessert(Recipes dessert) {
+        this.dessert = dessert;
     }
 
     public Menu() {
@@ -121,8 +181,6 @@ public class Menu {
 
         if (id != menu.id) return false;
         if (date != null ? !date.equals(menu.date) : menu.date != null) return false;
-        if (recipe != null ? !recipe.equals(menu.recipe) : menu.recipe != null) return false;
-        if (text != null ? !text.equals(menu.text) : menu.text != null) return false;
         if (version != null ? !version.equals(menu.version) : menu.version != null) return false;
 
         return true;
@@ -132,9 +190,7 @@ public class Menu {
     public int hashCode() {
         int result = (int) (id ^ (id >>> 32));
         result = 31 * result + (date != null ? date.hashCode() : 0);
-        result = 31 * result + (text != null ? text.hashCode() : 0);
         result = 31 * result + (version != null ? version.hashCode() : 0);
-        result = 31 * result + (recipe != null ? recipe.hashCode() : 0);
         return result;
     }
 }

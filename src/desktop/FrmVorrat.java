@@ -360,7 +360,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung");
         java.util.List warengruppe = query.getResultList();
         warengruppe.add(0, "<html><i>nach Warengruppe</i></html>");
-        cmbWarengruppe.setModel(tools.Tools.newComboboxModel(warengruppe));
+        cmbWarengruppe.setModel(tools.Tools.newComboboxModel(new ArrayList<Warengruppe>(warengruppe)));
         em.close();
     }
 
@@ -369,7 +369,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         Query query = em.createQuery("SELECT l FROM Lager l ORDER BY l.bezeichnung");
         java.util.List lager = query.getResultList();
         lager.add(0, "<html><i>nach Lager</i></html>");
-        cmbLager.setModel(tools.Tools.newComboboxModel(lager));
+        cmbLager.setModel(tools.Tools.newComboboxModel(new ArrayList<Lager>(lager)));
         em.close();
     }
 
@@ -385,7 +385,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
         Query query = em.createQuery("SELECT l FROM Lieferanten l ORDER BY l.firma");
         java.util.List lieferanten = query.getResultList();
         lieferanten.add(0, "<html><i>nach Lieferanten</i></html>");
-        cmbLieferant.setModel(tools.Tools.newComboboxModel(lieferanten));
+        cmbLieferant.setModel(tools.Tools.newComboboxModel(new ArrayList<Lieferanten>(lieferanten)));
         em.close();
     }
 

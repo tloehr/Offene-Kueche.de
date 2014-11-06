@@ -8,11 +8,15 @@ new FormModel {
 			"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, fill:default:grow"
 		} ) {
 			name: "this"
+			"border": new org.jdesktop.swingx.border.DropShadowBorder( sfield java.awt.Color black, 8, 0.6f, 12, true, true, true, true )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
 				name: "cmbFeature"
+				"font": new java.awt.Font( "SansSerif", 0, 18 )
+				"toolTipText": "Art des Menüs"
 				auxiliary() {
 					"JavaCodeGenerator.typeParameters": "Recipefeature"
 				}
+				addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbFeatureItemStateChanged", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridWidth": 3
 			} )
@@ -20,6 +24,7 @@ new FormModel {
 				name: "scrollPane1"
 				add( new FormComponent( "javax.swing.JList" ) {
 					name: "lstCustomers"
+					"toolTipText": "Kundenliste"
 					auxiliary() {
 						"JavaCodeGenerator.typeParameters": "Customer"
 					}
@@ -101,7 +106,8 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "btnAddCustomer"
 					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
-					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/16x16/edit_add.png" )
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/16x16/edit.png" )
+					"toolTipText": "Kundeliste bearbeiten"
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnAddCustomerActionPerformed", true ) )
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
@@ -109,21 +115,36 @@ new FormModel {
 				"gridY": 29
 				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints RIGHT
 			} )
-			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
-				name: "panel1"
-				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "btnSave"
-					"text": "save"
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnSaveActionPerformed", true ) )
-				} )
-				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "btnRevert"
-					"text": "revert"
-				} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "lblMessage"
+				"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
+				"font": new java.awt.Font( "SansSerif", 0, 18 )
+				"horizontalAlignment": 0
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridY": 31
-				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints RIGHT
-				"gridWidth": 3
+				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints TOP
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+				"axis": 0
+			} ) {
+				name: "panel1"
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnNewMenuweek"
+					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_add.png" )
+					"toolTipText": "Neuen Wochenplan erstellen"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnNewMenuweekActionPerformed", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnDeleteThisMenuweek"
+					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_remove.png" )
+					"toolTipText": "Diesen Wochenplan löschen"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnDeleteThisMenuweekActionPerformed", true ) )
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"gridY": 31
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )

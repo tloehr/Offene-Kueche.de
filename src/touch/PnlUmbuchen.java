@@ -25,6 +25,7 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 /**
  * @author Torsten Löhr
@@ -285,7 +286,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         try {
             java.util.List lieferant = query.getResultList();
             lieferant.add(0, "<html><i>Lieferant nicht &auml;ndern</i></html>");
-            cmbLieferant.setModel(tools.Tools.newComboboxModel(lieferant));
+            cmbLieferant.setModel(tools.Tools.newComboboxModel(new ArrayList<Lieferanten>(lieferant)));
         } catch (Exception e) { // nicht gefunden
             //
         } finally {

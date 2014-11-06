@@ -1986,7 +1986,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
         Query query = em.createQuery("SELECT w from Warengruppe w ORDER BY w.bezeichnung");
         try {
             java.util.List warengruppe = query.getResultList();
-            cmbWarengruppe.setModel(tools.Tools.newComboboxModel(warengruppe));
+            cmbWarengruppe.setModel(tools.Tools.newComboboxModel(new ArrayList<Warengruppe>(warengruppe)));
         } catch (Exception e) { // nicht gefunden
             //
         } finally {
