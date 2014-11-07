@@ -13,7 +13,6 @@ import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.border.DropShadowBorder;
 import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
 import tools.GUITools;
 import tools.PnlAssign;
 import tools.Tools;
@@ -32,7 +31,6 @@ import java.awt.event.ItemListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * @author Torsten Löhr
@@ -45,14 +43,17 @@ public class PnlMenuWeek extends JPanel {
     private PnlSingleDayMenu mon, tue, wed, thu, fri, sat, sun;
     SimpleDateFormat sdf;
     JidePopup popup;
+    private boolean initPhase;
 
     private static final String format = "EEEE, d MMM yyyy";
 
     public PnlMenuWeek(Menuweek menuweek, Closure changeAction) {
+        initPhase = true;
         this.menuweek = menuweek;
         this.changeAction = changeAction;
         initComponents();
         initPanel();
+        initPhase = false;
     }
 
 
@@ -65,25 +66,25 @@ public class PnlMenuWeek extends JPanel {
 
         sdf = new SimpleDateFormat(format);
 
-        mon = new PnlSingleDayMenu(menuweek.getMon(), new LocalDate(menuweek.getWeek()));
+        mon = new PnlSingleDayMenu(menuweek.getMon());
         mon.setChangeAction(getChangeEvent4Daily(mon));
 
-        tue = new PnlSingleDayMenu(menuweek.getTue(), new LocalDate(menuweek.getWeek()).plusDays(1));
+        tue = new PnlSingleDayMenu(menuweek.getTue());
         tue.setChangeAction(getChangeEvent4Daily(tue));
 
-        wed = new PnlSingleDayMenu(menuweek.getWed(), new LocalDate(menuweek.getWeek()).plusDays(2));
+        wed = new PnlSingleDayMenu(menuweek.getWed());
         wed.setChangeAction(getChangeEvent4Daily(wed));
 
-        thu = new PnlSingleDayMenu(menuweek.getThu(), new LocalDate(menuweek.getWeek()).plusDays(3));
+        thu = new PnlSingleDayMenu(menuweek.getThu());
         thu.setChangeAction(getChangeEvent4Daily(thu));
 
-        fri = new PnlSingleDayMenu(menuweek.getFri(), new LocalDate(menuweek.getWeek()).plusDays(4));
+        fri = new PnlSingleDayMenu(menuweek.getFri());
         fri.setChangeAction(getChangeEvent4Daily(fri));
 
-        sat = new PnlSingleDayMenu(menuweek.getSat(), new LocalDate(menuweek.getWeek()).plusDays(5));
+        sat = new PnlSingleDayMenu(menuweek.getSat());
         sat.setChangeAction(getChangeEvent4Daily(sat));
 
-        sun = new PnlSingleDayMenu(menuweek.getSun(), new LocalDate(menuweek.getWeek()).plusDays(6));
+        sun = new PnlSingleDayMenu(menuweek.getSun());
         sun.setChangeAction(getChangeEvent4Daily(sun));
 
         lblMon.setText(sdf.format(mon.getMenu().getDate()));
@@ -94,18 +95,21 @@ public class PnlMenuWeek extends JPanel {
         lblSat.setText(sdf.format(sat.getMenu().getDate()));
         lblSun.setText(sdf.format(sun.getMenu().getDate()));
 
-        int y = 5;
-        int h = 4;
-        add(mon, CC.xy(1, y + (h * 0)));
-        add(tue, CC.xy(1, y + (h * 1)));
-        add(wed, CC.xy(1, y + (h * 2)));
-        add(thu, CC.xy(1, y + (h * 3)));
-        add(fri, CC.xy(1, y + (h * 4)));
-        add(sat, CC.xy(1, y + (h * 5)));
-        add(sun, CC.xy(1, y + (h * 6)));
+        pnlMon.add(mon);
+        pnlTue.add(tue);
+        pnlWed.add(wed);
+        pnlThu.add(thu);
+        pnlFri.add(fri);
+        pnlSat.add(sat);
+        pnlSun.add(sun);
 
         lstCustomers.setModel(Tools.newListModel(new ArrayList<Customer>(menuweek.getCustomers())));
         lstCustomers.setCellRenderer(CustomerTools.getListCellRenderer());
+
+        if (menuweek.getId() != 0l) {
+            lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(menuweek.getLastsave()) + " Uhr");
+        }
+
     }
 
 
@@ -161,12 +165,47 @@ public class PnlMenuWeek extends JPanel {
 
                     menuweek = myMenuweek;
 
+                    switch (pnl.getDate().getDayOfWeek()) {
+                        case DateTimeConstants.MONDAY: {
+                            pnl.setMenu(menuweek.getMon());
+                            break;
+                        }
+                        case DateTimeConstants.TUESDAY: {
+                            pnl.setMenu(menuweek.getTue());
+                            break;
+                        }
+                        case DateTimeConstants.WEDNESDAY: {
+                            pnl.setMenu(menuweek.getWed());
+                            break;
+                        }
+                        case DateTimeConstants.THURSDAY: {
+                            pnl.setMenu(menuweek.getThu());
+                            break;
+                        }
+                        case DateTimeConstants.FRIDAY: {
+                            pnl.setMenu(menuweek.getFri());
+                            break;
+                        }
+                        case DateTimeConstants.SATURDAY: {
+                            pnl.setMenu(menuweek.getSat());
+                            break;
+                        }
+                        case DateTimeConstants.SUNDAY: {
+                            pnl.setMenu(menuweek.getSun());
+                            break;
+                        }
+                        default: {
+                            Main.fatal(o.toString());
+                        }
+                    }
+
                 } catch (OptimisticLockException ole) {
                     Main.warn(ole);
                     em.getTransaction().rollback();
                 } catch (Exception exc) {
+                    Main.error(exc.getMessage());
                     em.getTransaction().rollback();
-                    Main.fatal(exc);
+                    Main.fatal(exc.getMessage());
                 } finally {
                     em.close();
                     notifyCaller();
@@ -301,7 +340,7 @@ public class PnlMenuWeek extends JPanel {
 
     private void cmbFeatureItemStateChanged(ItemEvent e) {
         if (e.getStateChange() != ItemEvent.SELECTED) return;
-
+        if (initPhase) return;
 
         EntityManager em = Main.getEMF().createEntityManager();
         try {
@@ -329,7 +368,7 @@ public class PnlMenuWeek extends JPanel {
     }
 
     private void notifyCaller() {
-        lblMessage.setText("Änderungen gespeichert. " + DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date()) + " Uhr");
+        lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(menuweek.getLastsave()) + " Uhr");
         changeAction.execute(menuweek);
     }
 
@@ -365,125 +404,47 @@ public class PnlMenuWeek extends JPanel {
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+        panel2 = new JPanel();
+        btnPrint = new JButton();
+        btnDeleteThisMenuweek = new JButton();
         cmbFeature = new JComboBox<Recipefeature>();
+        panel11 = new JScrollPane();
+        panel3 = new JPanel();
+        lblMon = new JLabel();
+        pnlMon = new JPanel();
+        lblTue = new JLabel();
+        pnlTue = new JPanel();
+        lblWed = new JLabel();
+        pnlWed = new JPanel();
+        lblThu = new JLabel();
+        pnlThu = new JPanel();
+        lblFri = new JLabel();
+        pnlFri = new JPanel();
+        lblSat = new JLabel();
+        pnlSat = new JPanel();
+        lblSun = new JLabel();
+        pnlSun = new JPanel();
+        panel12 = new JPanel();
         scrollPane1 = new JScrollPane();
         lstCustomers = new JList<Customer>();
-        lblMon = new JLabel();
-        lblTue = new JLabel();
-        lblWed = new JLabel();
-        lblThu = new JLabel();
-        lblFri = new JLabel();
-        lblSat = new JLabel();
-        lblSun = new JLabel();
-        panel2 = new JPanel();
         btnAddCustomer = new JButton();
         lblMessage = new JLabel();
-        panel1 = new JPanel();
-        btnNewMenuweek = new JButton();
-        btnDeleteThisMenuweek = new JButton();
 
         //======== this ========
         setBorder(new DropShadowBorder(Color.black, 8, 0.6f, 12, true, true, true, true));
         setLayout(new FormLayout(
-                "default:grow, $lcgap, default",
-                "15*(default, $lgap), fill:default:grow"));
-
-        //---- cmbFeature ----
-        cmbFeature.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        cmbFeature.setToolTipText("Art des Men\u00fcs");
-        cmbFeature.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                cmbFeatureItemStateChanged(e);
-            }
-        });
-        add(cmbFeature, CC.xywh(1, 1, 3, 1));
-
-        //======== scrollPane1 ========
-        {
-
-            //---- lstCustomers ----
-            lstCustomers.setToolTipText("Kundenliste");
-            scrollPane1.setViewportView(lstCustomers);
-        }
-        add(scrollPane1, CC.xywh(3, 3, 1, 25));
-
-        //---- lblMon ----
-        lblMon.setText("text");
-        lblMon.setFont(new Font("SansSerif", Font.BOLD, 18));
-        add(lblMon, CC.xy(1, 3, CC.CENTER, CC.DEFAULT));
-
-        //---- lblTue ----
-        lblTue.setText("text");
-        lblTue.setFont(new Font("SansSerif", Font.BOLD, 18));
-        add(lblTue, CC.xy(1, 7, CC.CENTER, CC.DEFAULT));
-
-        //---- lblWed ----
-        lblWed.setText("text");
-        lblWed.setFont(new Font("SansSerif", Font.BOLD, 18));
-        add(lblWed, CC.xy(1, 11, CC.CENTER, CC.DEFAULT));
-
-        //---- lblThu ----
-        lblThu.setText("text");
-        lblThu.setFont(new Font("SansSerif", Font.BOLD, 18));
-        add(lblThu, CC.xy(1, 15, CC.CENTER, CC.DEFAULT));
-
-        //---- lblFri ----
-        lblFri.setText("text");
-        lblFri.setFont(new Font("SansSerif", Font.BOLD, 18));
-        add(lblFri, CC.xy(1, 19, CC.CENTER, CC.DEFAULT));
-
-        //---- lblSat ----
-        lblSat.setText("text");
-        lblSat.setFont(new Font("SansSerif", Font.BOLD, 18));
-        lblSat.setForeground(Color.red);
-        add(lblSat, CC.xy(1, 23, CC.CENTER, CC.DEFAULT));
-
-        //---- lblSun ----
-        lblSun.setText("text");
-        lblSun.setFont(new Font("SansSerif", Font.BOLD, 18));
-        lblSun.setForeground(Color.red);
-        add(lblSun, CC.xy(1, 27, CC.CENTER, CC.DEFAULT));
+            "default:grow, $lcgap, default",
+            "2*(default, $lgap), fill:pref:grow, $lgap, pref"));
 
         //======== panel2 ========
         {
             panel2.setLayout(new BoxLayout(panel2, BoxLayout.X_AXIS));
 
-            //---- btnAddCustomer ----
-            btnAddCustomer.setText(null);
-            btnAddCustomer.setIcon(new ImageIcon(getClass().getResource("/artwork/16x16/edit.png")));
-            btnAddCustomer.setToolTipText("Kundeliste bearbeiten");
-            btnAddCustomer.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    btnAddCustomerActionPerformed(e);
-                }
-            });
-            panel2.add(btnAddCustomer);
-        }
-        add(panel2, CC.xy(3, 29, CC.RIGHT, CC.DEFAULT));
-
-        //---- lblMessage ----
-        lblMessage.setText(null);
-        lblMessage.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        lblMessage.setHorizontalAlignment(SwingConstants.CENTER);
-        add(lblMessage, CC.xy(1, 31, CC.DEFAULT, CC.TOP));
-
-        //======== panel1 ========
-        {
-            panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
-
-            //---- btnNewMenuweek ----
-            btnNewMenuweek.setText(null);
-            btnNewMenuweek.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit_add.png")));
-            btnNewMenuweek.setToolTipText("Neuen Wochenplan erstellen");
-            btnNewMenuweek.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    btnNewMenuweekActionPerformed(e);
-                }
-            });
-            panel1.add(btnNewMenuweek);
+            //---- btnPrint ----
+            btnPrint.setText(null);
+            btnPrint.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/printer.png")));
+            btnPrint.setToolTipText("Diesen Wochenplan l\u00f6schen");
+            panel2.add(btnPrint);
 
             //---- btnDeleteThisMenuweek ----
             btnDeleteThisMenuweek.setText(null);
@@ -495,28 +456,173 @@ public class PnlMenuWeek extends JPanel {
                     btnDeleteThisMenuweekActionPerformed(e);
                 }
             });
-            panel1.add(btnDeleteThisMenuweek);
+            panel2.add(btnDeleteThisMenuweek);
         }
-        add(panel1, CC.xy(3, 31));
+        add(panel2, CC.xywh(1, 1, 3, 1));
+
+        //---- cmbFeature ----
+        cmbFeature.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        cmbFeature.setToolTipText("Art des Men\u00fcs");
+        cmbFeature.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                cmbFeatureItemStateChanged(e);
+            }
+        });
+        add(cmbFeature, CC.xywh(1, 3, 3, 1));
+
+        //======== panel11 ========
+        {
+
+            //======== panel3 ========
+            {
+                panel3.setLayout(new BoxLayout(panel3, BoxLayout.PAGE_AXIS));
+
+                //---- lblMon ----
+                lblMon.setText("text");
+                lblMon.setFont(new Font("SansSerif", Font.BOLD, 18));
+                panel3.add(lblMon);
+
+                //======== pnlMon ========
+                {
+                    pnlMon.setLayout(new BoxLayout(pnlMon, BoxLayout.X_AXIS));
+                }
+                panel3.add(pnlMon);
+
+                //---- lblTue ----
+                lblTue.setText("text");
+                lblTue.setFont(new Font("SansSerif", Font.BOLD, 18));
+                panel3.add(lblTue);
+
+                //======== pnlTue ========
+                {
+                    pnlTue.setLayout(new BoxLayout(pnlTue, BoxLayout.X_AXIS));
+                }
+                panel3.add(pnlTue);
+
+                //---- lblWed ----
+                lblWed.setText("text");
+                lblWed.setFont(new Font("SansSerif", Font.BOLD, 18));
+                panel3.add(lblWed);
+
+                //======== pnlWed ========
+                {
+                    pnlWed.setLayout(new BoxLayout(pnlWed, BoxLayout.X_AXIS));
+                }
+                panel3.add(pnlWed);
+
+                //---- lblThu ----
+                lblThu.setText("text");
+                lblThu.setFont(new Font("SansSerif", Font.BOLD, 18));
+                panel3.add(lblThu);
+
+                //======== pnlThu ========
+                {
+                    pnlThu.setLayout(new BoxLayout(pnlThu, BoxLayout.X_AXIS));
+                }
+                panel3.add(pnlThu);
+
+                //---- lblFri ----
+                lblFri.setText("text");
+                lblFri.setFont(new Font("SansSerif", Font.BOLD, 18));
+                panel3.add(lblFri);
+
+                //======== pnlFri ========
+                {
+                    pnlFri.setLayout(new BoxLayout(pnlFri, BoxLayout.X_AXIS));
+                }
+                panel3.add(pnlFri);
+
+                //---- lblSat ----
+                lblSat.setText("text");
+                lblSat.setFont(new Font("SansSerif", Font.BOLD, 18));
+                lblSat.setForeground(Color.red);
+                panel3.add(lblSat);
+
+                //======== pnlSat ========
+                {
+                    pnlSat.setLayout(new BoxLayout(pnlSat, BoxLayout.X_AXIS));
+                }
+                panel3.add(pnlSat);
+
+                //---- lblSun ----
+                lblSun.setText("text");
+                lblSun.setFont(new Font("SansSerif", Font.BOLD, 18));
+                lblSun.setForeground(Color.red);
+                panel3.add(lblSun);
+
+                //======== pnlSun ========
+                {
+                    pnlSun.setLayout(new BoxLayout(pnlSun, BoxLayout.X_AXIS));
+                }
+                panel3.add(pnlSun);
+            }
+            panel11.setViewportView(panel3);
+        }
+        add(panel11, CC.xy(1, 5, CC.FILL, CC.DEFAULT));
+
+        //======== panel12 ========
+        {
+            panel12.setLayout(new FormLayout(
+                "default:grow",
+                "default:grow, default"));
+
+            //======== scrollPane1 ========
+            {
+
+                //---- lstCustomers ----
+                lstCustomers.setToolTipText("Kundenliste");
+                scrollPane1.setViewportView(lstCustomers);
+            }
+            panel12.add(scrollPane1, CC.xy(1, 1, CC.DEFAULT, CC.FILL));
+
+            //---- btnAddCustomer ----
+            btnAddCustomer.setText(null);
+            btnAddCustomer.setIcon(new ImageIcon(getClass().getResource("/artwork/16x16/edit.png")));
+            btnAddCustomer.setToolTipText("Kundeliste bearbeiten");
+            btnAddCustomer.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    btnAddCustomerActionPerformed(e);
+                }
+            });
+            panel12.add(btnAddCustomer, CC.xy(1, 2));
+        }
+        add(panel12, CC.xy(3, 5, CC.DEFAULT, CC.FILL));
+
+        //---- lblMessage ----
+        lblMessage.setText(null);
+        lblMessage.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        lblMessage.setHorizontalAlignment(SwingConstants.CENTER);
+        add(lblMessage, CC.xywh(1, 7, 3, 1));
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+    private JPanel panel2;
+    private JButton btnPrint;
+    private JButton btnDeleteThisMenuweek;
     private JComboBox<Recipefeature> cmbFeature;
+    private JScrollPane panel11;
+    private JPanel panel3;
+    private JLabel lblMon;
+    private JPanel pnlMon;
+    private JLabel lblTue;
+    private JPanel pnlTue;
+    private JLabel lblWed;
+    private JPanel pnlWed;
+    private JLabel lblThu;
+    private JPanel pnlThu;
+    private JLabel lblFri;
+    private JPanel pnlFri;
+    private JLabel lblSat;
+    private JPanel pnlSat;
+    private JLabel lblSun;
+    private JPanel pnlSun;
+    private JPanel panel12;
     private JScrollPane scrollPane1;
     private JList<Customer> lstCustomers;
-    private JLabel lblMon;
-    private JLabel lblTue;
-    private JLabel lblWed;
-    private JLabel lblThu;
-    private JLabel lblFri;
-    private JLabel lblSat;
-    private JLabel lblSun;
-    private JPanel panel2;
     private JButton btnAddCustomer;
     private JLabel lblMessage;
-    private JPanel panel1;
-    private JButton btnNewMenuweek;
-    private JButton btnDeleteThisMenuweek;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

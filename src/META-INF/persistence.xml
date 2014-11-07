@@ -8,7 +8,7 @@
         <class>entity.Lager</class>
         <class>entity.IngTypes</class>
         <class>entity.Produkte</class>
-        <class>entity.Vorrat</class>
+        <class>entity.Stock</class>
         <class>entity.Lieferanten</class>
         <class>entity.Warengruppe</class>
         <class>entity.Buchungen</class>

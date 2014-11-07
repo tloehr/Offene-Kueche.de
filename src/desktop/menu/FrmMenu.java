@@ -32,6 +32,7 @@ public class FrmMenu extends JInternalFrame {
         week = new LocalDate().dayOfWeek().withMinimumValue();
         initComponents();
         initFrame();
+        pack();
     }
 
     public void addMenu(final Menuweek menuweek) {

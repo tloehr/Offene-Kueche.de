@@ -47,7 +47,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
     //    private final int MODE_VORRATREAKTIVIERUNG = 3;
     private Buchung aktuelleBuchung;
     private Produkte neuesProdukt;
-    private Vorrat vorrat;
+    private Stock stock;
     private PrintProcessor pp;
     private boolean gtinOK, warengruppeEdit, stoffartEdit;
 
@@ -351,20 +351,20 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
                 // Für jedes "Paket" einen Vorrat anlegen und einbuchen.
                 for (int i = 1; i <= aktuelleBuchung.getFaktor(); i++) {
-                    Vorrat vorrat = em.merge(new Vorrat(aktuelleBuchung.getProdukt(), (Lieferanten) cmbLieferant.getSelectedItem(), (Lager) cmbLager.getSelectedItem()));
-                    Buchungen buchungen = em.merge(new Buchungen(aktuelleBuchung.getMenge(), vorrat.getEingang()));
-                    vorrat.getBuchungenCollection().add(buchungen);
+                    Stock stock = em.merge(new Stock(aktuelleBuchung.getProdukt(), (Lieferanten) cmbLieferant.getSelectedItem(), (Lager) cmbLager.getSelectedItem()));
+                    Buchungen buchungen = em.merge(new Buchungen(aktuelleBuchung.getMenge(), stock.getEingang()));
+                    stock.getBuchungenCollection().add(buchungen);
                     buchungen.setText("Anfangsbestand");
                     buchungen.setStatus(BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND);
-                    buchungen.setVorrat(vorrat);
+                    buchungen.setStock(stock);
                     buchungen.setMitarbeiter(Main.getCurrentUser());
 
                     if (btnEtiketten1.isSelected()) {
-                        printList.add(new PrintListElement(vorrat, etiprinter1, form1, Main.getProps().getProperty("etiprinter1")));
+                        printList.add(new PrintListElement(stock, etiprinter1, form1, Main.getProps().getProperty("etiprinter1")));
                     } else if (btnEtiketten2.isSelected()) {
-                        printList.add(new PrintListElement(vorrat, etiprinter2, form2, Main.getProps().getProperty("etiprinter2")));
+                        printList.add(new PrintListElement(stock, etiprinter2, form2, Main.getProps().getProperty("etiprinter2")));
                     } else if (btnPagePrinter.isSelected()) {
-                        printList.add(new PrintListElement(vorrat, pageprinter, null, Main.getProps().getProperty("pageprinter")));
+                        printList.add(new PrintListElement(stock, pageprinter, null, Main.getProps().getProperty("pageprinter")));
                     }
                 }
 
@@ -542,7 +542,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
         listProdukte.setModel(Tools.newListModel(produkte));
 
         if (produkte == null || produkte.size() == 0) {
-            vorrat = VorratTools.findByIDORScanner(txtSearch.getText());
+            stock = StockTools.findByIDORScanner(txtSearch.getText());
             setPanelMode(MODE_WARENEINGANG);
             error("Kenn ich nicht", lblProdukt);
             aktuelleBuchung.setProdukt(null);
@@ -713,9 +713,9 @@ public class PnlWareneingang extends DefaultTouchPanel {
         EntityManager em = Main.getEMF().createEntityManager();
         try {
             em.getTransaction().begin();
-            VorratTools.reaktivieren(em, vorrat);
+            StockTools.reaktivieren(em, stock);
             em.getTransaction().commit();
-            long id = vorrat.getId();
+            long id = stock.getId();
             setPanelMode(MODE_WARENEINGANG);
             Tools.fadeinout(lblProdukt, "Vorrat [" + id + "] wieder eingebucht.");
         } catch (OptimisticLockException ole) {
@@ -1851,7 +1851,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 CardLayout cl = (CardLayout) (pnlMain.getLayout());
                 cl.show(pnlMain, "eingang");
                 if (!refresh) {
-                    vorrat = null;
+                    stock = null;
                     neuesProdukt = null;
 
                     btnNewProdukt.setEnabled(true);
@@ -1866,7 +1866,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
                 cl.show(pnlMain, "produkt");
 
                 if (!refresh) {
-                    vorrat = null;
+                    stock = null;
                     neuesProdukt = new Produkte();
 
                     setWarengruppeEnabled(false);

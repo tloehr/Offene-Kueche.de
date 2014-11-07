@@ -19,19 +19,19 @@ import java.util.*;
 /**
  * @author tloehr
  */
-public class VorratTools {
+public class StockTools {
 
     /**
      * Ermittelt die Bestandssumme eines bestimmten Vorrats.
      *
-     * @param vorrat
+     * @param stock
      * @return
      */
-    public static BigDecimal getSummeBestand(Vorrat vorrat) {
+    public static BigDecimal getSummeBestand(Stock stock) {
         EntityManager em = Main.getEMF().createEntityManager();
         Query query = em.createQuery("SELECT SUM(b.menge) FROM Buchungen b JOIN b.vorrat v WHERE b.vorrat = :vorrat");
         BigDecimal bestand = new BigDecimal(-1);
-        query.setParameter("vorrat", vorrat);
+        query.setParameter("vorrat", stock);
         try {
             bestand = (BigDecimal) query.getSingleResult();
         } catch (Exception e) { // nicht gefunden
@@ -44,10 +44,10 @@ public class VorratTools {
     }
 
 
-    public static BigDecimal getSumme(Vorrat vorrat) {
+    public static BigDecimal getSumme(Stock stock) {
         BigDecimal bestand = BigDecimal.ZERO;
 
-        for (Buchungen buchung : vorrat.getBuchungenCollection()) {
+        for (Buchungen buchung : stock.getBuchungenCollection()) {
             bestand = bestand.add(buchung.getMenge());
         }
 
@@ -55,39 +55,39 @@ public class VorratTools {
     }
 
 
-    public static Vorrat ausbuchen(EntityManager em, Vorrat vorrat, String buchungstext) throws OutOfRangeException, IllegalStateException,
+    public static Stock ausbuchen(EntityManager em, Stock stock, String buchungstext) throws OutOfRangeException, IllegalStateException,
             TransactionRequiredException,
             PersistenceException {
 
-        return ausbuchen(em, vorrat, getSumme(vorrat), buchungstext);
+        return ausbuchen(em, stock, getSumme(stock), buchungstext);
 
     }
 
 
-    public static Vorrat ausbuchen(EntityManager em, Vorrat vorrat, BigDecimal menge, String buchungstext) throws OutOfRangeException, IllegalStateException,
+    public static Stock ausbuchen(EntityManager em, Stock stock, BigDecimal menge, String buchungstext) throws OutOfRangeException, IllegalStateException,
             TransactionRequiredException,
             PersistenceException {
 
-        if (vorrat.isAusgebucht()) return null;
+        if (stock.isAusgebucht()) return null;
 
-        BigDecimal summe = getSumme(vorrat);
+        BigDecimal summe = getSumme(stock);
         if (summe.compareTo(menge) < 0) {
             throw new OutOfRangeException(BigDecimal.ZERO, summe, menge);
         }
 
-        Vorrat myVorrat = em.merge(vorrat);
-        em.lock(myVorrat, LockModeType.OPTIMISTIC);
+        Stock myStock = em.merge(stock);
+        em.lock(myStock, LockModeType.OPTIMISTIC);
 
         Date ausgang = new Date();
 
         Buchungen buchungen = em.merge(new Buchungen(menge.negate(), ausgang));
         em.lock(buchungen, LockModeType.OPTIMISTIC);
-        buchungen.setVorrat(myVorrat);
+        buchungen.setStock(myStock);
         buchungen.setMitarbeiter(Main.getCurrentUser());
         buchungen.setText(buchungstext);
 
         if (summe.compareTo(menge) == 0) {
-            myVorrat.setAusgang(ausgang);
+            myStock.setAusgang(ausgang);
             buchungen.setStatus(BuchungenTools.BUCHEN_ABSCHLUSSBUCHUNG);
         } else {
             buchungen.setStatus(BuchungenTools.BUCHEN_MANUELLE_KORREKTUR);
@@ -96,33 +96,33 @@ public class VorratTools {
         // Mit dieser Ausbuchung ist der Vorrat aufgebraucht.
         // Also Ausgang setzen.
         if (summe.compareTo(menge) == 0) {
-            myVorrat.setAusgang(ausgang);
+            myStock.setAusgang(ausgang);
         }
 
         // Falls noch nicht angebrochen.
-        if (myVorrat.getAnbruch().equals(tools.Const.DATE_BIS_AUF_WEITERES)) {
-            myVorrat.setAnbruch(ausgang);
+        if (myStock.getAnbruch().equals(tools.Const.DATE_BIS_AUF_WEITERES)) {
+            myStock.setAnbruch(ausgang);
         }
 
-        return myVorrat;
+        return myStock;
 
     }
 
     /**
      * Bucht eine bestimmte Menge von einem Vorrat aus.
      *
-     * @param vorrat
+     * @param stock
      * @param menge
      * @param buchungstext
      * @throws OutOfRangeException
      */
-    public static void ausbuchen(Vorrat vorrat, BigDecimal menge, String buchungstext) throws OutOfRangeException, IllegalStateException,
+    public static void ausbuchen(Stock stock, BigDecimal menge, String buchungstext) throws OutOfRangeException, IllegalStateException,
             TransactionRequiredException,
             PersistenceException {
 
-        if (vorrat.isAusgebucht()) return;
+        if (stock.isAusgebucht()) return;
 
-        BigDecimal summe = getSummeBestand(vorrat);
+        BigDecimal summe = getSummeBestand(stock);
         if (summe.compareTo(menge) < 0) {
             throw new OutOfRangeException(BigDecimal.ZERO, summe, menge);
         }
@@ -131,12 +131,12 @@ public class VorratTools {
 
 
         Buchungen buchungen = new Buchungen(menge.negate(), ausgang);
-        buchungen.setVorrat(vorrat);
+        buchungen.setStock(stock);
         buchungen.setMitarbeiter(Main.getCurrentUser());
         buchungen.setText(buchungstext);
 
         if (summe.compareTo(menge) == 0) {
-            vorrat.setAusgang(ausgang);
+            stock.setAusgang(ausgang);
             buchungen.setStatus(BuchungenTools.BUCHEN_ABSCHLUSSBUCHUNG);
         } else {
             buchungen.setStatus(BuchungenTools.BUCHEN_MANUELLE_KORREKTUR);
@@ -146,19 +146,19 @@ public class VorratTools {
         try {
             em.getTransaction().begin();
             em.persist(buchungen);
-            Vorrat myVorrat = em.merge(vorrat);
+            Stock myStock = em.merge(stock);
 
-            em.lock(myVorrat, LockModeType.OPTIMISTIC);
+            em.lock(myStock, LockModeType.OPTIMISTIC);
 
             // Mit dieser Ausbuchung ist der Vorrat aufgebraucht.
             // Also Ausgang setzen.
             if (summe.compareTo(menge) == 0) {
-                myVorrat.setAusgang(ausgang);
+                myStock.setAusgang(ausgang);
             }
 
             // Falls noch nicht angebrochen.
-            if (myVorrat.getAnbruch().equals(tools.Const.DATE_BIS_AUF_WEITERES)) {
-                myVorrat.setAnbruch(ausgang);
+            if (myStock.getAnbruch().equals(tools.Const.DATE_BIS_AUF_WEITERES)) {
+                myStock.setAnbruch(ausgang);
             }
 
             em.getTransaction().commit();
@@ -172,22 +172,22 @@ public class VorratTools {
     /**
      * Bucht den gesamten Bestand aus einem Vorrat aus und schließt diesen damit ab.
      *
-     * @param vorrat
+     * @param stock
      * @param buchungstext
      */
-    public static void ausbuchen(Vorrat vorrat, String buchungstext) throws OutOfRangeException, IllegalStateException,
+    public static void ausbuchen(Stock stock, String buchungstext) throws OutOfRangeException, IllegalStateException,
             TransactionRequiredException,
             PersistenceException {
-        if (vorrat.isAusgebucht()) return;
+        if (stock.isAusgebucht()) return;
 
-        ausbuchen(vorrat, getSummeBestand(vorrat), buchungstext);
+        ausbuchen(stock, getSummeBestand(stock), buchungstext);
     }
 
 
-    public static ArrayList<Vorrat> getActiveStocks(Produkte product) {
-        ArrayList stocks = new ArrayList<Vorrat>();
+    public static ArrayList<Stock> getActiveStocks(Produkte product) {
+        ArrayList stocks = new ArrayList<Stock>();
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createQuery("SELECT v FROM Vorrat v WHERE v.produkt = :product AND v.ausgang = :tfn");
+        Query query = em.createQuery("SELECT v FROM Stock v WHERE v.produkt = :product AND v.ausgang = :tfn");
         query.setParameter("product", product);
         query.setParameter("tfn", Const.DATE_BIS_AUF_WEITERES);
         try {
@@ -201,10 +201,10 @@ public class VorratTools {
         return stocks;
     }
 
-    public static HashMap getVorrat4Printing(Vorrat vorrat) {
+    public static HashMap getVorrat4Printing(Stock stock) {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createQuery("SELECT b.mitarbeiter FROM Buchungen b JOIN b.vorrat v WHERE b.status = 1 and b.vorrat = :vorrat");
-        query.setParameter("vorrat", vorrat);
+        Query query = em.createQuery("SELECT b.mitarbeiter FROM Buchungen b JOIN b.stock s WHERE b.status = 1 and b.stock = :stock");
+        query.setParameter("stock", stock);
         Mitarbeiter mitarbeiter = null;
 
         try {
@@ -215,26 +215,26 @@ public class VorratTools {
             em.close();
         }
 
-        Main.logger.debug("Vorrat ID: " + vorrat.getId());
+        Main.logger.debug("Vorrat ID: " + stock.getId());
 
         HashMap hm = new HashMap();
-        hm.put("produkt.bezeichnung", vorrat.getProdukt().getBezeichnung());
+        hm.put("produkt.bezeichnung", stock.getProdukt().getBezeichnung());
         hm.put("system.in-store-prefix", ProdukteTools.IN_STORE_PREFIX);
-        hm.put("vorrat.id", vorrat.getId());
-        hm.put("vorrat.lieferant", vorrat.getLieferant().getFirma());
-        if (vorrat.getProdukt().getGtin() != null) {
-            hm.put("produkt.gtin", vorrat.getProdukt().getGtin());
-            hm.put("vorrat.info", vorrat.getProdukt().getGtin());
+        hm.put("vorrat.id", stock.getId());
+        hm.put("vorrat.lieferant", stock.getLieferant().getFirma());
+        if (stock.getProdukt().getGtin() != null) {
+            hm.put("produkt.gtin", stock.getProdukt().getGtin());
+            hm.put("vorrat.info", stock.getProdukt().getGtin());
         } else {
             hm.put("produkt.gtin", "--");
-            hm.put("vorrat.info", getSummeBestand(vorrat) + " " + IngTypesTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()]);
+            hm.put("vorrat.info", getSummeBestand(stock) + " " + IngTypesTools.EINHEIT[stock.getProdukt().getIngTypes().getEinheit()]);
         }
 
 
-        hm.put("vorrat.eingang", vorrat.getEingang());
+        hm.put("vorrat.eingang", stock.getEingang());
         hm.put("vorrat.userlang", MitarbeiterTools.getUserString(mitarbeiter));
         hm.put("vorrat.userkurz", mitarbeiter.getUsername());
-        hm.put("vorrat.lieferant", vorrat.getLieferant().getFirma() + ", " + vorrat.getLieferant().getOrt());
+        hm.put("vorrat.lieferant", stock.getLieferant().getFirma() + ", " + stock.getLieferant().getOrt());
         return hm;
     }
 
@@ -265,7 +265,7 @@ public class VorratTools {
             throws java.lang.IllegalStateException,
             TransactionRequiredException,
             PersistenceException {
-        Query query = em.createQuery("SELECT b FROM Buchungen b WHERE b.status = :status AND b.vorrat.ausgang = :ausgang AND b.vorrat.produkt = :produkt");
+        Query query = em.createQuery("SELECT b FROM Buchungen b WHERE b.status = :status AND b.stock.ausgang = :ausgang AND b.stock.produkt = :produkt");
         query.setParameter("status", BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND);
         query.setParameter("produkt", produkt);
         query.setParameter("ausgang", Const.DATE_BIS_AUF_WEITERES);
@@ -281,9 +281,9 @@ public class VorratTools {
 
 
     public static void setzePackungsgroesse(Produkte produkt) {
-        for (Vorrat vorrat : produkt.getVorratCollection()) {
-            if (!vorrat.isAusgebucht()) {
-                for (Buchungen buchung : vorrat.getBuchungenCollection()) {
+        for (Stock stock : produkt.getStockCollection()) {
+            if (!stock.isAusgebucht()) {
+                for (Buchungen buchung : stock.getBuchungenCollection()) {
                     if (buchung.getStatus() == BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND) {
                         buchung.setMenge(produkt.getPackGroesse());
                     }
@@ -294,12 +294,12 @@ public class VorratTools {
 //        Main.debug("Korrigiere Eingangsbuchungen für  Produkt(" + produkt + "-" + produkt.getId() + ")");
     }
 
-    public static BigDecimal getEingangsbestand(Vorrat vorrat)
+    public static BigDecimal getEingangsbestand(Stock stock)
             throws PersistenceException {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createQuery("SELECT b FROM Buchungen b WHERE b.vorrat = :vorrat AND b.status = :status");
+        Query query = em.createQuery("SELECT b FROM Buchungen b WHERE b.stock = :stock AND b.status = :status");
         query.setParameter("status", BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND);
-        query.setParameter("vorrat", vorrat);
+        query.setParameter("stock", stock);
 
         Buchungen buchung = (Buchungen) query.getSingleResult();
         em.close();
@@ -312,9 +312,9 @@ public class VorratTools {
      * @param search
      * @return gefundener Vorrat, null sonst.
      */
-    public static Vorrat findByIDORScanner(String search) {
+    public static Stock findByIDORScanner(String search) {
         String suchtext = search.trim();
-        Vorrat vorrat = null;
+        Stock stock = null;
         long id = 0l;
         if (!suchtext.isEmpty()) {
             // Was genau wird gesucht ?
@@ -335,15 +335,15 @@ public class VorratTools {
                 EntityManager em = Main.getEMF().createEntityManager();
 
                 try {
-                    vorrat = em.find(Vorrat.class, id);
+                    stock = em.find(Stock.class, id);
                 } catch (Exception e1) {
-                    vorrat = null;
+                    stock = null;
                 } finally {
                     em.close();
                 }
             }
         }
-        return vorrat;
+        return stock;
     }
 
 //
@@ -372,14 +372,14 @@ public class VorratTools {
 //        Main.debug("Korrigiere Eingangsbuchungen für Vorrat(" + vorrat + "-" + vorrat.getId() + ")");
 //    }
 
-    public static void reaktivieren(EntityManager em, Vorrat vorrat) throws java.lang.IllegalStateException,
+    public static void reaktivieren(EntityManager em, Stock stock) throws java.lang.IllegalStateException,
             TransactionRequiredException,
             PersistenceException {
 
-        if (!vorrat.isAusgebucht()) return;
+        if (!stock.isAusgebucht()) return;
 
 
-        Collection<Buchungen> buchungen = vorrat.getBuchungenCollection();
+        Collection<Buchungen> buchungen = stock.getBuchungenCollection();
         for (Buchungen b : buchungen) {
             if (b.getStatus() == BuchungenTools.BUCHEN_ABSCHLUSSBUCHUNG) {
                 Buchungen buchung = em.merge(b);
@@ -389,15 +389,15 @@ public class VorratTools {
             }
         }
 
-        vorrat.setAusgang(Const.DATE_BIS_AUF_WEITERES);
-        em.persist(vorrat);
+        stock.setAusgang(Const.DATE_BIS_AUF_WEITERES);
+        em.persist(stock);
 
-        Main.debug("Reaktiviere Vorrat(" + vorrat + "-" + vorrat.getId() + ")");
+        Main.debug("Reaktiviere Vorrat(" + stock + "-" + stock.getId() + ")");
     }
 
-    public static Mitarbeiter getEingangMA(Vorrat vorrat) {
+    public static Mitarbeiter getEingangMA(Stock stock) {
         Mitarbeiter ma = null;
-        Collection<Buchungen> buchungen = vorrat.getBuchungenCollection();
+        Collection<Buchungen> buchungen = stock.getBuchungenCollection();
         for (Buchungen buchung : buchungen) {
             if (buchung.getStatus() == BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND) {
                 ma = buchung.getMitarbeiter();
@@ -407,9 +407,9 @@ public class VorratTools {
         return ma;
     }
 
-    public static Mitarbeiter getAusgangMA(Vorrat vorrat) {
+    public static Mitarbeiter getAusgangMA(Stock stock) {
         Mitarbeiter ma = null;
-        Collection<Buchungen> buchungen = vorrat.getBuchungenCollection();
+        Collection<Buchungen> buchungen = stock.getBuchungenCollection();
         for (Buchungen buchung : buchungen) {
             if (buchung.getStatus() == BuchungenTools.BUCHEN_ABSCHLUSSBUCHUNG) {
                 ma = buchung.getMitarbeiter();

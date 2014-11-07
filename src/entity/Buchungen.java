@@ -116,14 +116,14 @@ public class Buchungen {
 
     @JoinColumn(name = "Vorrat_ID", referencedColumnName = "ID", nullable = false)
     @ManyToOne(optional = false, cascade = CascadeType.ALL)
-    private Vorrat vorrat;
+    private Stock stock;
 
-    public Vorrat getVorrat() {
-        return vorrat;
+    public Stock getStock() {
+        return stock;
     }
 
-    public void setVorrat(Vorrat vorrat) {
-        this.vorrat = vorrat;
+    public void setStock(Stock stock) {
+        this.stock = stock;
     }
 
 //    @ManyToMany(mappedBy = "txs")
@@ -169,7 +169,7 @@ public class Buchungen {
                 ", text='" + text + '\'' +
                 ", status=" + status +
                 ", mitarbeiter=" + mitarbeiter +
-                ", vorrat=" + vorrat +
+                ", vorrat=" + stock +
                 '}';
     }
 }

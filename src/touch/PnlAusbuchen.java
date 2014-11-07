@@ -10,8 +10,8 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import entity.IngTypesTools;
 import entity.ProdukteTools;
-import entity.Vorrat;
-import entity.VorratTools;
+import entity.Stock;
+import entity.StockTools;
 import exceptions.OutOfRangeException;
 import org.jdesktop.swingx.border.DropShadowBorder;
 import org.pushingpixels.trident.Timeline;
@@ -38,7 +38,7 @@ import java.text.DecimalFormat;
 public class PnlAusbuchen extends DefaultTouchPanel {
 
     //protected javax.swing.event.EventListenerList listenerList = new javax.swing.event.EventListenerList();
-    Vorrat vorrat;
+    Stock stock;
     BigDecimal menge;
     DecimalFormat format;
     SoundProcessor sp;
@@ -68,28 +68,28 @@ public class PnlAusbuchen extends DefaultTouchPanel {
             }
             if (id != 0) {
                 EntityManager em = Main.getEMF().createEntityManager();
-                Query query1 = em.createQuery("SELECT v FROM Vorrat v WHERE v.id = :id AND v.ausgang = :ausgang");
+                Query query1 = em.createQuery("SELECT v FROM Stock v WHERE v.id = :id AND v.ausgang = :ausgang");
                 query1.setParameter("id", id);
                 query1.setParameter("ausgang", Const.DATE_BIS_AUF_WEITERES);
-                java.util.List<Vorrat> vorraete = query1.getResultList();
+                java.util.List<Stock> vorraete = query1.getResultList();
                 em.close();
                 if (vorraete.size() == 1) {
-                    vorrat = vorraete.get(0);
+                    stock = vorraete.get(0);
                     showVorrat();
                     if (btnSofortBuchen.isSelected()) {
                         em = Main.getEMF().createEntityManager();
                         try {
                             em.getTransaction().begin();
 
-                            Vorrat myVorrat = em.merge(vorrat);
-                            em.lock(myVorrat, LockModeType.OPTIMISTIC);
+                            Stock myStock = em.merge(stock);
+                            em.lock(myStock, LockModeType.OPTIMISTIC);
 
-                            VorratTools.ausbuchen(em, myVorrat, "Abschlussbuchung");
+                            StockTools.ausbuchen(em, myStock, "Abschlussbuchung");
                             em.getTransaction().commit();
 
-                            vorrat = myVorrat;
+                            stock = myStock;
 
-                            Tools.log(txtLog, "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" komplett ausgebucht");
+                            Tools.log(txtLog, "[" + stock.getId() + "] \"" + stock.getProdukt().getBezeichnung() + "\" komplett ausgebucht");
                             sp.bell();
                             clearVorrat();
                         } catch (OptimisticLockException ole) {
@@ -104,11 +104,11 @@ public class PnlAusbuchen extends DefaultTouchPanel {
                     }
                 } else {
                     clearVorrat();
-                    vorrat = null;
+                    stock = null;
                     try {
                         em = Main.getEMF().createEntityManager();
-                        Vorrat meinVorrat = vorrat = em.find(Vorrat.class, id);
-                        Tools.log(txtLog, "[" + id + "] \"" + meinVorrat.getProdukt().getBezeichnung() + "\" wurde bereits ausgebucht");
+                        Stock meinStock = stock = em.find(Stock.class, id);
+                        Tools.log(txtLog, "[" + id + "] \"" + meinStock.getProdukt().getBezeichnung() + "\" wurde bereits ausgebucht");
                         sp.warning();
                     } catch (Exception e2) {
                         Tools.log(txtLog, "[" + id + "] Nicht gefunden");
@@ -132,11 +132,11 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         EntityManager em = Main.getEMF().createEntityManager();
         try {
             em.getTransaction().begin();
-            Vorrat myVorrat = VorratTools.ausbuchen(em, vorrat, "Abschlussbuchung");
+            Stock myStock = StockTools.ausbuchen(em, stock, "Abschlussbuchung");
             em.getTransaction().commit();
-            Tools.log(txtLog, "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" komplett ausgebucht");
+            Tools.log(txtLog, "[" + stock.getId() + "] \"" + stock.getProdukt().getBezeichnung() + "\" komplett ausgebucht");
             sp.bell();
-            vorrat = myVorrat;
+            stock = myStock;
             clearVorrat();
         } catch (OptimisticLockException ole) {
             Main.warn(ole);
@@ -177,11 +177,11 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         EntityManager em = Main.getEMF().createEntityManager();
         try {
             em.getTransaction().begin();
-            Vorrat myVorrat = VorratTools.ausbuchen(em, vorrat, menge.divide(new BigDecimal(2)), "Ausbuchung Hälfte");
+            Stock myStock = StockTools.ausbuchen(em, stock, menge.divide(new BigDecimal(2)), "Ausbuchung Hälfte");
             em.getTransaction().commit();
-            Tools.log(txtLog, "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" zur Hälfte ausgebucht");
+            Tools.log(txtLog, "[" + stock.getId() + "] \"" + stock.getProdukt().getBezeichnung() + "\" zur Hälfte ausgebucht");
             sp.bell();
-            vorrat = myVorrat;
+            stock = myStock;
             clearVorrat();
             //success("Ausbuchung erfolgreich");
         } catch (OptimisticLockException ole) {
@@ -200,11 +200,11 @@ public class PnlAusbuchen extends DefaultTouchPanel {
         EntityManager em = Main.getEMF().createEntityManager();
         try {
             em.getTransaction().begin();
-            Vorrat myVorrat = VorratTools.ausbuchen(em, vorrat, menge, "Ausbuchung");
-            String message = "[" + vorrat.getId() + "] \"" + vorrat.getProdukt().getBezeichnung() + "\" " + menge + " " + lblEinheit.getText() + " ausgebucht.";
+            Stock myStock = StockTools.ausbuchen(em, stock, menge, "Ausbuchung");
+            String message = "[" + stock.getId() + "] \"" + stock.getProdukt().getBezeichnung() + "\" " + menge + " " + lblEinheit.getText() + " ausgebucht.";
             em.getTransaction().commit();
-            vorrat = myVorrat;
-            message += vorrat.isAusgebucht() ? " Vorrat damit abgeschlossen." : "";
+            stock = myStock;
+            message += stock.isAusgebucht() ? " Vorrat damit abgeschlossen." : "";
             sp.bell();
             Tools.log(txtLog, message);
             //Main.debug(">>" + vorrat.getProdukt().getBezeichnung() + "<< " + menge + " " + lblEinheit.getText() + " ausgebucht");
@@ -229,9 +229,9 @@ public class PnlAusbuchen extends DefaultTouchPanel {
     }
 
     private void showVorrat() {
-        info(vorrat.getProdukt().getBezeichnung(), lblVorrat);
-        lblEinheit.setText(IngTypesTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()]);
-        txtMenge.setText(format.format(VorratTools.getSummeBestand(vorrat)));
+        info(stock.getProdukt().getBezeichnung(), lblVorrat);
+        lblEinheit.setText(IngTypesTools.EINHEIT[stock.getProdukt().getIngTypes().getEinheit()]);
+        txtMenge.setText(format.format(StockTools.getSummeBestand(stock)));
         txtMenge.setEnabled(true);
         btnKomplettAusbuchen.setEnabled(true);
         btnHalbAusbuchen.setEnabled(true);

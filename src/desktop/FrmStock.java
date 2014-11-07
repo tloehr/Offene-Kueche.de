@@ -19,7 +19,7 @@ import org.jdesktop.swingx.VerticalLayout;
 import org.jdesktop.swingx.prompt.PromptSupport;
 import printer.Form;
 import printer.Printer;
-import tablemodels.VorratTableModel;
+import tablemodels.StockTableModel;
 import threads.PrintProcessor;
 import tools.Const;
 import tools.Pair;
@@ -48,7 +48,7 @@ import java.util.List;
 /**
  * @author Torsten Löhr
  */
-public class FrmVorrat extends javax.swing.JInternalFrame {
+public class FrmStock extends javax.swing.JInternalFrame {
     private JPopupMenu menu;
     private Object[] spaltenVorrat = new Object[]{"Vorrat Nr.", "Bezeichnung", "Lagerort", "Lieferant", "GTIN", "Eingangsmenge", "Restmenge", "Stoffart", "Warengruppe", "Eingang", "Anbruch", "Ausgang"};
     private Object[] spaltenBuchungen = new Object[]{"Datum", "Text", "Menge", "MitarbeiterIn"};
@@ -63,7 +63,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
     private Pair<Integer, Object> suche = null;
 
 
-    public FrmVorrat() {
+    public FrmStock() {
         initphase = true;
         thisComponent = this;
         initComponents();
@@ -101,29 +101,29 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
             if (suche == null) {
 
                 if (btnAktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else if (btnInaktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " GROUP BY v");
                 }
 
             } else if (suche.getFirst() == Const.DATUM) {
                 if (btnAktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.eingang BETWEEN :eingang1 AND :eingang2 AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else if (btnInaktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.eingang BETWEEN :eingang1 AND :eingang2  AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.eingang BETWEEN :eingang1 AND :eingang2 " +
                             " GROUP BY v");
                 }
@@ -133,36 +133,36 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                 query.setParameter("eingang2", new Date(Tools.endOfDay(eingang)));
             } else if (suche.getFirst() == Const.PRODUKT) {
                 if (btnAktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.produkt = :produkt AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else if (btnInaktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.produkt = :produkt AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.produkt = :produkt " +
                             " GROUP BY v");
                 }
                 Produkte produkt = (Produkte) suche.getSecond();
                 query.setParameter("produkt", produkt);
-            } else if (suche.getFirst() == Const.VORRAT) {
+            } else if (suche.getFirst() == Const.STOCK) {
                 if (btnAktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v = :vorrat AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else if (btnInaktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v = :vorrat AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v = :vorrat " +
                             " GROUP BY v");
                 }
-                Vorrat vorrat = (Vorrat) suche.getSecond();
-                query.setParameter("vorrat", vorrat);
+                Stock stock = (Stock) suche.getSecond();
+                query.setParameter("vorrat", stock);
             } else if (suche.getFirst() == Const.LAGER) {
                 initphase = true;
                 cmbWarengruppe.setSelectedIndex(0);
@@ -170,15 +170,15 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                 initphase = false;
 
                 if (btnAktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.stock v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
                             " WHERE v.lager = :lager AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else if (btnInaktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.stock v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
                             " WHERE v.lager = :lager AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else {
-                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.stock v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
                             " WHERE v.lager = :lager " +
                             " GROUP BY v");
                 }
@@ -192,15 +192,15 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                 initphase = false;
 
                 if (btnAktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.produkt.ingTypes.warengruppe = :warengruppe AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else if (btnInaktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.produkt.ingTypes.warengruppe = :warengruppe AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.produkt.ingTypes.warengruppe = :warengruppe " +
                             " GROUP BY v");
                 }
@@ -214,15 +214,15 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                 initphase = false;
 
                 if (btnAktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.lieferant = :lieferant AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else if (btnInaktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.lieferant = :lieferant AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.lieferant = :lieferant " +
                             " GROUP BY v");
                 }
@@ -232,15 +232,15 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
             } else if (suche.getFirst() == Const.PRODUKTNAME) {
 
                 if (btnAktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.produkt.bezeichnung LIKE :bezeichnung AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else if (btnInaktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.produkt.bezeichnung LIKE :bezeichnung AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else {
-                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.vorrat v " +
+                    query = em.createQuery("SELECT v, SUM(b.menge) FROM Buchungen b JOIN b.stock v " +
                             " WHERE v.produkt.bezeichnung LIKE :bezeichnung " +
                             " GROUP BY v");
                 }
@@ -249,15 +249,15 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
             } else if (suche.getFirst() == Const.LAGERART) {
 
                 if (btnAktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.stock v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
                             " WHERE v.lager.lagerart = :lagerart AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else if (btnInaktiv.isSelected()) {
-                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.stock v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
                             " WHERE v.lager.lagerart = :lagerart AND v.ausgang < " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                             " GROUP BY v");
                 } else {
-                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
+                    query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.stock v " + // die 0 ist ein kleiner Kniff und wird für da Umbuchen gebraucht.
                             " WHERE v.lager.lagerart = :lagerart " +
                             " GROUP BY v");
                 }
@@ -274,11 +274,11 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 //                    tblVorrat.getSelectionModel().removeListSelectionListener(vlsl);
 //                }
 
-                tblVorrat.setModel(new VorratTableModel(list, spaltenVorrat));
+                tblVorrat.setModel(new StockTableModel(list, spaltenVorrat));
 //                tblVorrat.getSelectionModel().addListSelectionListener(vlsl);
 
                 TableRowSorter sorter = new TableRowSorter(tblVorrat.getModel());
-                sorter.setComparator(VorratTableModel.COL_LAGER, new Comparator<Lager>() {
+                sorter.setComparator(StockTableModel.COL_LAGER, new Comparator<Lager>() {
                     public int compare(Lager l1, Lager l2) {
                         return l1.toString().compareToIgnoreCase(l2.toString());
                     }
@@ -403,8 +403,8 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
         for (int r = 0; r < rows.length; r++) {
             int row = tblVorrat.convertRowIndexToModel(rows[r]);
-            Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getVorrat(row);
-            printList.add(new PrintListElement(vorrat, printer, form, printername));
+            Stock stock = ((StockTableModel) tblVorrat.getModel()).getVorrat(row);
+            printList.add(new PrintListElement(stock, printer, form, printername));
         }
 
         Collections.sort(printList); // Sortieren nach den PrimaryKeys
@@ -468,9 +468,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
 
                 if (suchtext.matches("^" + ProdukteTools.IN_STORE_PREFIX + "\\d{11}$")) { // VorratID in EAN 13 Kodiert mit in-store Präfix (z.B. 20)
                     // Ausschneiden der VorID aus dem EAN Code. IN-STORE-PREFIX und die Prüfsummenziffer weg.
-                    Vorrat vorrat = em.find(Vorrat.class, Long.parseLong(suchtext.substring(2, 12)));
-                    if (vorrat != null) {
-                        suche = new Pair<Integer, Object>(Const.VORRAT, vorrat);
+                    Stock stock = em.find(Stock.class, Long.parseLong(suchtext.substring(2, 12)));
+                    if (stock != null) {
+                        suche = new Pair<Integer, Object>(Const.STOCK, stock);
                     }
                 } else if (ProdukteTools.isGTIN(suchtext)) {  // GTIN13
                     java.util.List<Produkte> list = ProdukteTools.searchProdukte(suchtext);
@@ -479,9 +479,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                         suche = new Pair<Integer, Object>(Const.PRODUKT, list.get(0));
                     }
                 } else if (suchtext.matches("^\\d+")) { // Nur Ziffern, dann kann das nur eine VorratID von Hand
-                    Vorrat vorrat = em.find(Vorrat.class, Long.parseLong(suchtext));
-                    if (vorrat != null) {
-                        suche = new Pair<Integer, Object>(Const.VORRAT, vorrat);
+                    Stock stock = em.find(Stock.class, Long.parseLong(suchtext));
+                    if (stock != null) {
+                        suche = new Pair<Integer, Object>(Const.STOCK, stock);
                     }
                 } else { // Produktbezeichnung
                     if (!suchtext.isEmpty()) {
@@ -553,7 +553,7 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
             lsm.setSelectionInterval(row, row);
         }
 
-        final VorratTableModel tm = (VorratTableModel) tblVorrat.getModel();
+        final StockTableModel tm = (StockTableModel) tblVorrat.getModel();
 
         if (SwingUtilities.isRightMouseButton(evt)) {
             DefaultComponentFactory compFactory = DefaultComponentFactory.getInstance();
@@ -573,9 +573,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                             em.getTransaction().begin();
                             for (int r = 0; r < rows.length; r++) {
                                 int row = tblVorrat.convertRowIndexToModel(rows[r]);
-                                Vorrat vorrat = em.merge(tm.getVorrat(row));
-                                em.lock(vorrat, LockModeType.OPTIMISTIC);
-                                VorratTools.ausbuchen(em, vorrat, "Abschlussbuchung");
+                                Stock stock = em.merge(tm.getVorrat(row));
+                                em.lock(stock, LockModeType.OPTIMISTIC);
+                                StockTools.ausbuchen(em, stock, "Abschlussbuchung");
                             }
                             em.getTransaction().commit();
                             loadVorratTable();
@@ -604,9 +604,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                             em.getTransaction().begin();
                             for (int r = 0; r < rows.length; r++) {
                                 int row = tblVorrat.convertRowIndexToModel(rows[r]);
-                                Vorrat vorrat = em.merge(tm.getVorrat(row));
-                                em.lock(vorrat, LockModeType.OPTIMISTIC);
-                                em.remove(vorrat);
+                                Stock stock = em.merge(tm.getVorrat(row));
+                                em.lock(stock, LockModeType.OPTIMISTIC);
+                                em.remove(stock);
                             }
                             em.getTransaction().commit();
                             loadVorratTable();
@@ -637,9 +637,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                             em.getTransaction().begin();
                             for (int r = 0; r < rows.length; r++) {
                                 int row = tblVorrat.convertRowIndexToModel(rows[r]);
-                                Vorrat vorrat = em.merge(tm.getVorrat(row));
-                                em.lock(vorrat, LockModeType.OPTIMISTIC);
-                                VorratTools.reaktivieren(em, vorrat);
+                                Stock stock = em.merge(tm.getVorrat(row));
+                                em.lock(stock, LockModeType.OPTIMISTIC);
+                                StockTools.reaktivieren(em, stock);
                             }
                             em.getTransaction().commit();
                             loadVorratTable();
@@ -669,9 +669,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                         em.getTransaction().begin();
                         for (int r = 0; r < rows.length; r++) {
                             int row = tblVorrat.convertRowIndexToModel(rows[r]);
-                            Vorrat vorrat = em.merge(tm.getVorrat(row));
-                            em.lock(vorrat, LockModeType.OPTIMISTIC);
-                            VorratTools.reaktivieren(em, vorrat);
+                            Stock stock = em.merge(tm.getVorrat(row));
+                            em.lock(stock, LockModeType.OPTIMISTIC);
+                            StockTools.reaktivieren(em, stock);
                         }
                         em.getTransaction().commit();
                         loadVorratTable();
@@ -710,9 +710,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                                     Lager myLager = em.merge(lager);
                                     for (int r = 0; r < rows.length; r++) {
                                         int row = tblVorrat.convertRowIndexToModel(rows[r]);
-                                        Vorrat vorrat = em.merge(tm.getVorrat(row));
-                                        em.lock(vorrat, LockModeType.OPTIMISTIC);
-                                        vorrat.setLager(myLager);
+                                        Stock stock = em.merge(tm.getVorrat(row));
+                                        em.lock(stock, LockModeType.OPTIMISTIC);
+                                        stock.setLager(myLager);
                                     }
                                     em.getTransaction().commit();
                                     loadVorratTable();
@@ -757,9 +757,9 @@ public class FrmVorrat extends javax.swing.JInternalFrame {
                                     Lieferanten myLieferant = em.merge(lieferant);
                                     for (int r = 0; r < rows.length; r++) {
                                         int row = tblVorrat.convertRowIndexToModel(rows[r]);
-                                        Vorrat vorrat = em.merge(tm.getVorrat(row));
-                                        em.lock(vorrat, LockModeType.OPTIMISTIC);
-                                        vorrat.setLieferant(myLieferant);
+                                        Stock stock = em.merge(tm.getVorrat(row));
+                                        em.lock(stock, LockModeType.OPTIMISTIC);
+                                        stock.setLieferant(myLieferant);
                                     }
                                     em.getTransaction().commit();
                                     loadVorratTable();

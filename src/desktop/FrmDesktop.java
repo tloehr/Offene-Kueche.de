@@ -32,7 +32,7 @@ import java.beans.PropertyVetoException;
 public class FrmDesktop extends JFrame {
     //    boolean ADMIN = true;
     JInternalFrame einbuchen, ausbuchen, umbuchen, produkte, types, menuweek, stock2product;
-    FrmVorrat vorrat = null;
+    FrmStock vorrat = null;
     FrmUser user = null;
     HeapStat hs;
     WindowAdapter wa;
@@ -213,7 +213,7 @@ public class FrmDesktop extends JFrame {
             return;
         }
 
-        vorrat = new FrmVorrat();
+        vorrat = new FrmStock();
         vorrat.addInternalFrameListener(myFrameListener);
 //        vorraeteMenuItem.setEnabled(false);
         desktopPane.add(vorrat);
@@ -365,13 +365,13 @@ public class FrmDesktop extends JFrame {
         menuweek.addInternalFrameListener(myFrameListener);
         menuweekMenuItem.setEnabled(false);
         desktopPane.add(menuweek);
-        Tools.centerOnParent(desktopPane, menuweek);
+//        Tools.centerOnParent(desktopPane, menuweek);
         menuweek.toFront();
-        try {
-            menuweek.setMaximum(true);
-        } catch (PropertyVetoException e1) {
-            e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+//        try {
+//            menuweek.setMaximum(true);
+//        } catch (PropertyVetoException e1) {
+//            e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        }
     }
 
 
@@ -718,7 +718,7 @@ public class FrmDesktop extends JFrame {
                 ((TouchPanel) umbuchen.getContentPane().getComponent(0)).cleanup();
                 umbuchen = null;
                 umbuchenMenuItem.setEnabled(true);
-            } else if (e.getSource() instanceof FrmVorrat) {
+            } else if (e.getSource() instanceof FrmStock) {
                 vorrat.removeInternalFrameListener(myFrameListener);
                 vorrat = null;
 //                vorraeteMenuItem.setEnabled(true);

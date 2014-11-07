@@ -21,7 +21,7 @@ public class Produkte {
         this.ingTypes = ingTypes;
         this.additives = new HashSet<Additives>();
         this.allergenes = new HashSet<Allergene>();
-        this.vorratCollection = new ArrayList<Vorrat>();
+        this.stockCollection = new ArrayList<Stock>();
         this.version = 0l;
     }
 
@@ -83,10 +83,10 @@ public class Produkte {
      * Relationen
      */
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "produkt")
-    private Collection<Vorrat> vorratCollection;
+    private Collection<Stock> stockCollection;
 
-    public Collection<Vorrat> getVorratCollection() {
-        return vorratCollection;
+    public Collection<Stock> getStockCollection() {
+        return stockCollection;
     }
 
     @JoinColumn(name = "Stoffart_ID", referencedColumnName = "ID")

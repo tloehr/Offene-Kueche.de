@@ -8,7 +8,7 @@
         <class>entity.Mitarbeiter</class>
         <class>entity.Produkte</class>
         <class>entity.IngTypes</class>
-        <class>entity.Vorrat</class>
+        <class>entity.Stock</class>
         <class>entity.Warengruppe</class>
         <class>entity.Additives</class>
         <class>entity.Additives2Products</class>

@@ -5,8 +5,8 @@
 package tablemodels;
 
 import entity.IngTypesTools;
-import entity.Vorrat;
-import entity.VorratTools;
+import entity.Stock;
+import entity.StockTools;
 import tools.Tools;
 
 import javax.swing.table.DefaultTableModel;
@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author tloehr
  */
-public class VorratTableModel2 extends DefaultTableModel implements DeletableTableModel {
+public class StockTableModel2 extends DefaultTableModel implements DeletableTableModel {
 
     public static final int COL_VORRAT_ID = 0;
     public static final int COL_BEZEICHNUNG = 1;
@@ -39,7 +39,7 @@ public class VorratTableModel2 extends DefaultTableModel implements DeletableTab
 
     private DateFormat df;
 
-    public VorratTableModel2(List data, Object[] columnNames) {
+    public StockTableModel2(List data, Object[] columnNames) {
         this.data = data;
         setColumnIdentifiers(columnNames);
         df = DateFormat.getDateInstance(DateFormat.DEFAULT);
@@ -71,26 +71,26 @@ public class VorratTableModel2 extends DefaultTableModel implements DeletableTab
         return c;
     }
 
-    public Vorrat getVorrat(int row) {
-        return (Vorrat) ((Object[]) data.get(row))[0];
+    public Stock getVorrat(int row) {
+        return (Stock) ((Object[]) data.get(row))[0];
     }
 
-    public int addVorrat(Vorrat vorrat) {
-        int pos = findVorrat(vorrat);
+    public int addVorrat(Stock stock) {
+        int pos = findVorrat(stock);
         if (pos >= 0) {
             setStatus(pos, STATUS_OK);
         } else {
-            data.add(new Object[]{vorrat, VorratTools.getSummeBestand(vorrat), STATUS_NEU});
+            data.add(new Object[]{stock, StockTools.getSummeBestand(stock), STATUS_NEU});
         }
         fireTableDataChanged();
         return pos >= 0 ? pos : data.size()-1;
     }
 
-    private int findVorrat(Vorrat vorrat) {
+    private int findVorrat(Stock stock) {
         int position = -1;
         for (int i = 0; i < data.size(); i++) {
-            Vorrat vorrat1 = (Vorrat) ((Object[]) data.get(i))[0];
-            if (vorrat.equals(vorrat1)) {
+            Stock stock1 = (Stock) ((Object[]) data.get(i))[0];
+            if (stock.equals(stock1)) {
                 position = i;
                 break;
             }
@@ -109,20 +109,20 @@ public class VorratTableModel2 extends DefaultTableModel implements DeletableTab
     @Override
     public Object getValueAt(int row, int column) {
         Object value;
-        Vorrat vorrat = (Vorrat) ((Object[]) data.get(row))[0];
+        Stock stock = (Stock) ((Object[]) data.get(row))[0];
         BigDecimal menge = (BigDecimal) ((Object[]) data.get(row))[1];
         switch (column) {
             case COL_VORRAT_ID: {
-                value = vorrat.getId();
+                value = stock.getId();
                 break;
             }
             case COL_BEZEICHNUNG: {
                 //Main.debug(vorrat);
-                value = vorrat.getProdukt().getBezeichnung();
+                value = stock.getProdukt().getBezeichnung();
                 break;
             }
             case COL_MENGE: {
-                value = Tools.roundScale2(menge.doubleValue()) + " " + IngTypesTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()];
+                value = Tools.roundScale2(menge.doubleValue()) + " " + IngTypesTools.EINHEIT[stock.getProdukt().getIngTypes().getEinheit()];
                 break;
             }
             default: {

@@ -482,7 +482,7 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
 //                    menuPopupAssign.add(menuWarengruppe);
 //                }
 //            } catch (Exception exc) {
-//                Main.fatal(exc);
+//                Main.fatal(exc.getMessage());
 //            } finally {
 //                em.close();
 //            }

@@ -268,7 +268,7 @@ public class DlgProdukt extends MyJDialog {
 
             if (groesse != null) {
                 produkt.setPackGroesse(groesse);
-                VorratTools.setzePackungsgroesse(produkt);
+                StockTools.setzePackungsgroesse(produkt);
             }
 //
 //                if (cmbStoffart.getSelectedIndex() > 0) {
@@ -379,15 +379,15 @@ public class DlgProdukt extends MyJDialog {
             // Was genau wird gesucht ?
 
             Produkte foundProduct = null;
-            Vorrat foundVorrat = null;
+            Stock foundStock = null;
 
             if (ProdukteTools.isGTIN(suchtext)) {
                 foundProduct = ProdukteTools.getProduct(suchtext);
             }
 
             if (foundProduct == null) {
-                foundVorrat = VorratTools.findByIDORScanner(suchtext);
-                foundProduct = foundVorrat == null ? null : foundVorrat.getProdukt();
+                foundStock = StockTools.findByIDORScanner(suchtext);
+                foundProduct = foundStock == null ? null : foundStock.getProdukt();
             }
 
             if (foundProduct == null) {
@@ -400,7 +400,7 @@ public class DlgProdukt extends MyJDialog {
 //                myProducts.clear();
 //                myProducts.add(foundProduct);
 
-                lblSearch.setText(" Gefunden: ProdID #" + foundProduct.getId() + (foundVorrat == null ? "" : " // VorratID #" + foundVorrat.getId()));
+                lblSearch.setText(" Gefunden: ProdID #" + foundProduct.getId() + (foundStock == null ? "" : " // VorratID #" + foundStock.getId()));
 
                 fillEditor();
             }

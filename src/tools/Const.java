@@ -117,7 +117,7 @@ public class Const {
     // Bedeutung des Wertes bei einer Suche
     public static final int DATUM = 0;
     public static final int PRODUKTNAME = 1;
-    public static final int VORRAT = 2;
+    public static final int STOCK = 2;
     public static final int GTIN = 3;
     public static final int LAGER = 4;
     public static final int WARENGRUPPE = 5;

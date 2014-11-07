@@ -1,6 +1,6 @@
 package tablerenderer;
 
-import tablemodels.VorratTableModel2;
+import tablemodels.StockTableModel2;
 import tools.Const;
 
 import javax.swing.*;
@@ -27,24 +27,24 @@ public class UmbuchenRenderer extends DefaultTableCellRenderer {
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        VorratTableModel2 model = (VorratTableModel2) table.getModel();
+        StockTableModel2 model = (StockTableModel2) table.getModel();
 
-        if (model.getStatus(table.convertRowIndexToModel(row)) == VorratTableModel2.STATUS_FRAGLICH) {
+        if (model.getStatus(table.convertRowIndexToModel(row)) == StockTableModel2.STATUS_FRAGLICH) {
             setForeground(Color.BLUE);
-            if (column == VorratTableModel2.COL_ICON){
+            if (column == StockTableModel2.COL_ICON){
                 setIcon(fraglich);
             }
-        } else if (model.getStatus(table.convertRowIndexToModel(row)) == VorratTableModel2.STATUS_NEU) {
+        } else if (model.getStatus(table.convertRowIndexToModel(row)) == StockTableModel2.STATUS_NEU) {
             setForeground(Color.RED);
-            if (column == VorratTableModel2.COL_ICON){
+            if (column == StockTableModel2.COL_ICON){
                 setIcon(neu);
             }
-        } else if (model.getStatus(table.convertRowIndexToModel(row)) == VorratTableModel2.STATUS_OK) {
+        } else if (model.getStatus(table.convertRowIndexToModel(row)) == StockTableModel2.STATUS_OK) {
             setForeground(Color.BLACK);
-            if (column == VorratTableModel2.COL_ICON){
+            if (column == StockTableModel2.COL_ICON){
                 setIcon(ok);
             }
-        } else if (model.getStatus(table.convertRowIndexToModel(row)) == VorratTableModel2.STATUS_ZOMBIE) {
+        } else if (model.getStatus(table.convertRowIndexToModel(row)) == StockTableModel2.STATUS_ZOMBIE) {
             setForeground(Const.darkorange);
         } else {
             setForeground(Const.yellow4);

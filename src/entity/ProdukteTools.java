@@ -183,7 +183,7 @@ public class ProdukteTools {
         } else {
             EntityManager em = Main.getEMF().createEntityManager();
             Query query = em.createQuery(
-                    " SELECT v FROM Vorrat v " +
+                    " SELECT v FROM Stock v " +
                             " INNER JOIN v.produkt p " +
                             " WHERE v.produkt = :produkt" +
                             " ORDER BY v.eingang DESC ");
@@ -191,7 +191,7 @@ public class ProdukteTools {
             query.setMaxResults(1);
 
             try {
-                Vorrat v = (Vorrat) query.getSingleResult();
+                Stock v = (Stock) query.getSingleResult();
                 l = v.getLieferant();
                 Main.cache.put(produkt, l);
             } catch (Exception e1) { // nicht gefunden

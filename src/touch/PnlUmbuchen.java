@@ -10,7 +10,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import entity.*;
 import org.pushingpixels.trident.Timeline;
 import printer.Printers;
-import tablemodels.VorratTableModel2;
+import tablemodels.StockTableModel2;
 import tablerenderer.UmbuchenRenderer;
 import threads.SoundProcessor;
 import tools.Const;
@@ -33,7 +33,7 @@ import java.util.ArrayList;
 public class PnlUmbuchen extends DefaultTouchPanel {
     Lager ziel;
     Lieferanten lieferant;
-    Vorrat vorrat;
+    Stock stock;
     private final int MODULENUMBER = 3;
     private SoundProcessor sp;
     private Object[] spaltenVorrat = new Object[]{"Vorrat Nr.", "Bezeichnung", "Menge", "Status"};
@@ -54,20 +54,20 @@ public class PnlUmbuchen extends DefaultTouchPanel {
     }
 
     private void txtSearchActionPerformed(ActionEvent e) {
-        vorrat = VorratTools.findByIDORScanner(txtSearch.getText());
-        if (vorrat != null) {
-            if (vorrat.isAusgebucht() && !cbZombieRevive.isSelected()) {
-                Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "Dieser Vorrat wurde bereits ausgebucht.");
+        stock = StockTools.findByIDORScanner(txtSearch.getText());
+        if (stock != null) {
+            if (stock.isAusgebucht() && !cbZombieRevive.isSelected()) {
+                Tools.log(txtLog, stock.getId(), stock.getProdukt().getBezeichnung(), "Dieser Vorrat wurde bereits ausgebucht.");
                 Tools.fadeout(lblProdukt);
                 sp.error();
-                vorrat = null;
+                stock = null;
             } else {
                 if (btnSofortUmbuchen.isSelected()) {
                     umbuchen();
-                    Tools.fadeinout(lblProdukt, "[" + vorrat.getId() + "] " + vorrat.getProdukt().getBezeichnung());
-                    vorrat = null;
+                    Tools.fadeinout(lblProdukt, "[" + stock.getId() + "] " + stock.getProdukt().getBezeichnung());
+                    stock = null;
                 } else {
-                    Tools.fadein(lblProdukt, "[" + vorrat.getId() + "] " + vorrat.getProdukt().getBezeichnung());
+                    Tools.fadein(lblProdukt, "[" + stock.getId() + "] " + stock.getProdukt().getBezeichnung());
                 }
             }
         } else {
@@ -75,7 +75,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             Tools.fadeout(lblProdukt);
             sp.warning();
         }
-        btnUmbuchen.setEnabled(vorrat != null);
+        btnUmbuchen.setEnabled(stock != null);
         txtSearch.selectAll();
         txtSearch.requestFocus();
         txtSearchChecked = true;
@@ -88,15 +88,15 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
             em.getTransaction().begin();
 
-            Vorrat myVorrat = em.merge(vorrat);
+            Stock myStock = em.merge(stock);
 
-            if (myVorrat.isAusgebucht()) {
-                myVorrat.setAusgang(Const.DATE_BIS_AUF_WEITERES);
-                myVorrat.setAnbruch(Const.DATE_BIS_AUF_WEITERES);
+            if (myStock.isAusgebucht()) {
+                myStock.setAusgang(Const.DATE_BIS_AUF_WEITERES);
+                myStock.setAnbruch(Const.DATE_BIS_AUF_WEITERES);
 
 
                 Query query = em.createQuery("DELETE FROM Buchungen b WHERE b.vorrat = :vorrat AND b.status <> :butnotstatus");
-                query.setParameter("vorrat", myVorrat);
+                query.setParameter("vorrat", myStock);
                 query.setParameter("butnotstatus", BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND);
 
                 query.executeUpdate();
@@ -115,18 +115,18 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 //                }
             }
 
-            myVorrat.setLager(em.merge(ziel));
+            myStock.setLager(em.merge(ziel));
             if (lieferant != null) {
-                myVorrat.setLieferant(em.merge(lieferant));
+                myStock.setLieferant(em.merge(lieferant));
             }
 //            EntityTools.merge(vorrat);
             em.getTransaction().commit();
 
-            vorrat = myVorrat;
+            stock = myStock;
 
-            Tools.log(txtLog, myVorrat.getId(), myVorrat.getProdukt().getBezeichnung(), "umgebucht");
-            if (tblVorrat.getModel() instanceof VorratTableModel2) {
-                int row = ((VorratTableModel2) tblVorrat.getModel()).addVorrat(vorrat); // diese Methode fügt den Vorrat nur dann hinzu, wenn nötig.
+            Tools.log(txtLog, myStock.getId(), myStock.getProdukt().getBezeichnung(), "umgebucht");
+            if (tblVorrat.getModel() instanceof StockTableModel2) {
+                int row = ((StockTableModel2) tblVorrat.getModel()).addVorrat(stock); // diese Methode fügt den Vorrat nur dann hinzu, wenn nötig.
                 Tools.scrollCellToVisible(tblVorrat, row, 1);
                 tblVorrat.getSelectionModel().setSelectionInterval(row, row);
             }
@@ -174,13 +174,13 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
             java.util.List list = query.getResultList();
 
-            tblVorrat.setModel(new VorratTableModel2(list, spaltenVorrat));
+            tblVorrat.setModel(new StockTableModel2(list, spaltenVorrat));
             Tools.packTable(tblVorrat, 0);
 
-            tblVorrat.getColumnModel().getColumn(VorratTableModel2.COL_VORRAT_ID).setCellRenderer(new UmbuchenRenderer());
-            tblVorrat.getColumnModel().getColumn(VorratTableModel2.COL_BEZEICHNUNG).setCellRenderer(new UmbuchenRenderer());
-            tblVorrat.getColumnModel().getColumn(VorratTableModel2.COL_MENGE).setCellRenderer(new UmbuchenRenderer());
-            tblVorrat.getColumnModel().getColumn(VorratTableModel2.COL_ICON).setCellRenderer(new UmbuchenRenderer());
+            tblVorrat.getColumnModel().getColumn(StockTableModel2.COL_VORRAT_ID).setCellRenderer(new UmbuchenRenderer());
+            tblVorrat.getColumnModel().getColumn(StockTableModel2.COL_BEZEICHNUNG).setCellRenderer(new UmbuchenRenderer());
+            tblVorrat.getColumnModel().getColumn(StockTableModel2.COL_MENGE).setCellRenderer(new UmbuchenRenderer());
+            tblVorrat.getColumnModel().getColumn(StockTableModel2.COL_ICON).setCellRenderer(new UmbuchenRenderer());
 
         } catch (Exception e) { // nicht gefunden
             Main.logger.fatal(e.getMessage(), e);
@@ -217,7 +217,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
     private void btnToUnbekanntActionPerformed(ActionEvent e) {
         Lager unbekannt = LagerTools.getUnbekannt();
-        VorratTableModel2 model = (VorratTableModel2) tblVorrat.getModel();
+        StockTableModel2 model = (StockTableModel2) tblVorrat.getModel();
         Tools.log(txtLog, "Folgende Vorräte wurden auf Unbekannt umgebucht:");
         Tools.log(txtLog, "================================================");
 
@@ -227,11 +227,11 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
             for (int row = 0; row < model.getRowCount(); row++) {
                 // Model Row Index Umwandlung ist hier unnötig. Markierungen bleiben unberücksichtigt.
-                if (model.getStatus(row) == VorratTableModel2.STATUS_FRAGLICH) {
-                    Vorrat vorrat = em.merge(model.getVorrat(row));
-                    em.lock(vorrat, LockModeType.OPTIMISTIC);
-                    Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "");
-                    vorrat.setLager(unbekannt);
+                if (model.getStatus(row) == StockTableModel2.STATUS_FRAGLICH) {
+                    Stock stock = em.merge(model.getVorrat(row));
+                    em.lock(stock, LockModeType.OPTIMISTIC);
+                    Tools.log(txtLog, stock.getId(), stock.getProdukt().getBezeichnung(), "");
+                    stock.setLager(unbekannt);
                 }
             }
             em.getTransaction().commit();
@@ -249,23 +249,23 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
     private void vorratsListeInsLogbuch() {
         if (tblVorrat.getModel().getRowCount() > 0) {
-            VorratTableModel2 model = (VorratTableModel2) tblVorrat.getModel();
+            StockTableModel2 model = (StockTableModel2) tblVorrat.getModel();
             Tools.log(txtLog, "Die Vorratsliste enhielt folgende Einträge:");
             Tools.log(txtLog, "===========================================");
             for (int row = 0; row < model.getRowCount(); row++) {
                 int r = tblVorrat.convertRowIndexToModel(row);
-                Vorrat vorrat = model.getVorrat(r);
+                Stock stock = model.getVorrat(r);
                 String status = "";
-                if (model.getStatus(r) == VorratTableModel2.STATUS_FRAGLICH) {
+                if (model.getStatus(r) == StockTableModel2.STATUS_FRAGLICH) {
                     status = "ungeprüft";
-                } else if (model.getStatus(r) == VorratTableModel2.STATUS_NEU) {
+                } else if (model.getStatus(r) == StockTableModel2.STATUS_NEU) {
                     status = "   neu   ";
-                } else if (model.getStatus(r) == VorratTableModel2.STATUS_OK) {
+                } else if (model.getStatus(r) == StockTableModel2.STATUS_OK) {
                     status = "    ok   ";
                 } else {
                     status = "?";
                 }
-                Tools.log(txtLog, vorrat.getId(), status, vorrat.getProdukt().getBezeichnung());
+                Tools.log(txtLog, stock.getId(), status, stock.getProdukt().getBezeichnung());
             }
             Tools.log(txtLog, "================================================");
         }
@@ -337,11 +337,11 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 //                    int row = tblVorrat.convertRowIndexToModel(rows[r]);
 //                    Vorrat vorrat = ((VorratTableModel2) tblVorrat.getModel()).getVorrat(row);
 //                    if (laufendeVOperation == LAUFENDE_OPERATION_LOESCHEN) {
-//                        Main.logger.info("DELETE VORRAT: " + vorrat.toString());
+//                        Main.logger.info("DELETE STOCK: " + vorrat.toString());
 //                        Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "GELÖSCHT");
 //                        EntityTools.delete(vorrat);
 //                    } else if (laufendeVOperation == LAUFENDE_OPERATION_AUSBUCHEN) {
-//                        Main.logger.info("AUSBUCHEN VORRAT: " + vorrat.toString());
+//                        Main.logger.info("AUSBUCHEN STOCK: " + vorrat.toString());
 //                        Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "AUSGEBUCHT");
 //                        VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
 //                    }
@@ -369,11 +369,11 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             for (int r = 0; r < rows.length; r++) {
                 // Diese Zeile ist sehr wichtig, da sie die Auswahl in der Tabelle bzgl. einer Umsortierung berücksichtigt.
                 int row = tblVorrat.convertRowIndexToModel(rows[r]);
-                Vorrat vorrat = ((VorratTableModel2) tblVorrat.getModel()).getVorrat(row);
+                Stock stock = ((StockTableModel2) tblVorrat.getModel()).getVorrat(row);
 
-                Main.logger.info("AUSBUCHEN VORRAT: " + vorrat.toString());
-                Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "AUSGEBUCHT");
-                VorratTools.ausbuchen(vorrat, "Abschlussbuchung");
+                Main.logger.info("AUSBUCHEN STOCK: " + stock.toString());
+                Tools.log(txtLog, stock.getId(), stock.getProdukt().getBezeichnung(), "AUSGEBUCHT");
+                StockTools.ausbuchen(stock, "Abschlussbuchung");
             }
             em.getTransaction().commit();
         } catch (Exception e1) {

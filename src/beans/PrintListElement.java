@@ -1,6 +1,6 @@
 package beans;
 
-import entity.Vorrat;
+import entity.Stock;
 import printer.Form;
 import printer.Printer;
 
@@ -21,8 +21,8 @@ public class PrintListElement implements Comparable {
     public int compareTo(Object o) {
 
         int result = 0;
-        if (((PrintListElement) o).getObject() instanceof Vorrat){
-            result = new Long(((Vorrat) object).getId()).compareTo(((Vorrat)((PrintListElement) o).getObject()).getId());
+        if (((PrintListElement) o).getObject() instanceof Stock){
+            result = new Long(((Stock) object).getId()).compareTo(((Stock)((PrintListElement) o).getObject()).getId());
         }
         return result;
     }

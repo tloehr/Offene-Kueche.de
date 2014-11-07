@@ -160,6 +160,18 @@ public class Tools {
 
     }
 
+    public static String catchNull(Object in, Object showWhenNotNull, String neutral) {
+        String result = neutral;
+        if (in != null) {
+            result = showWhenNotNull.toString();
+            if (result.isEmpty()) {
+                result = neutral;
+            }
+        }
+        return result;
+
+    }
+
     /**
      * Ermittelt die Zeichendarstellung eines Objekts (toString). Ist das Ergebnis null oder eine leere Zeichenkette, dann wird
      * der String neutral zurück gegeben.

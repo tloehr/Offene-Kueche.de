@@ -5,10 +5,30 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 			"$columnSpecs": "default:grow, labelcompgap, default"
-			"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, fill:default:grow"
+			"$rowSpecs": "default, linegap, default, linegap, fill:pref:grow, linegap, pref"
 		} ) {
 			name: "this"
 			"border": new org.jdesktop.swingx.border.DropShadowBorder( sfield java.awt.Color black, 8, 0.6f, 12, true, true, true, true )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+				"axis": 0
+			} ) {
+				name: "panel2"
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnPrint"
+					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/printer.png" )
+					"toolTipText": "Diesen Wochenplan löschen"
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnDeleteThisMenuweek"
+					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_remove.png" )
+					"toolTipText": "Diesen Wochenplan löschen"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnDeleteThisMenuweekActionPerformed", true ) )
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridWidth": 3
+			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
 				name: "cmbFeature"
 				"font": new java.awt.Font( "SansSerif", 0, 18 )
@@ -19,101 +39,121 @@ new FormModel {
 				addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbFeatureItemStateChanged", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridWidth": 3
+				"gridY": 3
 			} )
 			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-				name: "scrollPane1"
-				add( new FormComponent( "javax.swing.JList" ) {
-					name: "lstCustomers"
-					"toolTipText": "Kundenliste"
-					auxiliary() {
-						"JavaCodeGenerator.typeParameters": "Customer"
-					}
+				name: "panel11"
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+					"axis": 3
+				} ) {
+					name: "panel3"
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "lblMon"
+						"text": "text"
+						"font": &Font0 new java.awt.Font( "SansSerif", 1, 18 )
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+						"axis": 0
+					} ) {
+						name: "pnlMon"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "lblTue"
+						"text": "text"
+						"font": #Font0
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+						"axis": 0
+					} ) {
+						name: "pnlTue"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "lblWed"
+						"text": "text"
+						"font": #Font0
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+						"axis": 0
+					} ) {
+						name: "pnlWed"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "lblThu"
+						"text": "text"
+						"font": #Font0
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+						"axis": 0
+					} ) {
+						name: "pnlThu"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "lblFri"
+						"text": "text"
+						"font": #Font0
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+						"axis": 0
+					} ) {
+						name: "pnlFri"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "lblSat"
+						"text": "text"
+						"font": #Font0
+						"foreground": sfield java.awt.Color red
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+						"axis": 0
+					} ) {
+						name: "pnlSat"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "lblSun"
+						"text": "text"
+						"font": #Font0
+						"foreground": sfield java.awt.Color red
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+						"axis": 0
+					} ) {
+						name: "pnlSun"
+					} )
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
-				"gridHeight": 25
-				"gridY": 3
+				"gridY": 5
+				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "lblMon"
-				"text": "text"
-				"font": &Font0 new java.awt.Font( "SansSerif", 1, 18 )
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 3
-				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints CENTER
-			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "lblTue"
-				"text": "text"
-				"font": #Font0
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 7
-				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints CENTER
-			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "lblWed"
-				"text": "text"
-				"font": #Font0
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 11
-				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints CENTER
-			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "lblThu"
-				"text": "text"
-				"font": #Font0
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 15
-				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints CENTER
-			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "lblFri"
-				"text": "text"
-				"font": #Font0
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 19
-				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints CENTER
-			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "lblSat"
-				"text": "text"
-				"font": #Font0
-				"foreground": sfield java.awt.Color red
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 23
-				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints CENTER
-			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "lblSun"
-				"text": "text"
-				"font": #Font0
-				"foreground": sfield java.awt.Color red
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 27
-				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints CENTER
-			} )
-			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
-				"axis": 0
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default:grow"
+				"$rowSpecs": "default:grow, default"
 			} ) {
-				name: "panel2"
+				name: "panel12"
+				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+					name: "scrollPane1"
+					add( new FormComponent( "javax.swing.JList" ) {
+						name: "lstCustomers"
+						"toolTipText": "Kundenliste"
+						auxiliary() {
+							"JavaCodeGenerator.typeParameters": "Customer"
+						}
+					} )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
+				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "btnAddCustomer"
 					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/16x16/edit.png" )
 					"toolTipText": "Kundeliste bearbeiten"
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnAddCustomerActionPerformed", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridY": 2
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
-				"gridY": 29
-				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints RIGHT
+				"gridY": 5
+				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "lblMessage"
@@ -121,34 +161,12 @@ new FormModel {
 				"font": new java.awt.Font( "SansSerif", 0, 18 )
 				"horizontalAlignment": 0
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 31
-				"vAlign": sfield com.jgoodies.forms.layout.CellConstraints TOP
-			} )
-			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
-				"axis": 0
-			} ) {
-				name: "panel1"
-				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "btnNewMenuweek"
-					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
-					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_add.png" )
-					"toolTipText": "Neuen Wochenplan erstellen"
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnNewMenuweekActionPerformed", true ) )
-				} )
-				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "btnDeleteThisMenuweek"
-					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
-					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_remove.png" )
-					"toolTipText": "Diesen Wochenplan löschen"
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnDeleteThisMenuweekActionPerformed", true ) )
-				} )
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
-				"gridY": 31
+				"gridY": 7
+				"gridWidth": 3
 			} )
 		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 400, 455 )
+			"location": new java.awt.Point( 5, 0 )
+			"size": new java.awt.Dimension( 665, 620 )
 		} )
 	}
 }

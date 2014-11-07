@@ -1,7 +1,10 @@
 package entity;
 
+import org.joda.time.LocalDate;
+
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * Created by tloehr on 12.09.14.
@@ -23,6 +26,19 @@ public class Menu {
         this.id = id;
     }
 
+
+    @JoinColumn(name = "menuweekid", referencedColumnName = "id")
+    @ManyToOne(optional = true)
+    private Menuweek menuweek;
+
+    public Menuweek getMenuweek() {
+        return menuweek;
+    }
+
+    public void setMenuweek(Menuweek menuweek) {
+        this.menuweek = menuweek;
+    }
+
     @Basic
     @Column(name = "date", nullable = false, insertable = true, updatable = true)
     @Temporal(TemporalType.DATE)
@@ -38,7 +54,7 @@ public class Menu {
 
 
     @Basic
-    @Column(name = "text", nullable = true, insertable = true, updatable = true, length = 16777215)
+    @Column(name = "text", nullable = true, insertable = true, updatable = true)
     private String text;
 
     public String getText() {
@@ -62,7 +78,7 @@ public class Menu {
     }
 
     @JoinColumn(name = "mainid", referencedColumnName = "id")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     private Recipes maincourse;
 
     public Recipes getMaincourse() {
@@ -121,15 +137,37 @@ public class Menu {
         this.dessert = dessert;
     }
 
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "stock2menu", joinColumns =
+    @JoinColumn(name = "menuid"), inverseJoinColumns =
+    @JoinColumn(name = "stockid"))
+    private Set<Stock> stocks;
+
+    public Set<Stock> getStocks() {
+        return stocks;
+    }
+
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "stock2menu", joinColumns =
+    @JoinColumn(name = "menuid"), inverseJoinColumns =
+    @JoinColumn(name = "stockid"))
+    private Set<Stock> stocks;
+
+    public Set<Stock> getStocks() {
+        return stocks;
+    }
+
+
     public Menu() {
     }
 
-    public Menu(Date date) {
-        this.date = date;
+
+    public Menu(Menuweek menuweek, LocalDate date) {
+        this.menuweek = menuweek;
+        this.date = date.toDateTimeAtStartOfDay().toDate();
     }
-
-
-    //TODO: delete featureid from table structure
 
 
     @Version

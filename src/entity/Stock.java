@@ -16,7 +16,7 @@ import java.util.Date;
 @Entity
 @Table(name = "vorrat")
 
-public class Vorrat {
+public class Stock {
 
 
     @javax.persistence.Column(name = "ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
@@ -32,14 +32,14 @@ public class Vorrat {
         this.id = id;
     }
 
-    public Vorrat() {
+    public Stock() {
     }
 
-    public Vorrat(Long id) {
+    public Stock(Long id) {
         this.id = id;
     }
 
-    public Vorrat(Long id, Date eingang, Date anbruch, Date ausgang) {
+    public Stock(Long id, Date eingang, Date anbruch, Date ausgang) {
         this.id = id;
         this.eingang = eingang;
         this.anbruch = anbruch;
@@ -47,7 +47,7 @@ public class Vorrat {
     }
 
 
-    public Vorrat(Produkte produkt, Lieferanten lieferant, Lager lager) {
+    public Stock(Produkte produkt, Lieferanten lieferant, Lager lager) {
         this.id = 0l;
         this.eingang = new Date();
         this.anbruch = Const.DATE_BIS_AUF_WEITERES;
@@ -155,7 +155,7 @@ public class Vorrat {
     @JoinColumn(name = "Produkte_ID", referencedColumnName = "ID")
     @ManyToOne
     private Produkte produkt;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "vorrat")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "stock")
     private Collection<Buchungen> buchungenCollection;
 
 
@@ -164,15 +164,15 @@ public class Vorrat {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Vorrat vorrat = (Vorrat) o;
+        Stock stock = (Stock) o;
 
-        if (id != vorrat.id) return false;
+        if (id != stock.id) return false;
 //        if (lagerId != vorrat.lagerId) return false;
 //        if (lieferantenId != vorrat.lieferantenId) return false;
 //        if (produkteId != vorrat.produkteId) return false;
-        if (anbruch != null ? !anbruch.equals(vorrat.anbruch) : vorrat.anbruch != null) return false;
-        if (ausgang != null ? !ausgang.equals(vorrat.ausgang) : vorrat.ausgang != null) return false;
-        if (eingang != null ? !eingang.equals(vorrat.eingang) : vorrat.eingang != null) return false;
+        if (anbruch != null ? !anbruch.equals(stock.anbruch) : stock.anbruch != null) return false;
+        if (ausgang != null ? !ausgang.equals(stock.ausgang) : stock.ausgang != null) return false;
+        if (eingang != null ? !eingang.equals(stock.eingang) : stock.eingang != null) return false;
 
         return true;
     }
@@ -192,7 +192,7 @@ public class Vorrat {
 
     @Override
     public String toString() {
-        return "Vorrat{" +
+        return "Stock{" +
                 "id=" + id +
                 ", eingang=" + eingang +
                 ", anbruch=" + anbruch +

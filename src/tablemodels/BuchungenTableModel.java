@@ -7,7 +7,7 @@ package tablemodels;
 import Main.Main;
 import entity.Buchungen;
 import entity.BuchungenTools;
-import entity.Vorrat;
+import entity.Stock;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
@@ -155,8 +155,8 @@ public class BuchungenTableModel extends AbstractTableModel implements Deletable
         buchungen.setMitarbeiter(Main.getCurrentUser());
         buchungen.setText("Manuelle Buchung");
         // Die gibt es immer
-        Vorrat vorrat = ((Buchungen) data.get(0)).getVorrat();
-        buchungen.setVorrat(vorrat);
+        Stock stock = ((Buchungen) data.get(0)).getStock();
+        buchungen.setStock(stock);
         data.add(buchungen);
         newRowMode = true;
         fireTableRowsInserted(getRowCount() - 1, getRowCount() - 1);

@@ -38,6 +38,7 @@ public class Menuweek {
 
     public void setWeek(Date week) {
         this.week = week;
+        lastsave = new Date();
     }
 
     @JoinColumn(name = "featureid", referencedColumnName = "id", nullable = false)
@@ -50,6 +51,7 @@ public class Menuweek {
 
     public void setRecipefeature(Recipefeature recipefeature) {
         this.recipefeature = recipefeature;
+        lastsave = new Date();
     }
 
     @JoinColumn(name = "mon", referencedColumnName = "id")
@@ -62,6 +64,7 @@ public class Menuweek {
 
     public void setMon(Menu mon) {
         this.mon = mon;
+        lastsave = new Date();
     }
 
     @JoinColumn(name = "tue", referencedColumnName = "id")
@@ -74,6 +77,7 @@ public class Menuweek {
 
     public void setTue(Menu tue) {
         this.tue = tue;
+        lastsave = new Date();
     }
 
 
@@ -87,6 +91,7 @@ public class Menuweek {
 
     public void setWed(Menu wed) {
         this.wed = wed;
+        lastsave = new Date();
     }
 
     @JoinColumn(name = "thu", referencedColumnName = "id")
@@ -99,6 +104,7 @@ public class Menuweek {
 
     public void setThu(Menu thu) {
         this.thu = thu;
+        lastsave = new Date();
     }
 
 
@@ -112,6 +118,7 @@ public class Menuweek {
 
     public void setFri(Menu fri) {
         this.fri = fri;
+        lastsave = new Date();
     }
 
     @JoinColumn(name = "sat", referencedColumnName = "id")
@@ -124,6 +131,7 @@ public class Menuweek {
 
     public void setSat(Menu sat) {
         this.sat = sat;
+        lastsave = new Date();
     }
 
     @JoinColumn(name = "sun", referencedColumnName = "id")
@@ -136,6 +144,16 @@ public class Menuweek {
 
     public void setSun(Menu sun) {
         this.sun = sun;
+        lastsave = new Date();
+    }
+
+    @Basic
+    @Column(name = "lastsave", nullable = false, insertable = true, updatable = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastsave;
+
+    public Date getLastsave() {
+        return lastsave;
     }
 
 
@@ -151,8 +169,17 @@ public class Menuweek {
 
     public Menuweek(Date week, Recipefeature recipefeature) {
         this.recipefeature = recipefeature;
-        this.week = new LocalDate(week).dayOfWeek().withMinimumValue().toDateTimeAtStartOfDay().toDate();
+        LocalDate ldWeek = new LocalDate(week).dayOfWeek().withMinimumValue();
+        this.week = ldWeek.toDateTimeAtStartOfDay().toDate();
         customers = new HashSet<Customer>();
+        mon = new Menu(this, ldWeek);
+        tue = new Menu(this, ldWeek.plusDays(1));
+        wed = new Menu(this, ldWeek.plusDays(2));
+        thu = new Menu(this, ldWeek.plusDays(3));
+        fri = new Menu(this, ldWeek.plusDays(4));
+        sat = new Menu(this, ldWeek.plusDays(5));
+        sun = new Menu(this, ldWeek.plusDays(6));
+        lastsave = new Date();
     }
 
     public Menuweek() {

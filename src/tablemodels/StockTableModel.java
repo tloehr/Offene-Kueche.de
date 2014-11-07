@@ -6,8 +6,8 @@ package tablemodels;
 
 import Main.Main;
 import entity.IngTypesTools;
-import entity.Vorrat;
-import entity.VorratTools;
+import entity.Stock;
+import entity.StockTools;
 import tools.Const;
 
 import javax.persistence.EntityManager;
@@ -22,7 +22,7 @@ import java.util.List;
  *
  * @author tloehr
  */
-public class VorratTableModel extends DefaultTableModel implements DeletableTableModel {
+public class StockTableModel extends DefaultTableModel implements DeletableTableModel {
 
     public static final int COL_VORRAT_ID = 0;
     public static final int COL_BEZEICHNUNG = 1;
@@ -43,7 +43,7 @@ public class VorratTableModel extends DefaultTableModel implements DeletableTabl
 
     private DateFormat df;
 
-    public VorratTableModel(List data, Object[] columnNames) {
+    public StockTableModel(List data, Object[] columnNames) {
         this.data = data;
         // Und wieder mal Torsten Horn: http://www.torsten-horn.de/techdocs/java-basics.htm
         decf = (DecimalFormat) DecimalFormat.getInstance();
@@ -82,11 +82,11 @@ public class VorratTableModel extends DefaultTableModel implements DeletableTabl
 
     @Override
     public void removeRow(int row) {
-        Vorrat vorrat = (Vorrat) ((Object[]) data.get(row))[0];
+        Stock stock = (Stock) ((Object[]) data.get(row))[0];
         EntityManager em = Main.getEMF().createEntityManager();
         try {
             em.getTransaction().begin();
-            em.remove(vorrat);
+            em.remove(stock);
             data.remove(row);
             em.getTransaction().commit();
             fireTableRowsDeleted(row, row);
@@ -98,8 +98,8 @@ public class VorratTableModel extends DefaultTableModel implements DeletableTabl
         }
     }
 
-    public Vorrat getVorrat(int row) {
-        return (Vorrat) ((Object[]) data.get(row))[0];
+    public Stock getVorrat(int row) {
+        return (Stock) ((Object[]) data.get(row))[0];
     }
 
 //    public void replaceVorrat(int row, Vorrat vorrat){
@@ -109,63 +109,63 @@ public class VorratTableModel extends DefaultTableModel implements DeletableTabl
     @Override
     public Object getValueAt(int row, int column) {
         Object value;
-        Vorrat vorrat = (Vorrat) ((Object[]) data.get(row))[0];
+        Stock stock = (Stock) ((Object[]) data.get(row))[0];
         BigDecimal menge = (BigDecimal) ((Object[]) data.get(row))[1];
         switch (column) {
             case COL_VORRAT_ID: {
-                value = vorrat.getId();
+                value = stock.getId();
                 break;
             }
             case COL_BEZEICHNUNG: {
                 //Main.debug(vorrat);
-                value = vorrat.getProdukt().getBezeichnung();
+                value = stock.getProdukt().getBezeichnung();
                 break;
             }
             case COL_LAGER: {
-                value = vorrat.getLager();
+                value = stock.getLager();
                 break;
             }
             case COL_LIEFERANT: {
-                value = vorrat.getLieferant();
+                value = stock.getLieferant();
                 break;
             }
             case COL_GTIN: {
-                value = tools.Tools.catchNull(vorrat.getProdukt().getGtin(), "--");
+                value = tools.Tools.catchNull(stock.getProdukt().getGtin(), "--");
                 break;
             }
             case COL_EINGANGSMENGE: {
-                value = decf.format(VorratTools.getEingangsbestand(vorrat)) + " " + IngTypesTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()];
+                value = decf.format(StockTools.getEingangsbestand(stock)) + " " + IngTypesTools.EINHEIT[stock.getProdukt().getIngTypes().getEinheit()];
                 break;
             }
             case COL_RESTMENGE: {
-                value = decf.format(menge) + " " + IngTypesTools.EINHEIT[vorrat.getProdukt().getIngTypes().getEinheit()];
+                value = decf.format(menge) + " " + IngTypesTools.EINHEIT[stock.getProdukt().getIngTypes().getEinheit()];
                 break;
             }
             case COL_STOFFART: {
-                value = vorrat.getProdukt().getIngTypes().getBezeichnung();
+                value = stock.getProdukt().getIngTypes().getBezeichnung();
                 break;
             }
             case COL_WARENGRUPPE: {
-                value = vorrat.getProdukt().getIngTypes().getWarengruppe().getBezeichnung();
+                value = stock.getProdukt().getIngTypes().getWarengruppe().getBezeichnung();
                 break;
             }
             case COL_EINGANG: {
-                value = df.format(vorrat.getEingang());
+                value = df.format(stock.getEingang());
                 break;
             }
             case COL_ANBRUCH: {
-                if (vorrat.getAnbruch().equals(Const.DATE_BIS_AUF_WEITERES)) {
+                if (stock.getAnbruch().equals(Const.DATE_BIS_AUF_WEITERES)) {
                     value = "--";
                 } else {
-                    value = df.format(vorrat.getAnbruch());
+                    value = df.format(stock.getAnbruch());
                 }
                 break;
             }
             case COL_AUSGANG: {
-                if (vorrat.getAusgang().equals(Const.DATE_BIS_AUF_WEITERES)) {
+                if (stock.getAusgang().equals(Const.DATE_BIS_AUF_WEITERES)) {
                     value = "--";
                 } else {
-                    value = df.format(vorrat.getAusgang());
+                    value = df.format(stock.getAusgang());
                 }
                 break;
             }

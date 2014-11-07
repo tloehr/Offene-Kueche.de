@@ -28,9 +28,9 @@ import java.util.Collections;
  */
 public class FrmReassignProduct extends JInternalFrame {
 
-    private Vorrat vorratSource, vorratDestination;
+    private Stock stockSource, stockDestination;
     private Produkte productSource, productDestination;
-    private ArrayList<Vorrat> listToChange;
+    private ArrayList<Stock> listToChange;
 
     private Printer pageprinter, etiprinter1, etiprinter2;
     private Form form1, form2;
@@ -38,9 +38,9 @@ public class FrmReassignProduct extends JInternalFrame {
 
     public FrmReassignProduct(PrintProcessor pp) {
         this.pp = pp;
-        this.vorratSource = null;
+        this.stockSource = null;
         this.productSource = null;
-        this.vorratDestination = null;
+        this.stockDestination = null;
         this.productDestination = null;
         this.listToChange = null;
 
@@ -94,10 +94,10 @@ public class FrmReassignProduct extends JInternalFrame {
     }
 
     private void xSearchField1ActionPerformed(ActionEvent e) {
-        vorratSource = VorratTools.findByIDORScanner(xSearchField1.getText().trim());
+        stockSource = StockTools.findByIDORScanner(xSearchField1.getText().trim());
 
-        if (vorratSource != null) {
-            productSource = vorratSource.getProdukt();
+        if (stockSource != null) {
+            productSource = stockSource.getProdukt();
         } else {
             String gtin = ProdukteTools.getGTIN(xSearchField1.getText().trim());
             productSource = ProdukteTools.getProduct(gtin);
@@ -109,10 +109,10 @@ public class FrmReassignProduct extends JInternalFrame {
 
         }
 
-        listToChange = VorratTools.getActiveStocks(productSource);
+        listToChange = StockTools.getActiveStocks(productSource);
 
         String text = "Produkt: [" + productSource.getId() + "] " + productSource.getBezeichnung() + (!productSource.isLoseWare() ? ", GTIN: " + productSource.getGtin() : "") + "\n";
-        text += vorratSource == null ? "" : "Angegebener Vorrat: " + vorratSource.toString() + "\n";
+        text += stockSource == null ? "" : "Angegebener Vorrat: " + stockSource.toString() + "\n";
         text += listToChange.isEmpty() ? "" : "Es gibt insgesamt " + listToChange.size() + " aktive Vorräte für dieses Produkt.";
 
         txtSource.setText(text);
@@ -121,7 +121,7 @@ public class FrmReassignProduct extends JInternalFrame {
     }
 
     private void btnChangeSingleActionPerformed(ActionEvent e) {
-        if (vorratSource == null) {
+        if (stockSource == null) {
             txtSource.setText("kein Vorrat angegeben. Geht nicht.");
             return;
         }
@@ -136,7 +136,7 @@ public class FrmReassignProduct extends JInternalFrame {
             return;
         }
 
-        if (vorratSource.getProdukt().equals(productDestination)) {
+        if (stockSource.getProdukt().equals(productDestination)) {
             txtDestination.setText("Ziel-Produkt und Quell-Produkt gleich. Lass den Quatsch!");
             return;
         }
@@ -145,7 +145,7 @@ public class FrmReassignProduct extends JInternalFrame {
         try {
             em.getTransaction().begin();
 
-            Vorrat myStock = em.merge(vorratSource);
+            Stock myStock = em.merge(stockSource);
 
             em.lock(myStock, LockModeType.OPTIMISTIC);
             myStock.setProdukt(productDestination);
@@ -186,8 +186,8 @@ public class FrmReassignProduct extends JInternalFrame {
             listToChange.clear();
         }
 
-        vorratSource = null;
-        vorratDestination = null;
+        stockSource = null;
+        stockDestination = null;
         productDestination = null;
         productSource = null;
 
@@ -228,14 +228,14 @@ public class FrmReassignProduct extends JInternalFrame {
             em.lock(myProductDestination, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
 
             java.util.List<PrintListElement> printList = new ArrayList();
-            for (Vorrat stock : listToChange) {
+            for (Stock stock : listToChange) {
                 numOperations++;
-                Vorrat myStock = em.merge(stock);
+                Stock myStock = em.merge(stock);
                 em.lock(myStock, LockModeType.OPTIMISTIC);
                 myStock.setProdukt(myProductDestination);
 
-                myProductSource.getVorratCollection().remove(myStock);
-                myProductDestination.getVorratCollection().add(myStock);
+                myProductSource.getStockCollection().remove(myStock);
+                myProductDestination.getStockCollection().add(myStock);
 
                 if (btnPrt1.isSelected()) {
                     printList.add(new PrintListElement(myStock, etiprinter1, form1, Main.getProps().getProperty("etiprinter1")));
@@ -269,8 +269,8 @@ public class FrmReassignProduct extends JInternalFrame {
             listToChange.clear();
         }
 
-        vorratSource = null;
-        vorratDestination = null;
+        stockSource = null;
+        stockDestination = null;
         productDestination = null;
         productSource = null;
 
@@ -278,10 +278,10 @@ public class FrmReassignProduct extends JInternalFrame {
     }
 
     private void xSearchField2ActionPerformed(ActionEvent e) {
-        vorratDestination = VorratTools.findByIDORScanner(xSearchField2.getText().trim());
+        stockDestination = StockTools.findByIDORScanner(xSearchField2.getText().trim());
 
-        if (vorratDestination != null) {
-            productDestination = vorratDestination.getProdukt();
+        if (stockDestination != null) {
+            productDestination = stockDestination.getProdukt();
         } else {
             String gtin = ProdukteTools.getGTIN(xSearchField2.getText().trim());
             productDestination = ProdukteTools.getProduct(gtin);
@@ -320,7 +320,7 @@ public class FrmReassignProduct extends JInternalFrame {
             return "Hab nichts gefunden.";
         }
         String text = "Produkt: [" + productDestination.getId() + "] " + productDestination.getBezeichnung() + (!productDestination.isLoseWare() ? ", GTIN: " + productDestination.getGtin() : "") + "\n";
-        text += vorratDestination == null ? "" : "Angegebener Vorrat: " + vorratDestination.toString() + "\n";
+        text += stockDestination == null ? "" : "Angegebener Vorrat: " + stockDestination.toString() + "\n";
         return text;
     }
 

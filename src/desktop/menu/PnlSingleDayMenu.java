@@ -12,10 +12,11 @@ import tools.GUITools;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 /**
@@ -37,29 +38,32 @@ public class PnlSingleDayMenu extends JPanel {
     private JXSearchField searcherStarter, searcherMain, searcherSauce, searcherSideveggie, searcherSidedish, searcherDessert;
     private JidePopup popup;
     private DefaultListModel<Recipes> dlm;
-    private boolean reactToCaret;
+    private boolean reactToTextChange;
 
     public Menu getMenu() {
         return menu;
     }
 
+    public void setMenu(Menu menu) {
+        this.menu = menu;
+    }
 
     public void setChangeAction(Closure changeAction) {
         this.changeAction = changeAction;
     }
 
-    public PnlSingleDayMenu(Menu menu, LocalDate date) {
+    public PnlSingleDayMenu(Menu menu) {
         super();
 
-        reactToCaret = true;
-
-        if (menu == null) {
-            menu = new Menu(date.toDate());
-        }
+        reactToTextChange = true;
+//
+//        if (menu == null) {
+//            menu = new Menu(date.toDate());
+//        }
 
         this.menu = menu;
 
-        this.date = menu == null ? date : new LocalDate(menu.getDate());
+        this.date = new LocalDate(menu.getDate());
 
 
         dlm = new DefaultListModel();
@@ -72,8 +76,15 @@ public class PnlSingleDayMenu extends JPanel {
 
     private void initPanel() {
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        JPanel topLine = new JPanel();
-        topLine.setLayout(new GridLayout(2, 3, 3, 3));
+
+        JPanel menuComplete = new JPanel();
+        JPanel menuLine1 = new JPanel();
+        JPanel menuLine2 = new JPanel();
+
+        menuComplete.setLayout(new BoxLayout(menuComplete, BoxLayout.PAGE_AXIS));
+        menuLine1.setLayout(new BoxLayout(menuLine1, BoxLayout.LINE_AXIS));
+        menuLine2.setLayout(new BoxLayout(menuLine2, BoxLayout.LINE_AXIS));
+
 
 //        final JButton buttonDelete = new JButton(Const.icon24remove);
 //        buttonDelete.addActionListener(new ActionListener() {
@@ -84,71 +95,167 @@ public class PnlSingleDayMenu extends JPanel {
 //            }
 //        });
 
+        reactToTextChange = false;
+
         searcherStarter = new JXSearchField("Vorspeise");
+//        searcherStarter.addKeyListener(new KeyAdapter() {
+//            @Override
+//            public void keyPressed(KeyEvent e) {
+//                super.keyPressed(e);
+//                actionListener(e);
+//            }
+//        });
         searcherStarter.setSearchMode(JXSearchField.SearchMode.INSTANT);
+        searcherStarter.setInstantSearchDelay(0);
         searcherStarter.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        searcherStarter.setText(menu.getStarter() == null ? "" : menu.getStarter().getTitle());
+        searcherStarter.setToolTipText(menu.getStarter() == null ? "" : menu.getStarter().getText());
+        searcherStarter.setCancelAction(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                cancelListener(ae);
+            }
+        });
+        searcherStarter.setFindAction(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                actionListener(ae);
+            }
+        });
         searcherStarter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 searcherAction(ae);
             }
         });
-        topLine.add(searcherStarter);
+//        searcherStarter.setFindPopupMenu(new JPopupMenu("test"));
+
+        menuLine1.add(searcherStarter);
 
         searcherMain = new JXSearchField("Hauptgang");
         searcherMain.setSearchMode(JXSearchField.SearchMode.INSTANT);
         searcherMain.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        searcherMain.setText(menu.getMaincourse() == null ? "" : menu.getMaincourse().getTitle());
+        searcherMain.setToolTipText(menu.getMaincourse() == null ? "" : menu.getMaincourse().getText());
+        searcherMain.setCancelAction(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        cancelListener(ae);
+                    }
+                });
+        searcherMain.setFindAction(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        actionListener(ae);
+                    }
+                });
         searcherMain.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 searcherAction(ae);
             }
         });
-        topLine.add(searcherMain);
+        menuLine1.add(searcherMain);
 
         searcherSauce = new JXSearchField("Sauce");
         searcherSauce.setSearchMode(JXSearchField.SearchMode.INSTANT);
         searcherSauce.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        searcherSauce.setText(menu.getSauce() == null ? "" : menu.getSauce().getTitle());
+        searcherSauce.setToolTipText(menu.getSauce() == null ? "" : menu.getSauce().getText());
+        searcherSauce.setCancelAction(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        cancelListener(ae);
+                    }
+                });
+        searcherSauce.setFindAction(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        actionListener(ae);
+                    }
+                });
         searcherSauce.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 searcherAction(ae);
             }
         });
-        topLine.add(searcherSauce);
+        menuLine1.add(searcherSauce);
 
         searcherSideveggie = new JXSearchField("Gemüse/Salat");
         searcherSideveggie.setSearchMode(JXSearchField.SearchMode.INSTANT);
         searcherSideveggie.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        searcherSideveggie.setText(menu.getSauce() == null ? "" : menu.getSauce().getTitle());
+        searcherSideveggie.setToolTipText(menu.getSauce() == null ? "" : menu.getSauce().getText());
+        searcherSideveggie.setCancelAction(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        cancelListener(ae);
+                    }
+                });
+        searcherSideveggie.setFindAction(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        actionListener(ae);
+                    }
+                });
         searcherSideveggie.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 searcherAction(ae);
             }
         });
-        topLine.add(searcherSideveggie);
+        menuLine2.add(searcherSideveggie);
 
         searcherSidedish = new JXSearchField("Kartoffeln/Reis/Nudeln");
         searcherSidedish.setSearchMode(JXSearchField.SearchMode.INSTANT);
         searcherSidedish.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        searcherSidedish.setText(menu.getSauce() == null ? "" : menu.getSauce().getTitle());
+        searcherSidedish.setToolTipText(menu.getSauce() == null ? "" : menu.getSauce().getText());
+        searcherSidedish.setCancelAction(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        cancelListener(ae);
+                    }
+                });
+        searcherSidedish.setFindAction(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        actionListener(ae);
+                    }
+                });
         searcherSidedish.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 searcherAction(ae);
             }
         });
-        topLine.add(searcherSidedish);
+        menuLine2.add(searcherSidedish);
 
         searcherDessert = new JXSearchField("Dessert");
         searcherDessert.setSearchMode(JXSearchField.SearchMode.INSTANT);
         searcherDessert.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        searcherDessert.setText(menu.getSauce() == null ? "" : menu.getSauce().getTitle());
+        searcherDessert.setToolTipText(menu.getSauce() == null ? "" : menu.getSauce().getText());
+        searcherDessert.setCancelAction(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        cancelListener(ae);
+                    }
+                });
+        searcherDessert.setFindAction(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        actionListener(ae);
+                    }
+                });
         searcherDessert.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 searcherAction(ae);
             }
         });
-        topLine.add(searcherDessert);
+        menuLine2.add(searcherDessert);
 
 //        searcherStarter.addCaretListener(new CaretListener() {
 //            @Override
@@ -172,12 +279,54 @@ public class PnlSingleDayMenu extends JPanel {
 
 
 //        topLine.add(buttonDelete);
-//
-        add(topLine);
+        reactToTextChange = true;
+        menuComplete.add(menuLine1);
+        menuComplete.add(menuLine2);
+        add(menuComplete);
 //        add(new JLabel(menu.getRecipe() == null ? "--" : menu.getRecipe().getTitle()));
     }
 
-    private void searcherFocusLostListener(FocusEvent e) {
+    private JButton getStockButton()
+
+
+    private void cancelListener(ActionEvent e) {
+        reactToTextChange = false;
+
+        if (e.getSource().equals(searcherStarter)) {
+            searcherStarter.setText(menu.getStarter() == null ? "" : menu.getStarter().getTitle());
+            searcherStarter.setToolTipText(menu.getStarter() == null ? "" : menu.getStarter().getText());
+        } else if (e.getSource().equals(searcherMain)) {
+            searcherMain.setText(menu.getMaincourse() == null ? "" : menu.getMaincourse().getTitle());
+            searcherMain.setToolTipText(menu.getMaincourse() == null ? "" : menu.getMaincourse().getText());
+        } else if (e.getSource().equals(searcherSauce)) {
+            searcherSauce.setText(menu.getSauce() == null ? "" : menu.getSauce().getTitle());
+            searcherSauce.setToolTipText(menu.getSauce() == null ? "" : menu.getSauce().getText());
+        } else if (e.getSource().equals(searcherSideveggie)) {
+            searcherSideveggie.setText(menu.getSideveggie() == null ? "" : menu.getSideveggie().getTitle());
+            searcherSideveggie.setToolTipText(menu.getSideveggie() == null ? "" : menu.getSideveggie().getText());
+        } else if (e.getSource().equals(searcherSidedish)) {
+            searcherSidedish.setText(menu.getSidedish() == null ? "" : menu.getSidedish().getTitle());
+            searcherSidedish.setToolTipText(menu.getSidedish() == null ? "" : menu.getSidedish().getText());
+        } else if (e.getSource().equals(searcherDessert)) {
+            searcherDessert.setText(menu.getDessert() == null ? "" : menu.getDessert().getTitle());
+            searcherDessert.setToolTipText(menu.getDessert() == null ? "" : menu.getDessert().getText());
+        } else {
+            Main.fatal("schade im grunde");
+        }
+
+        reactToTextChange = true;
+
+        if (popup != null) {
+            popup.hidePopup();
+            popup = null;
+        }
+    }
+
+    private void actionListener(ActionEvent e) {
+//        if (e.getKeyCode() != KeyEvent.VK_ENTER) return;
+
+        if (!reactToTextChange) return;
+
         if (!((JTextField) e.getSource()).getText().trim().isEmpty() && dlm.isEmpty()) {
             if (JOptionPane.showInternalConfirmDialog(Main.getDesktop().getMenuweek(), "Das Rezept kenne ich noch gar nicht.\n" +
                             "Achte darauf, dass alles richtig geschrieben ist\n\n" +
@@ -209,10 +358,20 @@ public class PnlSingleDayMenu extends JPanel {
     private void searcherAction(final ActionEvent ae) {
 //        if (!reactToCaret) return;
 //        if (e.getDot() == 0) return;
+        if (!reactToTextChange) return;
+
+        if (popup != null && (popup.getOwner() == null || !popup.getOwner().equals(ae.getSource()))) {
+            popup.hidePopup();
+            popup = null;
+        }
 
         if (popup == null) {
 
             popup = new JidePopup();
+            popup.setOwner((JComponent) ae.getSource());
+
+            Main.debug(ae.getSource());
+
             popup.setMovable(false);
 
 
@@ -232,25 +391,10 @@ public class PnlSingleDayMenu extends JPanel {
                 }
             });
 
+
             popup.setContentPane(new JScrollPane(list));
             popup.removeExcludedComponent((JXSearchField) ae.getSource());
-            popup.setOwner(this);
-            popup.addPopupMenuListener(new PopupMenuListener() {
-                @Override
-                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
 
-                }
-
-                @Override
-                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                    popup = null;
-                }
-
-                @Override
-                public void popupMenuCanceled(PopupMenuEvent e) {
-
-                }
-            });
             GUITools.showPopup(popup, SwingConstants.SOUTH);
         }
 
@@ -263,16 +407,22 @@ public class PnlSingleDayMenu extends JPanel {
     private void setMenu(Object source, Recipes recipes) {
         if (source.equals(searcherStarter)) {
             menu.setStarter(recipes);
+            searcherDessert.setToolTipText(recipes == null ? "" : recipes.getText());
         } else if (source.equals(searcherMain)) {
             menu.setMaincourse(recipes);
+            searcherMain.setToolTipText(recipes == null ? "" : recipes.getText());
         } else if (source.equals(searcherSauce)) {
             menu.setSauce(recipes);
+            searcherSauce.setToolTipText(recipes == null ? "" : recipes.getText());
         } else if (source.equals(searcherSideveggie)) {
             menu.setSideveggie(recipes);
+            searcherSideveggie.setToolTipText(recipes == null ? "" : recipes.getText());
         } else if (source.equals(searcherSidedish)) {
             menu.setSidedish(recipes);
+            searcherSidedish.setToolTipText(recipes == null ? "" : recipes.getText());
         } else if (source.equals(searcherDessert)) {
             menu.setDessert(recipes);
+            searcherDessert.setToolTipText(recipes == null ? "" : recipes.getText());
         } else {
             Main.fatal("schade im grunde");
         }

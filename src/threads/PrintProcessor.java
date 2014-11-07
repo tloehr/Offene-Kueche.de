@@ -2,8 +2,8 @@ package threads;
 
 import Main.Main;
 import beans.PrintListElement;
-import entity.Vorrat;
-import entity.VorratTools;
+import entity.Stock;
+import entity.StockTools;
 import printer.Printer;
 import printer.TKLabel;
 
@@ -170,13 +170,13 @@ public class PrintProcessor extends Thread {
 
     private Object getPrintableObject(PrintListElement element) {
         Object printableObject = null;
-        if (element.getObject() instanceof Vorrat) {
-            Vorrat vorrat = (Vorrat) element.getObject();
-            Main.debug("PrintProcessor druckt VorratID: " + vorrat.getId());
+        if (element.getObject() instanceof Stock) {
+            Stock stock = (Stock) element.getObject();
+            Main.debug("PrintProcessor druckt VorratID: " + stock.getId());
             if (element.getPrinter().isPageprinter()) {
-                printableObject = new TKLabel(VorratTools.getVorrat4Printing(vorrat));
+                printableObject = new TKLabel(StockTools.getVorrat4Printing(stock));
             } else {
-                printableObject = element.getForm().getForm(VorratTools.getVorrat4Printing(vorrat));
+                printableObject = element.getForm().getForm(StockTools.getVorrat4Printing(stock));
             }
         }
         return printableObject;
