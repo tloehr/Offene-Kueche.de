@@ -1,11 +1,10 @@
 package entity;
 
+import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by tloehr on 14.10.14.
@@ -27,17 +26,16 @@ public class Menuweek {
     }
 
 
-    @Basic
-    @Column(name = "week", nullable = false, insertable = true, updatable = true)
-    @Temporal(TemporalType.DATE)
-    private Date week;
+    @JoinColumn(name = "menuweekid", referencedColumnName = "id", nullable = false)
+    @ManyToOne(optional = false)
+    private Menuweekall menuweekall;
 
-    public Date getWeek() {
-        return week;
+    public Menuweekall getMenuweekall() {
+        return menuweekall;
     }
 
-    public void setWeek(Date week) {
-        this.week = week;
+    public void setMenuweekall(Menuweekall menuweekall) {
+        this.menuweekall = menuweekall;
         lastsave = new Date();
     }
 
@@ -51,99 +49,6 @@ public class Menuweek {
 
     public void setRecipefeature(Recipefeature recipefeature) {
         this.recipefeature = recipefeature;
-        lastsave = new Date();
-    }
-
-    @JoinColumn(name = "mon", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private Menu mon;
-
-    public Menu getMon() {
-        return mon;
-    }
-
-    public void setMon(Menu mon) {
-        this.mon = mon;
-        lastsave = new Date();
-    }
-
-    @JoinColumn(name = "tue", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private Menu tue;
-
-    public Menu getTue() {
-        return tue;
-    }
-
-    public void setTue(Menu tue) {
-        this.tue = tue;
-        lastsave = new Date();
-    }
-
-
-    @JoinColumn(name = "wed", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private Menu wed;
-
-    public Menu getWed() {
-        return wed;
-    }
-
-    public void setWed(Menu wed) {
-        this.wed = wed;
-        lastsave = new Date();
-    }
-
-    @JoinColumn(name = "thu", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private Menu thu;
-
-    public Menu getThu() {
-        return thu;
-    }
-
-    public void setThu(Menu thu) {
-        this.thu = thu;
-        lastsave = new Date();
-    }
-
-
-    @JoinColumn(name = "fri", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private Menu fri;
-
-    public Menu getFri() {
-        return fri;
-    }
-
-    public void setFri(Menu fri) {
-        this.fri = fri;
-        lastsave = new Date();
-    }
-
-    @JoinColumn(name = "sat", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private Menu sat;
-
-    public Menu getSat() {
-        return sat;
-    }
-
-    public void setSat(Menu sat) {
-        this.sat = sat;
-        lastsave = new Date();
-    }
-
-    @JoinColumn(name = "sun", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private Menu sun;
-
-    public Menu getSun() {
-        return sun;
-    }
-
-    public void setSun(Menu sun) {
-        this.sun = sun;
         lastsave = new Date();
     }
 
@@ -167,20 +72,59 @@ public class Menuweek {
         return customers;
     }
 
-    public Menuweek(Date week, Recipefeature recipefeature) {
-        this.recipefeature = recipefeature;
-        LocalDate ldWeek = new LocalDate(week).dayOfWeek().withMinimumValue();
-        this.week = ldWeek.toDateTimeAtStartOfDay().toDate();
-        customers = new HashSet<Customer>();
-        mon = new Menu(this, ldWeek);
-        tue = new Menu(this, ldWeek.plusDays(1));
-        wed = new Menu(this, ldWeek.plusDays(2));
-        thu = new Menu(this, ldWeek.plusDays(3));
-        fri = new Menu(this, ldWeek.plusDays(4));
-        sat = new Menu(this, ldWeek.plusDays(5));
-        sun = new Menu(this, ldWeek.plusDays(6));
-        lastsave = new Date();
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "menuweek2menu", joinColumns =
+    @JoinColumn(name = "menuweekid"), inverseJoinColumns =
+    @JoinColumn(name = "menuid"))
+    @OrderBy(value="date asc")
+    private List<Menu> menus;
+
+    public List<Menu> getMenus() {
+        return menus;
     }
+
+    public Menuweek(Menuweekall menuweekall, Recipefeature recipefeature) {
+        this.menuweekall = menuweekall;
+        this.recipefeature = recipefeature;
+        customers = new HashSet<Customer>();
+        menus = new ArrayList<Menu>();
+        lastsave = new Date();
+
+        for (int weekday = DateTimeConstants.MONDAY; weekday <= DateTimeConstants.SUNDAY; weekday++) {
+            menus.add(new Menu(this, new LocalDate(menuweekall.getWeek()).plusDays(weekday - 1)));
+        }
+
+    }
+
+//    public void setMenu(int weekday, Menu menu) {
+//
+//        menus.set(weekday-1, menu);
+//
+//        for (int w = DateTimeConstants.MONDAY; w <= DateTimeConstants.SUNDAY; w++) {
+//            menus.add(new Menu(this, new LocalDate(menuweekall.getWeek()).plusDays(weekday - 1)));
+//        }
+//    }
+
+//
+//    /**
+//     * @param weekday according to Joda DateTimeConstants 1 monday ... 7 sunday
+//     */
+//    public Menu getMenu(int weekday) {
+//
+//        return menus.get(weekday-1);
+//
+////        Menu foundMenu = null;
+////
+////        for (Menu menu : menus) {
+////            if (new LocalDate(menu.getDate()).plusDays(weekday - 1).equals(new LocalDate(menuweekall.getWeek()))) {
+////                foundMenu = menu;
+////                break;
+////            }
+////        }
+////
+////        return foundMenu;
+//    }
 
     public Menuweek() {
     }
@@ -197,17 +141,12 @@ public class Menuweek {
         Menuweek menuweek = (Menuweek) o;
 
         if (id != menuweek.id) return false;
-        if (fri != null ? !fri.equals(menuweek.fri) : menuweek.fri != null) return false;
-        if (mon != null ? !mon.equals(menuweek.mon) : menuweek.mon != null) return false;
+        if (lastsave != null ? !lastsave.equals(menuweek.lastsave) : menuweek.lastsave != null) return false;
+        if (menuweekall != null ? !menuweekall.equals(menuweek.menuweekall) : menuweek.menuweekall != null)
+            return false;
         if (recipefeature != null ? !recipefeature.equals(menuweek.recipefeature) : menuweek.recipefeature != null)
             return false;
-        if (sat != null ? !sat.equals(menuweek.sat) : menuweek.sat != null) return false;
-        if (sun != null ? !sun.equals(menuweek.sun) : menuweek.sun != null) return false;
-        if (thu != null ? !thu.equals(menuweek.thu) : menuweek.thu != null) return false;
-        if (tue != null ? !tue.equals(menuweek.tue) : menuweek.tue != null) return false;
         if (version != null ? !version.equals(menuweek.version) : menuweek.version != null) return false;
-        if (wed != null ? !wed.equals(menuweek.wed) : menuweek.wed != null) return false;
-        if (week != null ? !week.equals(menuweek.week) : menuweek.week != null) return false;
 
         return true;
     }
@@ -215,15 +154,9 @@ public class Menuweek {
     @Override
     public int hashCode() {
         int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + (week != null ? week.hashCode() : 0);
-        result = 31 * result + (mon != null ? mon.hashCode() : 0);
-        result = 31 * result + (tue != null ? tue.hashCode() : 0);
-        result = 31 * result + (wed != null ? wed.hashCode() : 0);
-        result = 31 * result + (thu != null ? thu.hashCode() : 0);
-        result = 31 * result + (fri != null ? fri.hashCode() : 0);
-        result = 31 * result + (sat != null ? sat.hashCode() : 0);
-        result = 31 * result + (sun != null ? sun.hashCode() : 0);
+        result = 31 * result + (menuweekall != null ? menuweekall.hashCode() : 0);
         result = 31 * result + (recipefeature != null ? recipefeature.hashCode() : 0);
+        result = 31 * result + (lastsave != null ? lastsave.hashCode() : 0);
         result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;
     }

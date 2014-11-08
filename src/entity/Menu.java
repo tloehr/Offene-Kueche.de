@@ -148,21 +148,8 @@ public class Menu {
         return stocks;
     }
 
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "stock2menu", joinColumns =
-    @JoinColumn(name = "menuid"), inverseJoinColumns =
-    @JoinColumn(name = "stockid"))
-    private Set<Stock> stocks;
-
-    public Set<Stock> getStocks() {
-        return stocks;
-    }
-
-
     public Menu() {
     }
-
 
     public Menu(Menuweek menuweek, LocalDate date) {
         this.menuweek = menuweek;

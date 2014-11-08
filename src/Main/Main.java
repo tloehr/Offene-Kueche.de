@@ -239,6 +239,9 @@ public class Main {
         fatal(msg);
     }
 
+    public static void fatal(String msg){
+        fatal(new Throwable("schade im grunde"));
+    }
 
     public static void fatal(Object msg) {
         logger.fatal(msg);

@@ -7,7 +7,8 @@ package desktop.menu;
 import Main.Main;
 import com.toedter.calendar.JDateChooser;
 import entity.Menuweek;
-import entity.MenuweekTools;
+import entity.Menuweekall;
+import entity.MenuweekallTools;
 import entity.Recipefeature;
 import org.apache.commons.collections.Closure;
 import org.joda.time.LocalDate;
@@ -17,15 +18,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 
 /**
  * @author Torsten Löhr
  */
 public class FrmMenu extends JInternalFrame {
     LocalDate week;
-    ArrayList<Menuweek> menus;
-//    JScrollPane scrlMain;
+    Menuweekall menuweekall;
+    //    JScrollPane scrlMain;
     JPanel pnlMain;
 
     public FrmMenu() {
@@ -35,73 +35,76 @@ public class FrmMenu extends JInternalFrame {
         pack();
     }
 
-    public void addMenu(final Menuweek menuweek) {
-        menus.add(menuweek);
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                pnlMain.add(new PnlMenuWeek(menuweek, new Closure() {
-                    @Override
-                    public void execute(Object o) {
-                        Main.debug(o);
-                    }
-                }));
-                revalidate();
-                repaint();
-            }
-        });
-    }
-
-    public void deleteMenu(final Menuweek menuweek, final PnlMenuWeek pnlMenuWeek) {
-        menus.remove(menuweek);
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                pnlMain.remove(pnlMenuWeek);
-                revalidate();
-                repaint();
-            }
-        });
-    }
+//    public void addMenu(final Menuweek menuweek) {
+//        menus.add(menuweek);
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                pnlMain.add(new PnlMenuWeek(menuweek, new Closure() {
+//                    @Override
+//                    public void execute(Object o) {
+//                        Main.debug(o);
+//                    }
+//                }));
+//                revalidate();
+//                repaint();
+//            }
+//        });
+//    }
+//
+//    public void deleteMenu(final Menuweek menuweek, final PnlMenuWeek pnlMenuWeek) {
+//        menus.remove(menuweek);
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                pnlMain.remove(pnlMenuWeek);
+//                revalidate();
+//                repaint();
+//            }
+//        });
+//    }
 
     private void initFrame() {
-        menus = MenuweekTools.getAll(week);
-        pnlMain = new JPanel(new GridLayout(1,0,10,0));
-        add(new JScrollPane(pnlMain), BorderLayout.CENTER);
 
-        EntityManager em = Main.getEMF().createEntityManager();
-        Recipefeature featureNormal = em.find(Recipefeature.class, 4l);
-        em.close();
+        jdcWeek.setDate(week.toDate());
+        jdcWeek.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
-        pnlMain.removeAll();
+        menuweekall = MenuweekallTools.get(week);
+        if (menuweekall == null) {
+            menuweekall = new Menuweekall(week.toDate());
+        }
+
+        if (pnlMain == null) {
+            pnlMain = new JPanel(new GridLayout(1, 0, 10, 0));
+            add(new JScrollPane(pnlMain), BorderLayout.CENTER);
+        } else {
+            pnlMain.removeAll();
+        }
 
 
-        if (menus.isEmpty()) {
-            pnlMain.add(new PnlMenuWeek(new Menuweek(week.toDate(), featureNormal), new Closure() {
+        if (menuweekall.getMenuweeks().isEmpty()) {
+            EntityManager em = Main.getEMF().createEntityManager();
+            Recipefeature featureNormal = em.find(Recipefeature.class, 4l);
+            em.close();
+
+            menuweekall.getMenuweeks().add(new Menuweek(menuweekall, featureNormal));
+        }
+
+
+        for (Menuweek menuweek : menuweekall.getMenuweeks()) {
+            pnlMain.add(new PnlMenuWeek(menuweek, new Closure() {
                 @Override
                 public void execute(Object o) {
                     Main.debug(o);
                 }
             }));
-        } else {
-            for (Menuweek menuweek : menus) {
-                pnlMain.add(new PnlMenuWeek(menuweek, new Closure() {
-                    @Override
-                    public void execute(Object o) {
-                        Main.debug(o);
-                    }
-                }));
-            }
         }
-
-        jdcWeek.setDate(week.toDate());
-        jdcWeek.setFont(new Font("SansSerif", Font.PLAIN, 18));
-
 
     }
 
     private void jdcWeekPropertyChange(PropertyChangeEvent e) {
         week = new LocalDate(e.getNewValue()).dayOfWeek().withMinimumValue();
+        initFrame();
     }
 
     private void initComponents() {

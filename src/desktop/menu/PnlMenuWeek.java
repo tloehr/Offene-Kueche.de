@@ -66,25 +66,25 @@ public class PnlMenuWeek extends JPanel {
 
         sdf = new SimpleDateFormat(format);
 
-        mon = new PnlSingleDayMenu(menuweek.getMon());
+        mon = new PnlSingleDayMenu(menuweek.getMenus().get(DateTimeConstants.MONDAY - 1));
         mon.setChangeAction(getChangeEvent4Daily(mon));
 
-        tue = new PnlSingleDayMenu(menuweek.getTue());
+        tue = new PnlSingleDayMenu(menuweek.getMenus().get(DateTimeConstants.TUESDAY - 1));
         tue.setChangeAction(getChangeEvent4Daily(tue));
 
-        wed = new PnlSingleDayMenu(menuweek.getWed());
+        wed = new PnlSingleDayMenu(menuweek.getMenus().get(DateTimeConstants.WEDNESDAY - 1));
         wed.setChangeAction(getChangeEvent4Daily(wed));
 
-        thu = new PnlSingleDayMenu(menuweek.getThu());
+        thu = new PnlSingleDayMenu(menuweek.getMenus().get(DateTimeConstants.THURSDAY - 1));
         thu.setChangeAction(getChangeEvent4Daily(thu));
 
-        fri = new PnlSingleDayMenu(menuweek.getFri());
+        fri = new PnlSingleDayMenu(menuweek.getMenus().get(DateTimeConstants.FRIDAY - 1));
         fri.setChangeAction(getChangeEvent4Daily(fri));
 
-        sat = new PnlSingleDayMenu(menuweek.getSat());
+        sat = new PnlSingleDayMenu(menuweek.getMenus().get(DateTimeConstants.SATURDAY - 1));
         sat.setChangeAction(getChangeEvent4Daily(sat));
 
-        sun = new PnlSingleDayMenu(menuweek.getSun());
+        sun = new PnlSingleDayMenu(menuweek.getMenus().get(DateTimeConstants.SUNDAY - 1));
         sun.setChangeAction(getChangeEvent4Daily(sun));
 
         lblMon.setText(sdf.format(mon.getMenu().getDate()));
@@ -127,77 +127,13 @@ public class PnlMenuWeek extends JPanel {
                     Menuweek myMenuweek = em.merge(menuweek);
                     em.lock(myMenuweek, LockModeType.OPTIMISTIC);
 
-                    switch (pnl.getDate().getDayOfWeek()) {
-                        case DateTimeConstants.MONDAY: {
-                            myMenuweek.setMon(em.merge(pnl.getMenu()));
-                            break;
-                        }
-                        case DateTimeConstants.TUESDAY: {
-                            myMenuweek.setTue(em.merge(pnl.getMenu()));
-                            break;
-                        }
-                        case DateTimeConstants.WEDNESDAY: {
-                            myMenuweek.setWed(em.merge(pnl.getMenu()));
-                            break;
-                        }
-                        case DateTimeConstants.THURSDAY: {
-                            myMenuweek.setThu(em.merge(pnl.getMenu()));
-                            break;
-                        }
-                        case DateTimeConstants.FRIDAY: {
-                            myMenuweek.setFri(em.merge(pnl.getMenu()));
-                            break;
-                        }
-                        case DateTimeConstants.SATURDAY: {
-                            myMenuweek.setSat(em.merge(pnl.getMenu()));
-                            break;
-                        }
-                        case DateTimeConstants.SUNDAY: {
-                            myMenuweek.setSun(em.merge(pnl.getMenu()));
-                            break;
-                        }
-                        default: {
-                            Main.fatal(o.toString());
-                        }
-                    }
+                    myMenuweek.getMenus().set(pnl.getDate().getDayOfWeek() -1, em.merge(pnl.getMenu()));
 
                     em.getTransaction().commit();
 
                     menuweek = myMenuweek;
 
-                    switch (pnl.getDate().getDayOfWeek()) {
-                        case DateTimeConstants.MONDAY: {
-                            pnl.setMenu(menuweek.getMon());
-                            break;
-                        }
-                        case DateTimeConstants.TUESDAY: {
-                            pnl.setMenu(menuweek.getTue());
-                            break;
-                        }
-                        case DateTimeConstants.WEDNESDAY: {
-                            pnl.setMenu(menuweek.getWed());
-                            break;
-                        }
-                        case DateTimeConstants.THURSDAY: {
-                            pnl.setMenu(menuweek.getThu());
-                            break;
-                        }
-                        case DateTimeConstants.FRIDAY: {
-                            pnl.setMenu(menuweek.getFri());
-                            break;
-                        }
-                        case DateTimeConstants.SATURDAY: {
-                            pnl.setMenu(menuweek.getSat());
-                            break;
-                        }
-                        case DateTimeConstants.SUNDAY: {
-                            pnl.setMenu(menuweek.getSun());
-                            break;
-                        }
-                        default: {
-                            Main.fatal(o.toString());
-                        }
-                    }
+                    pnl.setMenu(menuweek.getMenus().get(pnl.getDate().getDayOfWeek()-1));
 
                 } catch (OptimisticLockException ole) {
                     Main.warn(ole);
@@ -372,41 +308,40 @@ public class PnlMenuWeek extends JPanel {
         changeAction.execute(menuweek);
     }
 
-    private void btnNewMenuweekActionPerformed(ActionEvent e) {
-        Main.getDesktop().getMenuweek().addMenu(new Menuweek(menuweek.getWeek(), menuweek.getRecipefeature()));
-    }
+//    private void btnNewMenuweekActionPerformed(ActionEvent e) {
+//        Main.getDesktop().getMenuweek().addMenu(new Menuweek(menuweek.getWeek(), menuweek.getRecipefeature()));
+//    }
 
-    private void btnDeleteThisMenuweekActionPerformed(ActionEvent e) {
-        if (JOptionPane.showInternalConfirmDialog(Main.getDesktop().getMenuweek(), "Diesen Wochen plan willst Du löschen\n\n" +
-                        "Bist du ganz sicher ?", "Wochenplan löschen",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE)
-                == JOptionPane.YES_OPTION) {
-
-            //                   menu.setRecipe(new Recipes(searcher.getText().trim()));
-
-            EntityManager em = Main.getEMF().createEntityManager();
-            try {
-                em.getTransaction().begin();
-                Menuweek myMenuweek = em.merge(menuweek);
-                em.remove(myMenuweek);
-                em.getTransaction().commit();
-
-                Main.getDesktop().getMenuweek().deleteMenu(myMenuweek, this);
-
-            } catch (Exception ex) {
-                Main.fatal(ex);
-            } finally {
-                em.close();
-            }
-        }
-    }
+//    private void btnDeleteThisMenuweekActionPerformed(ActionEvent e) {
+//        if (JOptionPane.showInternalConfirmDialog(Main.getDesktop().getMenuweek(), "Diesen Wochen plan willst Du löschen\n\n" +
+//                        "Bist du ganz sicher ?", "Wochenplan löschen",
+//                JOptionPane.OK_CANCEL_OPTION,
+//                JOptionPane.QUESTION_MESSAGE)
+//                == JOptionPane.YES_OPTION) {
+//
+//            //                   menu.setRecipe(new Recipes(searcher.getText().trim()));
+//
+//            EntityManager em = Main.getEMF().createEntityManager();
+//            try {
+//                em.getTransaction().begin();
+//                Menuweek myMenuweek = em.merge(menuweek);
+//                em.remove(myMenuweek);
+//                em.getTransaction().commit();
+//
+//                Main.getDesktop().getMenuweek().deleteMenu(myMenuweek, this);
+//
+//            } catch (Exception ex) {
+//                Main.fatal(ex);
+//            } finally {
+//                em.close();
+//            }
+//        }
+//    }
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         panel2 = new JPanel();
         btnPrint = new JButton();
-        btnDeleteThisMenuweek = new JButton();
         cmbFeature = new JComboBox<Recipefeature>();
         panel11 = new JScrollPane();
         panel3 = new JPanel();
@@ -434,7 +369,7 @@ public class PnlMenuWeek extends JPanel {
         setBorder(new DropShadowBorder(Color.black, 8, 0.6f, 12, true, true, true, true));
         setLayout(new FormLayout(
             "default:grow, $lcgap, default",
-            "2*(default, $lgap), fill:pref:grow, $lgap, pref"));
+            "2*(default, $lgap), top:pref, $lgap, pref"));
 
         //======== panel2 ========
         {
@@ -445,18 +380,6 @@ public class PnlMenuWeek extends JPanel {
             btnPrint.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/printer.png")));
             btnPrint.setToolTipText("Diesen Wochenplan l\u00f6schen");
             panel2.add(btnPrint);
-
-            //---- btnDeleteThisMenuweek ----
-            btnDeleteThisMenuweek.setText(null);
-            btnDeleteThisMenuweek.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit_remove.png")));
-            btnDeleteThisMenuweek.setToolTipText("Diesen Wochenplan l\u00f6schen");
-            btnDeleteThisMenuweek.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    btnDeleteThisMenuweekActionPerformed(e);
-                }
-            });
-            panel2.add(btnDeleteThisMenuweek);
         }
         add(panel2, CC.xywh(1, 1, 3, 1));
 
@@ -601,7 +524,6 @@ public class PnlMenuWeek extends JPanel {
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     private JPanel panel2;
     private JButton btnPrint;
-    private JButton btnDeleteThisMenuweek;
     private JComboBox<Recipefeature> cmbFeature;
     private JScrollPane panel11;
     private JPanel panel3;

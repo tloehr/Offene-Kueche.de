@@ -5,7 +5,7 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 			"$columnSpecs": "default:grow, labelcompgap, default"
-			"$rowSpecs": "default, linegap, default, linegap, fill:pref:grow, linegap, pref"
+			"$rowSpecs": "default, linegap, default, linegap, top:pref, linegap, pref"
 		} ) {
 			name: "this"
 			"border": new org.jdesktop.swingx.border.DropShadowBorder( sfield java.awt.Color black, 8, 0.6f, 12, true, true, true, true )
@@ -18,13 +18,6 @@ new FormModel {
 					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/printer.png" )
 					"toolTipText": "Diesen Wochenplan löschen"
-				} )
-				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "btnDeleteThisMenuweek"
-					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
-					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_remove.png" )
-					"toolTipText": "Diesen Wochenplan löschen"
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnDeleteThisMenuweekActionPerformed", true ) )
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridWidth": 3
