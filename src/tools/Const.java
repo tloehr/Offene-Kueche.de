@@ -137,8 +137,10 @@ public class Const {
     public static final Icon icon24ledBlueOff = new ImageIcon(Const.class.getResource("/artwork/24x24/leddarkblue.png"));
     public static final Icon icon24ledGreenOn = new ImageIcon(Const.class.getResource("/artwork/24x24/ledgreen.png"));
     public static final Icon icon24ledGreenOff = new ImageIcon(Const.class.getResource("/artwork/24x24/leddarkgreen.png"));
+    public static final Icon icon24ledRedOn = new ImageIcon(Const.class.getResource("/artwork/24x24/ledred.png"));
 
     public static final Icon icon24menu = new ImageIcon(Const.class.getResource("/artwork/24x24/player_eject.png"));
+    public static final Icon icon24find = new ImageIcon(Const.class.getResource("/artwork/24x24/find.png"));
 
     public static final Icon icon32add = new ImageIcon(Const.class.getResource("/artwork/32x32/edit_add.png"));
 

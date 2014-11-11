@@ -10,11 +10,20 @@ new FormModel {
 			"iconifiable": true
 			"maximizable": true
 			"resizable": true
-			add( new FormComponent( "com.toedter.calendar.JDateChooser" ) {
-				name: "jdcWeek"
-				"dateFormatString": "'KW'w yyyy"
-				"font": new java.awt.Font( "Dialog", 0, 20 )
-				addEvent( new FormEvent( "java.beans.PropertyChangeListener", "propertyChange", "jdcWeekPropertyChange", true, "date" ) )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
+				name: "panel1"
+				add( new FormComponent( "javax.swing.JComboBox" ) {
+					name: "cmbWeeks"
+					"font": new java.awt.Font( "SansSerif", 0, 18 )
+					auxiliary() {
+						"JavaCodeGenerator.typeParameters": "LocalDate"
+					}
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnAddWeek"
+					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_add.png" )
+				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "North"
 			} )

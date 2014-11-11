@@ -123,23 +123,17 @@ public class PnlMenuWeek extends JPanel {
                 EntityManager em = Main.getEMF().createEntityManager();
                 try {
                     em.getTransaction().begin();
-
                     Menuweek myMenuweek = em.merge(menuweek);
                     em.lock(myMenuweek, LockModeType.OPTIMISTIC);
-
                     myMenuweek.getMenus().set(pnl.getDate().getDayOfWeek() -1, em.merge(pnl.getMenu()));
-
                     em.getTransaction().commit();
-
                     menuweek = myMenuweek;
-
                     pnl.setMenu(menuweek.getMenus().get(pnl.getDate().getDayOfWeek()-1));
-
+                    notifyCaller();
                 } catch (OptimisticLockException ole) {
                     Main.warn(ole);
                     em.getTransaction().rollback();
                 } catch (Exception exc) {
-                    Main.error(exc.getMessage());
                     em.getTransaction().rollback();
                     Main.fatal(exc.getMessage());
                 } finally {

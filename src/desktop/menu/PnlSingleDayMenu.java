@@ -5,6 +5,7 @@ import com.jidesoft.popup.JidePopup;
 import com.jidesoft.swing.DefaultOverlayable;
 import com.jidesoft.swing.JidePopupMenu;
 import entity.Menu;
+import entity.MenuTools;
 import entity.Recipes;
 import org.apache.commons.collections.Closure;
 import org.jdesktop.swingx.JXSearchField;
@@ -17,11 +18,12 @@ import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EventListener;
+import java.util.EventObject;
 
 /**
  * Created by tloehr on 14.10.14.
@@ -41,13 +43,11 @@ public class PnlSingleDayMenu extends JPanel {
     private LocalDate date;
     //    private JTextField searcher;
 //    private JLabel lblLEDStarter;
-    private JXSearchField searcherMain, searcherSauce, searcherSideveggie, searcherSidedish, searcherDessert, searcherWholeMenu;
-    private JidePopup popupR, popupM;
-    private DefaultListModel<Recipes> dlmR;
+    private JTextField searcherWholeMenu;
+    private JidePopup popupM;
+    KeyboardFocusManager keyboardFocusManager;
     private DefaultListModel<Menu> dlmM;
-    private boolean reactToTextChange;
 
-    private int focusid = -1, currentFocusID = -1;
 
     public Menu getMenu() {
         return menu;
@@ -64,14 +64,11 @@ public class PnlSingleDayMenu extends JPanel {
     public PnlSingleDayMenu(Menu menu) {
         super();
 
-        reactToTextChange = true;
-
         this.menu = menu;
 
         this.date = new LocalDate(menu.getDate());
 
 
-        dlmR = new DefaultListModel<Recipes>();
         dlmM = new DefaultListModel<Menu>();
         initPanel();
     }
@@ -93,288 +90,104 @@ public class PnlSingleDayMenu extends JPanel {
         menuLine2.setLayout(new BoxLayout(menuLine2, BoxLayout.LINE_AXIS));
         menuLine3.setLayout(new BoxLayout(menuLine3, BoxLayout.LINE_AXIS));
 
-//        final JButton buttonDelete = new JButton(Const.icon24remove);
-//        buttonDelete.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                searcher.setText(null);
-//                menu.setRecipe(null);
-//            }
-//        });
+        keyboardFocusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 
-        reactToTextChange = false;
 
+        menuLine1.add(new MenuBlock(menu.getStarter(), "Vorspeise", new RecipeChangeListener() {
+            @Override
+            public void recipeChanged(RecipeChangeEvent rce) {
+                menu.setStarter(rce.getNewRecipe());
+                changeAction.execute(menu);
+                searcherWholeMenu.setText(MenuTools.getPrettyString(menu));
+            }
+        }));
+
+        menuLine1.add(new MenuBlock(menu.getMaincourse(), "Hauptgericht", new RecipeChangeListener() {
+            @Override
+            public void recipeChanged(RecipeChangeEvent rce) {
+                menu.setMaincourse(rce.getNewRecipe());
+                changeAction.execute(menu);
+                searcherWholeMenu.setText(MenuTools.getPrettyString(menu));
+            }
+        }));
+
+        menuLine1.add(new MenuBlock(menu.getSauce(), "Sauce", new RecipeChangeListener() {
+            @Override
+            public void recipeChanged(RecipeChangeEvent rce) {
+                menu.setSauce(rce.getNewRecipe());
+                changeAction.execute(menu);
+                searcherWholeMenu.setText(MenuTools.getPrettyString(menu));
+            }
+        }));
+
+        menuLine2.add(new MenuBlock(menu.getSideveggie(), "Gemüse/Beilagen/Salat", new RecipeChangeListener() {
+            @Override
+            public void recipeChanged(RecipeChangeEvent rce) {
+                menu.setSideveggie(rce.getNewRecipe());
+                changeAction.execute(menu);
+                searcherWholeMenu.setText(MenuTools.getPrettyString(menu));
+            }
+        }));
+
+        menuLine2.add(new MenuBlock(menu.getSidedish(), "Kartoffeln/Reis/Nudeln", new RecipeChangeListener() {
+            @Override
+            public void recipeChanged(RecipeChangeEvent rce) {
+                menu.setSidedish(rce.getNewRecipe());
+                changeAction.execute(menu);
+                searcherWholeMenu.setText(MenuTools.getPrettyString(menu));
+            }
+        }));
+
+        menuLine2.add(new MenuBlock(menu.getDessert(), "Dessert", new RecipeChangeListener() {
+            @Override
+            public void recipeChanged(RecipeChangeEvent rce) {
+                menu.setDessert(rce.getNewRecipe());
+                changeAction.execute(menu);
+                searcherWholeMenu.setText(MenuTools.getPrettyString(menu));
+            }
+        }));
 
 //        menuLine1.add(searcherStarter);
 
 
-        searcherMain = new JXSearchField("Hauptgang");
-        searcherMain.setText(menu.getMaincourse() == null ? "" : menu.getMaincourse().getTitle());
-        searcherMain.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                super.keyPressed(e);
-                enterPressed(e);
-            }
-        });
-        searcherMain.setSearchMode(JXSearchField.SearchMode.INSTANT);
-        searcherMain.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        searcherMain.setToolTipText(menu.getMaincourse() == null ? "" : menu.getMaincourse().getText());
-        searcherMain.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                super.focusGained(e);
-                ((JTextComponent) e.getSource()).selectAll();
-                focusid = 2;
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                super.focusLost(e);
-                if (popupR != null) {
-                    popupR.hidePopup();
-                    popupR = null;
-                }
-
-                createRecipeIfNecessary((JTextField) e.getSource());
-            }
-        });
-        searcherMain.setCancelAction(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                cancelListener(ae);
-            }
-        });
-        searcherMain.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                searcherRecipeAction(ae);
-            }
-        });
-        menuLine1.add(searcherMain);
-        menuLine1.add(new JButton(Const.icon24add));
-
-        searcherSauce = new JXSearchField("Sauce");
-        searcherSauce.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                super.keyPressed(e);
-                enterPressed(e);
-            }
-        });
-        searcherSauce.setSearchMode(JXSearchField.SearchMode.INSTANT);
-        searcherSauce.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        searcherSauce.setText(menu.getSauce() == null ? "" : menu.getSauce().getTitle());
-        searcherSauce.setToolTipText(menu.getSauce() == null ? "" : menu.getSauce().getText());
-        searcherSauce.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                super.focusGained(e);
-                ((JTextComponent) e.getSource()).selectAll();
-                focusid = 3;
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                super.focusLost(e);
-                if (popupR != null) {
-                    popupR.hidePopup();
-                    popupR = null;
-                }
-
-                createRecipeIfNecessary((JTextField) e.getSource());
-            }
-        });
-        searcherSauce.setCancelAction(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                cancelListener(ae);
-            }
-        });
-
-        searcherSauce.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                searcherRecipeAction(ae);
-            }
-        });
-        menuLine1.add(searcherSauce);
-        menuLine1.add(new JButton(Const.icon24add));
-
-        searcherSideveggie = new JXSearchField("Gemüse/Salat");
-        searcherSideveggie.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                super.keyPressed(e);
-                enterPressed(e);
-            }
-        });
-        searcherSideveggie.setSearchMode(JXSearchField.SearchMode.INSTANT);
-        searcherSideveggie.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        searcherSideveggie.setText(menu.getSauce() == null ? "" : menu.getSauce().getTitle());
-        searcherSideveggie.setToolTipText(menu.getSauce() == null ? "" : menu.getSauce().getText());
-        searcherSideveggie.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                super.focusGained(e);
-                ((JTextComponent) e.getSource()).selectAll();
-                focusid = 4;
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                super.focusLost(e);
-                if (popupR != null) {
-                    popupR.hidePopup();
-                    popupR = null;
-                }
-
-                createRecipeIfNecessary((JTextField) e.getSource());
-            }
-        });
-        searcherSideveggie.setCancelAction(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                cancelListener(ae);
-            }
-        });
-
-        searcherSideveggie.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                searcherRecipeAction(ae);
-            }
-        });
-        menuLine2.add(searcherSideveggie);
-        menuLine2.add(new JButton(Const.icon24add));
-
-        searcherSidedish = new JXSearchField("Kartoffeln/Reis/Nudeln");
-        searcherSidedish.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                super.keyPressed(e);
-                enterPressed(e);
-            }
-        });
-        searcherSidedish.setSearchMode(JXSearchField.SearchMode.INSTANT);
-        searcherSidedish.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        searcherSidedish.setText(menu.getSauce() == null ? "" : menu.getSauce().getTitle());
-        searcherSidedish.setToolTipText(menu.getSauce() == null ? "" : menu.getSauce().getText());
-        searcherSidedish.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                super.focusGained(e);
-                ((JTextComponent) e.getSource()).selectAll();
-                focusid = 5;
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                super.focusLost(e);
-                if (popupR != null) {
-                    popupR.hidePopup();
-                    popupR = null;
-                }
-                createRecipeIfNecessary((JTextField) e.getSource());
-            }
-        });
-        searcherSidedish.setCancelAction(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                cancelListener(ae);
-            }
-        });
-
-        searcherSidedish.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                searcherRecipeAction(ae);
-            }
-        });
-        menuLine2.add(searcherSidedish);
-
-        searcherDessert = new JXSearchField("Dessert");
-        searcherDessert.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                super.keyPressed(e);
-                enterPressed(e);
-            }
-        });
-        searcherDessert.setSearchMode(JXSearchField.SearchMode.INSTANT);
-        searcherDessert.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        searcherDessert.setText(menu.getSauce() == null ? "" : menu.getSauce().getTitle());
-        searcherDessert.setToolTipText(menu.getSauce() == null ? "" : menu.getSauce().getText());
-        searcherDessert.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                super.focusGained(e);
-                ((JTextComponent) e.getSource()).selectAll();
-                focusid = 6;
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                super.focusLost(e);
-                if (popupR != null) {
-                    popupR.hidePopup();
-                    popupR = null;
-                }
-                createRecipeIfNecessary((JTextField) e.getSource());
-            }
-        });
-        searcherDessert.setCancelAction(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                cancelListener(ae);
-            }
-        });
-
-        searcherDessert.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                searcherRecipeAction(ae);
-            }
-        });
-        menuLine2.add(searcherDessert);
-        menuLine2.add(new JButton(Const.icon24add));
-
-
         searcherWholeMenu = new JXSearchField("Titel auf der Speisekarte");
-        searcherWholeMenu.setSearchMode(JXSearchField.SearchMode.INSTANT);
         searcherWholeMenu.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        searcherWholeMenu.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                super.focusGained(e);
-                ((JTextComponent) e.getSource()).selectAll();
-                focusid = -1;
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                super.focusLost(e);
-                if (popupR != null) {
-                    popupR.hidePopup();
-                    popupR = null;
-                }
-                createRecipeIfNecessary((JTextField) e.getSource());
-            }
-        });
-        searcherWholeMenu.setCancelAction(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                cancelListener(ae);
-            }
-        });
-
-        searcherWholeMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-//                searcherRecipeAction(ae);
-            }
-        });
         menuLine3.add(searcherWholeMenu);
+        searcherWholeMenu.setText(menu.getText());
+        menuLine3.add(new JButton(Const.icon24find));
+
+//        searcherWholeMenu.addFocusListener(new FocusAdapter() {
+//            @Override
+//            public void focusGained(FocusEvent e) {
+//                super.focusGained(e);
+//                ((JTextComponent) e.getSource()).selectAll();
+//                focusid = -1;
+//            }
+//
+//            @Override
+//            public void focusLost(FocusEvent e) {
+//                super.focusLost(e);
+//                if (popupR != null) {
+//                    popupR.hidePopup();
+//                    popupR = null;
+//                }
+//                createRecipeIfNecessary((JTextField) e.getSource());
+//            }
+//        });
+//        searcherWholeMenu.setCancelAction(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent ae) {
+//                cancelListener(ae);
+//            }
+//        });
+//
+//        searcherWholeMenu.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent ae) {
+////                searcherRecipeAction(ae);
+//            }
+//        });
+//        menuLine3.add(searcherWholeMenu);
 
 
 //        searcher.addCaretListener(new CaretListener() {
@@ -399,224 +212,12 @@ public class PnlSingleDayMenu extends JPanel {
 
 
 //        topLine.add(buttonDelete);
-        reactToTextChange = true;
+
         menuComplete.add(menuLine1);
         menuComplete.add(menuLine2);
         menuComplete.add(menuLine3);
         add(menuComplete);
 //        add(new JLabel(menu.getRecipe() == null ? "--" : menu.getRecipe().getTitle()));
-    }
-
-//    private JButton getStockButton()
-
-
-    private void escPressed(KeyEvent e) {
-        reactToTextChange = false;
-
-        if (e.getSource().equals(searcherStarter)) {
-            searcherStarter.setText(menu.getStarter() == null ? "" : menu.getStarter().getTitle());
-            searcherStarter.setToolTipText(menu.getStarter() == null ? "" : menu.getStarter().getText());
-        } else if (e.getSource().equals(searcherMain)) {
-            searcherMain.setText(menu.getMaincourse() == null ? "" : menu.getMaincourse().getTitle());
-            searcherMain.setToolTipText(menu.getMaincourse() == null ? "" : menu.getMaincourse().getText());
-        } else if (e.getSource().equals(searcherSauce)) {
-            searcherSauce.setText(menu.getSauce() == null ? "" : menu.getSauce().getTitle());
-            searcherSauce.setToolTipText(menu.getSauce() == null ? "" : menu.getSauce().getText());
-        } else if (e.getSource().equals(searcherSideveggie)) {
-            searcherSideveggie.setText(menu.getSideveggie() == null ? "" : menu.getSideveggie().getTitle());
-            searcherSideveggie.setToolTipText(menu.getSideveggie() == null ? "" : menu.getSideveggie().getText());
-        } else if (e.getSource().equals(searcherSidedish)) {
-            searcherSidedish.setText(menu.getSidedish() == null ? "" : menu.getSidedish().getTitle());
-            searcherSidedish.setToolTipText(menu.getSidedish() == null ? "" : menu.getSidedish().getText());
-        } else if (e.getSource().equals(searcherDessert)) {
-            searcherDessert.setText(menu.getDessert() == null ? "" : menu.getDessert().getTitle());
-            searcherDessert.setToolTipText(menu.getDessert() == null ? "" : menu.getDessert().getText());
-        } else if (e.getSource().equals(searcherWholeMenu)) {
-            searcherWholeMenu.setText(menu.getText());
-        } else {
-            Main.fatal("schade im grunde");
-        }
-
-        reactToTextChange = true;
-
-        if (popupR != null) {
-            popupR.hidePopup();
-            popupR = null;
-        }
-    }
-
-    private void cancelListener(ActionEvent e) {
-        reactToTextChange = false;
-
-        if (e.getSource().equals(searcherStarter)) {
-            searcherStarter.setText(menu.getStarter() == null ? "" : menu.getStarter().getTitle());
-            searcherStarter.setToolTipText(menu.getStarter() == null ? "" : menu.getStarter().getText());
-        } else if (e.getSource().equals(searcherMain)) {
-            searcherMain.setText(menu.getMaincourse() == null ? "" : menu.getMaincourse().getTitle());
-            searcherMain.setToolTipText(menu.getMaincourse() == null ? "" : menu.getMaincourse().getText());
-        } else if (e.getSource().equals(searcherSauce)) {
-            searcherSauce.setText(menu.getSauce() == null ? "" : menu.getSauce().getTitle());
-            searcherSauce.setToolTipText(menu.getSauce() == null ? "" : menu.getSauce().getText());
-        } else if (e.getSource().equals(searcherSideveggie)) {
-            searcherSideveggie.setText(menu.getSideveggie() == null ? "" : menu.getSideveggie().getTitle());
-            searcherSideveggie.setToolTipText(menu.getSideveggie() == null ? "" : menu.getSideveggie().getText());
-        } else if (e.getSource().equals(searcherSidedish)) {
-            searcherSidedish.setText(menu.getSidedish() == null ? "" : menu.getSidedish().getTitle());
-            searcherSidedish.setToolTipText(menu.getSidedish() == null ? "" : menu.getSidedish().getText());
-        } else if (e.getSource().equals(searcherDessert)) {
-            searcherDessert.setText(menu.getDessert() == null ? "" : menu.getDessert().getTitle());
-            searcherDessert.setToolTipText(menu.getDessert() == null ? "" : menu.getDessert().getText());
-        } else if (e.getSource().equals(searcherWholeMenu)) {
-            searcherWholeMenu.setText(menu.getText());
-        } else {
-            Main.fatal("schade im grunde");
-        }
-
-        reactToTextChange = true;
-
-        if (popupR != null) {
-            popupR.hidePopup();
-            popupR = null;
-        }
-    }
-
-    private void enterPressed(KeyEvent e) {
-        if (e.getKeyCode() != KeyEvent.VK_ENTER) return;
-        createRecipeIfNecessary((JTextField) e.getSource());
-    }
-
-    private void createRecipeIfNecessary(JTextField source) {
-        if (source.getText().trim().isEmpty()) return;
-        Recipes thisRecipe = findInDLMr(source.getText().trim());
-
-        if (thisRecipe == null & JOptionPane.showInternalConfirmDialog(Main.getDesktop().getMenuweek(), "Das Rezept kenne ich noch gar nicht.\n" +
-                        "Achte darauf, dass alles richtig geschrieben ist\n\n" +
-                        "Soll ich das mit aufnehmen ?", "Neues Rezept: '" + source.getText().trim() + "'",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE)
-                == JOptionPane.YES_OPTION) {
-
-            EntityManager em = Main.getEMF().createEntityManager();
-            try {
-                em.getTransaction().begin();
-                thisRecipe = em.merge(new Recipes(source.getText().trim()));
-                em.getTransaction().commit();
-            } catch (Exception ex) {
-                Main.fatal(ex);
-            } finally {
-                em.close();
-            }
-        }
-
-
-        if (thisRecipe != null) {
-            setRecipe(source, thisRecipe);
-            changeAction.execute(menu);
-        }
-    }
-
-
-    private Recipes findInDLMr(String searchPattern) {
-        if (dlmR.isEmpty()) return null;
-
-        Recipes found = null;
-
-        for (Recipes r : Collections.list(dlmR.elements())) {
-            if (r.getTitle().equals(searchPattern)) {
-                found = r;
-                break;
-            }
-        }
-
-        return found;
-
-
-    }
-
-
-    private void searcherRecipeAction(final ActionEvent ae) {
-//        if (!reactToCaret) return;
-//        if (e.getDot() == 0) return;
-        if (!reactToTextChange) return;
-        if (!((JComponent) ae.getSource()).hasFocus()) return;
-
-//        if (popupR != null && currentFocusID != focusid) {
-//            popupR.hidePopup();
-//            popupR = null;
-//        }
-//        currentFocusID = focusid;
-
-        if (popupR == null) {
-
-            popupR = new JidePopup();
-            popupR.setOwner((JComponent) ae.getSource());
-
-            Main.debug(ae.getSource());
-
-            popupR.setMovable(false);
-
-
-            final JList<Recipes> list = new JList(dlmR);
-            list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-            list.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    if (e.getClickCount() == 2) {
-                        setRecipe(ae.getSource(), list.getSelectedValue());
-                        ((JXSearchField) ae.getSource()).setText(list.getSelectedValue().getTitle());
-                        changeAction.execute(menu);
-                        popupR.hidePopup();
-                    }
-                    super.mouseClicked(e);
-                }
-            });
-
-
-            popupR.setContentPane(new JScrollPane(list));
-            popupR.removeExcludedComponent((JXSearchField) ae.getSource());
-
-            GUITools.showPopup(popupR, SwingConstants.SOUTH);
-        }
-
-        searchRecipes(((JXSearchField) ae.getSource()).getText().trim());
-
-        if (dlmR.isEmpty() && popupR.isShowing()) {
-            popupR.hidePopup();
-
-        }
-
-        if (!dlmR.isEmpty() && popupR != null && !popupR.isShowing()) {
-            popupR.setOwner((JComponent) ae.getSource());
-            GUITools.showPopup(popupR, SwingConstants.SOUTH);
-        }
-
-
-    }
-
-
-    private void setRecipe(Object source, Recipes recipes) {
-        if (source.equals(searcherStarter)) {
-            menu.setStarter(recipes);
-            searcherDessert.setToolTipText(recipes == null ? "" : recipes.getText());
-        } else if (source.equals(searcherMain)) {
-            menu.setMaincourse(recipes);
-            searcherMain.setToolTipText(recipes == null ? "" : recipes.getText());
-        } else if (source.equals(searcherSauce)) {
-            menu.setSauce(recipes);
-            searcherSauce.setToolTipText(recipes == null ? "" : recipes.getText());
-        } else if (source.equals(searcherSideveggie)) {
-            menu.setSideveggie(recipes);
-            searcherSideveggie.setToolTipText(recipes == null ? "" : recipes.getText());
-        } else if (source.equals(searcherSidedish)) {
-            menu.setSidedish(recipes);
-            searcherSidedish.setToolTipText(recipes == null ? "" : recipes.getText());
-        } else if (source.equals(searcherDessert)) {
-            menu.setDessert(recipes);
-            searcherDessert.setToolTipText(recipes == null ? "" : recipes.getText());
-        } else {
-            Main.fatal("schade im grunde");
-        }
     }
 
 
@@ -637,55 +238,58 @@ public class PnlSingleDayMenu extends JPanel {
     }
 
 
-    private void searchRecipes(String searchPattern) {
-        dlmR.clear();
-
-
-        EntityManager em = Main.getEMF().createEntityManager();
-
-        Query query = em.createQuery("SELECT r FROM Recipes r WHERE (r.text LIKE :pattern) OR (r.title LIKE :pattern) ORDER BY r.title ");
-        query.setParameter("pattern", "%" + searchPattern + "%");
-
-        ArrayList<Recipes> listRecipes = new ArrayList<Recipes>(query.getResultList());
-        em.close();
-
-        for (Recipes recipes : listRecipes) {
-            dlmR.addElement(recipes);
-        }
-    }
-
     private class MenuBlock extends JPanel {
 
+        private final RecipeChangeListener rcl;
         private Recipes recipe;
         private final JTextField searcher;
         private JidePopup popup;
         private DefaultListModel<Recipes> dlm;
-        private Closure changeEvent;
         private JButton btnMenu;
         private boolean initPhase;
+        private JList<Recipes> jList;
+        private JScrollPane scrl;
 
-
-        MenuBlock(Recipes recipe, String overlay) {
+        MenuBlock(final Recipes recipeIn, String overlay, RecipeChangeListener rclIn) {
             super();
+            this.rcl = rclIn;
             initPhase = true;
-            this.recipe = recipe;
             setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+            dlm = new DefaultListModel<Recipes>();
 
-            searcher = new JTextField(20);
+            addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    super.componentResized(e);
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            revalidate();
+                            repaint();
+                        }
+                    });
+                }
+            });
+
+            searcher = new JTextField(12);
+            searcher.setFocusable(true);
             DefaultOverlayable ovrComment = new DefaultOverlayable(searcher);
             JLabel lblOverlay = new JLabel(overlay);
-            lblOverlay.setForeground(Color.LIGHT_GRAY);
-            lblOverlay.setFont(new Font("SansSerif", Font.PLAIN, 18));
-            ovrComment.addOverlayComponent(lblOverlay, DefaultOverlayable.CENTER);
+            lblOverlay.setForeground(Const.deepskyblue);
+            lblOverlay.setFont(new Font("SansSerif", Font.BOLD, 10));
+            ovrComment.addOverlayComponent(lblOverlay, DefaultOverlayable.SOUTH_EAST);
 
             searcher.addKeyListener(new KeyAdapter() {
                 @Override
                 public void keyPressed(KeyEvent e) {
                     super.keyPressed(e);
-                    //                if (e.getKeyCode() == KeyEvent.VK_ENTER)
-                    //                    enterPressed(e);
                     if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
                         cancel();
+                    if (e.getKeyCode() == KeyEvent.VK_DOWN)
+                        goDownInList();
+                    if (e.getKeyCode() == KeyEvent.VK_UP)
+                        goUpInList();
+
                 }
             });
             searcher.setFont(new Font("SansSerif", Font.PLAIN, 18));
@@ -704,7 +308,7 @@ public class PnlSingleDayMenu extends JPanel {
                         popup.hidePopup();
                         popup = null;
                     }
-                    createRecipeIfNecessary((JTextField) e.getSource());
+                    createRecipeIfNecessary(searcher.getText());
                 }
             });
 
@@ -715,116 +319,276 @@ public class PnlSingleDayMenu extends JPanel {
                 }
             });
 
-//            searcher.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent ae) {
-//                    searcherRecipeAction(ae);
-//                }
-//            });
+            searcher.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    if (jList != null && jList.getSelectedValue() != null) {
+                        setRecipe(jList.getSelectedValue());
+                    } else {
+                        createRecipeIfNecessary(searcher.getText());
+                    }
+                    keyboardFocusManager.focusNextComponent();
+                }
+            });
 
             btnMenu = new JButton();
             btnMenu.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JidePopupMenu jMenu = new JidePopupMenu();
-                    JMenuItem miOn = new JMenuItem(Const.icon24ledGreenOn);
-                    JMenuItem miOff = new JMenuItem(Const.icon24ledGreenOff);
+                    JMenuItem miOn = new JMenuItem("Speichern", Const.icon24ledGreenOn);
+                    JMenuItem miOff = new JMenuItem("Leer", Const.icon24ledGreenOff);
                     jMenu.add(miOn);
                     jMenu.add(miOff);
 
+                    miOn.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            setRecipe(recipe);
+                            if (recipe != null && recipe.getId() == 0) {
+                                rcl.recipeChanged(new RecipeChangeEvent(searcher, recipe));
+
+                                // refresh the entity object that has been persisted in the parent class
+                                EntityManager em = Main.getEMF().createEntityManager();
+                                Query refreshQuery = em.createQuery("SELECT r FROM Recipes r WHERE r.title = :title");
+                                refreshQuery.setParameter("title", recipe.getTitle());
+                                recipe = (Recipes) refreshQuery.getResultList().get(0);
+                                em.close();
+
+                                setAccepted();
+                            }
+                        }
+                    });
+
+                    miOff.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            setRecipe(null);
+                        }
+                    });
 
                     jMenu.show(btnMenu, 0, btnMenu.getPreferredSize().height);
                 }
             });
-            menuLine1.add(btnMenuStarter);
+
+            setRecipe(recipeIn);
+
+            add(ovrComment);
+            add(btnMenu);
+
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    revalidate();
+                    repaint();
+                }
+            });
+
             initPhase = false;
         }
 
-
-        void setAccepted() {
-            btnMenu.setIcon(Const.icon24ledGreenOn);
-            searcher.setEditable(false);
+        private void goDownInList() {
+            if (popup != null && popup.isShowing() && !dlm.isEmpty()) {
+                int index = Math.min(jList.getModel().getSize() - 1, jList.getSelectedIndex() + 1);
+                jList.setSelectedIndex(index);
+                jList.ensureIndexIsVisible(index);
+            }
         }
 
-        void setEmpty() {
-            btnMenu.setIcon(Const.icon24ledGreenOff);
-            searcher.setText(null);
-            searcher.setEditable(true);
-            recipe = null;
+        private void goUpInList() {
+            if (popup != null && popup.isShowing() && !dlm.isEmpty()) {
+                int index = Math.max(jList.getSelectedIndex() - 1, 0);
+                jList.setSelectedIndex(index);
+                jList.ensureIndexIsVisible(index);
+            }
+        }
+
+        void setAccepted() {
+            if (recipe == null) {
+                btnMenu.setIcon(Const.icon24ledGreenOff);
+            } else if (recipe.getId() == 0) {
+                btnMenu.setIcon(Const.icon24ledRedOn);
+            } else {
+                btnMenu.setIcon(Const.icon24ledGreenOn);
+            }
+//            searcher.setEditable(recipe == null || recipe.getId() == 0);
         }
 
         void setRecipe(Recipes recipe) {
             this.recipe = recipe;
             searcher.setText(recipe == null ? "" : recipe.getTitle());
             searcher.setToolTipText(recipe == null ? "" : recipe.getText());
+
+            if (!initPhase && ((recipe != null && recipe.getId() != 0) || recipe == null)) {
+                rcl.recipeChanged(new RecipeChangeEvent(searcher, recipe));
+            }
+
+            setAccepted();
+
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    revalidate();
+                    repaint();
+                }
+            });
         }
 
         void cancel() {
             searcher.setText(recipe == null ? "" : recipe.getTitle());
         }
 
-        void caretListener(CaretEvent ce) {
-            private void searcherRecipeAction ( final ActionEvent ae){
-                //        if (!reactToCaret) return;
-                //        if (e.getDot() == 0) return;
-                if (!reactToTextChange) return;
-                if (!((JComponent) ae.getSource()).hasFocus()) return;
+        private void createRecipeIfNecessary(String title) {
+            if (title.trim().isEmpty()) return;
+            // Recipes thisRecipe = findInDLM(title.trim());
+            Recipes thisRecipe = null;
 
-                //        if (popupR != null && currentFocusID != focusid) {
-                //            popupR.hidePopup();
-                //            popupR = null;
-                //        }
-                //        currentFocusID = focusid;
+            // refresh the entity object that has been persisted in the parent class
+            EntityManager em = Main.getEMF().createEntityManager();
+            Query refreshQuery = em.createQuery("SELECT r FROM Recipes r WHERE r.title = :title");
+            refreshQuery.setParameter("title", title);
 
-                if (popupR == null) {
+            ArrayList<Recipes> list = new ArrayList(refreshQuery.getResultList());
+            if (list.size() == 1) {
+                thisRecipe = (Recipes) refreshQuery.getResultList().get(0);
+            } else {
+                thisRecipe = new Recipes(title.trim());
+            }
 
-                    popupR = new JidePopup();
-                    popupR.setOwner((JComponent) ae.getSource());
+            setRecipe(thisRecipe);
 
-                    Main.debug(ae.getSource());
+        }
 
-                    popupR.setMovable(false);
+        void caretListener(CaretEvent cae) {
+            if (!searcher.hasFocus()) return;
 
+            if (searcher.getText().trim().isEmpty() && popup != null && popup.isShowing()) {
+                popup.hidePopup();
+                popup = null;
+                return;
+            }
 
-                    final JList<Recipes> list = new JList(dlmR);
-                    list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            if (cae.getDot() <= 0) {
+                if (popup != null && popup.isShowing()) {
+                    popup.hidePopup();
+                    popup = null;
+                }
+                return;
+            }
 
-                    list.addMouseListener(new MouseAdapter() {
-                        @Override
-                        public void mouseClicked(MouseEvent e) {
-                            if (e.getClickCount() == 2) {
-                                setRecipe(ae.getSource(), list.getSelectedValue());
-                                ((JXSearchField) ae.getSource()).setText(list.getSelectedValue().getTitle());
-                                changeAction.execute(menu);
-                                popupR.hidePopup();
+            if (recipe != null && recipe.getTitle().equals(searcher.getText())) {
+                if (popup != null && popup.isShowing()) {
+                    popup.hidePopup();
+                    popup = null;
+                }
+                return;
+            }
+
+            if (popup == null) {
+                popup = new JidePopup();
+                popup.setOwner(searcher);
+                popup.setMovable(false);
+
+                jList = new JList(dlm);
+                jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                jList.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2) {
+                            setRecipe(jList.getSelectedValue());
+                            if (popup != null && popup.isShowing()) {
+                                popup.hidePopup();
                             }
-                            super.mouseClicked(e);
                         }
-                    });
+                        super.mouseClicked(e);
+                    }
+                });
+
+                scrl = new JScrollPane(jList);
+
+                popup.setContentPane(scrl);
+                popup.removeExcludedComponent(searcher);
+
+                GUITools.showPopup(popup, SwingConstants.SOUTH);
+            }
+
+            searchRecipes(searcher.getText().trim());
+
+            if (dlm.isEmpty() && popup.isShowing()) {
+                popup.hidePopup();
+
+            }
+
+            if (!dlm.isEmpty() && popup != null && !popup.isShowing()) {
+                popup.setOwner(searcher);
+                GUITools.showPopup(popup, SwingConstants.SOUTH);
+            }
 
 
-                    popupR.setContentPane(new JScrollPane(list));
-                    popupR.removeExcludedComponent((JXSearchField) ae.getSource());
+        }
 
-                    GUITools.showPopup(popupR, SwingConstants.SOUTH);
+        private Recipes findInDLM(String searchPattern) {
+            if (dlm.isEmpty()) return null;
+
+            Recipes found = null;
+
+            for (Recipes r : Collections.list(dlm.elements())) {
+                if (r.getTitle().equals(searchPattern)) {
+                    found = r;
+                    break;
                 }
+            }
 
-                searchRecipes(((JXSearchField) ae.getSource()).getText().trim());
-
-                if (dlmR.isEmpty() && popupR.isShowing()) {
-                    popupR.hidePopup();
-
-                }
-
-                if (!dlmR.isEmpty() && popupR != null && !popupR.isShowing()) {
-                    popupR.setOwner((JComponent) ae.getSource());
-                    GUITools.showPopup(popupR, SwingConstants.SOUTH);
-                }
+            return found;
 
 
+        }
+
+
+        private void searchRecipes(String searchPattern) {
+            dlm.clear();
+
+            EntityManager em = Main.getEMF().createEntityManager();
+
+            Query query = em.createQuery("SELECT r FROM Recipes r WHERE (r.text LIKE :pattern) OR (r.title LIKE :pattern) ORDER BY r.title ");
+            query.setParameter("pattern", "%" + searchPattern + "%");
+
+            ArrayList<Recipes> listRecipes = new ArrayList<Recipes>(query.getResultList());
+            em.close();
+
+            for (Recipes recipes : listRecipes) {
+                dlm.addElement(recipes);
             }
         }
 
+    }
+
+    private interface RecipeChangeListener extends EventListener {
+        void recipeChanged(RecipeChangeEvent rce);
+    }
+
+    private class RecipeChangeEvent extends EventObject {
+
+        private final Recipes newRecipe;
+
+        /**
+         * Creates a new CaretEvent object.
+         *
+         * @param source the object responsible for the event
+         */
+        public RecipeChangeEvent(Object source, Recipes newRecipe) {
+            super(source);
+            this.newRecipe = newRecipe;
+        }
+
+        public boolean isRecipeDeleted() {
+            return newRecipe == null;
+        }
+
+        public Recipes getNewRecipe() {
+            return newRecipe;
+        }
     }
 
 

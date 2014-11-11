@@ -240,7 +240,7 @@ public class Main {
     }
 
     public static void fatal(String msg){
-        fatal(new Throwable("schade im grunde"));
+        fatal(new Throwable(msg));
     }
 
     public static void fatal(Object msg) {

@@ -5,7 +5,6 @@
 package desktop.menu;
 
 import Main.Main;
-import com.toedter.calendar.JDateChooser;
 import entity.Menuweek;
 import entity.Menuweekall;
 import entity.MenuweekallTools;
@@ -17,19 +16,19 @@ import javax.persistence.EntityManager;
 import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 
 /**
  * @author Torsten Löhr
  */
 public class FrmMenu extends JInternalFrame {
-    LocalDate week;
-    Menuweekall menuweekall;
+//    LocalDate week;
+    ArrayList<Menuweekall> listAll;
     //    JScrollPane scrlMain;
     JPanel pnlMain;
 
     public FrmMenu() {
-        week = new LocalDate().dayOfWeek().withMinimumValue();
+
         initComponents();
         initFrame();
         pack();
@@ -65,6 +64,14 @@ public class FrmMenu extends JInternalFrame {
 //    }
 
     private void initFrame() {
+
+        listAll = MenuweekallTools.getAll();
+
+        if (listAll.isEmpty()){
+            listAll.add(new Menuweekall(new LocalDate().dayOfWeek().withMinimumValue().toDate()));
+        }
+
+        cmbWeeks.setRenderer(new );
 
         jdcWeek.setDate(week.toDate());
         jdcWeek.setFont(new Font("SansSerif", Font.PLAIN, 18));
@@ -109,7 +116,9 @@ public class FrmMenu extends JInternalFrame {
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-        jdcWeek = new JDateChooser();
+        panel1 = new JPanel();
+        cmbWeeks = new JComboBox<LocalDate>();
+        btnAddWeek = new JButton();
 
         //======== this ========
         setVisible(true);
@@ -120,20 +129,26 @@ public class FrmMenu extends JInternalFrame {
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
-        //---- jdcWeek ----
-        jdcWeek.setDateFormatString("'KW'w yyyy");
-        jdcWeek.setFont(new Font("Dialog", Font.PLAIN, 20));
-        jdcWeek.addPropertyChangeListener("date", new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent e) {
-                jdcWeekPropertyChange(e);
-            }
-        });
-        contentPane.add(jdcWeek, BorderLayout.NORTH);
+        //======== panel1 ========
+        {
+            panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
+
+            //---- cmbWeeks ----
+            cmbWeeks.setFont(new Font("SansSerif", Font.PLAIN, 18));
+            panel1.add(cmbWeeks);
+
+            //---- btnAddWeek ----
+            btnAddWeek.setText(null);
+            btnAddWeek.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit_add.png")));
+            panel1.add(btnAddWeek);
+        }
+        contentPane.add(panel1, BorderLayout.NORTH);
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    private JDateChooser jdcWeek;
+    private JPanel panel1;
+    private JComboBox<LocalDate> cmbWeeks;
+    private JButton btnAddWeek;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }
