@@ -3,11 +3,15 @@ package tools;
 import Main.Main;
 import com.jidesoft.pane.CollapsiblePane;
 import com.jidesoft.popup.JidePopup;
+import org.apache.commons.collections.Closure;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.io.ByteArrayOutputStream;
@@ -36,6 +40,43 @@ public class GUITools {
 
     }
 
+
+    public static JidePopup createPanelPopup(final PopupPanel myPnl, final Closure saveAction, Component owner) {
+        final JidePopup popup = new JidePopup();
+        popup.setMovable(false);
+        JPanel pnl = new JPanel(new BorderLayout(10, 10));
+        pnl.setBorder(new EmptyBorder(5, 5, 5, 5));
+        pnl.add(myPnl, BorderLayout.CENTER);
+
+        JPanel btnPanel = new JPanel();
+        btnPanel.setLayout(new BoxLayout(btnPanel, BoxLayout.X_AXIS));
+
+        JButton saveButton = new JButton(Const.icon24apply);
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (myPnl.isSaveOK()) {
+                    popup.hidePopup();
+                    saveAction.execute(myPnl.getResult());
+                }
+            }
+        });
+        saveButton.setContentAreaFilled(false);
+        saveButton.setBorder(null);
+        saveButton.setBorderPainted(false);
+        btnPanel.add(Box.createHorizontalGlue());
+        btnPanel.add(saveButton);
+        pnl.add(btnPanel, BorderLayout.SOUTH);
+
+        popup.setContentPane(pnl);
+        popup.setPreferredSize(pnl.getPreferredSize());
+        pnl.revalidate();
+        popup.setOwner(owner);
+        popup.removeExcludedComponent(owner);
+//        popup.removeExcludedComponent(pnl);
+        popup.setDefaultFocusComponent(pnl);
+        return popup;
+    }
 
     public static ByteArrayOutputStream getAsImage(JPanel pnl) throws Exception {
         BufferedImage bi = new BufferedImage(pnl.getPreferredSize().width, pnl.getPreferredSize().height, BufferedImage.TYPE_INT_ARGB);

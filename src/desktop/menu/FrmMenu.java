@@ -8,48 +8,37 @@ import Main.Main;
 import entity.Menuweek;
 import entity.Menuweekall;
 import entity.MenuweekallTools;
-import entity.Recipefeature;
 import org.apache.commons.collections.Closure;
 import org.joda.time.LocalDate;
+import tools.Tools;
 
-import javax.persistence.EntityManager;
 import javax.swing.*;
 import java.awt.*;
-import java.beans.PropertyChangeEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
 /**
  * @author Torsten Löhr
  */
 public class FrmMenu extends JInternalFrame {
-//    LocalDate week;
+    //    LocalDate week;
     ArrayList<Menuweekall> listAll;
     //    JScrollPane scrlMain;
     JPanel pnlMain;
 
     public FrmMenu() {
-
         initComponents();
         initFrame();
         pack();
     }
 
-//    public void addMenu(final Menuweek menuweek) {
-//        menus.add(menuweek);
-//        SwingUtilities.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                pnlMain.add(new PnlMenuWeek(menuweek, new Closure() {
-//                    @Override
-//                    public void execute(Object o) {
-//                        Main.debug(o);
-//                    }
-//                }));
-//                revalidate();
-//                repaint();
-//            }
-//        });
-//    }
+    public void addMenu(final Menuweek menuweek) {
+
+        ((Menuweekall) cmbWeeks.getSelectedItem()).getMenuweeks().add(menuweek);
+
+        createThePanels((Menuweekall) cmbWeeks.getSelectedItem());
+    }
 //
 //    public void deleteMenu(final Menuweek menuweek, final PnlMenuWeek pnlMenuWeek) {
 //        menus.remove(menuweek);
@@ -67,19 +56,13 @@ public class FrmMenu extends JInternalFrame {
 
         listAll = MenuweekallTools.getAll();
 
-        if (listAll.isEmpty()){
+        if (listAll.isEmpty()) {
             listAll.add(new Menuweekall(new LocalDate().dayOfWeek().withMinimumValue().toDate()));
         }
 
-        cmbWeeks.setRenderer(new );
+        cmbWeeks.setRenderer(MenuweekallTools.getListCellRenderer());
+        cmbWeeks.setModel(Tools.newComboboxModel(listAll));
 
-        jdcWeek.setDate(week.toDate());
-        jdcWeek.setFont(new Font("SansSerif", Font.PLAIN, 18));
-
-        menuweekall = MenuweekallTools.get(week);
-        if (menuweekall == null) {
-            menuweekall = new Menuweekall(week.toDate());
-        }
 
         if (pnlMain == null) {
             pnlMain = new JPanel(new GridLayout(1, 0, 10, 0));
@@ -88,36 +71,50 @@ public class FrmMenu extends JInternalFrame {
             pnlMain.removeAll();
         }
 
+//
+//        if (menuweekall.getMenuweeks().isEmpty()) {
+//            EntityManager em = Main.getEMF().createEntityManager();
+//            Recipefeature featureNormal = em.find(Recipefeature.class, 4l);
+//            em.close();
+//
+//            menuweekall.getMenuweeks().add(new Menuweek(menuweekall, featureNormal));
+//        }
+        createThePanels((Menuweekall) cmbWeeks.getSelectedItem());
 
-        if (menuweekall.getMenuweeks().isEmpty()) {
-            EntityManager em = Main.getEMF().createEntityManager();
-            Recipefeature featureNormal = em.find(Recipefeature.class, 4l);
-            em.close();
+    }
 
-            menuweekall.getMenuweeks().add(new Menuweek(menuweekall, featureNormal));
-        }
+    private void createThePanels(final Menuweekall menuweekall) {
 
-
-        for (Menuweek menuweek : menuweekall.getMenuweeks()) {
-            pnlMain.add(new PnlMenuWeek(menuweek, new Closure() {
-                @Override
-                public void execute(Object o) {
-                    Main.debug(o);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                pnlMain.removeAll();
+                for (Menuweek menuweek : menuweekall.getMenuweeks()) {
+                    pnlMain.add(new PnlMenuWeek(menuweek, new Closure() {
+                        @Override
+                        public void execute(Object o) {
+                            Main.debug(o);
+                        }
+                    }));
                 }
-            }));
-        }
+                revalidate();
+                repaint();
+            }
+        });
+    }
+
+    private void cmbWeeksItemStateChanged(ItemEvent e) {
+        if (e.getStateChange() != ItemEvent.SELECTED) return;
+
+        createThePanels((Menuweekall) cmbWeeks.getSelectedItem());
 
     }
 
-    private void jdcWeekPropertyChange(PropertyChangeEvent e) {
-        week = new LocalDate(e.getNewValue()).dayOfWeek().withMinimumValue();
-        initFrame();
-    }
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         panel1 = new JPanel();
-        cmbWeeks = new JComboBox<LocalDate>();
+        cmbWeeks = new JComboBox<Menuweekall>();
         btnAddWeek = new JButton();
 
         //======== this ========
@@ -135,6 +132,12 @@ public class FrmMenu extends JInternalFrame {
 
             //---- cmbWeeks ----
             cmbWeeks.setFont(new Font("SansSerif", Font.PLAIN, 18));
+            cmbWeeks.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    cmbWeeksItemStateChanged(e);
+                }
+            });
             panel1.add(cmbWeeks);
 
             //---- btnAddWeek ----
@@ -148,7 +151,7 @@ public class FrmMenu extends JInternalFrame {
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     private JPanel panel1;
-    private JComboBox<LocalDate> cmbWeeks;
+    private JComboBox<Menuweekall> cmbWeeks;
     private JButton btnAddWeek;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

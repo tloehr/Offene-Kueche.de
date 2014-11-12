@@ -4,15 +4,15 @@ import org.joda.time.LocalDate;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by tloehr on 14.10.14.
  */
 @Entity
 @Table(name = "menuweekall")
-public class Menuweekall {
+public class Menuweekall implements Comparable<Menuweekall> {
     @Id
     @Column(name = "id", nullable = false, insertable = true, updatable = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,15 +53,15 @@ public class Menuweekall {
 
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "menuweekall")
-    private Collection<Menuweek> menuweeks;
+    private List<Menuweek> menuweeks;
 
-    public Collection<Menuweek> getMenuweeks() {
+    public List<Menuweek> getMenuweeks() {
         return menuweeks;
     }
 
-    @Version
-    @Column(name = "version")
-    private Long version;
+//    @Version
+//    @Column(name = "version")
+//    private Long version;
 
     @Override
     public boolean equals(Object o) {
@@ -72,7 +72,7 @@ public class Menuweekall {
 
         if (id != menuweek.id) return false;
         if (week != null ? !week.equals(menuweek.week) : menuweek.week != null) return false;
-        if (version != null ? !version.equals(menuweek.version) : menuweek.version != null) return false;
+//        if (version != null ? !version.equals(menuweek.version) : menuweek.version != null) return false;
 
 
         return true;
@@ -82,7 +82,12 @@ public class Menuweekall {
     public int hashCode() {
         int result = (int) (id ^ (id >>> 32));
         result = 31 * result + (week != null ? week.hashCode() : 0);
-        result = 31 * result + (version != null ? version.hashCode() : 0);
+//        result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int compareTo(Menuweekall o) {
+        return week.compareTo(o.getWeek());
     }
 }

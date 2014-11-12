@@ -143,6 +143,8 @@ public class Const {
     public static final Icon icon24find = new ImageIcon(Const.class.getResource("/artwork/24x24/find.png"));
 
     public static final Icon icon32add = new ImageIcon(Const.class.getResource("/artwork/32x32/edit_add.png"));
+    public static final Icon icon32ledYellowOff = new ImageIcon(Const.class.getResource("/artwork/32x32/leddarkyellow.png"));
+    public static final Icon icon32ledYellowOn = new ImageIcon(Const.class.getResource("/artwork/32x32/ledyellow.png"));
 
     public static final Icon icon24truck = new ImageIcon(Const.class.getResource("/artwork/24x24/truck.png"));
     public static final Icon icon24box = new ImageIcon(Const.class.getResource("/artwork/24x24/ark.png"));

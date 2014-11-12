@@ -14,47 +14,28 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Torsten Löhr
  */
-public class PnlAssign<T> extends PopupPanel {
+public class PnlSelect<T> extends PopupPanel{
 
-    private HashSet<T> assigned;
     private final ArrayList<T> all;
     private final ListCellRenderer<T> cellRenderer;
-
-
-    public PnlAssign(Set<T> assigned, ArrayList<T> all, ListCellRenderer<T> cellRenderer) {
-        this(new ArrayList<T>(assigned), all, cellRenderer);
-    }
 
     public JTextField getDefaultFocusComponent() {
         return txtSearch;
     }
 
-    public PnlAssign(ArrayList<T> assigned, ArrayList<T> all, ListCellRenderer<T> cellRenderer) {
-        this.assigned = new HashSet<T>(assigned);
-        this.all = all;
-        this.cellRenderer = cellRenderer;
-        initComponents();
-        initPanel();
-    }
-
     @Override
     public Object getResult() {
-        return getAssigned();
+        return new ArrayList<T>(listAll.getSelectedValuesList());
     }
 
     @Override
     public void setStartFocus() {
-        txtSearch.requestFocus();
+
     }
 
     @Override
@@ -62,33 +43,30 @@ public class PnlAssign<T> extends PopupPanel {
         return true;
     }
 
+    public PnlSelect(ArrayList<T> all, ListCellRenderer<T> cellRenderer, int selectionMode) {
+        this.all = all;
+        this.cellRenderer = cellRenderer;
+        initComponents();
+        initPanel();
+        listAll.setSelectionMode(selectionMode);
+    }
+
     private void initPanel() {
-        listAll.setModel(Tools.newListModel(all, assigned));
-        listAssigned.setModel(Tools.newListModel(new ArrayList<T>(assigned)));
+        listAll.setModel(Tools.newListModel(all));
 
         listAll.setCellRenderer(cellRenderer);
-        listAssigned.setCellRenderer(cellRenderer);
 
         listAll.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        listAssigned.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-        listAll.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    btnPlusActionPerformed(null);
-                }
-            }
-        });
+//        listAll.addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                if (e.getClickCount() == 2) {
+//                    btnApplyActionPerformed(null);
+//                }
+//            }
+//        });
 
-        listAssigned.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    btnMinusActionPerformed(null);
-                }
-            }
-        });
 
         listAll.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -98,28 +76,7 @@ public class PnlAssign<T> extends PopupPanel {
         });
     }
 
-    public ArrayList<T> getAssigned() {
-        assigned.clear();
-        for (T t : Collections.list(((DefaultListModel<T>) listAssigned.getModel()).elements())) {
-            assigned.add(t);
-        }
-        return new ArrayList<T>(assigned);
-    }
 
-
-    private void btnPlusActionPerformed(ActionEvent e) {
-        assigned.addAll(listAll.getSelectedValuesList());
-
-        listAll.setModel(Tools.newListModel(all, assigned));
-        listAssigned.setModel(Tools.newListModel(new ArrayList<T>(assigned)));
-    }
-
-    private void btnMinusActionPerformed(ActionEvent e) {
-        assigned.removeAll(listAssigned.getSelectedValuesList());
-
-        listAll.setModel(Tools.newListModel(all, assigned));
-        listAssigned.setModel(Tools.newListModel(new ArrayList<T>(assigned)));
-    }
 
     private void txtSearchActionPerformed(ActionEvent e) {
         ArrayList<T> searchList = new ArrayList<T>();
@@ -130,12 +87,12 @@ public class PnlAssign<T> extends PopupPanel {
                 searchList.add(t);
             }
         }
-        listAll.setModel(Tools.newListModel(searchList, assigned));
+        listAll.setModel(Tools.newListModel(searchList));
     }
 
     private void btnClearSearchActionPerformed(ActionEvent e) {
         txtSearch.setText(null);
-        listAll.setModel(Tools.newListModel(all, assigned));
+        listAll.setModel(Tools.newListModel(all));
     }
 
     private void initComponents() {
@@ -145,12 +102,8 @@ public class PnlAssign<T> extends PopupPanel {
         panel1 = new JPanel();
         txtSearch = new JTextField();
         btnClearSearch = new JButton();
-        scrollPane3 = new JScrollPane();
-        listAssigned = new JList();
         scrollPane2 = new JScrollPane();
         listAll = new JList();
-        btnPlus = new JButton();
-        btnMinux = new JButton();
 
         //======== this ========
         setVisible(true);
@@ -164,8 +117,8 @@ public class PnlAssign<T> extends PopupPanel {
             //======== contentPanel ========
             {
                 contentPanel.setLayout(new FormLayout(
-                    "[pref,150dlu]:grow, $ugap, [pref,150dlu]:grow",
-                    "default, $lgap, fill:default:grow, $lgap, default"));
+                    "[pref,150dlu]:grow",
+                    "default, $lgap, fill:default:grow"));
 
                 //======== panel1 ========
                 {
@@ -193,40 +146,11 @@ public class PnlAssign<T> extends PopupPanel {
                 }
                 contentPanel.add(panel1, CC.xy(1, 1, CC.FILL, CC.FILL));
 
-                //======== scrollPane3 ========
-                {
-
-                    //---- listAssigned ----
-                    listAssigned.setBackground(new Color(255, 204, 153));
-                    scrollPane3.setViewportView(listAssigned);
-                }
-                contentPanel.add(scrollPane3, CC.xywh(3, 1, 1, 3, CC.FILL, CC.FILL));
-
                 //======== scrollPane2 ========
                 {
                     scrollPane2.setViewportView(listAll);
                 }
                 contentPanel.add(scrollPane2, CC.xy(1, 3, CC.FILL, CC.FILL));
-
-                //---- btnPlus ----
-                btnPlus.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit_add.png")));
-                btnPlus.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        btnPlusActionPerformed(e);
-                    }
-                });
-                contentPanel.add(btnPlus, CC.xy(1, 5, CC.FILL, CC.FILL));
-
-                //---- btnMinux ----
-                btnMinux.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit_remove.png")));
-                btnMinux.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        btnMinusActionPerformed(e);
-                    }
-                });
-                contentPanel.add(btnMinux, CC.xy(3, 5, CC.FILL, CC.FILL));
             }
             dialogPane.add(contentPanel);
         }
@@ -241,11 +165,7 @@ public class PnlAssign<T> extends PopupPanel {
     private JPanel panel1;
     private JTextField txtSearch;
     private JButton btnClearSearch;
-    private JScrollPane scrollPane3;
-    private JList listAssigned;
     private JScrollPane scrollPane2;
     private JList listAll;
-    private JButton btnPlus;
-    private JButton btnMinux;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

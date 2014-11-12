@@ -10,8 +10,8 @@ new FormModel {
 				name: "dialogPane"
 				"border": sfield com.jgoodies.forms.factories.Borders DIALOG
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-					"$columnSpecs": "min(pref;150dlu):grow, unrelgap, min(pref;150dlu):grow"
-					"$rowSpecs": "default, linegap, fill:default:grow, linegap, default"
+					"$columnSpecs": "min(pref;150dlu):grow"
+					"$rowSpecs": "default, linegap, fill:default:grow"
 				} ) {
 					name: "contentPanel"
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
@@ -31,18 +31,6 @@ new FormModel {
 						"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 					} )
 					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-						name: "scrollPane3"
-						add( new FormComponent( "javax.swing.JList" ) {
-							name: "listAssigned"
-							"background": new java.awt.Color( 255, 204, 153, 255 )
-						} )
-					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-						"gridX": 3
-						"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
-						"gridHeight": 3
-						"hAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
-					} )
-					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 						name: "scrollPane2"
 						add( new FormComponent( "javax.swing.JList" ) {
 							name: "listAll"
@@ -51,25 +39,6 @@ new FormModel {
 						"gridY": 3
 						"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 						"hAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
-					} )
-					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "btnPlus"
-						"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_add.png" )
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnPlusActionPerformed", true ) )
-					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-						"gridY": 5
-						"hAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
-						"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
-					} )
-					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "btnMinux"
-						"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_remove.png" )
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnMinusActionPerformed", true ) )
-					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-						"gridY": 5
-						"gridX": 3
-						"hAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
-						"vAlign": sfield com.jgoodies.forms.layout.CellConstraints FILL
 					} )
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {

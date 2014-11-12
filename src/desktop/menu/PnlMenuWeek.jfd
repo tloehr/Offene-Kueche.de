@@ -19,8 +19,20 @@ new FormModel {
 					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/printer.png" )
 					"toolTipText": "Diesen Wochenplan löschen"
 				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnAddMenuWeek"
+					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_add.png" )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnAddMenuWeekActionPerformed", true ) )
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "lblID"
+				"text": "text"
+				"font": new java.awt.Font( "SansSerif", 1, 20 )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridWidth": 3
+				"gridX": 3
+				"hAlign": sfield com.jgoodies.forms.layout.CellConstraints RIGHT
 			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
 				name: "cmbFeature"
@@ -44,6 +56,7 @@ new FormModel {
 						name: "lblMon"
 						"text": "text"
 						"font": &Font0 new java.awt.Font( "SansSerif", 1, 18 )
+						"horizontalAlignment": 0
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
 						"axis": 0
@@ -54,6 +67,7 @@ new FormModel {
 						name: "lblTue"
 						"text": "text"
 						"font": #Font0
+						"horizontalAlignment": 0
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
 						"axis": 0
@@ -64,6 +78,7 @@ new FormModel {
 						name: "lblWed"
 						"text": "text"
 						"font": #Font0
+						"horizontalAlignment": 0
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
 						"axis": 0
@@ -74,6 +89,7 @@ new FormModel {
 						name: "lblThu"
 						"text": "text"
 						"font": #Font0
+						"horizontalAlignment": 0
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
 						"axis": 0
@@ -84,6 +100,7 @@ new FormModel {
 						name: "lblFri"
 						"text": "text"
 						"font": #Font0
+						"horizontalAlignment": 0
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
 						"axis": 0
@@ -95,6 +112,7 @@ new FormModel {
 						"text": "text"
 						"font": #Font0
 						"foreground": sfield java.awt.Color red
+						"horizontalAlignment": 0
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
 						"axis": 0
@@ -106,6 +124,7 @@ new FormModel {
 						"text": "text"
 						"font": #Font0
 						"foreground": sfield java.awt.Color red
+						"horizontalAlignment": 0
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
 						"axis": 0
@@ -127,6 +146,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JList" ) {
 						name: "lstCustomers"
 						"toolTipText": "Kundenliste"
+						"font": new java.awt.Font( "SansSerif", 0, 12 )
 						auxiliary() {
 							"JavaCodeGenerator.typeParameters": "Customer"
 						}

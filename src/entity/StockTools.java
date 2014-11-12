@@ -12,14 +12,27 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.swing.*;
 import javax.transaction.TransactionRequiredException;
+import java.awt.*;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.List;
 
 /**
  * @author tloehr
  */
 public class StockTools {
+
+    public static ListCellRenderer<Stock> getListCellRenderer() {
+        return new ListCellRenderer<Stock>() {
+            @Override
+            public Component getListCellRendererComponent(JList<? extends Stock> list, Stock value, int index, boolean isSelected, boolean cellHasFocus) {
+                return new DefaultListCellRenderer().getListCellRendererComponent(list, value.toString(), index, isSelected, cellHasFocus);
+            }
+        };
+    }
+
 
     /**
      * Ermittelt die Bestandssumme eines bestimmten Vorrats.
@@ -29,9 +42,9 @@ public class StockTools {
      */
     public static BigDecimal getSummeBestand(Stock stock) {
         EntityManager em = Main.getEMF().createEntityManager();
-        Query query = em.createQuery("SELECT SUM(b.menge) FROM Buchungen b JOIN b.vorrat v WHERE b.vorrat = :vorrat");
+        Query query = em.createQuery("SELECT SUM(b.menge) FROM Buchungen b JOIN b.stock v WHERE b.stock = :stock");
         BigDecimal bestand = new BigDecimal(-1);
-        query.setParameter("vorrat", stock);
+        query.setParameter("stock", stock);
         try {
             bestand = (BigDecimal) query.getSingleResult();
         } catch (Exception e) { // nicht gefunden
@@ -189,6 +202,22 @@ public class StockTools {
         EntityManager em = Main.getEMF().createEntityManager();
         Query query = em.createQuery("SELECT v FROM Stock v WHERE v.produkt = :product AND v.ausgang = :tfn");
         query.setParameter("product", product);
+        query.setParameter("tfn", Const.DATE_BIS_AUF_WEITERES);
+        try {
+            stocks = new ArrayList<Produkte>(query.getResultList());
+        } catch (Exception e1) { // nicht gefunden
+            stocks = null;
+        } finally {
+            em.close();
+        }
+
+        return stocks;
+    }
+
+    public static ArrayList<Stock> getActiveStocks() {
+        ArrayList stocks = new ArrayList<Stock>();
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createQuery("SELECT v FROM Stock v WHERE v.ausgang = :tfn ORDER BY v.produkt.bezeichnung ");
         query.setParameter("tfn", Const.DATE_BIS_AUF_WEITERES);
         try {
             stocks = new ArrayList<Produkte>(query.getResultList());
@@ -395,27 +424,27 @@ public class StockTools {
         Main.debug("Reaktiviere Vorrat(" + stock + "-" + stock.getId() + ")");
     }
 
-    public static Mitarbeiter getEingangMA(Stock stock) {
-        Mitarbeiter ma = null;
-        Collection<Buchungen> buchungen = stock.getBuchungenCollection();
-        for (Buchungen buchung : buchungen) {
-            if (buchung.getStatus() == BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND) {
-                ma = buchung.getMitarbeiter();
-                break;
-            }
-        }
-        return ma;
-    }
-
-    public static Mitarbeiter getAusgangMA(Stock stock) {
-        Mitarbeiter ma = null;
-        Collection<Buchungen> buchungen = stock.getBuchungenCollection();
-        for (Buchungen buchung : buchungen) {
-            if (buchung.getStatus() == BuchungenTools.BUCHEN_ABSCHLUSSBUCHUNG) {
-                ma = buchung.getMitarbeiter();
-                break;
-            }
-        }
-        return ma;
-    }
+//    public static Mitarbeiter getEingangMA(Stock stock) {
+//        Mitarbeiter ma = null;
+//        Collection<Buchungen> buchungen = stock.getBuchungenCollection();
+//        for (Buchungen buchung : buchungen) {
+//            if (buchung.getStatus() == BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND) {
+//                ma = buchung.getMitarbeiter();
+//                break;
+//            }
+//        }
+//        return ma;
+//    }
+//
+//    public static Mitarbeiter getAusgangMA(Stock stock) {
+//        Mitarbeiter ma = null;
+//        Collection<Buchungen> buchungen = stock.getBuchungenCollection();
+//        for (Buchungen buchung : buchungen) {
+//            if (buchung.getStatus() == BuchungenTools.BUCHEN_ABSCHLUSSBUCHUNG) {
+//                ma = buchung.getMitarbeiter();
+//                break;
+//            }
+//        }
+//        return ma;
+//    }
 }

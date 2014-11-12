@@ -9,6 +9,7 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jidesoft.popup.JidePopup;
 import entity.*;
+import entity.Menu;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.border.DropShadowBorder;
@@ -108,7 +109,10 @@ public class PnlMenuWeek extends JPanel {
 
         if (menuweek.getId() != 0l) {
             lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(menuweek.getLastsave()) + " Uhr");
+
         }
+
+        lblID.setText(menuweek.getId() > 0 ? Long.toString(menuweek.getId()) : "--");
 
     }
 
@@ -125,10 +129,15 @@ public class PnlMenuWeek extends JPanel {
                     em.getTransaction().begin();
                     Menuweek myMenuweek = em.merge(menuweek);
                     em.lock(myMenuweek, LockModeType.OPTIMISTIC);
-                    myMenuweek.getMenus().set(pnl.getDate().getDayOfWeek() -1, em.merge(pnl.getMenu()));
+                    Menu newMenu = em.merge(pnl.getMenu());
+                    em.lock(newMenu, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+
+                    myMenuweek.getMenus().set(pnl.getDate().getDayOfWeek() - 1, newMenu);
+                    myMenuweek.touch();
+
                     em.getTransaction().commit();
                     menuweek = myMenuweek;
-                    pnl.setMenu(menuweek.getMenus().get(pnl.getDate().getDayOfWeek()-1));
+                    pnl.setMenu(menuweek.getMenus().get(pnl.getDate().getDayOfWeek() - 1));
                     notifyCaller();
                 } catch (OptimisticLockException ole) {
                     Main.warn(ole);
@@ -147,53 +156,6 @@ public class PnlMenuWeek extends JPanel {
     }
 
 
-    private void btnSaveActionPerformed(ActionEvent e) {
-//        EntityManager em = Main.getEMF().createEntityManager();
-//        try {
-//            em.getTransaction().begin();
-//            Menuweek myMenuweek = em.merge(menuweek);
-//            em.lock(myMenuweek, LockModeType.OPTIMISTIC);
-//
-//            entity.Menu monMenu = em.merge(mon.getMenu());
-//            em.lock(monMenu, LockModeType.OPTIMISTIC);
-//            myMenuweek.setMon(monMenu);
-//
-//            entity.Menu tueMenu = em.merge(tue.getMenu());
-//            em.lock(tueMenu, LockModeType.OPTIMISTIC);
-//            myMenuweek.setTue(tueMenu);
-//
-//            entity.Menu wedMenu = em.merge(wed.getMenu());
-//            em.lock(wedMenu, LockModeType.OPTIMISTIC);
-//            myMenuweek.setWed(wedMenu);
-//
-//            entity.Menu thuMenu = em.merge(thu.getMenu());
-//            em.lock(thuMenu, LockModeType.OPTIMISTIC);
-//            myMenuweek.setThu(thuMenu);
-//
-//            entity.Menu friMenu = em.merge(fri.getMenu());
-//            em.lock(friMenu, LockModeType.OPTIMISTIC);
-//            myMenuweek.setFri(friMenu);
-//
-//            entity.Menu satMenu = em.merge(sat.getMenu());
-//            em.lock(satMenu, LockModeType.OPTIMISTIC);
-//            myMenuweek.setSat(satMenu);
-//
-//            entity.Menu sunMenu = em.merge(sun.getMenu());
-//            em.lock(sunMenu, LockModeType.OPTIMISTIC);
-//            myMenuweek.setSun(sunMenu);
-//
-//            myMenuweek.setRecipefeature(em.merge((Recipefeature) cmbFeature.getSelectedItem()));
-//
-//            myMenuweek.getCustomers().clear();
-//            myMenuweek.getCustomers().addAll(lstCustomers.getSelectedValuesList());
-//
-//            em.getTransaction().commit();
-//        } catch (Exception ex) {
-//            Main.fatal(ex);
-//        } finally {
-//            em.close();
-//        }
-    }
 
     private void btnAddCustomerActionPerformed(ActionEvent e) {
         if (popup != null && popup.isVisible()) {
@@ -207,7 +169,7 @@ public class PnlMenuWeek extends JPanel {
 
         popup.setMovable(false);
         popup.setTransient(true);
-        popup.setOwner(lstCustomers);
+        popup.setOwner(btnAddCustomer);
         popup.getContentPane().add(pnlAssign);
         popup.setFocusable(true);
         popup.setDefaultFocusComponent(pnlAssign.getDefaultFocusComponent());
@@ -240,6 +202,7 @@ public class PnlMenuWeek extends JPanel {
 
                     menuweek = myMenuweek;
                     lstCustomers.setModel(Tools.newListModel(new ArrayList<Customer>(menuweek.getCustomers())));
+                    notifyCaller();
                 } catch (OptimisticLockException ole) {
                     Main.warn(ole);
                     em.getTransaction().rollback();
@@ -263,9 +226,6 @@ public class PnlMenuWeek extends JPanel {
 
         GUITools.showPopup(popup, SwingUtilities.CENTER);
 
-//        SwingUtilities.convertPointToScreen(btnAddCustomer, tblProdukt);
-//
-//        popup.showPopup(p.x - (pnlAssign.getPreferredSize().width / 2), p.y + 10);
     }
 
     private void cmbFeatureItemStateChanged(ItemEvent e) {
@@ -299,12 +259,18 @@ public class PnlMenuWeek extends JPanel {
 
     private void notifyCaller() {
         lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(menuweek.getLastsave()) + " Uhr");
+        lblID.setText(menuweek.getId() > 0 ? "#"+Long.toString(menuweek.getId()) : "--");
         changeAction.execute(menuweek);
     }
 
-//    private void btnNewMenuweekActionPerformed(ActionEvent e) {
-//        Main.getDesktop().getMenuweek().addMenu(new Menuweek(menuweek.getWeek(), menuweek.getRecipefeature()));
-//    }
+    private void btnAddMenuWeekActionPerformed(ActionEvent e) {
+
+        try {
+            Main.getDesktop().getMenuweek().addMenu((Menuweek) menuweek.clone());
+        } catch (CloneNotSupportedException e1) {
+            Main.fatal(e1);
+        }
+    }
 
 //    private void btnDeleteThisMenuweekActionPerformed(ActionEvent e) {
 //        if (JOptionPane.showInternalConfirmDialog(Main.getDesktop().getMenuweek(), "Diesen Wochen plan willst Du löschen\n\n" +
@@ -336,6 +302,8 @@ public class PnlMenuWeek extends JPanel {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         panel2 = new JPanel();
         btnPrint = new JButton();
+        btnAddMenuWeek = new JButton();
+        lblID = new JLabel();
         cmbFeature = new JComboBox<Recipefeature>();
         panel11 = new JScrollPane();
         panel3 = new JPanel();
@@ -374,8 +342,24 @@ public class PnlMenuWeek extends JPanel {
             btnPrint.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/printer.png")));
             btnPrint.setToolTipText("Diesen Wochenplan l\u00f6schen");
             panel2.add(btnPrint);
+
+            //---- btnAddMenuWeek ----
+            btnAddMenuWeek.setText(null);
+            btnAddMenuWeek.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit_add.png")));
+            btnAddMenuWeek.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    btnAddMenuWeekActionPerformed(e);
+                }
+            });
+            panel2.add(btnAddMenuWeek);
         }
-        add(panel2, CC.xywh(1, 1, 3, 1));
+        add(panel2, CC.xy(1, 1));
+
+        //---- lblID ----
+        lblID.setText("text");
+        lblID.setFont(new Font("SansSerif", Font.BOLD, 20));
+        add(lblID, CC.xy(3, 1, CC.RIGHT, CC.DEFAULT));
 
         //---- cmbFeature ----
         cmbFeature.setFont(new Font("SansSerif", Font.PLAIN, 18));
@@ -398,6 +382,7 @@ public class PnlMenuWeek extends JPanel {
                 //---- lblMon ----
                 lblMon.setText("text");
                 lblMon.setFont(new Font("SansSerif", Font.BOLD, 18));
+                lblMon.setHorizontalAlignment(SwingConstants.CENTER);
                 panel3.add(lblMon);
 
                 //======== pnlMon ========
@@ -409,6 +394,7 @@ public class PnlMenuWeek extends JPanel {
                 //---- lblTue ----
                 lblTue.setText("text");
                 lblTue.setFont(new Font("SansSerif", Font.BOLD, 18));
+                lblTue.setHorizontalAlignment(SwingConstants.CENTER);
                 panel3.add(lblTue);
 
                 //======== pnlTue ========
@@ -420,6 +406,7 @@ public class PnlMenuWeek extends JPanel {
                 //---- lblWed ----
                 lblWed.setText("text");
                 lblWed.setFont(new Font("SansSerif", Font.BOLD, 18));
+                lblWed.setHorizontalAlignment(SwingConstants.CENTER);
                 panel3.add(lblWed);
 
                 //======== pnlWed ========
@@ -431,6 +418,7 @@ public class PnlMenuWeek extends JPanel {
                 //---- lblThu ----
                 lblThu.setText("text");
                 lblThu.setFont(new Font("SansSerif", Font.BOLD, 18));
+                lblThu.setHorizontalAlignment(SwingConstants.CENTER);
                 panel3.add(lblThu);
 
                 //======== pnlThu ========
@@ -442,6 +430,7 @@ public class PnlMenuWeek extends JPanel {
                 //---- lblFri ----
                 lblFri.setText("text");
                 lblFri.setFont(new Font("SansSerif", Font.BOLD, 18));
+                lblFri.setHorizontalAlignment(SwingConstants.CENTER);
                 panel3.add(lblFri);
 
                 //======== pnlFri ========
@@ -454,6 +443,7 @@ public class PnlMenuWeek extends JPanel {
                 lblSat.setText("text");
                 lblSat.setFont(new Font("SansSerif", Font.BOLD, 18));
                 lblSat.setForeground(Color.red);
+                lblSat.setHorizontalAlignment(SwingConstants.CENTER);
                 panel3.add(lblSat);
 
                 //======== pnlSat ========
@@ -466,6 +456,7 @@ public class PnlMenuWeek extends JPanel {
                 lblSun.setText("text");
                 lblSun.setFont(new Font("SansSerif", Font.BOLD, 18));
                 lblSun.setForeground(Color.red);
+                lblSun.setHorizontalAlignment(SwingConstants.CENTER);
                 panel3.add(lblSun);
 
                 //======== pnlSun ========
@@ -489,6 +480,7 @@ public class PnlMenuWeek extends JPanel {
 
                 //---- lstCustomers ----
                 lstCustomers.setToolTipText("Kundenliste");
+                lstCustomers.setFont(new Font("SansSerif", Font.PLAIN, 12));
                 scrollPane1.setViewportView(lstCustomers);
             }
             panel12.add(scrollPane1, CC.xy(1, 1, CC.DEFAULT, CC.FILL));
@@ -518,6 +510,8 @@ public class PnlMenuWeek extends JPanel {
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     private JPanel panel2;
     private JButton btnPrint;
+    private JButton btnAddMenuWeek;
+    private JLabel lblID;
     private JComboBox<Recipefeature> cmbFeature;
     private JScrollPane panel11;
     private JPanel panel3;

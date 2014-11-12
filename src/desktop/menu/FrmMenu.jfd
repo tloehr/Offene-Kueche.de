@@ -16,8 +16,9 @@ new FormModel {
 					name: "cmbWeeks"
 					"font": new java.awt.Font( "SansSerif", 0, 18 )
 					auxiliary() {
-						"JavaCodeGenerator.typeParameters": "LocalDate"
+						"JavaCodeGenerator.typeParameters": "Menuweekall"
 					}
+					addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbWeeksItemStateChanged", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "btnAddWeek"

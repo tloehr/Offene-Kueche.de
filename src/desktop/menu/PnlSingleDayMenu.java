@@ -5,13 +5,12 @@ import com.jidesoft.popup.JidePopup;
 import com.jidesoft.swing.DefaultOverlayable;
 import com.jidesoft.swing.JidePopupMenu;
 import entity.Menu;
-import entity.MenuTools;
-import entity.Recipes;
+import entity.*;
 import org.apache.commons.collections.Closure;
-import org.jdesktop.swingx.JXSearchField;
+import org.apache.commons.collections.CollectionUtils;
+import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import org.joda.time.LocalDate;
-import tools.Const;
-import tools.GUITools;
+import tools.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -30,24 +29,13 @@ import java.util.EventObject;
  */
 public class PnlSingleDayMenu extends JPanel {
 
-
-//    private final int STARTER = 0;
-//    private final int MAIN = 1;
-//    private final int SAUCE = 2;
-//    private final int SIDEVEGGIE = 3;
-//    private final int SIDEDISH = 4;
-//    private final int DESSERT = 5;
-
     private Closure changeAction;
     private Menu menu;
     private LocalDate date;
-    //    private JTextField searcher;
-//    private JLabel lblLEDStarter;
     private JTextField searcherWholeMenu;
-    private JidePopup popupM;
+    private JidePopup popupStocks;
     KeyboardFocusManager keyboardFocusManager;
-    private DefaultListModel<Menu> dlmM;
-
+    JButton btnStock;
 
     public Menu getMenu() {
         return menu;
@@ -55,6 +43,8 @@ public class PnlSingleDayMenu extends JPanel {
 
     public void setMenu(Menu menu) {
         this.menu = menu;
+        btnStock.setToolTipText(MenuTools.getStocksAsHTMLList(menu));
+        btnStock.setText(menu.getStocks().isEmpty() ? "" : Integer.toString(menu.getStocks().size()));
     }
 
     public void setChangeAction(Closure changeAction) {
@@ -69,7 +59,9 @@ public class PnlSingleDayMenu extends JPanel {
         this.date = new LocalDate(menu.getDate());
 
 
-        dlmM = new DefaultListModel<Menu>();
+//        dlmM = new DefaultListModel<Menu>();
+        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+
         initPanel();
     }
 
@@ -78,7 +70,7 @@ public class PnlSingleDayMenu extends JPanel {
     }
 
     private void initPanel() {
-        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        removeAll();
 
         JPanel menuComplete = new JPanel();
         JPanel menuLine1 = new JPanel();
@@ -92,13 +84,13 @@ public class PnlSingleDayMenu extends JPanel {
 
         keyboardFocusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 
-
         menuLine1.add(new MenuBlock(menu.getStarter(), "Vorspeise", new RecipeChangeListener() {
             @Override
             public void recipeChanged(RecipeChangeEvent rce) {
                 menu.setStarter(rce.getNewRecipe());
                 changeAction.execute(menu);
-                searcherWholeMenu.setText(MenuTools.getPrettyString(menu));
+                menu.setText(searcherWholeMenu.getText().toString());
+                searcherWholeMenu.setText(menu.getText());
             }
         }));
 
@@ -107,7 +99,8 @@ public class PnlSingleDayMenu extends JPanel {
             public void recipeChanged(RecipeChangeEvent rce) {
                 menu.setMaincourse(rce.getNewRecipe());
                 changeAction.execute(menu);
-                searcherWholeMenu.setText(MenuTools.getPrettyString(menu));
+                menu.setText(searcherWholeMenu.getText().toString());
+                searcherWholeMenu.setText(menu.getText());
             }
         }));
 
@@ -116,7 +109,8 @@ public class PnlSingleDayMenu extends JPanel {
             public void recipeChanged(RecipeChangeEvent rce) {
                 menu.setSauce(rce.getNewRecipe());
                 changeAction.execute(menu);
-                searcherWholeMenu.setText(MenuTools.getPrettyString(menu));
+                menu.setText(searcherWholeMenu.getText().toString());
+                searcherWholeMenu.setText(menu.getText());
             }
         }));
 
@@ -125,7 +119,8 @@ public class PnlSingleDayMenu extends JPanel {
             public void recipeChanged(RecipeChangeEvent rce) {
                 menu.setSideveggie(rce.getNewRecipe());
                 changeAction.execute(menu);
-                searcherWholeMenu.setText(MenuTools.getPrettyString(menu));
+                menu.setText(searcherWholeMenu.getText().toString());
+                searcherWholeMenu.setText(menu.getText());
             }
         }));
 
@@ -134,7 +129,8 @@ public class PnlSingleDayMenu extends JPanel {
             public void recipeChanged(RecipeChangeEvent rce) {
                 menu.setSidedish(rce.getNewRecipe());
                 changeAction.execute(menu);
-                searcherWholeMenu.setText(MenuTools.getPrettyString(menu));
+                menu.setText(searcherWholeMenu.getText().toString());
+                searcherWholeMenu.setText(menu.getText());
             }
         }));
 
@@ -143,99 +139,126 @@ public class PnlSingleDayMenu extends JPanel {
             public void recipeChanged(RecipeChangeEvent rce) {
                 menu.setDessert(rce.getNewRecipe());
                 changeAction.execute(menu);
-                searcherWholeMenu.setText(MenuTools.getPrettyString(menu));
+                menu.setText(searcherWholeMenu.getText().toString());
+                searcherWholeMenu.setText(menu.getText());
             }
         }));
 
 //        menuLine1.add(searcherStarter);
 
 
-        searcherWholeMenu = new JXSearchField("Titel auf der Speisekarte");
+        searcherWholeMenu = new JTextField();
         searcherWholeMenu.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        menuLine3.add(searcherWholeMenu);
         searcherWholeMenu.setText(menu.getText());
-        menuLine3.add(new JButton(Const.icon24find));
 
-//        searcherWholeMenu.addFocusListener(new FocusAdapter() {
-//            @Override
-//            public void focusGained(FocusEvent e) {
-//                super.focusGained(e);
-//                ((JTextComponent) e.getSource()).selectAll();
-//                focusid = -1;
-//            }
-//
-//            @Override
-//            public void focusLost(FocusEvent e) {
-//                super.focusLost(e);
-//                if (popupR != null) {
-//                    popupR.hidePopup();
-//                    popupR = null;
-//                }
-//                createRecipeIfNecessary((JTextField) e.getSource());
-//            }
-//        });
-//        searcherWholeMenu.setCancelAction(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent ae) {
-//                cancelListener(ae);
-//            }
-//        });
-//
-//        searcherWholeMenu.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent ae) {
-////                searcherRecipeAction(ae);
-//            }
-//        });
-//        menuLine3.add(searcherWholeMenu);
+        searcherWholeMenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (searcherWholeMenu.getText().trim().isEmpty()) {
+                    menu.setText(MenuTools.getPrettyString(menu));
+                } else {
+                    menu.setText(searcherWholeMenu.getText().trim());
+                }
+                changeAction.execute(menu);
+                searcherWholeMenu.setText(menu.getText());
+            }
+        });
 
+        DefaultOverlayable ovrComment = new DefaultOverlayable(searcherWholeMenu);
+        JLabel lblOverlay = new JLabel("Titel auf der Speisekarte");
+        lblOverlay.setForeground(Const.deepskyblue);
+        lblOverlay.setFont(new Font("SansSerif", Font.BOLD, 10));
+        ovrComment.addOverlayComponent(lblOverlay, DefaultOverlayable.SOUTH_EAST);
 
-//        searcher.addCaretListener(new CaretListener() {
-//            @Override
-//            public void caretUpdate(CaretEvent e) {
-//
-//            }
-//        });
-//        searcher.addFocusListener(new FocusAdapter() {
-//            @Override
-//            public void focusLost(FocusEvent e) {
-//                super.focusLost(e);
-//                searcherFocusLostListener(e);
-//            }
-//        });
-//        searcher.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                buttonDelete.requestFocus();
-//            }
-//        });
+        btnStock = new JButton(menu.getStocks().isEmpty() ? "" : Integer.toString(menu.getStocks().size()), Const.icon24box);
+        btnStock.setToolTipText("<html>" + MenuTools.getStocksAsHTMLList(menu) + "</hml>");
+//        DefaultOverlayable ovrStock = new DefaultOverlayable(btnStock);
+//        final JLabel lblStockNum = new JLabel(menu.getStocks().isEmpty() ? "" : Integer.toString(menu.getStocks().size()), menu.getStocks().isEmpty() ? Const.icon32ledYellowOff : Const.icon32ledYellowOff, SwingConstants.CENTER);
+//        lblStockNum.setForeground(Color.BLUE);
+//        lblOverlay.setFont(new Font("SansSerif", Font.BOLD, 10));
+//        ovrStock.addOverlayComponent(lblStockNum, DefaultOverlayable.SOUTH_EAST);
+
+        btnStock.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (popupStocks != null && popupStocks.isVisible()) {
+                    popupStocks.hidePopup();
+                }
+                Tools.unregisterListeners(popupStocks);
+
+                final PnlAssign<Stock> pnlAssign = new PnlAssign<Stock>(new ArrayList<Stock>(menu.getStocks()), StockTools.getActiveStocks(), new DefaultListRenderer());
+                popupStocks = GUITools.createPanelPopup(pnlAssign, new Closure() {
+                    @Override
+                    public void execute(Object o) {
+                        if (o == null) return;
+                        if (CollectionUtils.isEqualCollection(pnlAssign.getAssigned(), menu.getStocks())) return;
+
+                        menu.getStocks().clear();
+                        for (Stock stock : pnlAssign.getAssigned()) {
+                            menu.getStocks().add(stock);
+                        }
+                        changeAction.execute(menu);
+                    }
+                }, btnStock);
 
 
-//        topLine.add(buttonDelete);
+                GUITools.showPopup(popupStocks, SwingUtilities.CENTER);
+
+            }
+        });
+
+        menuLine3.add(new JButton("alle grün"));
+        menuLine3.add(ovrComment);
+        menuLine3.add(getMenuFindButton());
+        menuLine3.add(btnStock);
 
         menuComplete.add(menuLine1);
         menuComplete.add(menuLine2);
         menuComplete.add(menuLine3);
         add(menuComplete);
-//        add(new JLabel(menu.getRecipe() == null ? "--" : menu.getRecipe().getTitle()));
+    }
+
+    private JButton getMenuFindButton() {
+        final JButton btn = new JButton(Const.icon24find);
+
+        btn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PnlSelect<Menu> pnlSelect = new PnlSelect<Menu>(MenuTools.getAllLike(searcherWholeMenu.getText().trim()), MenuTools.getListCellRenderer(), ListSelectionModel.SINGLE_SELECTION);
+                GUITools.showPopup(GUITools.createPanelPopup(pnlSelect, new Closure() {
+                    @Override
+                    public void execute(Object o) {
+                        if (o == null) return;
+                        ArrayList<Menu> list = (ArrayList<Menu>) o;
+                        if (list.isEmpty()) return;
+
+                        menu = list.get(0);
+                        initPanel();
+                    }
+                }, btn), SwingUtilities.SOUTH);
+            }
+        });
+
+
+        return btn;
     }
 
 
-    private void searchMenus(String searchPattern) {
-        dlmM.clear();
-
-        EntityManager em = Main.getEMF().createEntityManager();
-
-        Query query = em.createQuery("SELECT r FROM Menu r WHERE (r.text LIKE :pattern) ORDER BY r.text ");
-        query.setParameter("pattern", "%" + searchPattern + "%");
-
-        ArrayList<Menu> listMenus = new ArrayList<Menu>(query.getResultList());
-        em.close();
-
-        for (Menu menu : listMenus) {
-            dlmM.addElement(menu);
-        }
-    }
+//    private void searchMenus(String searchPattern) {
+//        dlmM.clear();
+//
+//        EntityManager em = Main.getEMF().createEntityManager();
+//
+//        Query query = em.createQuery("SELECT r FROM Menu r WHERE (r.text LIKE :pattern) ORDER BY r.text ");
+//        query.setParameter("pattern", "%" + searchPattern + "%");
+//
+//        ArrayList<Menu> listMenus = new ArrayList<Menu>(query.getResultList());
+//        em.close();
+//
+//        for (Menu menu : listMenus) {
+//            dlmM.addElement(menu);
+//        }
+//    }
 
 
     private class MenuBlock extends JPanel {

@@ -1,6 +1,7 @@
 package entity;
 
 import tools.Const;
+import tools.Tools;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -192,11 +193,6 @@ public class Stock {
 
     @Override
     public String toString() {
-        return "Stock{" +
-                "id=" + id +
-                ", eingang=" + eingang +
-                ", anbruch=" + anbruch +
-                ", ausgang=" + ausgang +
-                '}';
+        return Tools.left(produkt.getBezeichnung(), 20, "") + " [" + id + "] " + lager.getBezeichnung();
     }
 }

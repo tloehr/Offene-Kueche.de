@@ -11,7 +11,7 @@ import java.util.*;
  */
 @Entity
 @Table(name = "menuweek")
-public class Menuweek {
+public class Menuweek implements Cloneable {
     @Id
     @Column(name = "id", nullable = false, insertable = true, updatable = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -97,6 +97,10 @@ public class Menuweek {
 
     }
 
+    public void touch(){
+        lastsave = new Date();
+    }
+
 //    public void setMenu(int weekday, Menu menu) {
 //
 //        menus.set(weekday-1, menu);
@@ -159,5 +163,15 @@ public class Menuweek {
         result = 31 * result + (lastsave != null ? lastsave.hashCode() : 0);
         result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+
+        Menuweek clone = new Menuweek(menuweekall, recipefeature);
+        Collections.copy(clone.getMenus(), menus);
+
+
+        return clone;
     }
 }

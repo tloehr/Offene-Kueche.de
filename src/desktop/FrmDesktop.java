@@ -367,11 +367,11 @@ public class FrmDesktop extends JFrame {
         desktopPane.add(menuweek);
 //        Tools.centerOnParent(desktopPane, menuweek);
         menuweek.toFront();
-//        try {
-//            menuweek.setMaximum(true);
-//        } catch (PropertyVetoException e1) {
-//            e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-//        }
+        try {
+            menuweek.setMaximum(true);
+        } catch (PropertyVetoException e1) {
+            e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
     }
 
 

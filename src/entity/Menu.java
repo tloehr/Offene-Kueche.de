@@ -1,6 +1,7 @@
 package entity;
 
 import org.joda.time.LocalDate;
+import tools.Tools;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -138,6 +139,10 @@ public class Menu {
     }
 
 
+    public boolean isInUse(){
+        return !Tools.catchNull(text).isEmpty();
+    }
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "stock2menu", joinColumns =
     @JoinColumn(name = "menuid"), inverseJoinColumns =
@@ -156,45 +161,9 @@ public class Menu {
         this.date = date.toDateTimeAtStartOfDay().toDate();
     }
 
-
     @Version
     @Column(name = "version")
     private Long version;
-
-
-    //    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JoinTable(name = "tx2menu", joinColumns =
-//    @JoinColumn(name = "menuid"), inverseJoinColumns =
-//    @JoinColumn(name = "txid"))
-//    private Collection<Buchungen> txs;
-//    public Collection<Buchungen> getTxs() {
-//        return txs;
-//    }
-
-//    public void setTxs(Collection<Buchungen> txs) {
-//        this.txs = txs;
-//    }
-//
-//    @ManyToMany(mappedBy = "menus")
-//    private Collection<IngTypes> ingTypes;
-//    public Collection<IngTypes> getIngTypes() {
-//        return ingTypes;
-//    }
-//
-//    public void setIngTypes(Collection<IngTypes> ingTypes) {
-//        this.ingTypes = ingTypes;
-//    }
-
-
-//    @JoinColumn(name = "menuweekid", referencedColumnName = "id", nullable = false)
-//    @OneToMany
-//    public Collection<Menuweek2Customer> getMenuweek2Customers() {
-//        return menuweek2Customers;
-//    }
-//
-//    public void setMenuweek2Customers(Collection<Menuweek2Customer> menuweek2Customers) {
-//        this.menuweek2Customers = menuweek2Customers;
-//    }
 
 
     @Override
@@ -218,4 +187,6 @@ public class Menu {
         result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;
     }
+
+
 }

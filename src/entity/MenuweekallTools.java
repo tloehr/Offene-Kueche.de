@@ -6,8 +6,9 @@ import org.joda.time.LocalDate;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
@@ -15,29 +16,24 @@ import java.util.ArrayList;
  */
 public class MenuweekallTools {
 
-
     public static ListCellRenderer<Menuweekall> getListCellRenderer() {
-           return new ListCellRenderer<Menuweekall>() {
+        return new ListCellRenderer<Menuweekall>() {
+            SimpleDateFormat week = new SimpleDateFormat("'KW'w");
+            DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
 
-               @Override
-               public Component getListCellRendererComponent(JList<? extends Menuweekall> list, Menuweekall value, int index, boolean isSelected, boolean cellHasFocus) {
-                   return new DefaultListCellRenderer().getListCellRendererComponent(list, value.)
+            @Override
+            public Component getListCellRendererComponent(JList<? extends Menuweekall> list, Menuweekall value, int index, boolean isSelected, boolean cellHasFocus) {
+                String text = week.format(value.getWeek()) + " " + df.format(value.getWeek()) + " -> " + df.format(new LocalDate(value.getWeek()).dayOfWeek().withMaximumValue().toDate());
+                return new DefaultListCellRenderer().getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
+            }
+        };
+    }
 
-                           datum...
-               }
-
-               @Override
-               public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                   return new DefaultTableCellRenderer().getTableCellRendererComponent(table, IngTypesTools.EINHEIT[(Short) value], isSelected, hasFocus, row, column);
-               }
-           };
-       }
-
-    public static ArrayList<Menuweekall>  getAll() {
+    public static ArrayList<Menuweekall> getAll() {
         ArrayList<Menuweekall> list = new ArrayList<Menuweekall>();
 
         EntityManager em = Main.getEMF().createEntityManager();
-        Query queryMin = em.createQuery("SELECT t FROM Menuweekall t ORDER BY t.week ASC ");
+        Query queryMin = em.createQuery("SELECT t FROM Menuweekall t ORDER BY t.week DESC ");
 
         list.addAll(queryMin.getResultList());
 
