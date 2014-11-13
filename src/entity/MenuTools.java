@@ -5,9 +5,6 @@ import tools.Tools;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.swing.*;
-import java.awt.*;
-import java.text.DateFormat;
 import java.util.ArrayList;
 
 /**
@@ -16,17 +13,17 @@ import java.util.ArrayList;
 public class MenuTools {
 
 
-    public static ListCellRenderer<Menu> getListCellRenderer() {
-        return new ListCellRenderer<Menu>() {
-            //            SimpleDateFormat week = new SimpleDateFormat("'KW'w");
-            DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
-
-            @Override
-            public Component getListCellRendererComponent(JList<? extends Menu> list, Menu value, int index, boolean isSelected, boolean cellHasFocus) {
-                return new DefaultListCellRenderer().getListCellRendererComponent(list, df.format(value.getDate()) + ": " + value.getText(), index, isSelected, cellHasFocus);
-            }
-        };
-    }
+//    public static ListCellRenderer<Menu> getListCellRenderer() {
+//        return new ListCellRenderer<Menu>() {
+//            //            SimpleDateFormat week = new SimpleDateFormat("'KW'w");
+//            DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
+//
+//            @Override
+//            public Component getListCellRendererComponent(JList<? extends Menu> list, Menu value, int index, boolean isSelected, boolean cellHasFocus) {
+//                return new DefaultListCellRenderer().getListCellRendererComponent(list, df.format(value.getDate()) + ": " + value.getText(), index, isSelected, cellHasFocus);
+//            }
+//        };
+//    }
 
     public static ArrayList<Menu> getAllLike(String text) {
         ArrayList<Menu> list = new ArrayList<Menu>();

@@ -1,10 +1,9 @@
 package entity;
 
-import org.joda.time.LocalDate;
-import tools.Tools;
-
 import javax.persistence.*;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -28,30 +27,30 @@ public class Menu {
     }
 
 
-    @JoinColumn(name = "menuweekid", referencedColumnName = "id")
-    @ManyToOne(optional = true)
-    private Menuweek menuweek;
+//    @JoinColumn(name = "menuweekid", referencedColumnName = "id")
+//    @ManyToOne(optional = true)
+//    private Menuweek menuweek;
+//
+//    public Menuweek getMenuweek() {
+//        return menuweek;
+//    }
+//
+//    public void setMenuweek(Menuweek menuweek) {
+//        this.menuweek = menuweek;
+//    }
 
-    public Menuweek getMenuweek() {
-        return menuweek;
-    }
-
-    public void setMenuweek(Menuweek menuweek) {
-        this.menuweek = menuweek;
-    }
-
-    @Basic
-    @Column(name = "date", nullable = false, insertable = true, updatable = true)
-    @Temporal(TemporalType.DATE)
-    private Date date;
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
+//    @Basic
+//    @Column(name = "date", nullable = false, insertable = true, updatable = true)
+//    @Temporal(TemporalType.DATE)
+//    private Date date;
+//
+//    public Date getDate() {
+//        return date;
+//    }
+//
+//    public void setDate(Date date) {
+//        this.date = date;
+//    }
 
 
     @Basic
@@ -139,9 +138,9 @@ public class Menu {
     }
 
 
-    public boolean isInUse(){
-        return !Tools.catchNull(text).isEmpty();
-    }
+//    public boolean isInUse() {
+//        return !Tools.catchNull(text).isEmpty();
+//    }
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "stock2menu", joinColumns =
@@ -156,9 +155,18 @@ public class Menu {
     public Menu() {
     }
 
-    public Menu(Menuweek menuweek, LocalDate date) {
-        this.menuweek = menuweek;
-        this.date = date.toDateTimeAtStartOfDay().toDate();
+    public Menu(Menuweek2Menu menuweek2Menu){
+        menu2menuweeks = new ArrayList<Menuweek2Menu>();
+        stocks = new HashSet<Stock>();
+        menu2menuweeks.add(menuweek2Menu);
+    }
+
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "menu", orphanRemoval = true)
+    private List<Menuweek2Menu> menu2menuweeks;
+
+    public List<Menuweek2Menu> getMenu2menuweeks() {
+        return menu2menuweeks;
     }
 
     @Version
@@ -168,14 +176,24 @@ public class Menu {
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         Menu menu = (Menu) o;
 
         if (id != menu.id) return false;
-        if (date != null ? !date.equals(menu.date) : menu.date != null) return false;
-        if (version != null ? !version.equals(menu.version) : menu.version != null) return false;
+//        if (date != null ? !date.equals(menu.date) : menu.date != null) return false;
+//        if (dessert != null ? !dessert.equals(menu.dessert) : menu.dessert != null) return false;
+//        if (maincourse != null ? !maincourse.equals(menu.maincourse) : menu.maincourse != null) return false;
+//        if (menuweek != null ? !menuweek.equals(menu.menuweek) : menu.menuweek != null) return false;
+//        if (sauce != null ? !sauce.equals(menu.sauce) : menu.sauce != null) return false;
+//        if (sidedish != null ? !sidedish.equals(menu.sidedish) : menu.sidedish != null) return false;
+//        if (sideveggie != null ? !sideveggie.equals(menu.sideveggie) : menu.sideveggie != null) return false;
+//        if (starter != null ? !starter.equals(menu.starter) : menu.starter != null) return false;
+//        if (stocks != null ? !stocks.equals(menu.stocks) : menu.stocks != null) return false;
+//        if (text != null ? !text.equals(menu.text) : menu.text != null) return false;
+//        if (version != null ? !version.equals(menu.version) : menu.version != null) return false;
 
         return true;
     }
@@ -183,10 +201,17 @@ public class Menu {
     @Override
     public int hashCode() {
         int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + (date != null ? date.hashCode() : 0);
-        result = 31 * result + (version != null ? version.hashCode() : 0);
+//        result = 31 * result + (menuweek != null ? menuweek.hashCode() : 0);
+//        result = 31 * result + (date != null ? date.hashCode() : 0);
+//        result = 31 * result + (text != null ? text.hashCode() : 0);
+//        result = 31 * result + (starter != null ? starter.hashCode() : 0);
+//        result = 31 * result + (maincourse != null ? maincourse.hashCode() : 0);
+//        result = 31 * result + (sauce != null ? sauce.hashCode() : 0);
+//        result = 31 * result + (sideveggie != null ? sideveggie.hashCode() : 0);
+//        result = 31 * result + (sidedish != null ? sidedish.hashCode() : 0);
+//        result = 31 * result + (dessert != null ? dessert.hashCode() : 0);
+//        result = 31 * result + (stocks != null ? stocks.hashCode() : 0);
+//        result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;
     }
-
-
 }

@@ -21,9 +21,10 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "cmbWeeksItemStateChanged", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "btnAddWeek"
+					name: "btnAddWeekmenu"
 					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_add.png" )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnAddWeekmenuActionPerformed", true ) )
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "North"

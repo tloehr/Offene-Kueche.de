@@ -42,10 +42,11 @@ public class Menuweekall implements Comparable<Menuweekall> {
     }
 
 
-    public Menuweekall(Date week) {
+    public Menuweekall(Date week, Recipefeature firstRecipefeature) {
         LocalDate ldWeek = new LocalDate(week).dayOfWeek().withMinimumValue();
         this.week = ldWeek.toDateTimeAtStartOfDay().toDate();
         this.menuweeks = new ArrayList<Menuweek>();
+        menuweeks.add(new Menuweek(this, firstRecipefeature));
     }
 
     public Menuweekall() {

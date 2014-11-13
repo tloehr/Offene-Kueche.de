@@ -1,6 +1,5 @@
 package entity;
 
-import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
 import javax.persistence.*;
@@ -11,7 +10,7 @@ import java.util.*;
  */
 @Entity
 @Table(name = "menuweek")
-public class Menuweek implements Cloneable {
+public class Menuweek {
     @Id
     @Column(name = "id", nullable = false, insertable = true, updatable = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,31 +72,40 @@ public class Menuweek implements Cloneable {
     }
 
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "menuweek2menu", joinColumns =
-    @JoinColumn(name = "menuweekid"), inverseJoinColumns =
-    @JoinColumn(name = "menuid"))
-    @OrderBy(value="date asc")
-    private List<Menu> menus;
+//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    @JoinTable(name = "menuweek2menu", joinColumns =
+//    @JoinColumn(name = "menuweekid"), inverseJoinColumns =
+//    @JoinColumn(name = "menuid"))
+//    @OrderBy(value="date asc")
+//    private List<Menu> menus;
+//
+//    public List<Menu> getMenus() {
+//        return menus;
+//    }
 
-    public List<Menu> getMenus() {
-        return menus;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "menuweek")
+    @OrderBy(value = "date asc")
+    private List<Menuweek2Menu> menuweek2menus;
+
+    public List<Menuweek2Menu> getMenuweek2menus() {
+        return menuweek2menus;
     }
 
     public Menuweek(Menuweekall menuweekall, Recipefeature recipefeature) {
         this.menuweekall = menuweekall;
         this.recipefeature = recipefeature;
         customers = new HashSet<Customer>();
-        menus = new ArrayList<Menu>();
-        lastsave = new Date();
+        menuweek2menus = new ArrayList<Menuweek2Menu>();
 
-        for (int weekday = DateTimeConstants.MONDAY; weekday <= DateTimeConstants.SUNDAY; weekday++) {
-            menus.add(new Menu(this, new LocalDate(menuweekall.getWeek()).plusDays(weekday - 1)));
+        for (int weekday = 0; weekday < 7; weekday++) {
+            menuweek2menus.add(new Menuweek2Menu(this, new LocalDate(menuweekall.getWeek()).plusDays(weekday)));
         }
 
+        lastsave = new Date();
     }
 
-    public void touch(){
+    public void touch() {
         lastsave = new Date();
     }
 
@@ -165,13 +173,13 @@ public class Menuweek implements Cloneable {
         return result;
     }
 
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-
-        Menuweek clone = new Menuweek(menuweekall, recipefeature);
-        Collections.copy(clone.getMenus(), menus);
-
-
-        return clone;
-    }
+//    @Override
+//    public Object clone() throws CloneNotSupportedException {
+//
+//        Menuweek clone = new Menuweek(menuweekall, recipefeature);
+////        Collections.copy(clone.getMenus(), menus);
+//
+//
+//        return clone;
+//    }
 }
