@@ -11,12 +11,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
-import tools.Const;
-import tools.GUITools;
-import tools.PnlAssign;
-import tools.Tools;
+import tools.*;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.OptimisticLockException;
 import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -42,6 +41,7 @@ public class PnlSingleDayMenu extends JPanel {
     private JButton btnEmpty;
     private JButton btnRedToGreen;
     private Menuweek2Menu menuweek2Menu;
+//    private Menu menu;
 
 //
 //    public void setMenu(Menuweek2Menu menuweek2Menu) {
@@ -68,6 +68,71 @@ public class PnlSingleDayMenu extends JPanel {
         initPanel();
     }
 
+
+    private Menuweek2Menu replaceMenu(Menu replaceBy) {
+        Menuweek2Menu myMenuweek2Menu = null;
+        EntityManager em = Main.getEMF().createEntityManager();
+        try {
+
+            em.getTransaction().begin();
+            myMenuweek2Menu = em.merge(menuweek2Menu);
+
+            Menu oldMenu = em.merge(menuweek2Menu.getMenu());
+            em.lock(oldMenu, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+            oldMenu.getMenu2menuweeks().remove(myMenuweek2Menu);
+
+            if (oldMenu.getMenu2menuweeks().isEmpty()) { // to prevent orphan menus
+                em.remove(oldMenu);
+            }
+
+            Menu replacement = em.merge(replaceBy);
+            myMenuweek2Menu.setMenu(replacement);
+            replacement.getMenu2menuweeks().add(myMenuweek2Menu);
+
+            em.getTransaction().commit();
+        } catch (OptimisticLockException ole) {
+            Main.warn(ole);
+            em.getTransaction().rollback();
+        } catch (Exception exc) {
+            Main.error(exc.getMessage());
+            em.getTransaction().rollback();
+            Main.fatal(exc.getMessage());
+        } finally {
+            em.close();
+            //                    notifyCaller();
+        }
+        return myMenuweek2Menu;
+    }
+
+
+    private Menuweek2Menu mergeChanges(Menu menu1) {
+        Menuweek2Menu myMenuweek2Menu = null;
+        EntityManager em = Main.getEMF().createEntityManager();
+        try {
+            em.getTransaction().begin();
+
+            Menu menu = em.merge(menu1);
+            myMenuweek2Menu = em.merge(menuweek2Menu);
+            myMenuweek2Menu.setMenu(menu);
+            menu.getMenu2menuweeks().remove(menuweek2Menu);
+            menu.getMenu2menuweeks().add(myMenuweek2Menu);
+
+            em.getTransaction().commit();
+
+        } catch (OptimisticLockException ole) {
+            Main.warn(ole);
+            em.getTransaction().rollback();
+        } catch (Exception exc) {
+            Main.error(exc.getMessage());
+            em.getTransaction().rollback();
+            Main.fatal(exc.getMessage());
+        } finally {
+            em.close();
+            //                    notifyCaller();
+        }
+        return myMenuweek2Menu;
+    }
+
 //    public LocalDate getDate() {
 //        return new LocalDate(menuweek2Menu.getMenu().getDate());
 //    }
@@ -77,8 +142,8 @@ public class PnlSingleDayMenu extends JPanel {
 
         final JPanel menuComplete = new JPanel();
         JPanel menuLine0 = new JPanel();
-        JPanel menuLine1 = new JPanel();
-        JPanel menuLine2 = new JPanel();
+        final JPanel menuLine1 = new JPanel();
+        final JPanel menuLine2 = new JPanel();
         JPanel menuLine3 = new JPanel();
 
         menuComplete.setLayout(new BoxLayout(menuComplete, BoxLayout.PAGE_AXIS));
@@ -88,9 +153,9 @@ public class PnlSingleDayMenu extends JPanel {
         lblDate = new JLabel();
         lblDate.setFont(new Font("SansSerif", Font.BOLD, 18));
         lblDate.setText(sdf.format(menuweek2Menu.getDate()) +
-                        (holidays.containsKey(new LocalDate(menuweek2Menu.getDate())) ? " (" + holidays.get(new LocalDate(menuweek2Menu.getDate())) + ")" : "") +
-                        "#"+menuweek2Menu.getMenu().getId());
-        
+                (holidays.containsKey(new LocalDate(menuweek2Menu.getDate())) ? " (" + holidays.get(new LocalDate(menuweek2Menu.getDate())) + ")" : "") +
+                "#" + menuweek2Menu.getMenu().getId());
+
         lblDate.setForeground(new LocalDate(menuweek2Menu.getDate()).getDayOfWeek() == DateTimeConstants.SATURDAY || new LocalDate(menuweek2Menu.getDate()).getDayOfWeek() == DateTimeConstants.SUNDAY || holidays.containsKey(new LocalDate(menuweek2Menu.getDate())) ? Color.RED : Color.black);
 
         menuLine0.setLayout(new BoxLayout(menuLine0, BoxLayout.LINE_AXIS));
@@ -106,9 +171,9 @@ public class PnlSingleDayMenu extends JPanel {
             @Override
             public void recipeChanged(RecipeChangeEvent rce) {
                 menuweek2Menu.getMenu().setStarter(rce.getNewRecipe());
-                changeAction.execute(menuweek2Menu);
+                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
                 menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
-                searcherWholeMenu.setText(menuweek2Menu.getMenu().getText());
+                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
             }
         }));
 
@@ -116,19 +181,20 @@ public class PnlSingleDayMenu extends JPanel {
             @Override
             public void recipeChanged(RecipeChangeEvent rce) {
                 menuweek2Menu.getMenu().setMaincourse(rce.getNewRecipe());
-                changeAction.execute(menuweek2Menu);
+                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
                 menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
-                searcherWholeMenu.setText(menuweek2Menu.getMenu().getText());
+                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
             }
         }));
 
         menuLine1.add(new MenuBlock(menuweek2Menu.getMenu().getSauce(), "Sauce", new RecipeChangeListener() {
             @Override
             public void recipeChanged(RecipeChangeEvent rce) {
+                Main.debug("Sauce");
                 menuweek2Menu.getMenu().setSauce(rce.getNewRecipe());
-                changeAction.execute(menuweek2Menu);
+                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
                 menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
-                searcherWholeMenu.setText(menuweek2Menu.getMenu().getText());
+                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
             }
         }));
 
@@ -136,9 +202,9 @@ public class PnlSingleDayMenu extends JPanel {
             @Override
             public void recipeChanged(RecipeChangeEvent rce) {
                 menuweek2Menu.getMenu().setSideveggie(rce.getNewRecipe());
-                changeAction.execute(menuweek2Menu);
+                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
                 menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
-                searcherWholeMenu.setText(menuweek2Menu.getMenu().getText());
+                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
             }
         }));
 
@@ -146,9 +212,9 @@ public class PnlSingleDayMenu extends JPanel {
             @Override
             public void recipeChanged(RecipeChangeEvent rce) {
                 menuweek2Menu.getMenu().setSidedish(rce.getNewRecipe());
-                changeAction.execute(menuweek2Menu);
+                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
                 menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
-                searcherWholeMenu.setText(menuweek2Menu.getMenu().getText());
+                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
             }
         }));
 
@@ -156,9 +222,10 @@ public class PnlSingleDayMenu extends JPanel {
             @Override
             public void recipeChanged(RecipeChangeEvent rce) {
                 menuweek2Menu.getMenu().setDessert(rce.getNewRecipe());
-                changeAction.execute(menuweek2Menu);
+                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
                 menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
-                searcherWholeMenu.setText(menuweek2Menu.getMenu().getText());
+                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
+
             }
         }));
 
@@ -174,7 +241,7 @@ public class PnlSingleDayMenu extends JPanel {
                 } else {
                     menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().trim());
                 }
-                changeAction.execute(menuweek2Menu.getMenu());
+                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
                 searcherWholeMenu.setText(menuweek2Menu.getMenu().getText());
             }
         });
@@ -186,37 +253,41 @@ public class PnlSingleDayMenu extends JPanel {
         ovrComment.addOverlayComponent(lblOverlay, DefaultOverlayable.SOUTH_EAST);
 
         btnStock = new JButton(menuweek2Menu.getMenu().getStocks().isEmpty() ? "" : Integer.toString(menuweek2Menu.getMenu().getStocks().size()), Const.icon24box);
-        btnStock.setFont(new Font("SansSerif", Font.BOLD, 12));
-        btnStock.setForeground(Const.mediumpurple4);
-        btnStock.setToolTipText("<html>" + MenuTools.getStocksAsHTMLList(menuweek2Menu.getMenu()) + "</hml>");
+        btnStock.setFont(new Font("SansSerif", Font.BOLD, 16));
+        btnStock.setForeground(Color.blue);
+        btnStock.setHorizontalTextPosition(SwingConstants.CENTER);
+        btnStock.setVerticalTextPosition(SwingConstants.CENTER);
+        btnStock.setToolTipText(MenuTools.getStocksAsHTMLList(menuweek2Menu.getMenu()));
 
 
         btnStock.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 if (popupStocks != null && popupStocks.isVisible()) {
                     popupStocks.hidePopup();
                 }
                 Tools.unregisterListeners(popupStocks);
 
-                final PnlAssign<Stock> pnlAssign = new PnlAssign<Stock>(new ArrayList<Stock>(menuweek2Menu.getMenu().getStocks()), StockTools.getActiveStocks(), new DefaultListRenderer());
+                final PnlAssign<Stock> pnlAssign = new PnlAssign<Stock>(new ArrayList<Stock>(menuweek2Menu.getMenu().getStocks()), Main.getStockList(e.getModifiers() == InputEvent.CTRL_MASK), new DefaultListRenderer());
                 popupStocks = GUITools.createPanelPopup(pnlAssign, new Closure() {
                     @Override
                     public void execute(Object o) {
                         if (o == null) return;
-                        if (CollectionUtils.isEqualCollection(pnlAssign.getAssigned(), menuweek2Menu.getMenu().getStocks())) return;
+                        if (CollectionUtils.isEqualCollection(pnlAssign.getAssigned(), menuweek2Menu.getMenu().getStocks()))
+                            return;
 
                         menuweek2Menu.getMenu().getStocks().clear();
                         for (Stock stock : pnlAssign.getAssigned()) {
                             menuweek2Menu.getMenu().getStocks().add(stock);
                         }
-                        changeAction.execute(menuweek2Menu.getMenu());
+                        menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
+                        btnStock.setToolTipText(MenuTools.getStocksAsHTMLList(menuweek2Menu.getMenu()));
+                        btnStock.setText(menuweek2Menu.getMenu().getStocks().isEmpty() ? "" : Integer.toString(menuweek2Menu.getMenu().getStocks().size()));
                     }
                 }, btnStock);
 
-
                 GUITools.showPopup(popupStocks, SwingUtilities.CENTER);
-
             }
         });
 
@@ -224,7 +295,16 @@ public class PnlSingleDayMenu extends JPanel {
         btnRedToGreen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                changeAction.execute(menuweek2Menu.getMenu());
+                for (Component comp : menuLine1.getComponents()) {
+                    if (comp instanceof MenuBlock) {
+                        ((MenuBlock) comp).menuitemSave();
+                    }
+                }
+                for (Component comp : menuLine2.getComponents()) {
+                    if (comp instanceof MenuBlock) {
+                        ((MenuBlock) comp).menuitemSave();
+                    }
+                }
             }
         });
 
@@ -232,19 +312,8 @@ public class PnlSingleDayMenu extends JPanel {
         btnEmpty.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-//
-//
-//                menuweek2Menu.getMenu().getStocks().clear();
-//                menuweek2Menu.getMenu().setStarter(null);
-//                menuweek2Menu.getMenu().setMaincourse(null);
-//                menuweek2Menu.getMenu().setSauce(null);
-//                menuweek2Menu.getMenu().setSideveggie(null);
-//                menuweek2Menu.getMenu().setSidedish(null);
-//                menuweek2Menu.getMenu().setDessert(null);
-//                menuweek2Menu.getMenu().setText(null);
-//                menuweek2Menu.setMenu(new Menu(menuweek2Menu));
-                changeAction.execute(new Menu(menuweek2Menu));
+                menuweek2Menu = replaceMenu(new Menu());
+                initPanel();
             }
         });
 
@@ -264,24 +333,23 @@ public class PnlSingleDayMenu extends JPanel {
 
     private JButton getMenuFindButton() {
         final JButton btn = new JButton(Const.icon24find);
-//
-//        btn.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                PnlSelect<Menu> pnlSelect = new PnlSelect<Menu>(MenuTools.getAllLike(searcherWholeMenu.getText().trim()), MenuTools.getListCellRenderer(), ListSelectionModel.SINGLE_SELECTION);
-//                GUITools.showPopup(GUITools.createPanelPopup(pnlSelect, new Closure() {
-//                    @Override
-//                    public void execute(Object o) {
-//                        if (o == null) return;
-//                        ArrayList<Menu> list = (ArrayList<Menu>) o;
-//                        if (list.isEmpty()) return;
-//
-//                        menu = list.get(0);
-//                        initPanel();
-//                    }
-//                }, btn), SwingUtilities.SOUTH);
-//            }
-//        });
+
+        btn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PnlSelect<Menuweek2Menu> pnlSelect = new PnlSelect<Menuweek2Menu>(Menuweek2MenuTools.getAllLike(searcherWholeMenu.getText().trim()), Menuweek2MenuTools.getListCellRenderer(), ListSelectionModel.SINGLE_SELECTION);
+                GUITools.showPopup(GUITools.createPanelPopup(pnlSelect, new Closure() {
+                    @Override
+                    public void execute(Object o) {
+                        if (o == null) return;
+                        ArrayList<Menuweek2Menu> list = (ArrayList<Menuweek2Menu>) o;
+                        if (list.isEmpty()) return;
+                        menuweek2Menu = replaceMenu(list.get(0).getMenu());
+                        initPanel();
+                    }
+                }, btn), SwingUtilities.SOUTH);
+            }
+        });
 
 
         return btn;
@@ -387,7 +455,7 @@ public class PnlSingleDayMenu extends JPanel {
                         popup.hidePopup();
                         popup = null;
                     }
-                    createRecipeIfNecessary(searcher.getText());
+//                    createRecipeIfNecessary(searcher.getText());
                 }
             });
 
@@ -423,19 +491,7 @@ public class PnlSingleDayMenu extends JPanel {
                     miOn.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            setRecipe(recipe);
-                            if (recipe != null && recipe.getId() == 0) {
-                                rcl.recipeChanged(new RecipeChangeEvent(searcher, recipe));
-
-                                // refresh the entity object that has been persisted in the parent class
-                                EntityManager em = Main.getEMF().createEntityManager();
-                                Query refreshQuery = em.createQuery("SELECT r FROM Recipes r WHERE r.title = :title");
-                                refreshQuery.setParameter("title", recipe.getTitle());
-                                recipe = (Recipes) refreshQuery.getResultList().get(0);
-                                em.close();
-
-                                setAccepted();
-                            }
+                            menuitemSave();
                         }
                     });
 
@@ -464,6 +520,24 @@ public class PnlSingleDayMenu extends JPanel {
             });
 
             initPhase = false;
+        }
+
+        public void menuitemSave() {
+            if (recipe != null && recipe.getId() > 0) return;
+
+            setRecipe(recipe);
+            if (recipe != null && recipe.getId() == 0) {
+                rcl.recipeChanged(new RecipeChangeEvent(searcher, recipe));
+
+                // refresh the entity object that has been persisted in the parent class
+                EntityManager em = Main.getEMF().createEntityManager();
+                Query refreshQuery = em.createQuery("SELECT r FROM Recipes r WHERE r.title = :title");
+                refreshQuery.setParameter("title", recipe.getTitle());
+                recipe = (Recipes) refreshQuery.getResultList().get(0);
+                em.close();
+
+                setAccepted();
+            }
         }
 
         private void goDownInList() {
@@ -519,8 +593,7 @@ public class PnlSingleDayMenu extends JPanel {
 
         private void createRecipeIfNecessary(String title) {
             if (title.trim().isEmpty()) return;
-            // Recipes thisRecipe = findInDLM(title.trim());
-            Recipes thisRecipe = null;
+            Recipes thisRecipe;
 
             // refresh the entity object that has been persisted in the parent class
             EntityManager em = Main.getEMF().createEntityManager();

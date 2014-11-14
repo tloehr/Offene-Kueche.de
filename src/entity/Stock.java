@@ -6,6 +6,7 @@ import tools.Tools;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,7 +17,6 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "vorrat")
-
 public class Stock {
 
 
@@ -159,6 +159,16 @@ public class Stock {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "stock")
     private Collection<Buchungen> buchungenCollection;
 
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "stock2menu", joinColumns =
+    @JoinColumn(name = "stockid"), inverseJoinColumns =
+    @JoinColumn(name = "menuid"))
+    private Set<Menu> menus;
+
+    public Set<Menu> getMenus() {
+        return menus;
+    }
 
     @Override
     public boolean equals(Object o) {

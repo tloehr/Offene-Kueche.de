@@ -8,6 +8,8 @@ package Main;
 import com.jidesoft.utils.Lm;
 import desktop.FrmDesktop;
 import entity.Mitarbeiter;
+import entity.Stock;
+import entity.StockTools;
 import org.apache.commons.cli.*;
 import org.apache.log4j.*;
 import printer.Printers;
@@ -23,6 +25,7 @@ import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -51,7 +54,7 @@ public class Main {
     private static boolean debug = false;
     private static String jdbcurl = "";
     private static Dimension startResolution = null;
-
+    private static ArrayList<Stock> stockList;
 
     private static boolean devmode = false;
     private static String css = "";
@@ -73,6 +76,13 @@ public class Main {
 
     public static FrmDesktop getDesktop(){
         return (FrmDesktop) mainframe;
+    }
+
+    public static ArrayList<Stock> getStockList(boolean refreshFirst) {
+        if (stockList == null) stockList = new ArrayList<Stock>();
+        if (refreshFirst || stockList.isEmpty()) stockList = StockTools.getActiveStocks();
+
+        return stockList;
     }
 
     public static String getJdbcurl() {
@@ -236,7 +246,6 @@ public class Main {
 
     public static void error(Object msg) {
         logger.error(msg);
-        fatal(msg);
     }
 
     public static void fatal(String msg){

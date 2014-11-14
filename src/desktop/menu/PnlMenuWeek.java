@@ -9,7 +9,6 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jidesoft.popup.JidePopup;
 import entity.*;
-import entity.Menu;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.border.DropShadowBorder;
@@ -121,34 +120,47 @@ public class PnlMenuWeek extends JPanel {
             public void execute(Object o) {
                 if (o == null) return;
 
-                EntityManager em = Main.getEMF().createEntityManager();
-                try {
-                    em.getTransaction().begin();
-                    Menuweek myMenuweek = em.merge(menuweek);
-                    em.lock(myMenuweek, LockModeType.OPTIMISTIC);
-                    Menuweek2Menu newMenuweek2Menu = em.merge((Menuweek2Menu) o);
-                    Menu myMenu = em.merge(newMenuweek2Menu.getMenu());
-                    em.lock(myMenu, LockModeType.OPTIMISTIC);
-
-                    myMenuweek.getMenuweek2menus().set(new LocalDate(newMenuweek2Menu.getDate()).getDayOfWeek() - 1, newMenuweek2Menu);
-                    myMenuweek.touch();
-
-                    em.getTransaction().commit();
-                    menuweek = myMenuweek;
-
-//                    pnl.setMenu(menuweek.getMenus().get(pnl.getDate().getDayOfWeek() - 1));
-
-                    notifyCaller(newMenuweek2Menu);
-                } catch (OptimisticLockException ole) {
-                    Main.warn(ole);
-                    em.getTransaction().rollback();
-                } catch (Exception exc) {
-                    em.getTransaction().rollback();
-                    Main.fatal(exc.getMessage());
-                } finally {
-                    em.close();
-//                    notifyCaller();
-                }
+//                EntityManager em = Main.getEMF().createEntityManager();
+//                try {
+//                    em.getTransaction().begin();
+//
+//                    Menuweek2Menu newMenuweek2Menu = null;
+//                    if (o instanceof Menuweek2Menu) {
+//                        Menuweek2Menu intermediate = (Menuweek2Menu) o;
+//                        Menu myMenu = em.merge(intermediate.getMenu());
+//                        em.lock(myMenu, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+//                        newMenuweek2Menu = em.merge(intermediate);
+//                        newMenuweek2Menu.setMenu(myMenu);
+//                    } else {
+//                        Pair<Menuweek2Menu, Menuweek2Menu> pair = (Pair<Menuweek2Menu, Menuweek2Menu>) o;
+//                        newMenuweek2Menu = em.merge(pair.getSecond());
+//                        em.remove(em.merge(pair.getFirst()));     // to make sure that an orphan is created
+//                    }
+//
+//                    Menuweek myMenuweek = em.merge(newMenuweek2Menu.getMenuweek());
+//                    em.lock(myMenuweek, LockModeType.OPTIMISTIC);
+//
+//
+//                    myMenuweek.getMenuweek2menus().set(new LocalDate(newMenuweek2Menu.getDate()).getDayOfWeek() - 1, newMenuweek2Menu);
+//                    myMenuweek.touch();
+//
+//                    em.getTransaction().commit();
+//                    menuweek = myMenuweek;
+//
+////                    pnl.setMenu(menuweek.getMenus().get(pnl.getDate().getDayOfWeek() - 1));
+//
+//                    notifyCaller(newMenuweek2Menu);
+//                } catch (OptimisticLockException ole) {
+//                    Main.warn(ole);
+//                    em.getTransaction().rollback();
+//                } catch (Exception exc) {
+//                    Main.error(exc.getMessage());
+//                    em.getTransaction().rollback();
+//                    Main.fatal(exc.getMessage());
+//                } finally {
+//                    em.close();
+////                    notifyCaller();
+//                }
 
 
             }
@@ -324,8 +336,8 @@ public class PnlMenuWeek extends JPanel {
         //======== this ========
         setBorder(new DropShadowBorder(Color.black, 8, 0.6f, 12, true, true, true, true));
         setLayout(new FormLayout(
-            "default:grow, $lcgap, default",
-            "2*(default, $lgap), top:pref, $lgap, pref"));
+                "default:grow, $lcgap, default",
+                "2*(default, $lgap), top:pref, $lgap, pref"));
 
         //======== panel2 ========
         {
@@ -416,8 +428,8 @@ public class PnlMenuWeek extends JPanel {
         //======== panel12 ========
         {
             panel12.setLayout(new FormLayout(
-                "default:grow",
-                "default:grow, default"));
+                    "default:grow",
+                    "default:grow, default"));
 
             //======== scrollPane1 ========
             {

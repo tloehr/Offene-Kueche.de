@@ -26,33 +26,6 @@ public class Menu {
         this.id = id;
     }
 
-
-//    @JoinColumn(name = "menuweekid", referencedColumnName = "id")
-//    @ManyToOne(optional = true)
-//    private Menuweek menuweek;
-//
-//    public Menuweek getMenuweek() {
-//        return menuweek;
-//    }
-//
-//    public void setMenuweek(Menuweek menuweek) {
-//        this.menuweek = menuweek;
-//    }
-
-//    @Basic
-//    @Column(name = "date", nullable = false, insertable = true, updatable = true)
-//    @Temporal(TemporalType.DATE)
-//    private Date date;
-//
-//    public Date getDate() {
-//        return date;
-//    }
-//
-//    public void setDate(Date date) {
-//        this.date = date;
-//    }
-
-
     @Basic
     @Column(name = "text", nullable = true, insertable = true, updatable = true)
     private String text;
@@ -137,15 +110,7 @@ public class Menu {
         this.dessert = dessert;
     }
 
-
-//    public boolean isInUse() {
-//        return !Tools.catchNull(text).isEmpty();
-//    }
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "stock2menu", joinColumns =
-    @JoinColumn(name = "menuid"), inverseJoinColumns =
-    @JoinColumn(name = "stockid"))
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "menus")
     private Set<Stock> stocks;
 
     public Set<Stock> getStocks() {
@@ -153,16 +118,12 @@ public class Menu {
     }
 
     public Menu() {
-    }
-
-    public Menu(Menuweek2Menu menuweek2Menu){
-        menu2menuweeks = new ArrayList<Menuweek2Menu>();
         stocks = new HashSet<Stock>();
-        menu2menuweeks.add(menuweek2Menu);
+        menu2menuweeks = new ArrayList<Menuweek2Menu>();
     }
 
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "menu", orphanRemoval = true)
+    @OneToMany(mappedBy = "menu", cascade=CascadeType.ALL)
     private List<Menuweek2Menu> menu2menuweeks;
 
     public List<Menuweek2Menu> getMenu2menuweeks() {

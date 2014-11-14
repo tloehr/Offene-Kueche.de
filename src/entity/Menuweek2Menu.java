@@ -27,7 +27,7 @@ public class Menuweek2Menu {
 
 
     @JoinColumn(name = "menuid", referencedColumnName = "id")
-    @ManyToOne(optional = true)
+    @ManyToOne(optional = false)
     private Menu menu;
 
     public Menu getMenu() {
@@ -39,7 +39,7 @@ public class Menuweek2Menu {
     }
 
     @JoinColumn(name = "menuweekid", referencedColumnName = "id")
-    @ManyToOne(optional = true)
+    @ManyToOne(optional = false)
     private Menuweek menuweek;
 
     public Menuweek getMenuweek() {
@@ -69,7 +69,7 @@ public class Menuweek2Menu {
     }
 
     public Menuweek2Menu(Menuweek menuweek, LocalDate date) {
-        this.menu = new Menu(this);
+        this.menu = new Menu();
         this.menuweek = menuweek;
         this.date = date.toDateTimeAtStartOfDay().toDate();
     }

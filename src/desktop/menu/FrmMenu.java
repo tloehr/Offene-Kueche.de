@@ -68,7 +68,6 @@ public class FrmMenu extends JInternalFrame {
 //    }
 
     private void initFrame() {
-
         listAll = MenuweekallTools.getAll();
 
         if (listAll.isEmpty()) {
@@ -77,8 +76,8 @@ public class FrmMenu extends JInternalFrame {
             try {
                 em.getTransaction().begin();
                 Menuweekall m = em.merge(new Menuweekall(new LocalDate().dayOfWeek().withMinimumValue().toDate(), RecipeFeatureTools.getAll().get(0)));
-                listAll.add(m);
                 em.getTransaction().commit();
+                listAll.add(m);
             } catch (Exception exc) {
                 Main.debug(exc.getMessage());
                 em.getTransaction().rollback();
@@ -128,17 +127,30 @@ public class FrmMenu extends JInternalFrame {
                             if (o == null) return;
 
                             if (o instanceof Menuweek2Menu) {
-                                Menuweek2Menu myMenuweek2Menu = (Menuweek2Menu) o;
-//                                int weekday = new LocalDate(myMenu.getDate()).getDayOfWeek() - 1;
-                                for (final Menuweek m1 : menuweekall.getMenuweeks()) {
-                                    ArrayList<Integer> foundIndices = new ArrayList<Integer>();
-                                    for (int index = 0; index < menuweek.getMenuweek2menus().size(); index++) {
-                                        if (menuweek.getMenuweek2menus().get(index).getMenu().equals(myMenuweek2Menu.getMenu())) {
-                                            menuweek.getMenuweek2menus().set(index, myMenuweek2Menu);
-                                        }
-                                    }
-                                }
-                                createThePanels(menuweekall);
+
+
+                                EntityManager em = Main.getEMF().createEntityManager();
+                                Menuweek2Menu myMenuweek2Menu = em.merge((Menuweek2Menu) o);
+                                Menuweekall myMenuweekall = em.merge(myMenuweek2Menu.getMenuweek().getMenuweekall());
+                                em.refresh(myMenuweekall);
+                                em.close();
+
+                                int index = cmbWeeks.getSelectedIndex();
+                                listAll.set(index, myMenuweekall);
+                                cmbWeeks.setModel(Tools.newComboboxModel(listAll));
+                                cmbWeeks.setSelectedIndex(index);
+
+
+
+////                                int weekday = new LocalDate(myMenu.getDate()).getDayOfWeek() - 1;
+//                                for (final Menuweek m1 : menuweekall.getMenuweeks()) {
+//                                    for (int index = 0; index < m1.getMenuweek2menus().size(); index++) {
+//                                        if (menuweek.getMenuweek2menus().get(index).getMenu().equals(myMenuweek2Menu.getMenu())) {
+//                                            menuweek.getMenuweek2menus().set(index, myMenuweek2Menu);
+//                                        }
+//                                    }
+//                                }
+                                createThePanels(myMenuweekall);
                             } else if (o instanceof Menuweek) {
                                 //Menuweek myMenuweek = (Menuweek) o;
                                 return;

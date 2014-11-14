@@ -25,7 +25,7 @@ public class Menuweek {
     }
 
 
-    @JoinColumn(name = "menuweekid", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "menuweekallid", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
     private Menuweekall menuweekall;
 
