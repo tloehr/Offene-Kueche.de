@@ -62,6 +62,20 @@ public class PnlAssign<T> extends PopupPanel {
         return true;
     }
 
+    public void setVisibleRowCount(final int rowcount) {
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                listAll.setVisibleRowCount(rowcount);
+                listAssigned.setVisibleRowCount(rowcount);
+                revalidate();
+                repaint();
+            }
+        });
+
+    }
+
     private void initPanel() {
         listAll.setModel(Tools.newListModel(all, assigned));
         listAssigned.setModel(Tools.newListModel(new ArrayList<T>(assigned)));
@@ -164,8 +178,8 @@ public class PnlAssign<T> extends PopupPanel {
             //======== contentPanel ========
             {
                 contentPanel.setLayout(new FormLayout(
-                    "[pref,150dlu]:grow, $ugap, [pref,150dlu]:grow",
-                    "default, $lgap, fill:default:grow, $lgap, default"));
+                        "[pref,150dlu]:grow, $ugap, [pref,150dlu]:grow",
+                        "default, $lgap, fill:default:grow, $lgap, default"));
 
                 //======== panel1 ========
                 {

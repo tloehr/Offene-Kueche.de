@@ -11,7 +11,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "menu")
-public class Menu {
+public class Menu implements Cloneable {
 
     @javax.persistence.Column(name = "ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
     @Id
@@ -110,7 +110,11 @@ public class Menu {
         this.dessert = dessert;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "menus")
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "stock2menu", joinColumns =
+    @JoinColumn(name = "menuid"), inverseJoinColumns =
+    @JoinColumn(name = "stockid"))
     private Set<Stock> stocks;
 
     public Set<Stock> getStocks() {
@@ -123,7 +127,7 @@ public class Menu {
     }
 
 
-    @OneToMany(mappedBy = "menu", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)
     private List<Menuweek2Menu> menu2menuweeks;
 
     public List<Menuweek2Menu> getMenu2menuweeks() {
@@ -174,5 +178,20 @@ public class Menu {
 //        result = 31 * result + (stocks != null ? stocks.hashCode() : 0);
 //        result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public Menu clone() {
+        Menu myClone = new Menu();
+
+        myClone.setStarter(starter);
+        myClone.setMaincourse(maincourse);
+        myClone.setSauce(sauce);
+        myClone.setSideveggie(sideveggie);
+        myClone.setSidedish(sidedish);
+        myClone.setDessert(dessert);
+        myClone.setText(text);
+
+        return myClone;
     }
 }

@@ -113,9 +113,13 @@ public class PnlSingleDayMenu extends JPanel {
 
             Menu menu = em.merge(menu1);
             myMenuweek2Menu = em.merge(menuweek2Menu);
+
+            em.lock(menu, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+
             myMenuweek2Menu.setMenu(menu);
             menu.getMenu2menuweeks().remove(menuweek2Menu);
             menu.getMenu2menuweeks().add(myMenuweek2Menu);
+
 
             em.getTransaction().commit();
 
@@ -190,7 +194,6 @@ public class PnlSingleDayMenu extends JPanel {
         menuLine1.add(new MenuBlock(menuweek2Menu.getMenu().getSauce(), "Sauce", new RecipeChangeListener() {
             @Override
             public void recipeChanged(RecipeChangeEvent rce) {
-                Main.debug("Sauce");
                 menuweek2Menu.getMenu().setSauce(rce.getNewRecipe());
                 searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
                 menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
@@ -252,13 +255,13 @@ public class PnlSingleDayMenu extends JPanel {
         lblOverlay.setFont(new Font("SansSerif", Font.BOLD, 10));
         ovrComment.addOverlayComponent(lblOverlay, DefaultOverlayable.SOUTH_EAST);
 
-        btnStock = new JButton(menuweek2Menu.getMenu().getStocks().isEmpty() ? "" : Integer.toString(menuweek2Menu.getMenu().getStocks().size()), Const.icon24box);
-        btnStock.setFont(new Font("SansSerif", Font.BOLD, 16));
-        btnStock.setForeground(Color.blue);
+        btnStock = new JButton(menuweek2Menu.getMenu().getStocks().isEmpty() ? "" : Integer.toString(menuweek2Menu.getMenu().getStocks().size()));
+        btnStock.setIcon(menuweek2Menu.getMenu().getStocks().isEmpty() ? Const.icon24blackBadge : Const.icon24whiteBadge);
+        btnStock.setFont(new Font("SansSerif", Font.BOLD, 18));
+        btnStock.setForeground(Color.ORANGE);
         btnStock.setHorizontalTextPosition(SwingConstants.CENTER);
         btnStock.setVerticalTextPosition(SwingConstants.CENTER);
         btnStock.setToolTipText(MenuTools.getStocksAsHTMLList(menuweek2Menu.getMenu()));
-
 
         btnStock.addActionListener(new ActionListener() {
             @Override
@@ -270,13 +273,13 @@ public class PnlSingleDayMenu extends JPanel {
                 Tools.unregisterListeners(popupStocks);
 
                 final PnlAssign<Stock> pnlAssign = new PnlAssign<Stock>(new ArrayList<Stock>(menuweek2Menu.getMenu().getStocks()), Main.getStockList(e.getModifiers() == InputEvent.CTRL_MASK), new DefaultListRenderer());
+                pnlAssign.setVisibleRowCount(30);
                 popupStocks = GUITools.createPanelPopup(pnlAssign, new Closure() {
                     @Override
                     public void execute(Object o) {
                         if (o == null) return;
                         if (CollectionUtils.isEqualCollection(pnlAssign.getAssigned(), menuweek2Menu.getMenu().getStocks()))
                             return;
-
                         menuweek2Menu.getMenu().getStocks().clear();
                         for (Stock stock : pnlAssign.getAssigned()) {
                             menuweek2Menu.getMenu().getStocks().add(stock);
@@ -284,6 +287,7 @@ public class PnlSingleDayMenu extends JPanel {
                         menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
                         btnStock.setToolTipText(MenuTools.getStocksAsHTMLList(menuweek2Menu.getMenu()));
                         btnStock.setText(menuweek2Menu.getMenu().getStocks().isEmpty() ? "" : Integer.toString(menuweek2Menu.getMenu().getStocks().size()));
+                        btnStock.setIcon(menuweek2Menu.getMenu().getStocks().isEmpty() ? Const.icon24blackBadge : Const.icon24whiteBadge);
                     }
                 }, btnStock);
 
@@ -337,40 +341,40 @@ public class PnlSingleDayMenu extends JPanel {
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                PnlSelect<Menuweek2Menu> pnlSelect = new PnlSelect<Menuweek2Menu>(Menuweek2MenuTools.getAllLike(searcherWholeMenu.getText().trim()), Menuweek2MenuTools.getListCellRenderer(), ListSelectionModel.SINGLE_SELECTION);
-                GUITools.showPopup(GUITools.createPanelPopup(pnlSelect, new Closure() {
-                    @Override
-                    public void execute(Object o) {
-                        if (o == null) return;
-                        ArrayList<Menuweek2Menu> list = (ArrayList<Menuweek2Menu>) o;
-                        if (list.isEmpty()) return;
-                        menuweek2Menu = replaceMenu(list.get(0).getMenu());
-                        initPanel();
+                String txtSearch = searcherWholeMenu.getText().trim();
+
+                try {
+                    long menuid = Long.parseLong(txtSearch);
+                    EntityManager em = Main.getEMF().createEntityManager();
+                    Menu menu = em.find(Menu.class, menuid);
+                    em.close();
+
+                    if (menu == null) {
+                        throw new NumberFormatException("PK not found");
                     }
-                }, btn), SwingUtilities.SOUTH);
+                    menuweek2Menu = replaceMenu(menu);
+                    initPanel();
+
+                } catch (NumberFormatException nfe) {
+                    PnlSelect<Menuweek2Menu> pnlSelect = new PnlSelect<Menuweek2Menu>(Menuweek2MenuTools.getAllLike(searcherWholeMenu.getText().trim()), Menuweek2MenuTools.getListCellRenderer(), ListSelectionModel.SINGLE_SELECTION);
+                    GUITools.showPopup(GUITools.createPanelPopup(pnlSelect, new Closure() {
+                        @Override
+                        public void execute(Object o) {
+                            if (o == null) return;
+                            ArrayList<Menuweek2Menu> list = (ArrayList<Menuweek2Menu>) o;
+                            if (list.isEmpty()) return;
+                            menuweek2Menu = replaceMenu(list.get(0).getMenu().clone());
+                            initPanel();
+                        }
+                    }, btn), SwingUtilities.SOUTH);
+                }
+
+
             }
         });
 
-
         return btn;
     }
-
-
-//    private void searchMenus(String searchPattern) {
-//        dlmM.clear();
-//
-//        EntityManager em = Main.getEMF().createEntityManager();
-//
-//        Query query = em.createQuery("SELECT r FROM Menu r WHERE (r.text LIKE :pattern) ORDER BY r.text ");
-//        query.setParameter("pattern", "%" + searchPattern + "%");
-//
-//        ArrayList<Menu> listMenus = new ArrayList<Menu>(query.getResultList());
-//        em.close();
-//
-//        for (Menu menu : listMenus) {
-//            dlmM.addElement(menuweek2Menu.getMenu());
-//        }
-//    }
 
 
     private class MenuBlock extends JPanel {
@@ -608,7 +612,6 @@ public class PnlSingleDayMenu extends JPanel {
             }
 
             setRecipe(thisRecipe);
-
         }
 
         void caretListener(CaretEvent cae) {

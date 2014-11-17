@@ -124,11 +124,11 @@ public class FrmProdukte extends JInternalFrame {
                 Produkte produkt = entry.getModel().getProdukt(row);
 
                 return (foundStock != null && foundStock.getProdukt().equals(produkt)) ||
-                        produkt.getBezeichnung().indexOf(textKriterium.trim()) >= 0 ||
+                        produkt.getBezeichnung().toLowerCase().indexOf(textKriterium.trim()) >= 0 ||
                         Long.toString(produkt.getId()).equals(textKriterium.trim()) ||
                         Tools.catchNull(produkt.getGtin()).indexOf(textKriterium.trim()) >= 0 ||
-                        produkt.getIngTypes().getBezeichnung().indexOf(textKriterium.trim()) >= 0 ||
-                        produkt.getIngTypes().getWarengruppe().getBezeichnung().indexOf(textKriterium.trim()) >= 0;
+                        produkt.getIngTypes().getBezeichnung().toLowerCase().indexOf(textKriterium.trim()) >= 0 ||
+                        produkt.getIngTypes().getWarengruppe().getBezeichnung().toLowerCase().indexOf(textKriterium.trim()) >= 0;
 
 
             }
@@ -137,7 +137,7 @@ public class FrmProdukte extends JInternalFrame {
     }
 
     private void xSearchField1ActionPerformed(ActionEvent e) {
-        textKriterium = xSearchField1.getText();
+        textKriterium = xSearchField1.getText().toLowerCase();
         foundStock = StockTools.findByIDORScanner(textKriterium.trim());
         sorter.setRowFilter(textFilter);
         xSearchField1.selectAll();
@@ -145,27 +145,10 @@ public class FrmProdukte extends JInternalFrame {
 
     public void reload() {
 
-
-        List list = null;
-
         EntityManager em = Main.getEMF().createEntityManager();
         Query query = em.createQuery("SELECT p FROM Produkte p ORDER BY p.bezeichnung");
-        list = query.getResultList();
+        List list = query.getResultList();
         em.close();
-
-
-//        if (criteria.getFirst() == Const.ALLE) {
-//            EntityManager em = Main.getEMF().createEntityManager();
-//            Query query = em.createQuery("SELECT p FROM Produkte p ORDER BY p.bezeichnung");
-//            list = query.getResultList();
-//            em.close();
-//        } else if (criteria.getFirst() == Const.NAME_NR) {
-//            list = ProdukteTools.searchProdukte(criteria.getSecond().toString());
-//        } else if (criteria.getFirst() == Const.STOFFART) {
-//            list = ProdukteTools.getProdukte((IngTypes) criteria.getSecond());
-//        } else if (criteria.getFirst() == Const.WARENGRUPPE) {
-//            list = ProdukteTools.searchProdukte((Warengruppe) criteria.getSecond());
-//        }
 
         ptm = new ProdukteTableModel(list, true);
         tblProdukt.setModel(ptm);
@@ -173,37 +156,11 @@ public class FrmProdukte extends JInternalFrame {
         tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_INGTYPE).setCellRenderer(IngTypesTools.getTableCellRenderer());
         tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_INGTYPE).setCellEditor(IngTypesTools.getTableCellEditor());
 
-
         sorter = new TableRowSorter(ptm);
 
-
         sorter.setRowFilter(null);
-
-//        sorter.setComparator(ProdukteTableModel.COL_LAGERART, new Comparator<Short>() {
-//            public int compare(Short l1, Short l2) {
-//                return LagerTools.LAGERART[l1].compareTo(LagerTools.LAGERART[l2]);
-//            }
-//        });
-//
-//        sorter.addRowSorterListener(new RowSorterListener() {
-//            @Override
-//            public void sorterChanged(RowSorterEvent e) {
-//
-//            }
-//        });
         sorter.setSortsOnUpdates(true);
-
         tblProdukt.setRowSorter(sorter);
-
-//        tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_ADDITIVES).setCellRenderer(new TableCellRenderer() {
-//            @Override
-//            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-//                JComponent component = (JComponent) new DefaultTableCellRenderer().getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-//                String html = ProdukteTools.getAllergenesAndAdditivesAsHTML(((ProdukteTableModel) table.getModel()).getProdukt(row));
-//                component.setToolTipText(html == null ? null : "<html>" + html + "</html>");
-//                return component;
-//            }
-//        });
 
         tblProdukt.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
@@ -233,7 +190,6 @@ public class FrmProdukte extends JInternalFrame {
             em.lock(neuesProdukt, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
             for (Produkte p : listProducts2Merge) {
                 Produkte altesProdukt = em.merge(p);
-//                em.lock(altesProdukt, LockModeType.OPTIMISTIC);
 
                 for (Stock v : altesProdukt.getStockCollection()) {
                     Stock myStock = em.merge(v);
@@ -259,10 +215,9 @@ public class FrmProdukte extends JInternalFrame {
 
             ptm.update(neuesProdukt);
 
-
         } catch (OptimisticLockException ole) {
-            Main.warn(ole);
             em.getTransaction().rollback();
+            Main.warn(ole);
             reload();
         } catch (Exception e) {
             em.getTransaction().rollback();
@@ -338,8 +293,8 @@ public class FrmProdukte extends JInternalFrame {
 
                         ptm.update(product);
                     } catch (OptimisticLockException ole) {
-                        Main.warn(ole);
                         em.getTransaction().rollback();
+                        Main.warn(ole);
                     } catch (Exception exc) {
                         em.getTransaction().rollback();
                         Main.fatal(e);
@@ -406,8 +361,8 @@ public class FrmProdukte extends JInternalFrame {
 
                         ptm.update(product);
                     } catch (OptimisticLockException ole) {
-                        Main.warn(ole);
                         em.getTransaction().rollback();
+                        Main.warn(ole);
                     } catch (Exception exc) {
                         em.getTransaction().rollback();
                         Main.fatal(e);
@@ -528,8 +483,9 @@ public class FrmProdukte extends JInternalFrame {
                         }
                         em1.getTransaction().commit();
                     } catch (OptimisticLockException ole) {
-                        Main.warn(ole);
+
                         em1.getTransaction().rollback();
+                        Main.warn(ole);
                     } catch (Exception exc) {
                         em1.getTransaction().rollback();
                         Main.fatal(e);
@@ -814,8 +770,8 @@ public class FrmProdukte extends JInternalFrame {
                                     Warengruppe myWarengruppe = em.merge(new Warengruppe(newText));
                                     em.getTransaction().commit();
                                 } catch (OptimisticLockException ole) {
-                                    Main.warn(ole);
                                     em.getTransaction().rollback();
+                                    Main.warn(ole);
                                 } catch (Exception exc) {
                                     em.getTransaction().rollback();
                                     Main.fatal(e);
@@ -845,8 +801,8 @@ public class FrmProdukte extends JInternalFrame {
                                     IngTypes myIngTypes = em.merge(new IngTypes(newText, myWarengruppe));
                                     em.getTransaction().commit();
                                 } catch (OptimisticLockException ole) {
-                                    Main.warn(ole);
                                     em.getTransaction().rollback();
+                                    Main.warn(ole);
                                 } catch (Exception exc) {
                                     em.getTransaction().rollback();
                                     Main.fatal(e);
@@ -894,8 +850,8 @@ public class FrmProdukte extends JInternalFrame {
 
                                     em.getTransaction().commit();
                                 } catch (OptimisticLockException ole) {
-                                    Main.warn(ole);
                                     em.getTransaction().rollback();
+                                    Main.warn(ole);
                                 } catch (Exception exc) {
                                     em.getTransaction().rollback();
                                     Main.fatal(e);
@@ -932,8 +888,8 @@ public class FrmProdukte extends JInternalFrame {
 
                                         em.getTransaction().commit();
                                     } catch (OptimisticLockException ole) {
-                                        Main.warn(ole);
                                         em.getTransaction().rollback();
+                                        Main.warn(ole);
                                     } catch (Exception exc) {
                                         em.getTransaction().rollback();
                                         Main.fatal(e);
@@ -986,8 +942,8 @@ public class FrmProdukte extends JInternalFrame {
                                                     em1.remove(ingTypes2delete);
                                                     em1.getTransaction().commit();
                                                 } catch (OptimisticLockException ole) {
-                                                    Main.warn(ole);
                                                     em1.getTransaction().rollback();
+                                                    Main.warn(ole);
                                                 } catch (Exception exc) {
                                                     em1.getTransaction().rollback();
                                                     Main.fatal(e);
@@ -1032,8 +988,8 @@ public class FrmProdukte extends JInternalFrame {
 
                                         em.getTransaction().commit();
                                     } catch (OptimisticLockException ole) {
-                                        Main.warn(ole);
                                         em.getTransaction().rollback();
+                                        Main.warn(ole);
                                     } catch (Exception exc) {
                                         em.getTransaction().rollback();
                                         Main.fatal(e);
@@ -1077,8 +1033,8 @@ public class FrmProdukte extends JInternalFrame {
                                                     }
                                                     em.getTransaction().commit();
                                                 } catch (OptimisticLockException ole) {
-                                                    Main.warn(ole);
                                                     em.getTransaction().rollback();
+                                                    Main.warn(ole);
                                                 } catch (Exception exc) {
                                                     em.getTransaction().rollback();
                                                     Main.fatal(e);

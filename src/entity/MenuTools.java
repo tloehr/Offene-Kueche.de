@@ -14,7 +14,7 @@ public class MenuTools {
         String html = "<html><ul>";
 
         for (Stock stock : menu.getStocks()) {
-            html += "<li>" + stock.getId() + " " + Tools.left(stock.getProdukt().getBezeichnung(), 20) + "</li>";
+            html += "<li>" + stock.getId() + " " + Tools.left(stock.getProdukt().getBezeichnung(), 30) + "</li>";
         }
 
         html += "</ul></html>";

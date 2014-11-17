@@ -150,6 +150,10 @@ public class Const {
 
     public static final Icon icon24truck = new ImageIcon(Const.class.getResource("/artwork/24x24/truck.png"));
     public static final Icon icon24box = new ImageIcon(Const.class.getResource("/artwork/24x24/ark.png"));
+
+    public static final Icon icon24whiteBadge = new ImageIcon(Const.class.getResource("/artwork/24x24/whitestyle_08_badge.png"));
+    public static final Icon icon24blackBadge = new ImageIcon(Const.class.getResource("/artwork/24x24/blackstyle_08_badge.png"));
+
     public static final Icon icon242rightarrow = new ImageIcon(Const.class.getResource("/artwork/24x24/2rightarrow.png"));
     public static final Icon icon24reload = new ImageIcon(Const.class.getResource("/artwork/24x24/reload.png"));
     public static final Icon icon24remove = new ImageIcon(Const.class.getResource("/artwork/24x24/editdelete.png"));

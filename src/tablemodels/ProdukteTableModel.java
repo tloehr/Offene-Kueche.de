@@ -232,11 +232,11 @@ public class ProdukteTableModel extends DefaultTableModel {
                 break;
             }
             case COL_ALLERGENES: {
-                value = produkte.getAllergenes().size() == 0 ? "" : produkte.getAllergenes().size();
+                value = produkte.getAllergenes().size() == 0 ? "" : Integer.toString(produkte.getAllergenes().size());
                 break;
             }
             case COL_ADDITIVES: {
-                value = produkte.getAdditives().size() == 0 ? "" : produkte.getAdditives().size();
+                value = produkte.getAdditives().size() == 0 ? "" : Integer.toString(produkte.getAdditives().size());
                 break;
             }
             case COL_WARENGRUPPE: {
