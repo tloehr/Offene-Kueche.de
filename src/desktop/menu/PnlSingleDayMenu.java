@@ -33,7 +33,8 @@ public class PnlSingleDayMenu extends JPanel {
     private Closure changeAction;
 
     private final HashMap<LocalDate, String> holidays;
-    private JLabel lblDate;
+    private final PSDChangeListener psdChangeListener;
+
     private JTextField searcherWholeMenu;
     private JidePopup popupStocks;
     KeyboardFocusManager keyboardFocusManager;
@@ -52,14 +53,17 @@ public class PnlSingleDayMenu extends JPanel {
 //        initPanel();
 //    }
 
-    public void setChangeAction(Closure changeAction) {
-        this.changeAction = changeAction;
+
+    public void setMenuweek2Menu(Menuweek2Menu menuweek2Menu) {
+        this.menuweek2Menu = menuweek2Menu;
+        initPanel();
     }
 
-    public PnlSingleDayMenu(Menuweek2Menu menuweek2Menu, HashMap<LocalDate, String> holidays) {
+    public PnlSingleDayMenu(Menuweek2Menu menuweek2Menu, HashMap<LocalDate, String> holidays, PSDChangeListener psdChangeListener) {
         super();
         this.menuweek2Menu = menuweek2Menu;
         this.holidays = holidays;
+        this.psdChangeListener = psdChangeListener;
 
 
 //        dlmM = new DefaultListModel<Menu>();
@@ -120,7 +124,6 @@ public class PnlSingleDayMenu extends JPanel {
             menu.getMenu2menuweeks().remove(menuweek2Menu);
             menu.getMenu2menuweeks().add(myMenuweek2Menu);
 
-
             em.getTransaction().commit();
 
         } catch (OptimisticLockException ole) {
@@ -132,7 +135,7 @@ public class PnlSingleDayMenu extends JPanel {
             Main.fatal(exc.getMessage());
         } finally {
             em.close();
-            //                    notifyCaller();
+            changeAction.execute(myMenuweek2Menu);
         }
         return myMenuweek2Menu;
     }
@@ -154,22 +157,27 @@ public class PnlSingleDayMenu extends JPanel {
 
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE, d MMM yyyy");
 
-        lblDate = new JLabel();
+        JLabel lblDate = new JLabel();
         lblDate.setFont(new Font("SansSerif", Font.BOLD, 18));
         lblDate.setText(sdf.format(menuweek2Menu.getDate()) +
                 (holidays.containsKey(new LocalDate(menuweek2Menu.getDate())) ? " (" + holidays.get(new LocalDate(menuweek2Menu.getDate())) + ")" : "") +
-                "#" + menuweek2Menu.getMenu().getId());
-
+                " #" + menuweek2Menu.getMenu().getId());
         lblDate.setForeground(new LocalDate(menuweek2Menu.getDate()).getDayOfWeek() == DateTimeConstants.SATURDAY || new LocalDate(menuweek2Menu.getDate()).getDayOfWeek() == DateTimeConstants.SUNDAY || holidays.containsKey(new LocalDate(menuweek2Menu.getDate())) ? Color.RED : Color.black);
+        lblDate.setHorizontalTextPosition(SwingConstants.CENTER);
 
-        menuLine0.setLayout(new BoxLayout(menuLine0, BoxLayout.LINE_AXIS));
+        JLabel lblID = new JLabel();
+        lblID.setFont(new Font("SansSerif", Font.BOLD, 18));
+        lblID.setText("#" + menuweek2Menu.getMenu().getId());
+
+        menuLine0.setLayout(new BorderLayout());
         menuLine1.setLayout(new BoxLayout(menuLine1, BoxLayout.LINE_AXIS));
         menuLine2.setLayout(new BoxLayout(menuLine2, BoxLayout.LINE_AXIS));
         menuLine3.setLayout(new BoxLayout(menuLine3, BoxLayout.LINE_AXIS));
 
         keyboardFocusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 
-        menuLine0.add(lblDate);
+        menuLine0.add(BorderLayout.CENTER, lblDate);
+        menuLine0.add(BorderLayout.EAST, lblID);
 
         menuLine1.add(new MenuBlock(menuweek2Menu.getMenu().getStarter(), "Vorspeise", new RecipeChangeListener() {
             @Override
@@ -746,5 +754,44 @@ public class PnlSingleDayMenu extends JPanel {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        PnlSingleDayMenu that = (PnlSingleDayMenu) o;
+
+        if (btnEmpty != null ? !btnEmpty.equals(that.btnEmpty) : that.btnEmpty != null) return false;
+        if (btnRedToGreen != null ? !btnRedToGreen.equals(that.btnRedToGreen) : that.btnRedToGreen != null)
+            return false;
+        if (btnStock != null ? !btnStock.equals(that.btnStock) : that.btnStock != null) return false;
+        if (changeAction != null ? !changeAction.equals(that.changeAction) : that.changeAction != null) return false;
+        if (holidays != null ? !holidays.equals(that.holidays) : that.holidays != null) return false;
+        if (keyboardFocusManager != null ? !keyboardFocusManager.equals(that.keyboardFocusManager) : that.keyboardFocusManager != null)
+            return false;
+        if (menuweek2Menu != null ? !menuweek2Menu.equals(that.menuweek2Menu) : that.menuweek2Menu != null)
+            return false;
+        if (popupStocks != null ? !popupStocks.equals(that.popupStocks) : that.popupStocks != null) return false;
+        if (psdChangeListener != null ? !psdChangeListener.equals(that.psdChangeListener) : that.psdChangeListener != null)
+            return false;
+        if (searcherWholeMenu != null ? !searcherWholeMenu.equals(that.searcherWholeMenu) : that.searcherWholeMenu != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = changeAction != null ? changeAction.hashCode() : 0;
+        result = 31 * result + (holidays != null ? holidays.hashCode() : 0);
+        result = 31 * result + (psdChangeListener != null ? psdChangeListener.hashCode() : 0);
+        result = 31 * result + (searcherWholeMenu != null ? searcherWholeMenu.hashCode() : 0);
+        result = 31 * result + (popupStocks != null ? popupStocks.hashCode() : 0);
+        result = 31 * result + (keyboardFocusManager != null ? keyboardFocusManager.hashCode() : 0);
+        result = 31 * result + (btnStock != null ? btnStock.hashCode() : 0);
+        result = 31 * result + (btnEmpty != null ? btnEmpty.hashCode() : 0);
+        result = 31 * result + (btnRedToGreen != null ? btnRedToGreen.hashCode() : 0);
+        result = 31 * result + (menuweek2Menu != null ? menuweek2Menu.hashCode() : 0);
+        return result;
+    }
 }

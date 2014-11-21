@@ -95,7 +95,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                 myStock.setAnbruch(Const.DATE_BIS_AUF_WEITERES);
 
 
-                Query query = em.createQuery("DELETE FROM Buchungen b WHERE b.vorrat = :vorrat AND b.status <> :butnotstatus");
+                Query query = em.createQuery("DELETE FROM Buchungen b WHERE b.stock = :vorrat AND b.status <> :butnotstatus");
                 query.setParameter("vorrat", myStock);
                 query.setParameter("butnotstatus", BuchungenTools.BUCHEN_EINBUCHEN_ANFANGSBESTAND);
 
@@ -165,7 +165,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
         EntityManager em = Main.getEMF().createEntityManager();
         try {
-            Query query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.vorrat v " +
+            Query query = em.createQuery("SELECT v, SUM(b.menge), 0 FROM Buchungen b JOIN b.stock v " +
                     // die 0 ist ein kleiner Kniff und wird für das Umbuchen gebraucht.
                     " WHERE v.lager = :lager AND v.ausgang = " + Const.MYSQL_DATETIME_BIS_AUF_WEITERES +
                     " GROUP BY v");
@@ -243,6 +243,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             Main.fatal(ex);
         } finally {
             em.close();
+            loadVorratTable();
         }
         Tools.log(txtLog, "================================================");
     }
@@ -380,6 +381,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             em.getTransaction().rollback();
         } finally {
             em.close();
+            loadVorratTable();
         }
     }
 
@@ -392,7 +394,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         cmbLager = new JComboBox();
         pnlLog = new JPanel();
         logScrollPane = new JScrollPane();
-        txtLog = new JTextPane();
+        txtLog = new JTextArea();
         label1 = new JLabel();
         pnlVorraete = new JPanel();
         title1 = new JLabel();
@@ -451,7 +453,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             defaultTouchPanel1.add(lblProdukt, CC.xywh(1, 3, 5, 1, CC.DEFAULT, CC.FILL));
 
             //---- cmbLieferant ----
-            cmbLieferant.setFont(new Font("sansserif", Font.PLAIN, 24));
+            cmbLieferant.setFont(new Font("sansserif", Font.PLAIN, 18));
             cmbLieferant.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
@@ -461,7 +463,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             defaultTouchPanel1.add(cmbLieferant, CC.xywh(1, 5, 5, 1, CC.DEFAULT, CC.FILL));
 
             //---- cmbLager ----
-            cmbLager.setFont(new Font("sansserif", Font.PLAIN, 24));
+            cmbLager.setFont(new Font("sansserif", Font.PLAIN, 18));
             cmbLager.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
@@ -482,6 +484,8 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                     txtLog.setBackground(Color.lightGray);
                     txtLog.setFont(new Font("sansserif", Font.PLAIN, 18));
                     txtLog.setEditable(false);
+                    txtLog.setWrapStyleWord(true);
+                    txtLog.setLineWrap(true);
                     logScrollPane.setViewportView(txtLog);
                 }
                 pnlLog.add(logScrollPane, BorderLayout.CENTER);
@@ -523,8 +527,8 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                 //---- cbZombieRevive ----
                 cbZombieRevive.setText("Wieder einbuchen wenn n\u00f6tig");
                 cbZombieRevive.setFont(new Font("Arial", Font.PLAIN, 26));
-                cbZombieRevive.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/cb-off-jelle.png")));
-                cbZombieRevive.setSelectedIcon(new ImageIcon(getClass().getResource("/artwork/64x64/cb-on-jelle.png")));
+                cbZombieRevive.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/cb-off.png")));
+                cbZombieRevive.setSelectedIcon(new ImageIcon(getClass().getResource("/artwork/24x24/cb-on.png")));
                 cbZombieRevive.setPressedIcon(null);
                 pnlVorraete.add(cbZombieRevive, BorderLayout.SOUTH);
             }
@@ -536,7 +540,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
                 //---- btnClear ----
                 btnClear.setToolTipText("Logbuch l\u00f6schen");
-                btnClear.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/editclear.png")));
+                btnClear.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/editclear.png")));
                 btnClear.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -547,7 +551,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 
                 //---- btnPrint ----
                 btnPrint.setToolTipText("Logbuch drucken");
-                btnPrint.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/printer1.png")));
+                btnPrint.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/printer.png")));
                 btnPrint.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -557,7 +561,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                 panel2.add(btnPrint);
 
                 //---- btnToUnbekannt ----
-                btnToUnbekannt.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/db_status.png")));
+                btnToUnbekannt.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/db_status.png")));
                 btnToUnbekannt.setToolTipText("Fragliche Vorr\u00e4te auf Unbekannt buchen");
                 btnToUnbekannt.addActionListener(new ActionListener() {
                     @Override
@@ -568,7 +572,8 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                 panel2.add(btnToUnbekannt);
 
                 //---- btnAusbuchen ----
-                btnAusbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/games.png")));
+                btnAusbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/games.png")));
+                btnAusbuchen.setToolTipText("Markierte Vorr\u00e4te ausbuchen");
                 btnAusbuchen.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -582,7 +587,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             //---- btnUmbuchen ----
             btnUmbuchen.setText("Umbuchen");
             btnUmbuchen.setFont(new Font("sansserif", Font.BOLD, 24));
-            btnUmbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/apply.png")));
+            btnUmbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/apply.png")));
             btnUmbuchen.setEnabled(false);
             btnUmbuchen.addActionListener(new ActionListener() {
                 @Override
@@ -593,7 +598,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
             defaultTouchPanel1.add(btnUmbuchen, CC.xywh(1, 11, 3, 1));
 
             //---- btnSofortUmbuchen ----
-            btnSofortUmbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/64x64/agt_member.png")));
+            btnSofortUmbuchen.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/agt_member.png")));
             btnSofortUmbuchen.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
@@ -615,6 +620,8 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         ziel = (Lager) cmbLager.getSelectedItem();
         lieferant = null;
         txtSearch.requestFocus();
+        btnSofortUmbuchen.setSelected(true);
+        cbZombieRevive.setSelected(true);
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
@@ -625,7 +632,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
     private JComboBox cmbLager;
     private JPanel pnlLog;
     private JScrollPane logScrollPane;
-    private JTextPane txtLog;
+    private JTextArea txtLog;
     private JLabel label1;
     private JPanel pnlVorraete;
     private JLabel title1;

@@ -42,7 +42,7 @@ public class PnlMenuWeek extends JPanel {
 
     private Menuweek menuweek;
     private final Closure changeAction;
-    private PnlSingleDayMenu mon, tue, wed, thu, fri, sat, sun;
+    private PnlSingleDayMenu tue, wed, thu, fri, sat, sun;
     SimpleDateFormat sdf;
     JidePopup popup;
     private boolean initPhase;
@@ -71,29 +71,23 @@ public class PnlMenuWeek extends JPanel {
 
 //        sdf = new SimpleDateFormat(format);
 
-        mon = new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.MONDAY - 1), holidays);
-        mon.setChangeAction(getChangeEvent4Daily(mon));
-
-        tue = new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.TUESDAY - 1), holidays);
-        tue.setChangeAction(getChangeEvent4Daily(tue));
-
-        wed = new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.WEDNESDAY - 1), holidays);
-        wed.setChangeAction(getChangeEvent4Daily(wed));
-
-        thu = new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.THURSDAY - 1), holidays);
-        thu.setChangeAction(getChangeEvent4Daily(thu));
-
-        fri = new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.FRIDAY - 1), holidays);
-        fri.setChangeAction(getChangeEvent4Daily(fri));
-
-        sat = new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.SATURDAY - 1), holidays);
-        sat.setChangeAction(getChangeEvent4Daily(sat));
-
-        sun = new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.SUNDAY - 1), holidays);
-        sun.setChangeAction(getChangeEvent4Daily(sun));
+        pnlMon.add(new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.MONDAY - 1), holidays, getPSDChangeListener()));
 
 
-        pnlMon.add(mon);
+        tue = new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.TUESDAY - 1), holidays, getPSDChangeListener());
+
+        wed = new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.WEDNESDAY - 1), holidays, getPSDChangeListener());
+
+        thu = new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.THURSDAY - 1), holidays, getPSDChangeListener());
+
+        fri = new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.FRIDAY - 1), holidays, getPSDChangeListener());
+
+        sat = new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.SATURDAY - 1), holidays, getPSDChangeListener());
+
+        sun = new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.SUNDAY - 1), holidays, getPSDChangeListener());
+
+
+//        pnlMon.add(mon);
         pnlTue.add(tue);
         pnlWed.add(wed);
         pnlThu.add(thu);
@@ -111,6 +105,40 @@ public class PnlMenuWeek extends JPanel {
 
         lblID.setText(menuweek.getId() > 0 ? Long.toString(menuweek.getId()) : "--");
 
+    }
+
+
+    private PSDChangeListener getPSDChangeListener() {
+        return new PSDChangeListener() {
+            @Override
+            public void menuEdited(PSDChangeEvent psdce) {
+                for (Component comp : pnlMon.getComponents()) {
+                    if (comp instanceof PnlSingleDayMenu && !comp.equals(psdce.getSource())) {
+                        ((PnlSingleDayMenu) comp).setMenuweek2Menu(psdce.getMenuweek2Menu());
+                    }
+                }
+
+            }
+
+            @Override
+            public void menuReplaced(PSDChangeEvent psdce) {
+
+            }
+
+            @Override
+            public void stockListChanged(PSDChangeEvent psdce) {
+
+            }
+        };
+    }
+
+    public void notifyMeAbout(PSDChangeEvent psdce) {
+//        for (JPanel )
+//        for (Component comp : pnlMon.getComponents()) {
+//            if (comp instanceof PnlSingleDayMenu && !comp.equals(psdce.getSource())) {
+//                ((PnlSingleDayMenu) comp).setMenuweek2Menu(psdce.getMenuweek2Menu());
+//            }
+//        }
     }
 
 

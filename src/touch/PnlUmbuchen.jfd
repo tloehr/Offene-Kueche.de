@@ -148,10 +148,10 @@
           <string>javax.swing.JComboBox</string> 
           <void method="setProperty"> 
            <string>font</string> 
-           <object class="java.awt.Font"> 
+           <object id="Font0" class="java.awt.Font"> 
             <string>sansserif</string> 
             <int>0</int> 
-            <int>24</int> 
+            <int>18</int> 
            </object> 
           </void> 
           <void property="name"> 
@@ -187,11 +187,7 @@
           <string>javax.swing.JComboBox</string> 
           <void method="setProperty"> 
            <string>font</string> 
-           <object class="java.awt.Font"> 
-            <string>sansserif</string> 
-            <int>0</int> 
-            <int>24</int> 
-           </object> 
+           <object idref="Font0"/> 
           </void> 
           <void property="name"> 
            <string>cmbLager</string> 
@@ -245,7 +241,7 @@
             </void> 
             <void method="add"> 
              <object class="com.jformdesigner.model.FormComponent"> 
-              <string>javax.swing.JTextPane</string> 
+              <string>javax.swing.JTextArea</string> 
               <void method="setProperty"> 
                <string>background</string> 
                <object class="java.awt.Color" field="lightGray"/> 
@@ -261,6 +257,14 @@
               <void method="setProperty"> 
                <string>editable</string> 
                <boolean>false</boolean> 
+              </void> 
+              <void method="setProperty"> 
+               <string>wrapStyleWord</string> 
+               <boolean>true</boolean> 
+              </void> 
+              <void method="setProperty"> 
+               <string>lineWrap</string> 
+               <boolean>true</boolean> 
               </void> 
               <void property="name"> 
                <string>txtLog</string> 
@@ -452,14 +456,14 @@
              <string>icon</string> 
              <object class="com.jformdesigner.model.SwingIcon"> 
               <int>0</int> 
-              <string>/artwork/64x64/cb-off-jelle.png</string> 
+              <string>/artwork/24x24/cb-off.png</string> 
              </object> 
             </void> 
             <void method="setProperty"> 
              <string>selectedIcon</string> 
              <object class="com.jformdesigner.model.SwingIcon"> 
               <int>0</int> 
-              <string>/artwork/64x64/cb-on-jelle.png</string> 
+              <string>/artwork/24x24/cb-on.png</string> 
              </object> 
             </void> 
             <void method="setProperty"> 
@@ -515,7 +519,7 @@
              <string>icon</string> 
              <object class="com.jformdesigner.model.SwingIcon"> 
               <int>0</int> 
-              <string>/artwork/64x64/editclear.png</string> 
+              <string>/artwork/32x32/editclear.png</string> 
              </object> 
             </void> 
             <void property="name"> 
@@ -542,7 +546,7 @@
              <string>icon</string> 
              <object class="com.jformdesigner.model.SwingIcon"> 
               <int>0</int> 
-              <string>/artwork/64x64/printer1.png</string> 
+              <string>/artwork/32x32/printer.png</string> 
              </object> 
             </void> 
             <void property="name"> 
@@ -565,7 +569,7 @@
              <string>icon</string> 
              <object class="com.jformdesigner.model.SwingIcon"> 
               <int>0</int> 
-              <string>/artwork/64x64/db_status.png</string> 
+              <string>/artwork/32x32/db_status.png</string> 
              </object> 
             </void> 
             <void method="setProperty"> 
@@ -592,8 +596,12 @@
              <string>icon</string> 
              <object class="com.jformdesigner.model.SwingIcon"> 
               <int>0</int> 
-              <string>/artwork/64x64/games.png</string> 
+              <string>/artwork/32x32/games.png</string> 
              </object> 
+            </void> 
+            <void method="setProperty"> 
+             <string>toolTipText</string> 
+             <string>Markierte Vorräte ausbuchen</string> 
             </void> 
             <void property="name"> 
              <string>btnAusbuchen</string> 
@@ -640,7 +648,7 @@
            <string>icon</string> 
            <object class="com.jformdesigner.model.SwingIcon"> 
             <int>0</int> 
-            <string>/artwork/64x64/apply.png</string> 
+            <string>/artwork/32x32/apply.png</string> 
            </object> 
           </void> 
           <void method="setProperty"> 
@@ -678,7 +686,7 @@
            <string>icon</string> 
            <object class="com.jformdesigner.model.SwingIcon"> 
             <int>0</int> 
-            <string>/artwork/64x64/agt_member.png</string> 
+            <string>/artwork/32x32/agt_member.png</string> 
            </object> 
           </void> 
           <void property="name"> 
