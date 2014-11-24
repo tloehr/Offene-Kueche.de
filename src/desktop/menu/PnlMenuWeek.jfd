@@ -20,9 +20,16 @@ new FormModel {
 					"toolTipText": "Diesen Wochenplan löschen"
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnAddNewMenuweek"
+					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_add.png" )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnAddNewMenuweekActionPerformed", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "btnRemoveThis"
 					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/editdelete.png" )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnRemoveThisActionPerformed", true ) )
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) )
 			add( new FormComponent( "javax.swing.JLabel" ) {

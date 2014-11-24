@@ -5,13 +5,19 @@
 package touch;
 
 import Main.Main;
+import beans.PrintListElement;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
+import desktop.FrmDesktop;
 import entity.*;
 import org.pushingpixels.trident.Timeline;
+import printer.Form;
+import printer.Printer;
 import printer.Printers;
+import tablemodels.StockTableModel;
 import tablemodels.StockTableModel2;
 import tablerenderer.UmbuchenRenderer;
+import threads.PrintProcessor;
 import threads.SoundProcessor;
 import tools.Const;
 import tools.Tools;
@@ -26,6 +32,7 @@ import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * @author Torsten Löhr
@@ -38,6 +45,8 @@ public class PnlUmbuchen extends DefaultTouchPanel {
     private SoundProcessor sp;
     private Object[] spaltenVorrat = new Object[]{"Vorrat Nr.", "Bezeichnung", "Menge", "Status"};
     private boolean txtSearchChecked;
+    private Printer pageprinter, etiprinter1, etiprinter2;
+    private Form form1, form2;
 
     private Timeline timeline;
 
@@ -385,6 +394,14 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         }
     }
 
+    private void btnLabel1ActionPerformed(ActionEvent e) {
+        print(etiprinter1, form1, Main.getProps().getProperty("etiprinter1"));
+    }
+
+    private void btnLabel2ActionPerformed(ActionEvent e) {
+        print(etiprinter2, form2, Main.getProps().getProperty("etiprinter2"));
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         defaultTouchPanel1 = new DefaultTouchPanel();
@@ -406,6 +423,8 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         btnPrint = new JButton();
         btnToUnbekannt = new JButton();
         btnAusbuchen = new JButton();
+        btnLabel1 = new JButton();
+        btnLabel2 = new JButton();
         btnUmbuchen = new JButton();
         btnSofortUmbuchen = new JToggleButton();
 
@@ -415,8 +434,8 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         //======== defaultTouchPanel1 ========
         {
             defaultTouchPanel1.setLayout(new FormLayout(
-                "276dlu, $lcgap, pref:grow, $lcgap, center:default",
-                "4*(30dlu, $lgap), fill:default:grow, $lgap, default"));
+                    "276dlu, $lcgap, pref:grow, $lcgap, center:default",
+                    "4*(30dlu, $lgap), fill:default:grow, $lgap, default"));
 
             //---- txtSearch ----
             txtSearch.setFont(new Font("sansserif", Font.BOLD, 24));
@@ -431,6 +450,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                 public void focusGained(FocusEvent e) {
                     txtSearchFocusGained(e);
                 }
+
                 @Override
                 public void focusLost(FocusEvent e) {
                     txtSearchFocusLost(e);
@@ -581,6 +601,36 @@ public class PnlUmbuchen extends DefaultTouchPanel {
                     }
                 });
                 panel2.add(btnAusbuchen);
+
+                //---- btnLabel1 ----
+                btnLabel1.setToolTipText("Logbuch drucken");
+                btnLabel1.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/labelprinter2.png")));
+                btnLabel1.setText("1");
+                btnLabel1.setHorizontalTextPosition(SwingConstants.CENTER);
+                btnLabel1.setForeground(Color.cyan);
+                btnLabel1.setFont(new Font("SansSerif", Font.BOLD, 24));
+                btnLabel1.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        btnLabel1ActionPerformed(e);
+                    }
+                });
+                panel2.add(btnLabel1);
+
+                //---- btnLabel2 ----
+                btnLabel2.setToolTipText("Logbuch drucken");
+                btnLabel2.setIcon(new ImageIcon(getClass().getResource("/artwork/32x32/labelprinter2.png")));
+                btnLabel2.setText("2");
+                btnLabel2.setHorizontalTextPosition(SwingConstants.CENTER);
+                btnLabel2.setForeground(Color.yellow);
+                btnLabel2.setFont(new Font("SansSerif", Font.BOLD, 24));
+                btnLabel2.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        btnLabel2ActionPerformed(e);
+                    }
+                });
+                panel2.add(btnLabel2);
             }
             defaultTouchPanel1.add(panel2, CC.xy(5, 9));
 
@@ -612,6 +662,24 @@ public class PnlUmbuchen extends DefaultTouchPanel {
     }
 
 
+    private void print(Printer printer, Form form, String printername) {
+
+        java.util.List<PrintListElement> printList = new ArrayList(tblVorrat.getRowCount());
+        PrintProcessor pp = ((FrmDesktop) Main.mainframe).getPrintProcessor();
+
+        int[] rows = tblVorrat.getSelectedRows();
+
+        for (int r = 0; r < rows.length; r++) {
+            int row = tblVorrat.convertRowIndexToModel(rows[r]);
+            Stock stock = ((StockTableModel) tblVorrat.getModel()).getVorrat(row);
+            printList.add(new PrintListElement(stock, printer, form, printername));
+        }
+
+        Collections.sort(printList); // Sortieren nach den PrimaryKeys
+        pp.addPrintJobs(printList);
+
+    }
+
     private void myInit() {
         cmbLager.setModel(tools.Tools.newComboboxModel(LagerTools.getAll()));
         cmbLager.setSelectedIndex(Integer.parseInt(Main.getProps().getProperty("touch" + MODULENUMBER + "lager")));
@@ -622,6 +690,13 @@ public class PnlUmbuchen extends DefaultTouchPanel {
         txtSearch.requestFocus();
         btnSofortUmbuchen.setSelected(true);
         cbZombieRevive.setSelected(true);
+
+        pageprinter = Main.printers.getPrinters().get("pageprinter");
+        etiprinter1 = Main.printers.getPrinters().get(Main.getProps().getProperty("etitype1"));
+        etiprinter2 = Main.printers.getPrinters().get(Main.getProps().getProperty("etitype2"));
+
+        form1 = etiprinter1.getForms().get(Main.getProps().getProperty("etiform1"));
+        form2 = etiprinter2.getForms().get(Main.getProps().getProperty("etiform2"));
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
@@ -644,6 +719,8 @@ public class PnlUmbuchen extends DefaultTouchPanel {
     private JButton btnPrint;
     private JButton btnToUnbekannt;
     private JButton btnAusbuchen;
+    private JButton btnLabel1;
+    private JButton btnLabel2;
     private JButton btnUmbuchen;
     private JToggleButton btnSofortUmbuchen;
     // JFormDesigner - End of variables declaration  //GEN-END:variables

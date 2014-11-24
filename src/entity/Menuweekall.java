@@ -60,9 +60,9 @@ public class Menuweekall implements Comparable<Menuweekall> {
         return menuweeks;
     }
 
-//    @Version
-//    @Column(name = "version")
-//    private Long version;
+    @Version
+    @Column(name = "version")
+    private Long version;
 
     @Override
     public boolean equals(Object o) {
@@ -89,6 +89,6 @@ public class Menuweekall implements Comparable<Menuweekall> {
 
     @Override
     public int compareTo(Menuweekall o) {
-        return week.compareTo(o.getWeek());
+        return week.compareTo(o.getWeek()) * -1;
     }
 }

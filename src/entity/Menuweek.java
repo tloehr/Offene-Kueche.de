@@ -10,7 +10,7 @@ import java.util.*;
  */
 @Entity
 @Table(name = "menuweek")
-public class Menuweek {
+public class Menuweek implements Cloneable {
     @Id
     @Column(name = "id", nullable = false, insertable = true, updatable = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,7 +61,7 @@ public class Menuweek {
     }
 
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "menuweek2customer", joinColumns =
     @JoinColumn(name = "menuweekid"), inverseJoinColumns =
     @JoinColumn(name = "customerid"))
@@ -70,18 +70,6 @@ public class Menuweek {
     public Set<Customer> getCustomers() {
         return customers;
     }
-
-
-//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JoinTable(name = "menuweek2menu", joinColumns =
-//    @JoinColumn(name = "menuweekid"), inverseJoinColumns =
-//    @JoinColumn(name = "menuid"))
-//    @OrderBy(value="date asc")
-//    private List<Menu> menus;
-//
-//    public List<Menu> getMenus() {
-//        return menus;
-//    }
 
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "menuweek")
@@ -173,13 +161,17 @@ public class Menuweek {
         return result;
     }
 
-//    @Override
-//    public Object clone() throws CloneNotSupportedException {
-//
-//        Menuweek clone = new Menuweek(menuweekall, recipefeature);
-////        Collections.copy(clone.getMenus(), menus);
-//
-//
-//        return clone;
-//    }
+
+    @Override
+    public Menuweek clone() {
+
+        Menuweek clone = new Menuweek(menuweekall, recipefeature);
+
+        clone.getMenuweek2menus().clear();
+        for (int weekday = 0; weekday < 7; weekday++) {
+            clone.getMenuweek2menus().add(new Menuweek2Menu(menuweek2menus.get(weekday).getMenu(), clone, new LocalDate(menuweekall.getWeek()).plusDays(weekday)));
+        }
+
+        return clone;
+    }
 }

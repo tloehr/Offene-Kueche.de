@@ -5,19 +5,28 @@
 package desktop.menu;
 
 import Main.Main;
+import com.jidesoft.swing.JidePopupMenu;
+import com.toedter.calendar.JCalendar;
 import entity.*;
 import org.apache.commons.collections.Closure;
 import org.joda.time.LocalDate;
+import tools.GUITools;
+import tools.PopupPanel;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
+import javax.persistence.OptimisticLockException;
+import javax.persistence.Query;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -36,24 +45,6 @@ public class FrmMenu extends JInternalFrame {
         pack();
     }
 
-    private void addMenu() {
-        Menuweek myMenuweek = null;
-        EntityManager em = Main.getEMF().createEntityManager();
-        try {
-            em.getTransaction().begin();
-            myMenuweek = em.merge(new Menuweek((Menuweekall) cmbWeeks.getSelectedItem(), RecipeFeatureTools.getAll().get(0)));
-            em.getTransaction().commit();
-        } catch (Exception exc) {
-            em.getTransaction().rollback();
-            Main.fatal(exc.getMessage());
-        } finally {
-            em.close();
-            //                    notifyCaller();
-        }
-
-        ((Menuweekall) cmbWeeks.getSelectedItem()).getMenuweeks().add(myMenuweek);
-        createThePanels((Menuweekall) cmbWeeks.getSelectedItem());
-    }
 //
 //    public void deleteMenu(final Menuweek menuweek, final PnlMenuWeek pnlMenuWeek) {
 //        menus.remove(menuweek);
@@ -127,8 +118,6 @@ public class FrmMenu extends JInternalFrame {
                             if (o == null) return;
 
                             if (o instanceof Menuweek2Menu) {
-
-
                                 EntityManager em = Main.getEMF().createEntityManager();
                                 Menuweek2Menu myMenuweek2Menu = em.merge((Menuweek2Menu) o);
                                 Menuweekall myMenuweekall = em.merge(myMenuweek2Menu.getMenuweek().getMenuweekall());
@@ -140,20 +129,40 @@ public class FrmMenu extends JInternalFrame {
                                 cmbWeeks.setModel(Tools.newComboboxModel(listAll));
                                 cmbWeeks.setSelectedIndex(index);
 
-
-
-////                                int weekday = new LocalDate(myMenu.getDate()).getDayOfWeek() - 1;
-//                                for (final Menuweek m1 : menuweekall.getMenuweeks()) {
-//                                    for (int index = 0; index < m1.getMenuweek2menus().size(); index++) {
-//                                        if (menuweek.getMenuweek2menus().get(index).getMenu().equals(myMenuweek2Menu.getMenu())) {
-//                                            menuweek.getMenuweek2menus().set(index, myMenuweek2Menu);
-//                                        }
-//                                    }
-//                                }
                                 createThePanels(myMenuweekall);
                             } else if (o instanceof Menuweek) {
-                                //Menuweek myMenuweek = (Menuweek) o;
-                                return;
+
+                                EntityManager em = Main.getEMF().createEntityManager();
+
+                                // Menuweekall myMenuweekall = em.find(Menuweekall.class, ((Menuweek) o).getMenuweekall().getId());
+
+                                Menuweek myMenuweek = em.merge((Menuweek) o);
+                                Menuweekall myMenuweekall = myMenuweek.getMenuweekall();
+                                em.refresh(myMenuweekall);
+                                em.close();
+
+                                int index = cmbWeeks.getSelectedIndex();
+                                listAll.set(index, myMenuweekall);
+                                cmbWeeks.setModel(Tools.newComboboxModel(listAll));
+                                cmbWeeks.setSelectedIndex(index);
+
+                                createThePanels(myMenuweekall);
+
+                            } else if (o instanceof Menuweekall) {
+
+                                EntityManager em = Main.getEMF().createEntityManager();
+
+                                Menuweekall myMenuweekall = em.merge((Menuweekall) o);
+                                em.refresh(myMenuweekall);
+                                em.close();
+
+                                int index = cmbWeeks.getSelectedIndex();
+                                listAll.set(index, myMenuweekall);
+                                cmbWeeks.setModel(Tools.newComboboxModel(listAll));
+                                cmbWeeks.setSelectedIndex(index);
+
+                                createThePanels(myMenuweekall);
+
                             } else {
                                 return;
                             }
@@ -178,8 +187,103 @@ public class FrmMenu extends JInternalFrame {
 
     }
 
-    private void btnAddWeekmenuActionPerformed(ActionEvent e) {
-        addMenu();
+    private boolean createNewMenuweekall(Date nextWeek) {
+        boolean success = false;
+        EntityManager em = Main.getEMF().createEntityManager();
+        try {
+            em.getTransaction().begin();
+
+            // check if there is already a menuweekall for that week created in the meantime
+            Query conflictQuery = em.createQuery("SELECT c FROM Menuweekall c WHERE c.week = :week");
+            conflictQuery.setParameter("week", nextWeek);
+            ArrayList<Menuweekall> listConflict = new ArrayList<Menuweekall>(conflictQuery.getResultList());
+
+            if (!listConflict.isEmpty()) {
+                throw new OptimisticLockException("week for 'Menuweekall' already taken");
+            }
+
+            Menuweekall m = em.merge(new Menuweekall(nextWeek, RecipeFeatureTools.getAll().get(0)));
+            em.getTransaction().commit();
+            success = true;
+            listAll.add(m);
+            Collections.sort(listAll);
+        } catch (OptimisticLockException ole) {
+            em.getTransaction().rollback();
+            Main.warn(ole);
+        } catch (Exception exc) {
+            Main.debug(exc.getMessage());
+            em.getTransaction().rollback();
+            Main.fatal(exc.getMessage());
+        } finally {
+            em.close();
+        }
+        return success;
+    }
+
+    private void btnAddWeekmenuAllActionPerformed(ActionEvent e) {
+        final Date nextDate;
+        if (!listAll.isEmpty()) {
+            nextDate = new LocalDate(listAll.get(0).getWeek()).plusWeeks(1).dayOfWeek().withMinimumValue().toDate();
+        } else {
+            nextDate = new LocalDate().dayOfWeek().withMinimumValue().toDate();
+        }
+
+
+        JidePopupMenu jMenu = new JidePopupMenu();
+        JMenuItem miNext = new JMenuItem("Nächsten Plan erstellen: " + DateFormat.getDateInstance().format(nextDate));
+        miNext.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        JMenuItem miSelect = new JMenuItem("Woche wählen und Plan erstellen");
+        miSelect.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        jMenu.add(miNext);
+        jMenu.add(miSelect);
+
+        miNext.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!createNewMenuweekall(nextDate)) {
+                    listAll.clear();
+                    initFrame();
+                }
+            }
+        });
+
+        miSelect.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                final JCalendar jdc = new JCalendar();
+                PopupPanel pnl = new PopupPanel() {
+                    @Override
+                    public Object getResult() {
+                        return jdc.getDate();
+                    }
+
+                    @Override
+                    public void setStartFocus() {
+                        jdc.requestFocus();
+                    }
+
+                    @Override
+                    public boolean isSaveOK() {
+                        return true;
+                    }
+                };
+                pnl.add(jdc);
+
+                GUITools.showPopup(GUITools.createPanelPopup(pnl, new Closure() {
+                    @Override
+                    public void execute(Object o) {
+                        if (!createNewMenuweekall(new LocalDate(jdc.getDate()).dayOfWeek().withMinimumValue().toDate())) {
+                            listAll.clear();
+                            initFrame();
+                        }
+                    }
+                }, btnAddWeekmenuAll), SwingUtilities.SOUTH_WEST);
+            }
+        });
+
+
+        jMenu.show(btnAddWeekmenuAll, 0, btnAddWeekmenuAll.getPreferredSize().height);
     }
 
 
@@ -187,7 +291,7 @@ public class FrmMenu extends JInternalFrame {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         panel1 = new JPanel();
         cmbWeeks = new JComboBox<Menuweekall>();
-        btnAddWeekmenu = new JButton();
+        btnAddWeekmenuAll = new JButton();
 
         //======== this ========
         setVisible(true);
@@ -212,16 +316,16 @@ public class FrmMenu extends JInternalFrame {
             });
             panel1.add(cmbWeeks);
 
-            //---- btnAddWeekmenu ----
-            btnAddWeekmenu.setText(null);
-            btnAddWeekmenu.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit_add.png")));
-            btnAddWeekmenu.addActionListener(new ActionListener() {
+            //---- btnAddWeekmenuAll ----
+            btnAddWeekmenuAll.setText(null);
+            btnAddWeekmenuAll.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit_add.png")));
+            btnAddWeekmenuAll.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    btnAddWeekmenuActionPerformed(e);
+                    btnAddWeekmenuAllActionPerformed(e);
                 }
             });
-            panel1.add(btnAddWeekmenu);
+            panel1.add(btnAddWeekmenuAll);
         }
         contentPane.add(panel1, BorderLayout.NORTH);
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
@@ -230,6 +334,6 @@ public class FrmMenu extends JInternalFrame {
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     private JPanel panel1;
     private JComboBox<Menuweekall> cmbWeeks;
-    private JButton btnAddWeekmenu;
+    private JButton btnAddWeekmenuAll;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

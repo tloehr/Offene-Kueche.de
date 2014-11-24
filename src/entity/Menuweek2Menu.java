@@ -74,6 +74,12 @@ public class Menuweek2Menu {
         this.date = date.toDateTimeAtStartOfDay().toDate();
     }
 
+    public Menuweek2Menu(Menu menu, Menuweek menuweek, LocalDate date) {
+            this.menu = menu;
+            this.menuweek = menuweek;
+            this.date = date.toDateTimeAtStartOfDay().toDate();
+        }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

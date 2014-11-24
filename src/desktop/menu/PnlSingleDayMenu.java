@@ -4,6 +4,7 @@ import Main.Main;
 import com.jidesoft.popup.JidePopup;
 import com.jidesoft.swing.DefaultOverlayable;
 import com.jidesoft.swing.JidePopupMenu;
+import com.jidesoft.swing.OverlayableUtils;
 import entity.Menu;
 import entity.*;
 import org.apache.commons.collections.Closure;
@@ -30,7 +31,7 @@ import java.util.*;
  */
 public class PnlSingleDayMenu extends JPanel {
 
-    private Closure changeAction;
+//    private Closure changeAction;
 
     private final HashMap<LocalDate, String> holidays;
     private final PSDChangeListener psdChangeListener;
@@ -95,8 +96,8 @@ public class PnlSingleDayMenu extends JPanel {
 
             em.getTransaction().commit();
         } catch (OptimisticLockException ole) {
-            Main.warn(ole);
             em.getTransaction().rollback();
+            Main.warn(ole);
         } catch (Exception exc) {
             Main.error(exc.getMessage());
             em.getTransaction().rollback();
@@ -112,30 +113,31 @@ public class PnlSingleDayMenu extends JPanel {
     private Menuweek2Menu mergeChanges(Menu menu1) {
         Menuweek2Menu myMenuweek2Menu = null;
         EntityManager em = Main.getEMF().createEntityManager();
+        Menu editedMenu = null;
         try {
             em.getTransaction().begin();
 
-            Menu menu = em.merge(menu1);
+            editedMenu = em.merge(menu1);
             myMenuweek2Menu = em.merge(menuweek2Menu);
 
-            em.lock(menu, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+            em.lock(editedMenu, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
 
-            myMenuweek2Menu.setMenu(menu);
-            menu.getMenu2menuweeks().remove(menuweek2Menu);
-            menu.getMenu2menuweeks().add(myMenuweek2Menu);
+            myMenuweek2Menu.setMenu(editedMenu);
+            editedMenu.getMenu2menuweeks().remove(menuweek2Menu);
+            editedMenu.getMenu2menuweeks().add(myMenuweek2Menu);
 
             em.getTransaction().commit();
 
         } catch (OptimisticLockException ole) {
-            Main.warn(ole);
             em.getTransaction().rollback();
+            Main.warn(ole);
         } catch (Exception exc) {
             Main.error(exc.getMessage());
             em.getTransaction().rollback();
             Main.fatal(exc.getMessage());
         } finally {
             em.close();
-            changeAction.execute(myMenuweek2Menu);
+            psdChangeListener.menuEdited(new PSDChangeEvent(this, editedMenu, myMenuweek2Menu));
         }
         return myMenuweek2Menu;
     }
@@ -160,8 +162,8 @@ public class PnlSingleDayMenu extends JPanel {
         JLabel lblDate = new JLabel();
         lblDate.setFont(new Font("SansSerif", Font.BOLD, 18));
         lblDate.setText(sdf.format(menuweek2Menu.getDate()) +
-                (holidays.containsKey(new LocalDate(menuweek2Menu.getDate())) ? " (" + holidays.get(new LocalDate(menuweek2Menu.getDate())) + ")" : "") +
-                " #" + menuweek2Menu.getMenu().getId());
+                (holidays.containsKey(new LocalDate(menuweek2Menu.getDate())) ? " (" + holidays.get(new LocalDate(menuweek2Menu.getDate())) + ")" : ""));
+
         lblDate.setForeground(new LocalDate(menuweek2Menu.getDate()).getDayOfWeek() == DateTimeConstants.SATURDAY || new LocalDate(menuweek2Menu.getDate()).getDayOfWeek() == DateTimeConstants.SUNDAY || holidays.containsKey(new LocalDate(menuweek2Menu.getDate())) ? Color.RED : Color.black);
         lblDate.setHorizontalTextPosition(SwingConstants.CENTER);
 
@@ -240,7 +242,13 @@ public class PnlSingleDayMenu extends JPanel {
             }
         }));
 
-        searcherWholeMenu = new JTextField();
+        searcherWholeMenu = new JTextField() {
+            @Override
+            public void repaint(long tm, int x, int y, int width, int height) {
+                super.repaint(tm, x, y, width, height);
+                OverlayableUtils.repaintOverlayable(this);
+            }
+        };
         searcherWholeMenu.setFont(new Font("SansSerif", Font.PLAIN, 18));
         searcherWholeMenu.setText(menuweek2Menu.getMenu().getText());
 
@@ -263,12 +271,20 @@ public class PnlSingleDayMenu extends JPanel {
         lblOverlay.setFont(new Font("SansSerif", Font.BOLD, 10));
         ovrComment.addOverlayComponent(lblOverlay, DefaultOverlayable.SOUTH_EAST);
 
-        btnStock = new JButton(menuweek2Menu.getMenu().getStocks().isEmpty() ? "" : Integer.toString(menuweek2Menu.getMenu().getStocks().size()));
-        btnStock.setIcon(menuweek2Menu.getMenu().getStocks().isEmpty() ? Const.icon24blackBadge : Const.icon24whiteBadge);
+
+        btnStock = new JButton() {
+            @Override
+            public void repaint(long tm, int x, int y, int width, int height) {
+                super.repaint(tm, x, y, width, height);
+                OverlayableUtils.repaintOverlayable(this);
+            }
+        };
+        btnStock.setText(menuweek2Menu.getMenu().getStocks().isEmpty() ? "leer" : Integer.toString(menuweek2Menu.getMenu().getStocks().size()) + " Prod. zugeordnet");
+//        btnStock.setIcon(menuweek2Menu.getMenu().getStocks().isEmpty() ? Const.icon24blackBadge : Const.icon24whiteBadge);
         btnStock.setFont(new Font("SansSerif", Font.BOLD, 18));
-        btnStock.setForeground(Color.ORANGE);
-        btnStock.setHorizontalTextPosition(SwingConstants.CENTER);
-        btnStock.setVerticalTextPosition(SwingConstants.CENTER);
+//        btnStock.setForeground(Color.ORANGE);
+//        btnStock.setHorizontalTextPosition(SwingConstants.CENTER);
+//        btnStock.setVerticalTextPosition(SwingConstants.CENTER);
         btnStock.setToolTipText(MenuTools.getStocksAsHTMLList(menuweek2Menu.getMenu()));
 
         btnStock.addActionListener(new ActionListener() {
@@ -302,6 +318,15 @@ public class PnlSingleDayMenu extends JPanel {
                 GUITools.showPopup(popupStocks, SwingUtilities.CENTER);
             }
         });
+
+
+//        DefaultOverlayable ovrBadge = new DefaultOverlayable(btnStock);
+//        JLabel lblBadge = new JLabel(menuweek2Menu.getMenu().getStocks().isEmpty() ? "" : Integer.toString(menuweek2Menu.getMenu().getStocks().size()), Const.icon24ledRedOn, SwingConstants.CENTER);
+//        lblBadge.setHorizontalTextPosition(SwingConstants.CENTER);
+//        lblBadge.setVerticalTextPosition(SwingConstants.CENTER);
+//        lblBadge.setFont(new Font("SansSerif", Font.BOLD, 12));
+//        ovrBadge.addOverlayComponent(lblBadge, DefaultOverlayable.NORTH_EAST);
+
 
         btnRedToGreen = new JButton(Const.icon24ledGreenOn4);
         btnRedToGreen.addActionListener(new ActionListener() {
@@ -404,33 +429,39 @@ public class PnlSingleDayMenu extends JPanel {
             setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
             dlm = new DefaultListModel<Recipes>();
 
-            addComponentListener(new ComponentAdapter() {
-                @Override
-                public void componentResized(ComponentEvent e) {
-                    super.componentResized(e);
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            revalidate();
-                            repaint();
-                        }
-                    });
-                }
+//            addComponentListener(new ComponentAdapter() {
+//                @Override
+//                public void componentResized(ComponentEvent e) {
+//                    super.componentResized(e);
+//                    SwingUtilities.invokeLater(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            revalidate();
+//                            repaint();
+//                        }
+//                    });
+//                }
+//
+//                @Override
+//                public void componentMoved(ComponentEvent e) {
+//                    super.componentMoved(e);
+//                    SwingUtilities.invokeLater(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            revalidate();
+//                            repaint();
+//                        }
+//                    });
+//                }
+//            });
 
+            searcher = new JTextField(12) {
                 @Override
-                public void componentMoved(ComponentEvent e) {
-                    super.componentMoved(e);
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            revalidate();
-                            repaint();
-                        }
-                    });
+                public void repaint(long tm, int x, int y, int width, int height) {
+                    super.repaint(tm, x, y, width, height);
+                    OverlayableUtils.repaintOverlayable(this);
                 }
-            });
-
-            searcher = new JTextField(12);
+            };
             searcher.setFocusable(true);
             DefaultOverlayable ovrComment = new DefaultOverlayable(searcher);
             JLabel lblOverlay = new JLabel(overlay);
@@ -496,7 +527,9 @@ public class PnlSingleDayMenu extends JPanel {
                 public void actionPerformed(ActionEvent e) {
                     JidePopupMenu jMenu = new JidePopupMenu();
                     JMenuItem miOn = new JMenuItem("Speichern", Const.icon24ledGreenOn);
+                    miOn.setFont(new Font("SansSerif", Font.PLAIN, 18));
                     JMenuItem miOff = new JMenuItem("Leer", Const.icon24ledGreenOff);
+                    miOff.setFont(new Font("SansSerif", Font.PLAIN, 18));
                     jMenu.add(miOn);
                     jMenu.add(miOff);
 
@@ -765,7 +798,7 @@ public class PnlSingleDayMenu extends JPanel {
         if (btnRedToGreen != null ? !btnRedToGreen.equals(that.btnRedToGreen) : that.btnRedToGreen != null)
             return false;
         if (btnStock != null ? !btnStock.equals(that.btnStock) : that.btnStock != null) return false;
-        if (changeAction != null ? !changeAction.equals(that.changeAction) : that.changeAction != null) return false;
+
         if (holidays != null ? !holidays.equals(that.holidays) : that.holidays != null) return false;
         if (keyboardFocusManager != null ? !keyboardFocusManager.equals(that.keyboardFocusManager) : that.keyboardFocusManager != null)
             return false;
@@ -782,8 +815,7 @@ public class PnlSingleDayMenu extends JPanel {
 
     @Override
     public int hashCode() {
-        int result = changeAction != null ? changeAction.hashCode() : 0;
-        result = 31 * result + (holidays != null ? holidays.hashCode() : 0);
+        int result = holidays != null ? holidays.hashCode() : 0;
         result = 31 * result + (psdChangeListener != null ? psdChangeListener.hashCode() : 0);
         result = 31 * result + (searcherWholeMenu != null ? searcherWholeMenu.hashCode() : 0);
         result = 31 * result + (popupStocks != null ? popupStocks.hashCode() : 0);
