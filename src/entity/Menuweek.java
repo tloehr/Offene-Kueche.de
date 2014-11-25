@@ -169,7 +169,13 @@ public class Menuweek implements Cloneable {
 
         clone.getMenuweek2menus().clear();
         for (int weekday = 0; weekday < 7; weekday++) {
-            clone.getMenuweek2menus().add(new Menuweek2Menu(menuweek2menus.get(weekday).getMenu(), clone, new LocalDate(menuweekall.getWeek()).plusDays(weekday)));
+            Menu clonedMenu = menuweek2menus.get(weekday).getMenu() == null ? null : menuweek2menus.get(weekday).getMenu().clone();
+            clone.getMenuweek2menus().add(new Menuweek2Menu(clonedMenu, clone, new LocalDate(menuweekall.getWeek()).plusDays(weekday)));
+        }
+
+        clone.getCustomers().clear();
+        for (Customer customer : customers) {
+            clone.getCustomers().add(customer);
         }
 
         return clone;

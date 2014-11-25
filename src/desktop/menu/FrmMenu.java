@@ -163,6 +163,14 @@ public class FrmMenu extends JInternalFrame {
 
                                 createThePanels(myMenuweekall);
 
+                            } else if (o instanceof PSDChangeEvent) {
+
+                                for (Component comp : pnlMain.getComponents()) {
+                                    if (comp instanceof PnlMenuWeek) {
+                                        ((PnlMenuWeek) comp).notifyMeAbout((PSDChangeEvent) o);
+                                    }
+                                }
+
                             } else {
                                 return;
                             }
@@ -242,8 +250,8 @@ public class FrmMenu extends JInternalFrame {
             public void actionPerformed(ActionEvent e) {
                 if (!createNewMenuweekall(nextDate)) {
                     listAll.clear();
-                    initFrame();
                 }
+                initFrame();
             }
         });
 
@@ -275,8 +283,8 @@ public class FrmMenu extends JInternalFrame {
                     public void execute(Object o) {
                         if (!createNewMenuweekall(new LocalDate(jdc.getDate()).dayOfWeek().withMinimumValue().toDate())) {
                             listAll.clear();
-                            initFrame();
                         }
+                        initFrame();
                     }
                 }, btnAddWeekmenuAll), SwingUtilities.SOUTH_WEST);
             }

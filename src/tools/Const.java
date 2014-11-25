@@ -132,6 +132,10 @@ public class Const {
     public static final int STOFFART = 14;
 
 
+    public static final Icon icon16yellow = new ImageIcon(Const.class.getResource("/artwork/16x16/yellowled.png"));
+    public static final Icon icon16green = new ImageIcon(Const.class.getResource("/artwork/16x16/greenled.png"));
+    public static final Icon icon16attach = new ImageIcon(Const.class.getResource("/artwork/16x16/attach.png"));
+
     public static final Icon icon24add = new ImageIcon(Const.class.getResource("/artwork/24x24/edit_add.png"));
     public static final Icon icon24apply = new ImageIcon(Const.class.getResource("/artwork/24x24/apply.png"));
     public static final Icon icon24ledBlueOff = new ImageIcon(Const.class.getResource("/artwork/24x24/leddarkblue.png"));

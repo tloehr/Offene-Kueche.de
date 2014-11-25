@@ -2,18 +2,20 @@ package entity;
 
 import tools.Tools;
 
+import java.util.Set;
+
 /**
  * Created by tloehr on 11.11.14.
  */
 public class MenuTools {
 
-    public static String getStocksAsHTMLList(Menu menu) {
+    public static String getStocksAsHTMLList(Set<Stock> stocks) {
 
-        if (menu.getStocks().isEmpty()) return "";
+        if (stocks.isEmpty()) return "";
 
         String html = "<html><ul>";
 
-        for (Stock stock : menu.getStocks()) {
+        for (Stock stock : stocks) {
             html += "<li>" + stock.getId() + " " + Tools.left(stock.getProdukt().getBezeichnung(), 30) + "</li>";
         }
 

@@ -48,6 +48,7 @@ public class Menu implements Cloneable {
 
     public void setStarter(Recipes starter) {
         this.starter = starter;
+        starterStocks.clear();
     }
 
     @JoinColumn(name = "mainid", referencedColumnName = "id")
@@ -60,6 +61,7 @@ public class Menu implements Cloneable {
 
     public void setMaincourse(Recipes maincourse) {
         this.maincourse = maincourse;
+        mainStocks.clear();
     }
 
     @JoinColumn(name = "sauceid", referencedColumnName = "id")
@@ -72,6 +74,7 @@ public class Menu implements Cloneable {
 
     public void setSauce(Recipes sauce) {
         this.sauce = sauce;
+        sauceStocks.clear();
     }
 
     @JoinColumn(name = "sidevegid", referencedColumnName = "id")
@@ -84,6 +87,7 @@ public class Menu implements Cloneable {
 
     public void setSideveggie(Recipes sideveggie) {
         this.sideveggie = sideveggie;
+        sideveggieStocks.clear();
     }
 
     @JoinColumn(name = "sidedishid", referencedColumnName = "id")
@@ -96,6 +100,7 @@ public class Menu implements Cloneable {
 
     public void setSidedish(Recipes sidedish) {
         this.sidedish = sidedish;
+        sidedishStocks.clear();
     }
 
     @JoinColumn(name = "dessertid", referencedColumnName = "id")
@@ -108,26 +113,82 @@ public class Menu implements Cloneable {
 
     public void setDessert(Recipes dessert) {
         this.dessert = dessert;
+        dessertStocks.clear();
     }
 
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "stock2menu", joinColumns =
+    @JoinTable(name = "stock2menustarter", joinColumns =
     @JoinColumn(name = "menuid"), inverseJoinColumns =
     @JoinColumn(name = "stockid"))
-    private Set<Stock> stocks;
+    private Set<Stock> starterStocks;
 
-    public Set<Stock> getStocks() {
-        return stocks;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "stock2menumain", joinColumns =
+    @JoinColumn(name = "menuid"), inverseJoinColumns =
+    @JoinColumn(name = "stockid"))
+    private Set<Stock> mainStocks;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "stock2menusauce", joinColumns =
+    @JoinColumn(name = "menuid"), inverseJoinColumns =
+    @JoinColumn(name = "stockid"))
+    private Set<Stock> sauceStocks;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "stock2menusidedv", joinColumns =
+    @JoinColumn(name = "menuid"), inverseJoinColumns =
+    @JoinColumn(name = "stockid"))
+    private Set<Stock> sideveggieStocks;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "stock2menusided", joinColumns =
+    @JoinColumn(name = "menuid"), inverseJoinColumns =
+    @JoinColumn(name = "stockid"))
+    private Set<Stock> sidedishStocks;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "stock2menudessert", joinColumns =
+    @JoinColumn(name = "menuid"), inverseJoinColumns =
+    @JoinColumn(name = "stockid"))
+    private Set<Stock> dessertStocks;
+
+    public Set<Stock> getStarterStocks() {
+        return starterStocks;
+    }
+
+    public Set<Stock> getMainStocks() {
+        return mainStocks;
+    }
+
+    public Set<Stock> getSauceStocks() {
+        return sauceStocks;
+    }
+
+    public Set<Stock> getSideveggieStocks() {
+        return sideveggieStocks;
+    }
+
+    public Set<Stock> getSidedishStocks() {
+        return sidedishStocks;
+    }
+
+    public Set<Stock> getDessertStocks() {
+        return dessertStocks;
     }
 
     public Menu() {
-        stocks = new HashSet<Stock>();
+        starterStocks = new HashSet<Stock>();
+        mainStocks = new HashSet<Stock>();
+        sauceStocks = new HashSet<Stock>();
+        sideveggieStocks = new HashSet<Stock>();
+        sidedishStocks = new HashSet<Stock>();
+        dessertStocks = new HashSet<Stock>();
         menu2menuweeks = new ArrayList<Menuweek2Menu>();
     }
 
 
-    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Menuweek2Menu> menu2menuweeks;
 
     public List<Menuweek2Menu> getMenu2menuweeks() {
@@ -191,6 +252,36 @@ public class Menu implements Cloneable {
         myClone.setSidedish(sidedish);
         myClone.setDessert(dessert);
         myClone.setText(text);
+
+        myClone.getStarterStocks().clear();
+        for (Stock stock : starterStocks) {
+            myClone.getStarterStocks().add(stock);
+        }
+
+        myClone.getStarterStocks().clear();
+        for (Stock stock : starterStocks) {
+            myClone.getStarterStocks().add(stock);
+        }
+
+        myClone.getStarterStocks().clear();
+        for (Stock stock : starterStocks) {
+            myClone.getStarterStocks().add(stock);
+        }
+
+        myClone.getStarterStocks().clear();
+        for (Stock stock : starterStocks) {
+            myClone.getStarterStocks().add(stock);
+        }
+
+        myClone.getStarterStocks().clear();
+        for (Stock stock : starterStocks) {
+            myClone.getStarterStocks().add(stock);
+        }
+
+        myClone.getStarterStocks().clear();
+        for (Stock stock : starterStocks) {
+            myClone.getStarterStocks().add(stock);
+        }
 
         return myClone;
     }
