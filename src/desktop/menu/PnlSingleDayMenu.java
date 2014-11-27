@@ -39,17 +39,12 @@ public class PnlSingleDayMenu extends JPanel {
     private JTextField searcherWholeMenu;
     private JidePopup popupStocks;
     KeyboardFocusManager keyboardFocusManager;
-    //    JButton btnStock;
     private JButton btnEmpty;
-    private JButton btnRedToGreen;
+    //    private JButton btnRedToGreen;
+    private JButton btnCopyTo;
     private Menuweek2Menu menuweek2Menu;
     private ArrayList<MenuBlock> listOfBlocks;
-
-//    public void setMenuweek2Menu(Menuweek2Menu menuweek2Menu) {
-//        this.menuweek2Menu = menuweek2Menu;
-//        initPanel();
-//    }
-//
+    SimpleDateFormat sdf = new SimpleDateFormat("EEEE, d MMM yyyy");
 
     /**
      * updates the display of this single day menu when necessary. NOPs otherwise.
@@ -157,7 +152,6 @@ public class PnlSingleDayMenu extends JPanel {
 
         menuComplete.setLayout(new BoxLayout(menuComplete, BoxLayout.PAGE_AXIS));
 
-        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, d MMM yyyy");
 
         JLabel lblDate = new JLabel();
         lblDate.setFont(new Font("SansSerif", Font.BOLD, 18));
@@ -373,24 +367,86 @@ public class PnlSingleDayMenu extends JPanel {
 //        ovrBadge.addOverlayComponent(lblBadge, DefaultOverlayable.NORTH_EAST);
 
 
-        btnRedToGreen = new JButton(Const.icon24ledGreenOn4);
-        btnRedToGreen.addActionListener(new ActionListener() {
+//        btnRedToGreen = new JButton(Const.icon24ledGreenOn4);
+//        btnRedToGreen.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                for (Component comp : menuLine1.getComponents()) {
+//                    if (comp instanceof MenuBlock) {
+//                        ((MenuBlock) comp).menuitemSave();
+//                    }
+//                }
+//                for (Component comp : menuLine2.getComponents()) {
+//                    if (comp instanceof MenuBlock) {
+//                        ((MenuBlock) comp).menuitemSave();
+//                    }
+//                }
+//            }
+//        });
+
+        btnCopyTo = new JButton(Const.icon24copy);
+        btnCopyTo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                for (Component comp : menuLine1.getComponents()) {
-                    if (comp instanceof MenuBlock) {
-                        ((MenuBlock) comp).menuitemSave();
+
+                JidePopupMenu jMenu = new JidePopupMenu();
+
+                for (final Menuweek menuweek : menuweek2Menu.getMenuweek().getMenuweekall().getMenuweeks()) {
+                    JMenu innerMenu = new JMenu("Speiseplan: " + menuweek.getRecipefeature().getText());
+                    innerMenu.setFont(new Font("SansSerif", Font.PLAIN, 18));
+                    for (final Menuweek2Menu myMenuweek2Menu : menuweek.getMenuweek2menus()) {
+                        JMenuItem mi = new JMenuItem(sdf.format(myMenuweek2Menu.getDate()));
+                        innerMenu.add(mi);
+                        mi.setEnabled(!myMenuweek2Menu.equals(menuweek2Menu));
+                        mi.setFont(new Font("SansSerif", myMenuweek2Menu.getMenu().isEmpty() ? Font.PLAIN : Font.BOLD, 18));
+                        mi.setIcon(myMenuweek2Menu.getMenu().isEmpty() ? null : Const.icon16info);
+                        mi.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                EntityManager em = Main.getEMF().createEntityManager();
+                                Menu oldMenu = null;
+                                Menu replaceMenu = null;
+                                Menuweek2Menu otherMenuweek = null;
+                                try {
+                                    em.getTransaction().begin();
+
+                                    replaceMenu = em.merge(menuweek2Menu.getMenu());
+                                    otherMenuweek = em.merge(myMenuweek2Menu);
+
+                                    oldMenu = em.merge(otherMenuweek.getMenu());
+                                    oldMenu.getMenu2menuweeks().remove(otherMenuweek);
+
+                                    otherMenuweek.setMenu(replaceMenu);
+                                    replaceMenu.getMenu2menuweeks().add(otherMenuweek);
+
+                                    //todo: locking ?
+                                    em.lock(otherMenuweek, LockModeType.OPTIMISTIC);
+                                    em.lock(replaceMenu, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+
+                                    em.getTransaction().commit();
+                                } catch (OptimisticLockException ole) {
+                                    em.getTransaction().rollback();
+                                    Main.warn(ole);
+                                } catch (Exception exc) {
+                                    Main.error(exc.getMessage());
+                                    em.getTransaction().rollback();
+                                    Main.fatal(exc.getMessage());
+                                } finally {
+                                    em.close();
+                                    psdChangeListener.menuReplaced(new PSDChangeEvent(this, oldMenu, replaceMenu, otherMenuweek));
+                                }
+                            }
+                        });
                     }
+                    jMenu.add(innerMenu);
                 }
-                for (Component comp : menuLine2.getComponents()) {
-                    if (comp instanceof MenuBlock) {
-                        ((MenuBlock) comp).menuitemSave();
-                    }
-                }
+                jMenu.show(btnCopyTo, 0, btnCopyTo.getPreferredSize().height);
             }
         });
+        btnCopyTo.setEnabled(!menuweek2Menu.getMenu().isEmpty());
 
-        btnEmpty = new JButton(Const.icon24ledGreenOff4);
+
+        btnEmpty = new JButton(Const.icon24clear);
         btnEmpty.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -402,9 +458,8 @@ public class PnlSingleDayMenu extends JPanel {
 
         menuLine3.add(ovrComment);
         menuLine3.add(getMenuFindButton());
-//        menuLine3.add(btnStock);
+        menuLine3.add(btnCopyTo);
         menuLine3.add(btnEmpty);
-        menuLine3.add(btnRedToGreen);
 
         menuComplete.add(menuLine0);
         menuComplete.add(menuLine1);
@@ -446,8 +501,6 @@ public class PnlSingleDayMenu extends JPanel {
                         }
                     }, btn), SwingUtilities.SOUTH);
                 }
-
-
             }
         });
 
@@ -583,8 +636,10 @@ public class PnlSingleDayMenu extends JPanel {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             menuitemSave();
+                            keyboardFocusManager.focusNextComponent();
                         }
                     });
+                    miOn.setEnabled(recipe != null && recipe.getId() == 0l);
 
                     miOff.addActionListener(new ActionListener() {
                         @Override
@@ -592,6 +647,7 @@ public class PnlSingleDayMenu extends JPanel {
                             setRecipe(null);
                         }
                     });
+                    miOff.setEnabled(recipe != null && recipe.getId() != 0l);
 
                     miStocks.addActionListener(new ActionListener() {
                         @Override
@@ -599,6 +655,7 @@ public class PnlSingleDayMenu extends JPanel {
                             menuitemStock();
                         }
                     });
+                    miStocks.setEnabled(recipe != null && recipe.getId() != 0l);
 
                     jMenu.show(btnMenu, 0, btnMenu.getPreferredSize().height);
                 }
@@ -607,17 +664,22 @@ public class PnlSingleDayMenu extends JPanel {
                 @Override
                 public void keyPressed(KeyEvent e) {
                     super.keyPressed(e);
-                    if (e.getKeyCode() == KeyEvent.VK_ENTER)
+                    if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                         menuitemSave();
+                        keyboardFocusManager.focusNextComponent();
+                    }
                 }
             });
 
-            ovrBadge = new DefaultOverlayable(btnMenu);
-            lblBadge = new JLabel(Const.icon16attach);
 
-//            lblBadge.setHorizontalTextPosition(SwingConstants.CENTER);
-//            lblBadge.setVerticalTextPosition(SwingConstants.CENTER);
-//            lblBadge.setFont(new Font("SansSerif", Font.BOLD, 12));
+
+            lblBadge = new JLabel(Integer.toString(stocks.size()), Const.icon16greenBadge, SwingConstants.CENTER);
+            lblBadge.setHorizontalTextPosition(SwingConstants.CENTER);
+            lblBadge.setVerticalTextPosition(SwingConstants.CENTER);
+            lblBadge.setFont(new Font("SansSerif", Font.BOLD, 9));
+            lblBadge.setForeground(Color.BLACK);
+
+            ovrBadge = new DefaultOverlayable(btnMenu);
             ovrBadge.addOverlayComponent(lblBadge, DefaultOverlayable.NORTH_EAST);
             btnMenu.setToolTipText(MenuTools.getStocksAsHTMLList(stocks));
             ovrBadge.setPreferredSize(btnMenu.getPreferredSize());
@@ -680,7 +742,7 @@ public class PnlSingleDayMenu extends JPanel {
 //                    lblBadge.setIcon(stocks.isEmpty() ? Const.icon16yellow : Const.icon16green);
                     ovrBadge.setOverlayVisible(!stocks.isEmpty());
                     btnMenu.setToolTipText(MenuTools.getStocksAsHTMLList(stocks));
-                    rcl.stocksChanged(new HashSet<Stock>(.getAssigned());
+                    rcl.stocksChanged(new HashSet<Stock>(pnlAssign.getAssigned()));
                 }
             }, ovrBadge);
 
@@ -882,8 +944,8 @@ public class PnlSingleDayMenu extends JPanel {
         PnlSingleDayMenu that = (PnlSingleDayMenu) o;
 
         if (btnEmpty != null ? !btnEmpty.equals(that.btnEmpty) : that.btnEmpty != null) return false;
-        if (btnRedToGreen != null ? !btnRedToGreen.equals(that.btnRedToGreen) : that.btnRedToGreen != null)
-            return false;
+//        if (btnRedToGreen != null ? !btnRedToGreen.equals(that.btnRedToGreen) : that.btnRedToGreen != null)
+//            return false;
 
         if (holidays != null ? !holidays.equals(that.holidays) : that.holidays != null) return false;
         if (keyboardFocusManager != null ? !keyboardFocusManager.equals(that.keyboardFocusManager) : that.keyboardFocusManager != null)
@@ -907,7 +969,7 @@ public class PnlSingleDayMenu extends JPanel {
         result = 31 * result + (popupStocks != null ? popupStocks.hashCode() : 0);
         result = 31 * result + (keyboardFocusManager != null ? keyboardFocusManager.hashCode() : 0);
         result = 31 * result + (btnEmpty != null ? btnEmpty.hashCode() : 0);
-        result = 31 * result + (btnRedToGreen != null ? btnRedToGreen.hashCode() : 0);
+//        result = 31 * result + (btnRedToGreen != null ? btnRedToGreen.hashCode() : 0);
         result = 31 * result + (menuweek2Menu != null ? menuweek2Menu.hashCode() : 0);
         return result;
     }

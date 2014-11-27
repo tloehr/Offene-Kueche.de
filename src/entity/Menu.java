@@ -187,6 +187,10 @@ public class Menu implements Cloneable {
         menu2menuweeks = new ArrayList<Menuweek2Menu>();
     }
 
+    public boolean isEmpty(){
+        return starter == null && maincourse == null && sauce == null && sidedish == null && sideveggie == null && dessert == null;
+    }
+
 
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Menuweek2Menu> menu2menuweeks;

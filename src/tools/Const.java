@@ -134,9 +134,16 @@ public class Const {
 
     public static final Icon icon16yellow = new ImageIcon(Const.class.getResource("/artwork/16x16/yellowled.png"));
     public static final Icon icon16green = new ImageIcon(Const.class.getResource("/artwork/16x16/greenled.png"));
+    public static final Icon icon16info = new ImageIcon(Const.class.getResource("/artwork/16x16/infoblue.png"));
     public static final Icon icon16attach = new ImageIcon(Const.class.getResource("/artwork/16x16/attach.png"));
+    public static final Icon icon16greenBadge = new ImageIcon(Const.class.getResource("/artwork/16x16/greenstar.png"));
+    public static final Icon icon16redBadge = new ImageIcon(Const.class.getResource("/artwork/16x16/redstar.png"));
 
     public static final Icon icon24add = new ImageIcon(Const.class.getResource("/artwork/24x24/edit_add.png"));
+    // http://findicons.com/icon/94106/edit_clear?id=96593
+    public static final Icon icon24clear = new ImageIcon(Const.class.getResource("/artwork/24x24/edit_clear24.png"));
+    // http://findicons.com/icon/15991/copy?id=15991
+    public static final Icon icon24copy = new ImageIcon(Const.class.getResource("/artwork/24x24/copy24.png"));
     public static final Icon icon24apply = new ImageIcon(Const.class.getResource("/artwork/24x24/apply.png"));
     public static final Icon icon24ledBlueOff = new ImageIcon(Const.class.getResource("/artwork/24x24/leddarkblue.png"));
     public static final Icon icon24ledGreenOn = new ImageIcon(Const.class.getResource("/artwork/24x24/ledgreen.png"));
@@ -144,6 +151,7 @@ public class Const {
     public static final Icon icon24ledGreenOff = new ImageIcon(Const.class.getResource("/artwork/24x24/leddarkgreen.png"));
     public static final Icon icon24ledGreenOff4 = new ImageIcon(Const.class.getResource("/artwork/24x24/leddarkgreen4.png"));
     public static final Icon icon24ledRedOn = new ImageIcon(Const.class.getResource("/artwork/24x24/ledred.png"));
+    public static final Icon icon24rightArrow = new ImageIcon(Const.class.getResource("/artwork/24x24/1rightarrow.png"));
 
     public static final Icon icon24menu = new ImageIcon(Const.class.getResource("/artwork/24x24/player_eject.png"));
     public static final Icon icon24find = new ImageIcon(Const.class.getResource("/artwork/24x24/find.png"));

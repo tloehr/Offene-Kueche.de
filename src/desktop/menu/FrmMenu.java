@@ -7,7 +7,10 @@ package desktop.menu;
 import Main.Main;
 import com.jidesoft.swing.JidePopupMenu;
 import com.toedter.calendar.JCalendar;
-import entity.*;
+import entity.Menuweek;
+import entity.Menuweekall;
+import entity.MenuweekallTools;
+import entity.RecipeFeatureTools;
 import org.apache.commons.collections.Closure;
 import org.joda.time.LocalDate;
 import tools.GUITools;
@@ -112,72 +115,131 @@ public class FrmMenu extends JInternalFrame {
             public void run() {
                 pnlMain.removeAll();
                 for (final Menuweek menuweek : menuweekall.getMenuweeks()) {
-                    pnlMain.add(new PnlMenuWeek(menuweek, new Closure() {
+                    pnlMain.add(new PnlMenuWeek(menuweek, new PSDChangeListener() {
                         @Override
-                        public void execute(Object o) {
-                            if (o == null) return;
-
-                            if (o instanceof Menuweek2Menu) {
-                                EntityManager em = Main.getEMF().createEntityManager();
-                                Menuweek2Menu myMenuweek2Menu = em.merge((Menuweek2Menu) o);
-                                Menuweekall myMenuweekall = em.merge(myMenuweek2Menu.getMenuweek().getMenuweekall());
-                                em.refresh(myMenuweekall);
-                                em.close();
-
-                                int index = cmbWeeks.getSelectedIndex();
-                                listAll.set(index, myMenuweekall);
-                                cmbWeeks.setModel(Tools.newComboboxModel(listAll));
-                                cmbWeeks.setSelectedIndex(index);
-
-                                createThePanels(myMenuweekall);
-                            } else if (o instanceof Menuweek) {
-
-                                EntityManager em = Main.getEMF().createEntityManager();
-
-                                // Menuweekall myMenuweekall = em.find(Menuweekall.class, ((Menuweek) o).getMenuweekall().getId());
-
-                                Menuweek myMenuweek = em.merge((Menuweek) o);
-                                Menuweekall myMenuweekall = myMenuweek.getMenuweekall();
-                                em.refresh(myMenuweekall);
-                                em.close();
-
-                                int index = cmbWeeks.getSelectedIndex();
-                                listAll.set(index, myMenuweekall);
-                                cmbWeeks.setModel(Tools.newComboboxModel(listAll));
-                                cmbWeeks.setSelectedIndex(index);
-
-                                createThePanels(myMenuweekall);
-
-                            } else if (o instanceof Menuweekall) {
-
-                                EntityManager em = Main.getEMF().createEntityManager();
-
-                                Menuweekall myMenuweekall = em.merge((Menuweekall) o);
-                                em.refresh(myMenuweekall);
-                                em.close();
-
-                                int index = cmbWeeks.getSelectedIndex();
-                                listAll.set(index, myMenuweekall);
-                                cmbWeeks.setModel(Tools.newComboboxModel(listAll));
-                                cmbWeeks.setSelectedIndex(index);
-
-                                createThePanels(myMenuweekall);
-
-                            } else if (o instanceof PSDChangeEvent) {
-
-                                for (Component comp : pnlMain.getComponents()) {
-                                    if (comp instanceof PnlMenuWeek) {
-                                        ((PnlMenuWeek) comp).notifyMeAbout((PSDChangeEvent) o);
-                                    }
+                        public void menuEdited(PSDChangeEvent psdce) {
+                            for (Component comp : pnlMain.getComponents()) {
+                                if (comp instanceof PnlMenuWeek) {
+                                    ((PnlMenuWeek) comp).getTopDownListener().menuEdited(psdce);
                                 }
-
-                            } else {
-                                return;
                             }
+                        }
 
+                        @Override
+                        public void menuReplaced(PSDChangeEvent psdce) {
+                            EntityManager em = Main.getEMF().createEntityManager();
+                            Menuweek myMenuweek = em.merge(psdce.getMenuweek());
+                            Menuweekall myMenuweekall = myMenuweek.getMenuweekall();
+                            em.refresh(myMenuweekall);
+                            em.close();
+
+                            int index = cmbWeeks.getSelectedIndex();
+                            listAll.set(index, myMenuweekall);
+                            cmbWeeks.setModel(Tools.newComboboxModel(listAll));
+                            cmbWeeks.setSelectedIndex(index);
+
+                            createThePanels(myMenuweekall);
+
+                        }
+
+                        @Override
+                        public void stockListChanged(PSDChangeEvent psdce) {
+                            for (Component comp : pnlMain.getComponents()) {
+                                if (comp instanceof PnlMenuWeek) {
+                                    ((PnlMenuWeek) comp).getTopDownListener().menuEdited(psdce);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void customerListChanged(PSDChangeEvent psdce) {
+
+                        }
+
+                        @Override
+                        public void menufeatureChanged(PSDChangeEvent psdce) {
+
+                        }
+
+                        @Override
+                        public void menuweekAdded(PSDChangeEvent psdce) {
+
+                        }
+
+                        @Override
+                        public void menuweekDeleted(PSDChangeEvent psdce) {
 
                         }
                     }, holidays));
+
+
+//                    pnlMain.add(new PnlMenuWeek(menuweek, new Closure() {
+//                                           @Override
+//                                           public void execute(Object o) {
+//                                               if (o == null) return;
+//
+//                                               if (o instanceof Menuweek2Menu) {
+//                                                   EntityManager em = Main.getEMF().createEntityManager();
+//                                                   Menuweek2Menu myMenuweek2Menu = em.merge((Menuweek2Menu) o);
+//                                                   Menuweekall myMenuweekall = em.merge(myMenuweek2Menu.getMenuweek().getMenuweekall());
+//                                                   em.refresh(myMenuweekall);
+//                                                   em.close();
+//
+//                                                   int index = cmbWeeks.getSelectedIndex();
+//                                                   listAll.set(index, myMenuweekall);
+//                                                   cmbWeeks.setModel(Tools.newComboboxModel(listAll));
+//                                                   cmbWeeks.setSelectedIndex(index);
+//
+//                                                   createThePanels(myMenuweekall);
+//                                               } else if (o instanceof Menuweek) {
+//
+//                                                   EntityManager em = Main.getEMF().createEntityManager();
+//
+//                                                   // Menuweekall myMenuweekall = em.find(Menuweekall.class, ((Menuweek) o).getMenuweekall().getId());
+//
+//                                                   Menuweek myMenuweek = em.merge((Menuweek) o);
+//                                                   Menuweekall myMenuweekall = myMenuweek.getMenuweekall();
+//                                                   em.refresh(myMenuweekall);
+//                                                   em.close();
+//
+//                                                   int index = cmbWeeks.getSelectedIndex();
+//                                                   listAll.set(index, myMenuweekall);
+//                                                   cmbWeeks.setModel(Tools.newComboboxModel(listAll));
+//                                                   cmbWeeks.setSelectedIndex(index);
+//
+//                                                   createThePanels(myMenuweekall);
+//
+//                                               } else if (o instanceof Menuweekall) {
+//
+//                                                   EntityManager em = Main.getEMF().createEntityManager();
+//
+//                                                   Menuweekall myMenuweekall = em.merge((Menuweekall) o);
+//                                                   em.refresh(myMenuweekall);
+//                                                   em.close();
+//
+//                                                   int index = cmbWeeks.getSelectedIndex();
+//                                                   listAll.set(index, myMenuweekall);
+//                                                   cmbWeeks.setModel(Tools.newComboboxModel(listAll));
+//                                                   cmbWeeks.setSelectedIndex(index);
+//
+//                                                   createThePanels(myMenuweekall);
+//
+//                                               } else if (o instanceof PSDChangeEvent) {
+//
+//                                                   for (Component comp : pnlMain.getComponents()) {
+//                                                       if (comp instanceof PnlMenuWeek) {
+//                                                           ((PnlMenuWeek) comp).notifyMeAbout((PSDChangeEvent) o);
+//                                                       }
+//                                                   }
+//
+//                                               } else {
+//                                                   return;
+//                                               }
+//
+//
+//                                           }
+//                                       }, holidays));
+
                 }
                 revalidate();
                 repaint();

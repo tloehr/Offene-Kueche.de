@@ -10,7 +10,6 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jidesoft.popup.JidePopup;
 import com.jidesoft.swing.JidePopupMenu;
 import entity.*;
-import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.border.DropShadowBorder;
 import org.joda.time.DateTimeConstants;
@@ -43,27 +42,81 @@ public class PnlMenuWeek extends JPanel {
 
 
     private Menuweek menuweek;
-    private final Closure changeAction;
+
     //    private PnlSingleDayMenu tue, wed, thu, fri, sat, sun;
     SimpleDateFormat sdf;
     JidePopup popup;
     private boolean initPhase;
     private ArrayList<JPanel> listPanels;
+    private final PSDChangeListener bottomUpListener, topDownListener;
     final HashMap<LocalDate, String> holidays;
 
 
-    public PnlMenuWeek(Menuweek menuweek, Closure changeAction, HashMap<LocalDate, String> holidays) {
+    public PnlMenuWeek(Menuweek menuweek, PSDChangeListener bottomUpListener, HashMap<LocalDate, String> holidays) {
+        this.bottomUpListener = bottomUpListener;
         this.holidays = holidays;
         initPhase = true;
         this.menuweek = menuweek;
-        this.changeAction = changeAction;
 
+        topDownListener = new PSDChangeListener() {
+            @Override
+            public void menuEdited(PSDChangeEvent psdce) {
+                for (JPanel pnlWeekday : listPanels) {
+                    for (Component comp : pnlWeekday.getComponents()) {
+                        if (comp instanceof PnlSingleDayMenu && !comp.equals(psdce.getSource())) {
+                            ((PnlSingleDayMenu) comp).updateMenu(psdce.getNewMenu());
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void menuReplaced(PSDChangeEvent psdce) {
+                for (JPanel pnlWeekday : listPanels) {
+                    for (Component comp : pnlWeekday.getComponents()) {
+                        if (comp instanceof PnlSingleDayMenu && !comp.equals(psdce.getSource())) {
+                            ((PnlSingleDayMenu) comp).updateMenu(psdce.getNewMenu());
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void stockListChanged(PSDChangeEvent psdce) {
+                for (JPanel pnlWeekday : listPanels) {
+                    for (Component comp : pnlWeekday.getComponents()) {
+                        if (comp instanceof PnlSingleDayMenu && !comp.equals(psdce.getSource())) {
+                            ((PnlSingleDayMenu) comp).updateMenu(psdce.getNewMenu());
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void customerListChanged(PSDChangeEvent psdce) {
+                // don't care
+            }
+
+            @Override
+            public void menufeatureChanged(PSDChangeEvent psdce) {
+                // don't care
+            }
+
+            @Override
+            public void menuweekAdded(PSDChangeEvent psdce) {
+                // don't care
+            }
+
+            @Override
+            public void menuweekDeleted(PSDChangeEvent psdce) {
+                // don't care
+            }
+        };
 
         initComponents();
         initPanel();
         initPhase = false;
     }
-
 
 
     private void initPanel() {
@@ -107,34 +160,65 @@ public class PnlMenuWeek extends JPanel {
         return new PSDChangeListener() {
             @Override
             public void menuEdited(PSDChangeEvent psdce) {
-                notifyCaller(psdce); // .getMenuweek2Menu().getMenuweek().getMenuweekall()
+                lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(psdce.getChangeDate()) + " Uhr");
+                lblID.setText(menuweek.getId() > 0 ? "#" + Long.toString(menuweek.getId()) : "--");
+                bottomUpListener.menuEdited(psdce);
             }
 
             @Override
             public void menuReplaced(PSDChangeEvent psdce) {
+                lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(psdce.getChangeDate()) + " Uhr");
+                lblID.setText(menuweek.getId() > 0 ? "#" + Long.toString(menuweek.getId()) : "--");
+                bottomUpListener.menuReplaced(psdce);
+            }
 
+            @Override
+            public void menufeatureChanged(PSDChangeEvent psdce) {
+                lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(psdce.getChangeDate()) + " Uhr");
+                lblID.setText(menuweek.getId() > 0 ? "#" + Long.toString(menuweek.getId()) : "--");
+                bottomUpListener.menufeatureChanged(psdce);
+            }
+
+            @Override
+            public void customerListChanged(PSDChangeEvent psdce) {
+                lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(psdce.getChangeDate()) + " Uhr");
+                lblID.setText(menuweek.getId() > 0 ? "#" + Long.toString(menuweek.getId()) : "--");
+                bottomUpListener.customerListChanged(psdce);
             }
 
             @Override
             public void stockListChanged(PSDChangeEvent psdce) {
+                lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(psdce.getChangeDate()) + " Uhr");
+                lblID.setText(menuweek.getId() > 0 ? "#" + Long.toString(menuweek.getId()) : "--");
+                bottomUpListener.stockListChanged(psdce);
+            }
 
+            @Override
+            public void menuweekAdded(PSDChangeEvent psdce) {
+                lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(psdce.getChangeDate()) + " Uhr");
+                lblID.setText(menuweek.getId() > 0 ? "#" + Long.toString(menuweek.getId()) : "--");
+                bottomUpListener.menuweekAdded(psdce);
+            }
+
+            @Override
+            public void menuweekDeleted(PSDChangeEvent psdce) {
+                lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(psdce.getChangeDate()) + " Uhr");
+                lblID.setText(menuweek.getId() > 0 ? "#" + Long.toString(menuweek.getId()) : "--");
+                bottomUpListener.menuweekDeleted(psdce);
             }
         };
     }
 
-    public void notifyMeAbout(PSDChangeEvent psdce) {
-        for (JPanel pnlWeekday : listPanels) {
-            for (Component comp : pnlWeekday.getComponents()) {
-                if (comp instanceof PnlSingleDayMenu && !comp.equals(psdce.getSource())) {
-                    ((PnlSingleDayMenu) comp).updateMenu(psdce.getNewMenu());
-                }
-            }
-        }
+
+    public PSDChangeListener getTopDownListener() {
+        return topDownListener;
     }
-
-
-
-
+//
+//    public void notifyMeAbout(PSDChangeEvent psdce) {
+//
+//
+//
+//    }
 
 
     private void btnAddCustomerActionPerformed(ActionEvent e) {
@@ -182,7 +266,7 @@ public class PnlMenuWeek extends JPanel {
 
                     menuweek = myMenuweek;
                     lstCustomers.setModel(Tools.newListModel(new ArrayList<Customer>(menuweek.getCustomers())));
-                    notifyCaller(menuweek);
+                    bottomUpListener.customerListChanged(new PSDChangeEvent(this, menuweek));
                 } catch (OptimisticLockException ole) {
                     Main.warn(ole);
                     em.getTransaction().rollback();
@@ -233,15 +317,17 @@ public class PnlMenuWeek extends JPanel {
             Main.fatal(e);
         } finally {
             em.close();
-            notifyCaller(menuweek);
+            bottomUpListener.menufeatureChanged(new PSDChangeEvent(this, menuweek));
         }
     }
 
-    private void notifyCaller(Object object) {
-        lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(menuweek.getLastsave()) + " Uhr");
-        lblID.setText(menuweek.getId() > 0 ? "#" + Long.toString(menuweek.getId()) : "--");
-        changeAction.execute(object);
-    }
+//    private void notifyCaller(Object object) {
+//        lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(menuweek.getLastsave()) + " Uhr");
+//        lblID.setText(menuweek.getId() > 0 ? "#" + Long.toString(menuweek.getId()) : "--");
+//
+//
+//        changeAction.execute(object);
+//    }
 
 
     private void addMenuweek(Menuweek newMenuweek) {
@@ -262,7 +348,7 @@ public class PnlMenuWeek extends JPanel {
             Main.fatal(exc.getMessage());
         } finally {
             em.close();
-            notifyCaller(myMenuweek);
+            bottomUpListener.menuweekAdded(new PSDChangeEvent(this, myMenuweek));
         }
 
     }
@@ -317,7 +403,7 @@ public class PnlMenuWeek extends JPanel {
                 Main.fatal(exc.getMessage());
             } finally {
                 em.close();
-                notifyCaller(myMenuweekall);
+                bottomUpListener.menuweekDeleted(new PSDChangeEvent(this, myMenuweek));
             }
         }
     }
@@ -374,8 +460,8 @@ public class PnlMenuWeek extends JPanel {
         //======== this ========
         setBorder(new DropShadowBorder(Color.black, 8, 0.6f, 12, true, true, true, true));
         setLayout(new FormLayout(
-            "default:grow, $lcgap, default",
-            "2*(default, $lgap), top:pref, $lgap, pref"));
+                "default:grow, $lcgap, default",
+                "2*(default, $lgap), top:pref, $lgap, pref"));
 
         //======== panel2 ========
         {
@@ -483,8 +569,8 @@ public class PnlMenuWeek extends JPanel {
         //======== panel12 ========
         {
             panel12.setLayout(new FormLayout(
-                "default:grow",
-                "default:grow, default"));
+                    "default:grow",
+                    "default:grow, default"));
 
             //======== scrollPane1 ========
             {

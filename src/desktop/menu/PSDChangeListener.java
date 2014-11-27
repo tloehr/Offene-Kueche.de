@@ -13,4 +13,12 @@ public interface PSDChangeListener extends EventListener {
 
     void stockListChanged(PSDChangeEvent psdce);
 
+    void customerListChanged(PSDChangeEvent psdce);
+
+    void menufeatureChanged(PSDChangeEvent psdce);
+
+    void menuweekAdded(PSDChangeEvent psdce);
+
+    void menuweekDeleted(PSDChangeEvent psdce);
+
 }
