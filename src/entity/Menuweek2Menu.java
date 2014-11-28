@@ -75,10 +75,10 @@ public class Menuweek2Menu {
     }
 
     public Menuweek2Menu(Menu menu, Menuweek menuweek, LocalDate date) {
-            this.menu = menu;
-            this.menuweek = menuweek;
-            this.date = date.toDateTimeAtStartOfDay().toDate();
-        }
+        this.menu = menu;
+        this.menuweek = menuweek;
+        this.date = date.toDateTimeAtStartOfDay().toDate();
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -103,5 +103,11 @@ public class Menuweek2Menu {
         result = 31 * result + (date != null ? date.hashCode() : 0);
         return result;
     }
+
+
+    @Version
+    @Column(name = "version")
+    private Long version;
+
 
 }

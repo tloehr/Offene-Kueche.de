@@ -186,4 +186,27 @@ public class Customer {
 
         return result;
     }
+
+    @Override
+    public String toString() {
+        String string = "";
+
+        if (string.isEmpty() && !orgname.isEmpty()) {
+            string = orgname;
+        }
+
+        if (string.isEmpty() && !name.isEmpty()) {
+            string = name;
+        }
+
+        if (string.isEmpty() && !abbrev.isEmpty()) {
+            string = abbrev;
+        }
+
+        if (string.isEmpty()){
+            string = super.toString();
+        }
+
+        return string;
+    }
 }

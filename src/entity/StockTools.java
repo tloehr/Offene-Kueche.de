@@ -375,6 +375,27 @@ public class StockTools {
         return stock;
     }
 
+
+    public static ArrayList<Additives> getAdditives(Set<Stock> stocks) {
+        HashSet<Additives> mySet = new HashSet<Additives>();
+        for (Stock stock : stocks) {
+            mySet.addAll(stock.getProdukt().getAdditives());
+        }
+        ArrayList<Additives> list = new ArrayList<Additives>(mySet);
+        Collections.sort(list);
+        return list;
+    }
+
+    public static ArrayList<Allergene> getAllergenes(Set<Stock> stocks) {
+        HashSet<Allergene> mySet = new HashSet<Allergene>();
+        for (Stock stock : stocks) {
+            mySet.addAll(stock.getProdukt().getAllergenes());
+        }
+        ArrayList<Allergene> list = new ArrayList<Allergene>(mySet);
+        Collections.sort(list);
+        return list;
+    }
+
 //
 //    /**
 //     * Passt die Eingangsbuchung in allen aktiven Vorräten dem Wert aus dem übergebenen Produkt an.

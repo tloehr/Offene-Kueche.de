@@ -18,6 +18,7 @@ new FormModel {
 					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/printer.png" )
 					"toolTipText": "Diesen Wochenplan löschen"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnPrintActionPerformed", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "btnAddNewMenuweek"

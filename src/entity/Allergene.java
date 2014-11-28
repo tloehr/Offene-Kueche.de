@@ -8,7 +8,7 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "allergene")
-public class Allergene {
+public class Allergene implements Comparable<Allergene> {
     private String kennung;
     private String text;
 
@@ -80,5 +80,10 @@ public class Allergene {
     @Override
     public String toString() {
         return kennung + " " + text;
+    }
+
+    @Override
+    public int compareTo(Allergene o) {
+        return getKennung().compareTo(o.getKennung());
     }
 }

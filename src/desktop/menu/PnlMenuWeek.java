@@ -14,6 +14,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.border.DropShadowBorder;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
+import printer.Printers;
 import tools.Const;
 import tools.GUITools;
 import tools.PnlAssign;
@@ -408,6 +409,10 @@ public class PnlMenuWeek extends JPanel {
         }
     }
 
+    private void btnPrintActionPerformed(ActionEvent e) {
+        Printers.print(Main.getDesktop(), MenuweekTools.getAsHTML(menuweek), true);
+    }
+
 //    private void btnDeleteThisMenuweekActionPerformed(ActionEvent e) {
 //        if (JOptionPane.showInternalConfirmDialog(Main.getDesktop().getMenuweek(), "Diesen Wochen plan willst Du löschen\n\n" +
 //                        "Bist du ganz sicher ?", "Wochenplan löschen",
@@ -460,8 +465,8 @@ public class PnlMenuWeek extends JPanel {
         //======== this ========
         setBorder(new DropShadowBorder(Color.black, 8, 0.6f, 12, true, true, true, true));
         setLayout(new FormLayout(
-                "default:grow, $lcgap, default",
-                "2*(default, $lgap), top:pref, $lgap, pref"));
+            "default:grow, $lcgap, default",
+            "2*(default, $lgap), top:pref, $lgap, pref"));
 
         //======== panel2 ========
         {
@@ -471,6 +476,12 @@ public class PnlMenuWeek extends JPanel {
             btnPrint.setText(null);
             btnPrint.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/printer.png")));
             btnPrint.setToolTipText("Diesen Wochenplan l\u00f6schen");
+            btnPrint.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    btnPrintActionPerformed(e);
+                }
+            });
             panel2.add(btnPrint);
 
             //---- btnAddNewMenuweek ----
@@ -569,8 +580,8 @@ public class PnlMenuWeek extends JPanel {
         //======== panel12 ========
         {
             panel12.setLayout(new FormLayout(
-                    "default:grow",
-                    "default:grow, default"));
+                "default:grow",
+                "default:grow, default"));
 
             //======== scrollPane1 ========
             {

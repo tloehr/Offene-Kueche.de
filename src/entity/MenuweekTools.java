@@ -1,5 +1,12 @@
 package entity;
 
+import tools.Tools;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+
 /**
  * Created by tloehr on 17.10.14.
  */
@@ -21,6 +28,73 @@ public class MenuweekTools {
 //        return list;
 //
 //    }
+
+
+    public static String getAsHTML(Menuweek menuweek) {
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, d. MMMM yyyy");
+
+        String html = "<div align=\"center\">\n" +
+                "<h1 id=\"fonth1\">Peter Meis<br/>" +
+                "Handels- und Dienstleistungen GmbH & Co. KG<br/>\n" +
+                "02292-9137-0</h1>\n" +
+                "</div>\n";
+        if (!menuweek.getCustomers().isEmpty()) {
+            html += "<h2 id=\"fonth2\">Kunden: ";
+
+            String line = "";
+
+            for (Customer customer : menuweek.getCustomers()) {
+                line += customer + ", ";
+            }
+            html += Tools.left(line, line.length() - 2, "");
+            html += "</h2>\n";
+        }
+
+        HashSet<Additives> setAdditives = new HashSet<Additives>();
+        HashSet<Allergene> setAllergenes = new HashSet<Allergene>();
+
+        for (Menuweek2Menu menuweek2Menu : menuweek.getMenuweek2menus()) {
+            html += "<h1 id=\"fonth1\">" + sdf.format(menuweek2Menu.getDate()) + "</h1>";
+            html += MenuTools.getAsHTML(menuweek2Menu.getMenu(), setAdditives, setAllergenes);
+        }
+
+
+        // print a keymap on the next page
+        if (!setAdditives.isEmpty() || !setAllergenes.isEmpty()) {
+            html += "<h1 id=\"fonth1\" style=\"page-break-before:always\">Legende</h1>";
+
+            if (!setAllergenes.isEmpty()) {
+                html += "<h2 id=\"fonth2\">Allergene</h2>";
+                html += "<ul>";
+
+                ArrayList<Allergene> list = new ArrayList<Allergene>(setAllergenes);
+                Collections.sort(list);
+
+                for (Allergene allergene : list) {
+                    html += "<li><b>" + allergene.getKennung() + "</b> " + allergene.getText();
+                }
+
+                html += "</ul>";
+            }
+
+            if (!setAdditives.isEmpty()) {
+                html += "<h2 id=\"fonth2\">Zusatzstoffe</h2>";
+                html += "<ul>";
+
+                ArrayList<Additives> list = new ArrayList<Additives>(setAdditives);
+                Collections.sort(list);
+
+                for (Additives additive : list) {
+                    html += "<li><b>" + additive.getSymbol() + "</b> " + additive.getName() + (additive.getText().isEmpty() ? "" : " <i>" + additive.getText() + "</i>");
+                }
+
+                html += "</ul>";
+            }
+        }
+
+
+        return html;
+    }
 
 
 }

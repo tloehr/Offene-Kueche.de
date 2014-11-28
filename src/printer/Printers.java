@@ -120,11 +120,11 @@ public class Printers {
                         + "window.print();"
                         + "}</script>"
                         + Main.getCSS()
-                        + "</head><body>" + Tools.htmlUmlautConversion(html)
-                        + "<hr/><span id=\"fonttext\"><b>Ende des Berichtes</b><br/>http://www.offene-pflege.de/component/content/article/3-informationen/16-kueche</span></body></html>";
+                        + "</head><body id=\"fonttext\">" + Tools.htmlUmlautConversion(html)
+                        + "<hr/><b><div id=\"fontsmall\">Ende des Berichtes</b></div></body></html>";
             } else {
-                html = "<html><head>" + Main.getCSS() + "</head><body>" + Tools.htmlUmlautConversion(html)
-                        + "<hr/><span id=\"fonttext\"><b>Ende des Berichtes</b><br/>http://www.offene-pflege.de/component/content/article/3-informationen/16-kueche</span></body></html>";
+                html = "<html><head>" + Main.getCSS() + "</head><body id=\"fonttext\">" + Tools.htmlUmlautConversion(html)
+                        + "<hr/><b><div id=\"fontsmall\">Ende des Berichtes</b></div></body></html>";
             }
 
             Main.logger.debug(html);

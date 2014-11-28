@@ -8,7 +8,7 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "additives")
-public class Additives {
+public class Additives implements Comparable<Additives> {
 
     private String symbol;
     private String name;
@@ -119,5 +119,10 @@ public class Additives {
     @Override
     public String toString() {
         return symbol + " " + name;
+    }
+
+    @Override
+    public int compareTo(Additives o) {
+        return getSymbol().compareTo(o.getSymbol());
     }
 }
