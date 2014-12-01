@@ -35,7 +35,7 @@ public class PSDChangeEvent extends EventObject {
         this.oldMenu = null;
         this.newMenu = null;
         this.menuweek2Menu = null;
-        this.changeDate = menuweek.getLastsave();
+        this.changeDate = new Date();
     }
 
 
@@ -46,7 +46,7 @@ public class PSDChangeEvent extends EventObject {
         this.newMenu = newMenu;
         this.menuweek2Menu = menuweek2Menu;
         this.menuweek = menuweek2Menu.getMenuweek();
-        this.changeDate = menuweek2Menu.getMenuweek().getLastsave();
+        this.changeDate = new Date();
     }
 
     public PSDChangeEvent(Object source, Menu oldMenu, Menu newMenu, Menuweek2Menu menuweek2Menu) {
@@ -55,7 +55,7 @@ public class PSDChangeEvent extends EventObject {
         this.newMenu = newMenu;
         this.menuweek2Menu = menuweek2Menu;
         this.menuweek = menuweek2Menu.getMenuweek();
-        this.changeDate = menuweek2Menu.getMenuweek().getLastsave();
+        this.changeDate = new Date();
     }
 
     public Menu getOldMenu() {

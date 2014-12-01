@@ -36,6 +36,7 @@ public class Menuweek2Menu {
 
     public void setMenu(Menu menu) {
         this.menu = menu;
+        menuweek.touch();
     }
 
     @JoinColumn(name = "menuweekid", referencedColumnName = "id")

@@ -617,7 +617,18 @@ public class PnlSingleDayMenu extends JPanel {
                     }
                 }
             });
-
+            btnMenu.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusLost(FocusEvent e) {
+                    super.focusLost(e);
+                    if (recipe != null && recipe.getId() == 0) {
+                        if (JOptionPane.showInternalConfirmDialog(Main.getDesktop().getMenuweek(), "Du hast das Rezept noch nicht bestätigt.\nSollen wir das jetzt machen ?", "Bisher unbekanntes Rezept", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48stop) == JOptionPane.YES_OPTION) {
+                            menuitemSave();
+                            keyboardFocusManager.focusNextComponent();
+                        }
+                    }
+                }
+            });
 
 
             lblBadge = new JLabel(Integer.toString(stocks.size()), Const.icon16redBadge, SwingConstants.CENTER);
