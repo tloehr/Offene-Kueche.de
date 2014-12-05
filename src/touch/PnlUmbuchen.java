@@ -329,7 +329,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 //            for (int row = 0; row < model.getRowCount(); row++) {
 //                // Model Row Index Umwandlung ist hier unnötig. Markierungen bleiben unberücksichtigt.
 //                if (model.getStatus(row) == VorratTableModel2.STATUS_FRAGLICH) {
-//                    Vorrat vorrat = model.getVorrat(row);
+//                    Vorrat vorrat = model.getStock(row);
 //                    Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "");
 //                    vorrat.setLager(unbekannt);
 //                    EntityTools.merge(vorrat);
@@ -345,7 +345,7 @@ public class PnlUmbuchen extends DefaultTouchPanel {
 //                for (int r = 0; r < rows.length; r++) {
 //                    // Diese Zeile ist sehr wichtig, da sie die Auswahl in der Tabelle bzgl. einer Umsortierung berücksichtigt.
 //                    int row = tblVorrat.convertRowIndexToModel(rows[r]);
-//                    Vorrat vorrat = ((VorratTableModel2) tblVorrat.getModel()).getVorrat(row);
+//                    Vorrat vorrat = ((VorratTableModel2) tblVorrat.getModel()).getStock(row);
 //                    if (laufendeVOperation == LAUFENDE_OPERATION_LOESCHEN) {
 //                        Main.logger.info("DELETE STOCK: " + vorrat.toString());
 //                        Tools.log(txtLog, vorrat.getId(), vorrat.getProdukt().getBezeichnung(), "GELÖSCHT");

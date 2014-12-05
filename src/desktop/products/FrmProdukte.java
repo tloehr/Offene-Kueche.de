@@ -1189,8 +1189,8 @@ public class FrmProdukte extends JInternalFrame {
         setClosable(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-                "134dlu, default:grow",
-                "default:grow"));
+            "134dlu, default:grow",
+            "default:grow"));
 
         //======== jspSearch ========
         {

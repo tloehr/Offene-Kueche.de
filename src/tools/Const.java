@@ -139,6 +139,8 @@ public class Const {
     public static final Icon icon16greenBadge = new ImageIcon(Const.class.getResource("/artwork/16x16/greenstar.png"));
     public static final Icon icon16redBadge = new ImageIcon(Const.class.getResource("/artwork/16x16/redstar.png"));
 
+    public static final Icon icon24redBadge = new ImageIcon(Const.class.getResource("/artwork/24x24/redstar.png"));
+
     public static final Icon icon24add = new ImageIcon(Const.class.getResource("/artwork/24x24/edit_add.png"));
     // http://findicons.com/icon/94106/edit_clear?id=96593
     public static final Icon icon24clear = new ImageIcon(Const.class.getResource("/artwork/24x24/edit_clear24.png"));

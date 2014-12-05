@@ -22,5 +22,6 @@
         <class>entity.Menuweek</class>
         <class>entity.Menuweekall</class>
         <class>entity.Menuweek2Menu</class>
+        <class>entity.Ingtypes2Recipes</class>
     </persistence-unit>
 </persistence>

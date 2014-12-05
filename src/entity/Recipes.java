@@ -2,6 +2,7 @@ package entity;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by tloehr on 12.09.14.
@@ -56,19 +57,13 @@ public class Recipes {
         return features;
     }
 
-    public void setFeatures(Collection<Recipefeature> features) {
-        this.features = features;
+
+    @OneToMany(mappedBy = "recipes", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Ingtypes2Recipes> ingTypes2Recipes;
+
+    public List<Ingtypes2Recipes> getIngTypes2Recipes() {
+        return ingTypes2Recipes;
     }
-
-
-//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "recipe")
-//        private Collection<Menu> menuCollection;
-//
-//        public Collection<Menu> getMenuCollection() {
-//            return menuCollection;
-//        }
-//
-
 
     public Recipes() {
     }

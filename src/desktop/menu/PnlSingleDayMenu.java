@@ -8,8 +8,6 @@ import com.jidesoft.swing.OverlayableUtils;
 import entity.Menu;
 import entity.*;
 import org.apache.commons.collections.Closure;
-import org.apache.commons.collections.CollectionUtils;
-import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import tools.*;
@@ -631,11 +629,11 @@ public class PnlSingleDayMenu extends JPanel {
             });
 
 
-            lblBadge = new JLabel(Integer.toString(stocks.size()), Const.icon16redBadge, SwingConstants.CENTER);
+            lblBadge = new JLabel(Integer.toString(stocks.size()), Const.icon24redBadge, SwingConstants.CENTER);
             lblBadge.setHorizontalTextPosition(SwingConstants.CENTER);
             lblBadge.setVerticalTextPosition(SwingConstants.CENTER);
-            lblBadge.setFont(new Font("SansSerif", Font.BOLD, 9));
-            lblBadge.setForeground(Color.BLACK);
+            lblBadge.setFont(new Font("SansSerif", Font.BOLD, 11));
+            lblBadge.setForeground(Color.YELLOW);
 
             ovrBadge = new DefaultOverlayable(btnMenu);
             ovrBadge.addOverlayComponent(lblBadge, DefaultOverlayable.NORTH_EAST);
@@ -685,26 +683,58 @@ public class PnlSingleDayMenu extends JPanel {
             }
             Tools.unregisterListeners(popupStocks);
 
-            final PnlAssign<Stock> pnlAssign = new PnlAssign<Stock>(new ArrayList<Stock>(stocks), Main.getStockList(false), new DefaultListRenderer());
-            pnlAssign.setVisibleRowCount(30);
-            popupStocks = GUITools.createPanelPopup(pnlAssign, new Closure() {
-                @Override
-                public void execute(Object o) {
-                    if (o == null) return;
-                    if (CollectionUtils.isEqualCollection(pnlAssign.getAssigned(), stocks))
-                        return;
-//                    stocks.clear();
-//                    for (Stock stock : pnlAssign.getAssigned()) {
-//                        stocks.add(stock);
-//                    }
-//                    lblBadge.setIcon(stocks.isEmpty() ? Const.icon16yellow : Const.icon16green);
-                    ovrBadge.setOverlayVisible(!stocks.isEmpty());
-                    btnMenu.setToolTipText(MenuTools.getStocksAsHTMLList(stocks));
-                    rcl.stocksChanged(new HashSet<Stock>(pnlAssign.getAssigned()));
-                }
-            }, ovrBadge);
 
-            GUITools.showPopup(popupStocks, SwingUtilities.CENTER);
+//            final PnlAssign<Stock> pnlAssign = new PnlAssign<Stock>(new ArrayList<Stock>(stocks), Main.getStockList(false), new DefaultListRenderer());
+//            pnlAssign.setVisibleRowCount(30);
+
+            final PnlRecipeMenuStock pnlAssign = new PnlRecipeMenuStock(recipe, new ArrayList<Stock>(stocks));
+
+
+            int response = JOptionPane.showInternalConfirmDialog(Main.getDesktop().getMenuweek(), pnlAssign, "Zuordnungen zu Rezept", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+
+
+            if (response == JOptionPane.OK_OPTION) {
+
+//                if (CollectionUtils.isEqualCollection((ArrayList<Stock>) pnlAssign.getResult(), stocks))
+//                    return;
+
+//                stocks.clear();
+//                stocks.addAll(((ArrayList<Stock>) pnlAssign.getResult()));
+//
+//                ovrBadge.setOverlayVisible(!stocks.isEmpty());
+//                btnMenu.setToolTipText(MenuTools.getStocksAsHTMLList(stocks));
+
+                Pair<java.util.List<Stock>, Recipes> pair = (Pair<java.util.List<Stock>, Recipes>) pnlAssign.getResult();
+
+                grmpf;
+                recipe.getIngTypes2Recipes().clear();
+                recipe.getIngTypes2Recipes().addAll(pair.getSecond().getIngTypes2Recipes());
+
+                setRecipe(recipe);
+                rcl.stocksChanged(new HashSet<Stock>(pair.getFirst()));
+
+            }
+
+
+//            popupStocks = GUITools.createPanelPopup(pnlAssign, new Closure() {
+//                @Override
+//                public void execute(Object o) {
+//                    if (o == null) return;
+//                    if (CollectionUtils.isEqualCollection((ArrayList<Stock>) pnlAssign.getResult(), stocks))
+//                        return;
+////                    stocks.clear();
+////                    for (Stock stock : pnlAssign.getAssigned()) {
+////                        stocks.add(stock);
+////                    }
+////                    lblBadge.setIcon(stocks.isEmpty() ? Const.icon16yellow : Const.icon16green);
+//                    ovrBadge.setOverlayVisible(!stocks.isEmpty());
+//                    btnMenu.setToolTipText(MenuTools.getStocksAsHTMLList(stocks));
+//                    rcl.stocksChanged(new HashSet<Stock>((ArrayList<Stock>) pnlAssign.getResult()));
+//                }
+//            }, ovrBadge);
+//
+//            GUITools.showPopup(popupStocks, SwingUtilities.CENTER);
         }
 
         private void goDownInList() {

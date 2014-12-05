@@ -29,6 +29,38 @@ public class LagerTools {
     public static final short LAGERART_NORMAL = 5;
 
 
+    public static TableCellRenderer getTableCellRenderer() {
+        return new TableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                return new DefaultTableCellRenderer().getTableCellRendererComponent(table, ((Lager) value).getBezeichnung(), isSelected, hasFocus, row, column);
+            }
+        };
+    }
+
+    public static class MyTableCellEditor extends DefaultCellEditor {
+        MyTableCellEditor() {
+            super(new JComboBox<Lager>(new DefaultComboBoxModel<Lager>(getAll().toArray(new Lager[]{}))));
+            setClickCountToStart(2);
+            ((JComboBox<Lager>) editorComponent).setRenderer(new ListCellRenderer<Lager>() {
+                @Override
+                public Component getListCellRendererComponent(JList<? extends Lager> list, Lager lager, int index, boolean isSelected, boolean cellHasFocus) {
+                    return new DefaultListCellRenderer().getListCellRendererComponent(list, lager.getBezeichnung(), index, isSelected, cellHasFocus);
+                }
+            });
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            ((JComboBox) editorComponent).setSelectedItem(value);
+            return editorComponent;
+        }
+    }
+
+    public static TableCellEditor getTableCellEditor() {
+        return new MyTableCellEditor();
+    }
+
     public static TableCellRenderer getEinheitTableCellRenderer() {
         return new TableCellRenderer() {
             @Override

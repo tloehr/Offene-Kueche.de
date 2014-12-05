@@ -129,14 +129,14 @@ public class IngTypes implements Comparable<IngTypes> {
         return additives;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinTable(name = "types2recipes", joinColumns =
-    @JoinColumn(name = "recipeid"), inverseJoinColumns =
-    @JoinColumn(name = "typeid"))
-    private Set<Recipes> recipes;
-    public Set<Recipes> getRecipes() {
-        return recipes;
-    }
+//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+//    @JoinTable(name = "types2recipes", joinColumns =
+//    @JoinColumn(name = "recipeid"), inverseJoinColumns =
+//    @JoinColumn(name = "typeid"))
+//    private Set<Recipes> recipes;
+//    public Set<Recipes> getRecipes() {
+//        return recipes;
+//    }
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "types2menu", joinColumns =
@@ -174,7 +174,6 @@ public class IngTypes implements Comparable<IngTypes> {
 
         result = 31 * result + (allergenes != null ? allergenes.hashCode() : 0);
         result = 31 * result + (additives != null ? additives.hashCode() : 0);
-        result = 31 * result + (recipes != null ? recipes.hashCode() : 0);
         result = 31 * result + (menus != null ? menus.hashCode() : 0);
         result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;

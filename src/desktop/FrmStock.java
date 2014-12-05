@@ -315,7 +315,7 @@ public class FrmStock extends javax.swing.JInternalFrame {
 ////                btnCancelBuchung.doClick();
 ////            }
 //
-//            final Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getVorrat(tblVorrat.getSelectedRow());
+//            final Vorrat vorrat = ((VorratTableModel) tblVorrat.getModel()).getStock(tblVorrat.getSelectedRow());
 //            tblBuchungen.setModel(new BuchungenTableModel((List) vorrat.getBuchungenCollection(), spaltenBuchungen));
 //            //tblBuchungen.getColumnModel().getColumn(BuchungenTableModel.COL_DATUM).getCellEditor().getTableCellEditorComponent(tblVorrat, ui, isSelected, WIDTH, WIDTH);
 //
