@@ -463,8 +463,7 @@ public class PnlWareneingang extends DefaultTouchPanel {
 
         if (!txtNewStoffart.getText().isEmpty() && cmbWarengruppe.getSelectedItem() != null) {
             IngTypes ingTypes = IngTypesTools.add(txtNewStoffart.getText(), (short) cmbUnit.getSelectedIndex(), (short) cmbStorageType.getSelectedIndex(), (Warengruppe) cmbWarengruppe.getSelectedItem());
-
-            IngTypesTools.loadInto(cmbStoffart);
+            cmbStoffart.setModel(Tools.newComboboxModel(IngTypesTools.getAll()));
             cmbStoffart.setSelectedItem(ingTypes);
         }
         CardLayout cl = (CardLayout) (pnlStoffart.getLayout());

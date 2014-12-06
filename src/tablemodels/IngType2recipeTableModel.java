@@ -4,6 +4,7 @@ import entity.*;
 
 import javax.swing.table.DefaultTableModel;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -16,9 +17,9 @@ public class IngType2recipeTableModel extends DefaultTableModel {
     public static final int COL_UNIT = 1;
     public static final int COL_PLANNED_AMOUNT = 2;
     public static final int COL_ACTUAL_AMOUNT = 3;
+    private Object[] colID = new Object[]{"Bezeichnung", "Einheit", "Nötige Menge", "Zugeordnete Menge"};
 
-
-    private final Recipes recipe;
+    //    private final Recipes recipe;
     private List<Ingtypes2Recipes> data;
 
     public List<Ingtypes2Recipes> getData() {
@@ -27,10 +28,11 @@ public class IngType2recipeTableModel extends DefaultTableModel {
 
     public HashMap<IngTypes, BigDecimal> amountMap;
 
-    public IngType2recipeTableModel(Recipes recipe, List<Stock> stocks) {
-        this.recipe = recipe;
-        this.data = recipe.getIngTypes2Recipes();
+    public IngType2recipeTableModel(List<Ingtypes2Recipes> its, List<Stock> stocks) {
+
+        this.data = new ArrayList<Ingtypes2Recipes>(its);
         amountMap = new HashMap<IngTypes, BigDecimal>();
+        setColumnIdentifiers(colID);
         update(stocks);
     }
 
@@ -46,9 +48,13 @@ public class IngType2recipeTableModel extends DefaultTableModel {
         removeRow(data.indexOf(ingtypes2Recipe));
     }
 
-    public void add(Ingtypes2Recipes ingtypes2Recipes) {
-        data.add(ingtypes2Recipes);
-        fireTableRowsInserted(data.size() - 1, data.size() - 1);
+    public void add(IngTypes ingType, Recipes recipe) {
+        if (!contains(ingType)) {
+            Ingtypes2Recipes newIngType2Recipe = new Ingtypes2Recipes(recipe, ingType);
+            amountMap.put(ingType, BigDecimal.ZERO);
+            data.add(newIngType2Recipe);
+            fireTableRowsInserted(data.size() - 1, data.size() - 1);
+        }
     }
 
 //    public void update(Produkte produkt) {
@@ -93,14 +99,15 @@ public class IngType2recipeTableModel extends DefaultTableModel {
     public void update(List<Stock> stocks) {
         amountMap.clear();
         for (Stock stock : stocks) {
-            if (!amountMap.containsKey(stock.getProdukt().getIngTypes())) {
-                if (!contains(stock.getProdukt().getIngTypes())) {
-                    add(new Ingtypes2Recipes(recipe, stock.getProdukt().getIngTypes()));
-                }
-                amountMap.put(stock.getProdukt().getIngTypes(), BigDecimal.ZERO);
+            if (amountMap.containsKey(stock.getProdukt().getIngTypes())) {
+//                if (!contains(stock.getProdukt().getIngTypes())) {
+//                    add(new Ingtypes2Recipes(recipe, stock.getProdukt().getIngTypes()));
+//                }
+//                amountMap.put(stock.getProdukt().getIngTypes(), BigDecimal.ZERO);
+
+                BigDecimal amount = amountMap.get(stock.getProdukt().getIngTypes()).add(StockTools.getSumme(stock));
+                amountMap.put(stock.getProdukt().getIngTypes(), amount);
             }
-            BigDecimal amount = amountMap.get(stock.getProdukt().getIngTypes()).add(StockTools.getSumme(stock));
-            amountMap.put(stock.getProdukt().getIngTypes(), amount);
         }
         fireTableDataChanged();
     }

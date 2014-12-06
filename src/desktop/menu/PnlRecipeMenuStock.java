@@ -22,9 +22,13 @@ import javax.persistence.OptimisticLockException;
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * @author Torsten Löhr
@@ -36,16 +40,28 @@ public class PnlRecipeMenuStock extends PopupPanel {
     private IngType2recipeTableModel it2rm;
     private JidePopup popup;
     private JPopupMenu menu;
+    RowFilter<StockTableModel3, Integer> textFilter;
+    private TableRowSorter<StockTableModel3> sorter;
+    private int response;
+    private java.util.List<ActionListener> listActions;
+
+    public void addActionListener(ActionListener al){
+        listActions.add(al);
+    }
 
     public PnlRecipeMenuStock(Recipes recipe, ArrayList<Stock> assigned) {
         this.recipe = recipe;
 
+        listActions = new ArrayList<ActionListener>();
+
         ArrayList<Stock> unassigned = new ArrayList<Stock>(Main.getStockList(true));
         unassigned.removeAll(assigned);
 
-        it2rm = new IngType2recipeTableModel(recipe, assigned);
+        it2rm = new IngType2recipeTableModel(recipe.getIngTypes2Recipes(), assigned);
         stmUnass = new StockTableModel3(unassigned);
         stmAss = new StockTableModel3(assigned);
+
+        response = JOptionPane.CANCEL_OPTION;
 
         initComponents();
         initPanel();
@@ -59,8 +75,22 @@ public class PnlRecipeMenuStock extends PopupPanel {
         tblUnassigned.setModel(stmUnass);
         tblAssigned.setModel(stmAss);
 
+
+        sorter = new TableRowSorter(stmUnass);
+
+        sorter.setRowFilter(null);
+        sorter.setSortsOnUpdates(true);
+        tblUnassigned.setRowSorter(sorter);
+
         tblAssigned.getColumnModel().getColumn(StockTableModel3.COL_INGTYPE).setCellRenderer(IngTypesTools.getTableCellRenderer());
         tblAssigned.getColumnModel().getColumn(StockTableModel3.COL_INGTYPE).setCellEditor(IngTypesTools.getTableCellEditor());
+
+        stmAss.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                it2rm.update(stmAss.getData());
+            }
+        });
 
         tblAssigned.getColumnModel().getColumn(StockTableModel3.COL_LAGER).setCellRenderer(LagerTools.getTableCellRenderer());
         tblAssigned.getColumnModel().getColumn(StockTableModel3.COL_LAGER).setCellEditor(LagerTools.getTableCellEditor());
@@ -71,7 +101,64 @@ public class PnlRecipeMenuStock extends PopupPanel {
         tblUnassigned.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         tblAssigned.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
+        cmbStoffart.setModel(Tools.newComboboxModel(IngTypesTools.getAll()));
+        cmbWarengruppe.setModel(Tools.newComboboxModel(new ArrayList(Arrays.asList(WarengruppeTools.getAll()))));
+        cmbUnit.setModel(new DefaultComboBoxModel(IngTypesTools.EINHEIT));
+        cmbStorageType.setModel(new DefaultComboBoxModel(LagerTools.LAGERART));
+
+        createFilters();
+
         thisComponentResized(null);
+    }
+
+
+    private void createFilters() {
+//            warengruppeFilter = new RowFilter<ProdukteTableModel, Integer>() {
+//                @Override
+//                public boolean include(Entry<? extends ProdukteTableModel, ? extends Integer> entry) {
+//                    if (warengruppeFilterKriterium == null) return true;
+//
+//                    int row = entry.getIdentifier();
+//                    Produkte produkt = entry.getModel().getProdukt(row);
+//
+//
+//                    return produkt.getIngTypes().getWarengruppe().equals(warengruppeFilterKriterium);
+//                }
+//            };
+//            warengruppeFilterKriterium = null;
+//
+//            ingTypeFilter = new RowFilter<ProdukteTableModel, Integer>() {
+//                @Override
+//                public boolean include(Entry<? extends ProdukteTableModel, ? extends Integer> entry) {
+//                    if (ingTypeFilterKriterium == null) return true;
+//
+//                    int row = entry.getIdentifier();
+//                    Produkte produkt = entry.getModel().getProdukt(row);
+//
+//
+//                    return produkt.getIngTypes().equals(ingTypeFilterKriterium);
+//                }
+//            };
+//            ingTypeFilterKriterium = null;
+
+        textFilter = new RowFilter<StockTableModel3, Integer>() {
+            @Override
+            public boolean include(Entry<? extends StockTableModel3, ? extends Integer> entry) {
+                if (searchUnassigned.getText().isEmpty()) return true;
+
+                String textKriterium = searchUnassigned.getText().trim();
+
+                int row = entry.getIdentifier();
+                Stock stock = entry.getModel().getStock(row);
+
+                return (stock.getProdukt().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0 ||
+                        Long.toString(stock.getId()).equals(textKriterium) ||
+                        Tools.catchNull(stock.getProdukt().getGtin()).indexOf(textKriterium) >= 0 ||
+                        stock.getProdukt().getIngTypes().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0 ||
+                        stock.getProdukt().getIngTypes().getWarengruppe().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0);
+            }
+        };
+
     }
 
     private void tblUnassignedMousePressed(MouseEvent e) {
@@ -128,8 +215,10 @@ public class PnlRecipeMenuStock extends PopupPanel {
                     stmUnass.getData().removeAll(listSelected);
                     stmUnass.fireTableDataChanged();
 
-                    it2rm.update(stmAss.getData());
-//                    Tools.packTable(tblIngTypes, 0);
+//                    it2rm.update(stmAss.getData());
+
+                    thisComponentResized(null);
+
                 }
             });
 
@@ -260,7 +349,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
                     stmUnass.getData().addAll(listSelected);
                     stmUnass.fireTableDataChanged();
 
-                    it2rm.update(stmAss.getData());
+//                    it2rm.update(stmAss.getData());
 //                    Tools.packTable(tblIngTypes, 0);
                 }
             });
@@ -695,7 +784,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
             menu.add(miAssign);
 
-            menu.show(tblUnassigned, (int) p.getX(), (int) p.getY());
+            menu.show(tblIngTypes, (int) p.getX(), (int) p.getY());
         }
     }
 
@@ -718,25 +807,103 @@ public class PnlRecipeMenuStock extends PopupPanel {
 //    }
 
     private void btnAddITActionPerformed(ActionEvent e) {
-        Ingtypes2Recipes ingtypes2Recipes = new Ingtypes2Recipes(recipe, IngTypesTools.getFirstType());
 
-        recipe.getIngTypes2Recipes().add(ingtypes2Recipes);
 
+        it2rm.add((IngTypes) cmbStoffart.getSelectedItem(), recipe);
         it2rm.fireTableDataChanged();
+    }
+
+    private void createUIComponents() {
+        // TODO: add custom component creation code here
+    }
+
+    private void cmbStoffartItemStateChanged(ItemEvent e) {
+        // TODO add your code here
+    }
+
+    private void btnAddStoffartActionPerformed(ActionEvent e) {
+        CardLayout cl = (CardLayout) (pnlStoffart.getLayout());
+        cl.show(pnlStoffart, "add");
+        txtNewStoffart.setText("");
+        txtNewStoffart.requestFocus();
+    }
+
+    private void txtNewStoffartFocusGained(FocusEvent e) {
+        // TODO add your code here
+    }
+
+    private void cmbUnitItemStateChanged(ItemEvent e) {
+        // TODO add your code here
+    }
+
+    private void btnApplyStoffartActionPerformed(ActionEvent e) {
+        if (!txtNewStoffart.getText().isEmpty() && cmbWarengruppe.getSelectedItem() != null) {
+            IngTypes ingTypes = IngTypesTools.add(txtNewStoffart.getText(), (short) cmbUnit.getSelectedIndex(), (short) cmbStorageType.getSelectedIndex(), (Warengruppe) cmbWarengruppe.getSelectedItem());
+
+            IngTypesTools.loadInto(cmbStoffart);
+            cmbStoffart.setSelectedItem(ingTypes);
+        }
+        CardLayout cl = (CardLayout) (pnlStoffart.getLayout());
+        cl.show(pnlStoffart, "select");
+    }
+
+    private void btnCancelStoffartActionPerformed(ActionEvent e) {
+        CardLayout cl = (CardLayout) (pnlStoffart.getLayout());
+        cl.show(pnlStoffart, "select");
+    }
+
+    private void searchUnassignedActionPerformed(ActionEvent e) {
+        sorter.setRowFilter(textFilter);
+        searchUnassigned.selectAll();
+    }
+
+    private void btnClearSearchActionPerformed(ActionEvent e) {
+        searchUnassigned.setText(null);
+        sorter.setRowFilter(null);
+    }
+
+    private void btnOkActionPerformed(ActionEvent e) {
+        actionPerformed("OK");
+    }
+
+    private void btnCancelActionPerformed(ActionEvent e) {
+        actionPerformed("CANCEL");
+    }
+
+    private void actionPerformed(String command){
+        for (ActionListener al : listActions){
+            al.actionPerformed(new ActionEvent(this, 0, command));
+        }
     }
 
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         lblRecipe = new JLabel();
+        panel1 = new JPanel();
         searchUnassigned = new JTextField();
+        btnClearSearch = new JButton();
         scrollPane2 = new JScrollPane();
         tblAssigned = new JTable();
         scrollPane3 = new JScrollPane();
         tblUnassigned = new JTable();
         scrollPane4 = new JScrollPane();
         tblIngTypes = new JTable();
+        pnlStoffart = new JPanel();
+        pnlSelStoffart = new JPanel();
+        cmbStoffart = new JComboBox();
+        btnAddStoffart = new JButton();
         btnAddIT = new JButton();
+        pnlAddStoffart = new JPanel();
+        txtNewStoffart = new JTextField();
+        btnApplyStoffart = new JButton();
+        cmbWarengruppe = new JComboBox();
+        cmbUnit = new JComboBox();
+        cmbStorageType = new JComboBox();
+        btnCancelStoffart = new JButton();
+        panel2 = new JPanel();
+        btnCancel = new JButton();
+        btnOk = new JButton();
 
         //======== this ========
         addComponentListener(new ComponentAdapter() {
@@ -746,14 +913,38 @@ public class PnlRecipeMenuStock extends PopupPanel {
             }
         });
         setLayout(new FormLayout(
-                "2*(default, $lcgap), default",
-                "2*(default, $lgap), fill:default:grow, $lgap, default"));
+            "2*(default:grow, $lcgap), default:grow",
+            "2*(default, $lgap), fill:default:grow, $lgap, fill:pref, $lgap, default"));
 
         //---- lblRecipe ----
         lblRecipe.setText("text");
         lblRecipe.setFont(new Font("SansSerif", Font.PLAIN, 22));
         add(lblRecipe, CC.xywh(1, 1, 3, 1));
-        add(searchUnassigned, CC.xy(5, 1, CC.DEFAULT, CC.FILL));
+
+        //======== panel1 ========
+        {
+            panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
+
+            //---- searchUnassigned ----
+            searchUnassigned.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    searchUnassignedActionPerformed(e);
+                }
+            });
+            panel1.add(searchUnassigned);
+
+            //---- btnClearSearch ----
+            btnClearSearch.setText("text");
+            btnClearSearch.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    btnClearSearchActionPerformed(e);
+                }
+            });
+            panel1.add(btnClearSearch);
+        }
+        add(panel1, CC.xy(5, 1));
 
         //======== scrollPane2 ========
         {
@@ -790,6 +981,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
             //---- tblIngTypes ----
             tblIngTypes.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+            tblIngTypes.setFont(new Font("Dialog", Font.BOLD, 12));
             tblIngTypes.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
@@ -800,21 +992,153 @@ public class PnlRecipeMenuStock extends PopupPanel {
         }
         add(scrollPane4, CC.xywh(1, 3, 1, 3));
 
-        //---- btnAddIT ----
-        btnAddIT.setText("text");
-        btnAddIT.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                btnAddITActionPerformed(e);
+        //======== pnlStoffart ========
+        {
+            pnlStoffart.setLayout(new CardLayout());
+
+            //======== pnlSelStoffart ========
+            {
+                pnlSelStoffart.setLayout(new FormLayout(
+                    "default:grow, default",
+                    "default:grow, default"));
+
+                //---- cmbStoffart ----
+                cmbStoffart.setFont(new Font("SansSerif", Font.BOLD, 12));
+                cmbStoffart.setModel(new DefaultComboBoxModel(new String[] {
+                    "item 1",
+                    "item 2",
+                    "item 3"
+                }));
+                cmbStoffart.addItemListener(new ItemListener() {
+                    @Override
+                    public void itemStateChanged(ItemEvent e) {
+                        cmbStoffartItemStateChanged(e);
+                    }
+                });
+                pnlSelStoffart.add(cmbStoffart, CC.xywh(1, 1, 1, 2));
+
+                //---- btnAddStoffart ----
+                btnAddStoffart.setFont(new Font("SansSerif", Font.PLAIN, 12));
+                btnAddStoffart.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/edit.png")));
+                btnAddStoffart.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        btnAddStoffartActionPerformed(e);
+                    }
+                });
+                pnlSelStoffart.add(btnAddStoffart, CC.xy(2, 1));
+
+                //---- btnAddIT ----
+                btnAddIT.setText(null);
+                btnAddIT.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/2uparrow.png")));
+                btnAddIT.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        btnAddITActionPerformed(e);
+                    }
+                });
+                pnlSelStoffart.add(btnAddIT, CC.xy(2, 2));
             }
-        });
-        add(btnAddIT, CC.xy(1, 7));
+            pnlStoffart.add(pnlSelStoffart, "select");
+
+            //======== pnlAddStoffart ========
+            {
+                pnlAddStoffart.setLayout(new FormLayout(
+                    "default:grow, 3*($rgap, default)",
+                    "default:grow, default"));
+
+                //---- txtNewStoffart ----
+                txtNewStoffart.setFont(new Font("SansSerif", Font.BOLD, 12));
+                txtNewStoffart.setText(" ");
+                txtNewStoffart.addFocusListener(new FocusAdapter() {
+                    @Override
+                    public void focusGained(FocusEvent e) {
+                        txtNewStoffartFocusGained(e);
+                    }
+                });
+                pnlAddStoffart.add(txtNewStoffart, CC.xywh(1, 1, 5, 1, CC.DEFAULT, CC.FILL));
+
+                //---- btnApplyStoffart ----
+                btnApplyStoffart.setFont(new Font("SansSerif", Font.BOLD, 12));
+                btnApplyStoffart.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/ok.png")));
+                btnApplyStoffart.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        btnApplyStoffartActionPerformed(e);
+                    }
+                });
+                pnlAddStoffart.add(btnApplyStoffart, CC.xy(7, 1));
+
+                //---- cmbWarengruppe ----
+                cmbWarengruppe.setFont(new Font("SansSerif", Font.BOLD, 12));
+                cmbWarengruppe.addItemListener(new ItemListener() {
+                    @Override
+                    public void itemStateChanged(ItemEvent e) {
+                        cmbUnitItemStateChanged(e);
+                    }
+                });
+                pnlAddStoffart.add(cmbWarengruppe, CC.xy(1, 2, CC.DEFAULT, CC.FILL));
+
+                //---- cmbUnit ----
+                cmbUnit.setFont(new Font("SansSerif", Font.BOLD, 12));
+                cmbUnit.addItemListener(new ItemListener() {
+                    @Override
+                    public void itemStateChanged(ItemEvent e) {
+                        cmbUnitItemStateChanged(e);
+                    }
+                });
+                pnlAddStoffart.add(cmbUnit, CC.xy(3, 2, CC.DEFAULT, CC.FILL));
+
+                //---- cmbStorageType ----
+                cmbStorageType.setFont(new Font("SansSerif", Font.BOLD, 12));
+                pnlAddStoffart.add(cmbStorageType, CC.xy(5, 2, CC.DEFAULT, CC.FILL));
+
+                //---- btnCancelStoffart ----
+                btnCancelStoffart.setFont(new Font("SansSerif", Font.BOLD, 12));
+                btnCancelStoffart.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/cancel.png")));
+                btnCancelStoffart.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        btnCancelStoffartActionPerformed(e);
+                    }
+                });
+                pnlAddStoffart.add(btnCancelStoffart, CC.xy(7, 2));
+            }
+            pnlStoffart.add(pnlAddStoffart, "add");
+        }
+        add(pnlStoffart, CC.xy(1, 7));
+
+        //======== panel2 ========
+        {
+            panel2.setLayout(new BoxLayout(panel2, BoxLayout.X_AXIS));
+
+            //---- btnCancel ----
+            btnCancel.setText("Cancel");
+            btnCancel.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    btnCancelActionPerformed(e);
+                }
+            });
+            panel2.add(btnCancel);
+
+            //---- btnOk ----
+            btnOk.setText("OK");
+            btnOk.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    btnOkActionPerformed(e);
+                }
+            });
+            panel2.add(btnOk);
+        }
+        add(panel2, CC.xy(5, 9, CC.RIGHT, CC.DEFAULT));
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
     @Override
     public Object getResult() {
-        return new Pair<java.util.List<Stock>, Recipes>(stmAss.getData(), recipe);
+        return new Pair<java.util.List<Stock>, java.util.List<Ingtypes2Recipes>>(stmAss.getData(), it2rm.getData());
     }
 
     @Override
@@ -829,13 +1153,29 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     private JLabel lblRecipe;
+    private JPanel panel1;
     private JTextField searchUnassigned;
+    private JButton btnClearSearch;
     private JScrollPane scrollPane2;
     private JTable tblAssigned;
     private JScrollPane scrollPane3;
     private JTable tblUnassigned;
     private JScrollPane scrollPane4;
     private JTable tblIngTypes;
+    private JPanel pnlStoffart;
+    private JPanel pnlSelStoffart;
+    private JComboBox cmbStoffart;
+    private JButton btnAddStoffart;
     private JButton btnAddIT;
+    private JPanel pnlAddStoffart;
+    private JTextField txtNewStoffart;
+    private JButton btnApplyStoffart;
+    private JComboBox cmbWarengruppe;
+    private JComboBox cmbUnit;
+    private JComboBox cmbStorageType;
+    private JButton btnCancelStoffart;
+    private JPanel panel2;
+    private JButton btnCancel;
+    private JButton btnOk;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

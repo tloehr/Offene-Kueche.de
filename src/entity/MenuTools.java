@@ -11,17 +11,25 @@ import java.util.Set;
  */
 public class MenuTools {
 
+    public static final int STARTER = 0;
+    public static final int MAIN = 1;
+    public static final int SAUCE = 2;
+    public static final int VEGGIE = 3;
+    public static final int SIDEDISH = 4;
+    public static final int DESSERT = 5;
+
+
     public static String getStocksAsHTMLList(Set<Stock> stocks) {
 
         if (stocks.isEmpty()) return "";
 
-        String html = "<html><ul>";
+        String html = "<h2>Vorräte</h2><ul>";
 
         for (Stock stock : stocks) {
             html += "<li>" + stock.getId() + " " + Tools.left(stock.getProdukt().getBezeichnung(), 30) + "</li>";
         }
 
-        html += "</ul></html>";
+        html += "</ul>";
 
         return html;
 
@@ -174,6 +182,192 @@ public class MenuTools {
 
         return html;
 
+    }
+
+
+    public static Menu setDish(Menu menu, Recipes recipes, int index) {
+        switch (index) {
+            case STARTER: {
+                menu.setStarter(recipes);
+                break;
+            }
+            case MAIN: {
+                menu.setMaincourse(recipes);
+                break;
+            }
+            case SAUCE: {
+                menu.setSauce(recipes);
+                break;
+            }
+            case VEGGIE: {
+                menu.setSideveggie(recipes);
+                break;
+            }
+            case SIDEDISH: {
+                menu.setSidedish(recipes);
+                break;
+            }
+            case DESSERT: {
+                menu.setDessert(recipes);
+                break;
+            }
+            default: {
+
+            }
+        }
+        return menu;
+    }
+
+    public static Recipes getDish(Menu menu, int index) {
+        Recipes recipe = null;
+        switch (index) {
+            case STARTER: {
+                recipe = menu.getStarter();
+                break;
+            }
+            case MAIN: {
+                recipe = menu.getMaincourse();
+                break;
+            }
+            case SAUCE: {
+                recipe = menu.getSauce();
+                break;
+            }
+            case VEGGIE: {
+                recipe = menu.getSideveggie();
+                break;
+            }
+            case SIDEDISH: {
+                recipe = menu.getSidedish();
+                break;
+            }
+            case DESSERT: {
+                recipe = menu.getDessert();
+                break;
+            }
+            default: {
+
+            }
+        }
+        return recipe;
+    }
+
+    public static Set<Stock> getStocklist(Menu menu, int index) {
+        Set<Stock> stocks = null;
+        switch (index) {
+            case STARTER: {
+                stocks = menu.getStarterStocks();
+                break;
+            }
+            case MAIN: {
+                stocks = menu.getMainStocks();
+                break;
+            }
+            case SAUCE: {
+                stocks = menu.getSauceStocks();
+                break;
+            }
+            case VEGGIE: {
+                stocks = menu.getSideveggieStocks();
+                break;
+            }
+            case SIDEDISH: {
+                stocks = menu.getSidedishStocks();
+                break;
+            }
+            case DESSERT: {
+                stocks = menu.getDessertStocks();
+                break;
+            }
+            default: {
+
+            }
+        }
+        return stocks;
+    }
+
+    public static Menu clearStocklist(Menu menu, int index) {
+
+
+        switch (index) {
+            case STARTER: {
+                menu.getStarterStocks().clear();
+
+                break;
+            }
+            case MAIN: {
+                menu.getMainStocks().clear();
+
+                break;
+            }
+            case SAUCE: {
+                menu.getSauceStocks().clear();
+
+                break;
+            }
+            case VEGGIE: {
+                menu.getSideveggieStocks().clear();
+
+                break;
+            }
+            case SIDEDISH: {
+                menu.getSidedishStocks().clear();
+
+                break;
+            }
+            case DESSERT: {
+                menu.getDessertStocks().clear();
+
+                break;
+            }
+            default: {
+
+            }
+        }
+
+        return menu;
+    }
+
+
+    public static Menu add2Stocklist(Menu menu, Stock stock, int index) {
+
+
+        switch (index) {
+            case STARTER: {
+
+                menu.getStarterStocks().add(stock);
+                break;
+            }
+            case MAIN: {
+
+                menu.getMainStocks().add(stock);
+                break;
+            }
+            case SAUCE: {
+
+                menu.getSauceStocks().add(stock);
+                break;
+            }
+            case VEGGIE: {
+
+                menu.getSideveggieStocks().add(stock);
+                break;
+            }
+            case SIDEDISH: {
+
+                menu.getSidedishStocks().add(stock);
+                break;
+            }
+            case DESSERT: {
+
+                menu.getDessertStocks().add(stock);
+            }
+            default: {
+
+            }
+        }
+
+        return menu;
     }
 
     public static String getPrettyString(Menu menu) {

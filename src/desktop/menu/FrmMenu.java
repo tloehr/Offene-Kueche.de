@@ -35,7 +35,7 @@ import java.util.HashMap;
 /**
  * @author Torsten Löhr
  */
-public class FrmMenu extends JInternalFrame {
+public class FrmMenu extends JFrame {
     //    LocalDate week;
     ArrayList<Menuweekall> listAll;
 
@@ -163,7 +163,19 @@ public class FrmMenu extends JInternalFrame {
 
                         @Override
                         public void menuweekAdded(PSDChangeEvent psdce) {
+//                            EntityManager em = Main.getEMF().createEntityManager();
+//                            Menuweek myMenuweek = em.merge(psdce.getMenuweek());
+//                            Menuweekall myMenuweekall = myMenuweek.getMenuweekall();
+//                            em.refresh(myMenuweekall);
+//                            em.close();
 
+
+                            int index = cmbWeeks.getSelectedIndex();
+                            listAll.set(index, psdce.getMenuweek().getMenuweekall());
+                            cmbWeeks.setModel(Tools.newComboboxModel(listAll));
+                            cmbWeeks.setSelectedIndex(index);
+
+                            createThePanels(psdce.getMenuweek().getMenuweekall());
                         }
 
                         @Override
@@ -365,9 +377,6 @@ public class FrmMenu extends JInternalFrame {
 
         //======== this ========
         setVisible(true);
-        setClosable(true);
-        setIconifiable(true);
-        setMaximizable(true);
         setResizable(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
@@ -398,6 +407,8 @@ public class FrmMenu extends JInternalFrame {
             panel1.add(btnAddWeekmenuAll);
         }
         contentPane.add(panel1, BorderLayout.NORTH);
+        pack();
+        setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 

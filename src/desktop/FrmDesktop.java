@@ -31,7 +31,8 @@ import java.beans.PropertyVetoException;
  */
 public class FrmDesktop extends JFrame {
     //    boolean ADMIN = true;
-    JInternalFrame einbuchen, ausbuchen, umbuchen, produkte, types, menuweek, stock2product;
+    JInternalFrame einbuchen, ausbuchen, umbuchen, produkte, types, stock2product;
+    JFrame menuweek;
     FrmStock vorrat = null;
     FrmUser user = null;
     HeapStat hs;
@@ -45,6 +46,7 @@ public class FrmDesktop extends JFrame {
     PrintProcessor pp;
     SoundProcessor sp;
 
+    private MyInternalFrameListener myInternalFrameListener;
     private MyFrameListener myFrameListener;
 
 
@@ -84,7 +86,9 @@ public class FrmDesktop extends JFrame {
         pack();
         setTitle(tools.Tools.getWindowTitle("Desktop"));
 
+        myInternalFrameListener = new MyInternalFrameListener();
         myFrameListener = new MyFrameListener();
+
         hs = new HeapStat(pbHeap, jpTimeout, null, new Closure() {
             @Override
             public void execute(Object o) {
@@ -153,6 +157,9 @@ public class FrmDesktop extends JFrame {
         myDispose(einbuchen);
         myDispose(vorrat);
         myDispose(produkte);
+        if (menuweek != null) {
+            menuweek.dispose();
+        }
         //myDispose(drucker);
         myDispose(user);
         logoutMenuItem.setEnabled(false);
@@ -189,7 +196,7 @@ public class FrmDesktop extends JFrame {
         //einbuchen.validate();
         einbuchen.pack();
 
-        einbuchen.addInternalFrameListener(myFrameListener);
+        einbuchen.addInternalFrameListener(myInternalFrameListener);
         einbuchenMenuItem.setEnabled(false);
 
         desktopPane.add(einbuchen);
@@ -214,7 +221,7 @@ public class FrmDesktop extends JFrame {
         }
 
         vorrat = new FrmStock();
-        vorrat.addInternalFrameListener(myFrameListener);
+        vorrat.addInternalFrameListener(myInternalFrameListener);
 //        vorraeteMenuItem.setEnabled(false);
         desktopPane.add(vorrat);
         Tools.centerOnParent(desktopPane, vorrat);
@@ -233,7 +240,7 @@ public class FrmDesktop extends JFrame {
 
 //    private void druckerMenuItemActionPerformed(ActionEvent e) {
 //        drucker = new FrmPrinterSelection();
-//        drucker.addInternalFrameListener(myFrameListener);
+//        drucker.addInternalFrameListener(myInternalFrameListener);
 //        druckerMenuItem.setEnabled(false);
 //        desktopPane.add(drucker);
 //        Tools.centerOnParent(desktopPane, drucker);
@@ -241,7 +248,7 @@ public class FrmDesktop extends JFrame {
 
     private void userMenuItemActionPerformed(ActionEvent e) {
         user = new FrmUser();
-        user.addInternalFrameListener(myFrameListener);
+        user.addInternalFrameListener(myInternalFrameListener);
         userMenuItem.setEnabled(false);
         desktopPane.add(user);
         Tools.centerOnParent(desktopPane, user);
@@ -261,7 +268,7 @@ public class FrmDesktop extends JFrame {
         //ausbuchen.validate();
         ausbuchen.pack();
 
-        ausbuchen.addInternalFrameListener(myFrameListener);
+        ausbuchen.addInternalFrameListener(myInternalFrameListener);
         ausbuchenMenuItem.setEnabled(false);
 
         desktopPane.add(ausbuchen);
@@ -288,7 +295,7 @@ public class FrmDesktop extends JFrame {
         }
 
         produkte = new FrmProdukte();
-        produkte.addInternalFrameListener(myFrameListener);
+        produkte.addInternalFrameListener(myInternalFrameListener);
 //        produkteMenuItem.setEnabled(false);
         desktopPane.add(produkte);
         Tools.centerOnParent(desktopPane, produkte);
@@ -320,7 +327,7 @@ public class FrmDesktop extends JFrame {
         frame.pack();
         desktopPane.add(frame);
 
-        frame.addInternalFrameListener(myFrameListener);
+        frame.addInternalFrameListener(myInternalFrameListener);
 
         frame.setVisible(true);
 
@@ -348,7 +355,7 @@ public class FrmDesktop extends JFrame {
 
     private void typeMenuItemActionPerformed(ActionEvent e) {
         types = new FrmIngType();
-        types.addInternalFrameListener(myFrameListener);
+        types.addInternalFrameListener(myInternalFrameListener);
         typeMenuItem.setEnabled(false);
         desktopPane.add(types);
         Tools.centerOnParent(desktopPane, types);
@@ -362,16 +369,16 @@ public class FrmDesktop extends JFrame {
 
     private void menuweekMenuItemActionPerformed(ActionEvent e) {
         menuweek = new FrmMenu();
-        menuweek.addInternalFrameListener(myFrameListener);
+        menuweek.setTitle(Tools.getWindowTitle("Speiseplan"));
+        menuweek.addWindowListener(myFrameListener);
         menuweekMenuItem.setEnabled(false);
-        desktopPane.add(menuweek);
+
+        menuweek.setVisible(true);
+
 //        Tools.centerOnParent(desktopPane, menuweek);
         menuweek.toFront();
-        try {
-            menuweek.setMaximum(true);
-        } catch (PropertyVetoException e1) {
-            e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+
+        menuweek.setExtendedState(MAXIMIZED_BOTH);
     }
 
 
@@ -383,7 +390,7 @@ public class FrmDesktop extends JFrame {
         }
 
         stock2product = new FrmReassignProduct(pp);
-        stock2product.addInternalFrameListener(myFrameListener);
+        stock2product.addInternalFrameListener(myInternalFrameListener);
 
         desktopPane.add(stock2product);
         Tools.centerOnParent(desktopPane, stock2product);
@@ -699,50 +706,63 @@ public class FrmDesktop extends JFrame {
         System.exit(0);
     }
 
-    private class MyFrameListener extends InternalFrameAdapter {
+    private class MyFrameListener extends WindowAdapter {
+        @Override
+        public void windowClosing(WindowEvent e) {
+            if (e.getSource() instanceof FrmMenu) {
+                menuweek.removeWindowListener(myFrameListener);
+                menuweek = null;
+                menuweekMenuItem.setEnabled(true);
+            }
+            super.windowClosing(e);
+        }
+
+    }
+
+    private class MyInternalFrameListener extends InternalFrameAdapter {
 
         @Override
         public void internalFrameClosed(InternalFrameEvent e) {
             if (e.getSource() == einbuchen) {
-                einbuchen.removeInternalFrameListener(myFrameListener);
+                einbuchen.removeInternalFrameListener(myInternalFrameListener);
                 ((TouchPanel) einbuchen.getContentPane().getComponent(0)).cleanup();
                 einbuchen = null;
                 einbuchenMenuItem.setEnabled(true);
             } else if (e.getSource() == ausbuchen) {
-                ausbuchen.removeInternalFrameListener(myFrameListener);
+                ausbuchen.removeInternalFrameListener(myInternalFrameListener);
                 ((TouchPanel) ausbuchen.getContentPane().getComponent(0)).cleanup();
                 ausbuchen = null;
                 ausbuchenMenuItem.setEnabled(true);
             } else if (e.getSource() == umbuchen) {
-                umbuchen.removeInternalFrameListener(myFrameListener);
+                umbuchen.removeInternalFrameListener(myInternalFrameListener);
                 ((TouchPanel) umbuchen.getContentPane().getComponent(0)).cleanup();
                 umbuchen = null;
                 umbuchenMenuItem.setEnabled(true);
             } else if (e.getSource() instanceof FrmStock) {
-                vorrat.removeInternalFrameListener(myFrameListener);
+                vorrat.removeInternalFrameListener(myInternalFrameListener);
                 vorrat = null;
 //                vorraeteMenuItem.setEnabled(true);
 //            } else if (e.getSource() instanceof FrmPrinterSelection) {
-//                drucker.removeInternalFrameListener(myFrameListener);
+//                drucker.removeInternalFrameListener(myInternalFrameListener);
 //                drucker = null;
 //                druckerMenuItem.setEnabled(true);
             } else if (e.getSource() instanceof FrmUser) {
-                user.removeInternalFrameListener(myFrameListener);
+                user.removeInternalFrameListener(myInternalFrameListener);
                 user = null;
                 userMenuItem.setEnabled(true);
             } else if (e.getSource() instanceof FrmProdukte) {
-                produkte.removeInternalFrameListener(myFrameListener);
+                produkte.removeInternalFrameListener(myInternalFrameListener);
                 produkte = null;
             } else if (e.getSource() instanceof FrmIngType) {
-                types.removeInternalFrameListener(myFrameListener);
+                types.removeInternalFrameListener(myInternalFrameListener);
                 types = null;
                 typeMenuItem.setEnabled(true);
-            } else if (e.getSource() instanceof FrmMenu) {
-                menuweek.removeInternalFrameListener(myFrameListener);
-                menuweek = null;
-                menuweekMenuItem.setEnabled(true);
+//            } else if (e.getSource() instanceof FrmMenu) {
+//                menuweek.removeInternalFrameListener(myInternalFrameListener);
+//                menuweek = null;
+//                menuweekMenuItem.setEnabled(true);
             } else if (e.getSource() instanceof FrmReassignProduct) {
-                stock2product.removeInternalFrameListener(myFrameListener);
+                stock2product.removeInternalFrameListener(myInternalFrameListener);
                 stock2product = null;
             }
             super.internalFrameClosed(e);

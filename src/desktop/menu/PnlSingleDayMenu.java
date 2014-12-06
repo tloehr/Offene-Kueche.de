@@ -5,8 +5,8 @@ import com.jidesoft.popup.JidePopup;
 import com.jidesoft.swing.DefaultOverlayable;
 import com.jidesoft.swing.JidePopupMenu;
 import com.jidesoft.swing.OverlayableUtils;
-import entity.Menu;
 import entity.*;
+import entity.Menu;
 import org.apache.commons.collections.Closure;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
@@ -23,6 +23,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 
 /**
  * Created by tloehr on 14.10.14.
@@ -106,6 +107,99 @@ public class PnlSingleDayMenu extends JPanel {
     }
 
 
+//    private Recipes mergeChanges(EntityManager em, Recipes recipe, List<Ingtypes2Recipes> listIngTypes2Recipes) {
+//
+//        EntityManager em = Main.getEMF().createEntityManager();
+//        Recipes editedRecipe = null;
+//        try {
+//            em.getTransaction().begin();
+//
+//            editedRecipe = em.merge(recipe);
+//            em.lock(editedRecipe, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+//            editedRecipe.getIngTypes2Recipes().clear();
+//            for (Ingtypes2Recipes its : listIngTypes2Recipes) {
+//                editedRecipe.getIngTypes2Recipes().add(em.merge(its));
+//            }
+//
+//            em.getTransaction().commit();
+//
+//        } catch (OptimisticLockException ole) {
+//            em.getTransaction().rollback();
+//            Main.warn(ole);
+//        } catch (Exception exc) {
+//            Main.error(exc.getMessage());
+//            em.getTransaction().rollback();
+//            Main.fatal(exc.getMessage());
+//        } finally {
+//            em.close();
+//        }
+//        return myMenuweek2Menu;
+//    }
+
+    private Menuweek2Menu mergeChanges(Menu menu1, int dishIndex, RecipeChangeEvent rce) {
+
+
+        Menuweek2Menu myMenuweek2Menu = null;
+        EntityManager em = Main.getEMF().createEntityManager();
+        Menu editedMenu = null;
+        try {
+            em.getTransaction().begin();
+
+
+            Recipes newRecipe = null;
+
+            if (rce.getNewRecipe() != null) {
+                newRecipe = em.merge(rce.getNewRecipe());
+            }
+
+            if (rce.getIngtypes2RecipesList() != null) {
+                em.lock(newRecipe, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+                newRecipe.getIngTypes2Recipes().clear();
+                for (Ingtypes2Recipes its : rce.getIngtypes2RecipesList()) {
+                    newRecipe.getIngTypes2Recipes().add(em.merge(its));
+                }
+            }
+
+            editedMenu = MenuTools.setDish(em.merge(menuweek2Menu.getMenu()), newRecipe, dishIndex);
+
+            if (rce.getStocks() != null) {
+                editedMenu = MenuTools.clearStocklist(editedMenu, dishIndex);
+
+                for (Stock stock : rce.getStocks()) {
+                    editedMenu = MenuTools.add2Stocklist(editedMenu, em.merge(stock), dishIndex);
+                }
+            }
+
+            editedMenu.setText(MenuTools.getPrettyString(editedMenu));
+
+            myMenuweek2Menu = em.merge(menuweek2Menu);
+
+
+            em.lock(myMenuweek2Menu, LockModeType.OPTIMISTIC);
+            em.lock(editedMenu, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+
+            myMenuweek2Menu.setMenu(editedMenu);
+            editedMenu.getMenu2menuweeks().remove(menuweek2Menu);
+            editedMenu.getMenu2menuweeks().add(myMenuweek2Menu);
+
+            em.getTransaction().commit();
+
+        } catch (OptimisticLockException ole) {
+            em.getTransaction().rollback();
+            Main.warn(ole);
+        } catch (Exception exc) {
+            Main.error(exc.getMessage());
+            em.getTransaction().rollback();
+            Main.fatal(exc.getMessage());
+        } finally {
+            em.close();
+        }
+
+
+        return myMenuweek2Menu;
+    }
+
+
     private Menuweek2Menu mergeChanges(Menu menu1) {
         Menuweek2Menu myMenuweek2Menu = null;
         EntityManager em = Main.getEMF().createEntityManager();
@@ -151,7 +245,6 @@ public class PnlSingleDayMenu extends JPanel {
 
         menuComplete.setLayout(new BoxLayout(menuComplete, BoxLayout.PAGE_AXIS));
 
-
         JLabel lblDate = new JLabel();
         lblDate.setFont(new Font("SansSerif", Font.BOLD, 18));
         lblDate.setText(sdf.format(menuweek2Menu.getDate()) +
@@ -174,122 +267,141 @@ public class PnlSingleDayMenu extends JPanel {
         menuLine0.add(BorderLayout.CENTER, lblDate);
         menuLine0.add(BorderLayout.EAST, lblID);
 
+        String[] names = new String[]{"Vorspeise", "Hauptgericht", "Sauce", "Gemüse/Beilagen/Salat", "Kartoffeln/Reis/Nudeln", "Dessert"};
+        int[] dishIndices = new int[]{MenuTools.STARTER, MenuTools.MAIN, MenuTools.SAUCE, MenuTools.VEGGIE, MenuTools.SIDEDISH, MenuTools.DESSERT};
 
-        listOfBlocks.add(new MenuBlock(menuweek2Menu.getMenu().getStarter(), menuweek2Menu.getMenu().getStarterStocks(), "Vorspeise", new RecipeChangeListener() {
-            @Override
-            public void recipeChanged(RecipeChangeEvent rce) {
-                menuweek2Menu.getMenu().setStarter(rce.getNewRecipe());
-                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
-                menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
-                Menu oldMenu = menuweek2Menu.getMenu();
-                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
-                psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
-            }
+        for (final int dishIndex : dishIndices) {
+            listOfBlocks.add(new MenuBlock(MenuTools.getDish(menuweek2Menu.getMenu(), dishIndex), MenuTools.getStocklist(menuweek2Menu.getMenu(), dishIndex), names[dishIndex], new RecipeChangeListener() {
+                @Override
+                public void recipeChanged(RecipeChangeEvent rce) {
+                    Menu oldMenu = menuweek2Menu.getMenu();
+                    menuweek2Menu = mergeChanges(oldMenu, dishIndex, rce);
+                    searcherWholeMenu.setText(menuweek2Menu.getMenu().getText());
+                    psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
+                }
+            }));
+        }
 
-            @Override
-            public void stocksChanged(Set<Stock> stocks) {
-                menuweek2Menu.getMenu().getStarterStocks().clear();
-                menuweek2Menu.getMenu().getStarterStocks().addAll(stocks);
-                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
-                psdChangeListener.stockListChanged(new PSDChangeEvent(this, menuweek2Menu.getMenu(), menuweek2Menu));
-            }
-        }));
-
-        listOfBlocks.add(new MenuBlock(menuweek2Menu.getMenu().getMaincourse(), menuweek2Menu.getMenu().getMainStocks(), "Hauptgericht", new RecipeChangeListener() {
-            @Override
-            public void recipeChanged(RecipeChangeEvent rce) {
-                menuweek2Menu.getMenu().setMaincourse(rce.getNewRecipe());
-                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
-                menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
-                Menu oldMenu = menuweek2Menu.getMenu();
-                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
-                psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
-            }
-
-            @Override
-            public void stocksChanged(Set<Stock> stocks) {
-                menuweek2Menu.getMenu().getMainStocks().clear();
-                menuweek2Menu.getMenu().getMainStocks().addAll(stocks);
-                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
-                psdChangeListener.stockListChanged(new PSDChangeEvent(this, menuweek2Menu.getMenu(), menuweek2Menu));
-            }
-        }));
-        listOfBlocks.add(new MenuBlock(menuweek2Menu.getMenu().getSauce(), menuweek2Menu.getMenu().getSauceStocks(), "Sauce", new RecipeChangeListener() {
-            @Override
-            public void recipeChanged(RecipeChangeEvent rce) {
-                menuweek2Menu.getMenu().setSauce(rce.getNewRecipe());
-                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
-                menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
-                Menu oldMenu = menuweek2Menu.getMenu();
-                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
-                psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
-            }
-
-            @Override
-            public void stocksChanged(Set<Stock> stocks) {
-                menuweek2Menu.getMenu().getSauceStocks().clear();
-                menuweek2Menu.getMenu().getSauceStocks().addAll(stocks);
-                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
-                psdChangeListener.stockListChanged(new PSDChangeEvent(this, menuweek2Menu.getMenu(), menuweek2Menu));
-            }
-        }));
-        listOfBlocks.add(new MenuBlock(menuweek2Menu.getMenu().getSideveggie(), menuweek2Menu.getMenu().getSideveggieStocks(), "Gemüse/Beilagen/Salat", new RecipeChangeListener() {
-            @Override
-            public void recipeChanged(RecipeChangeEvent rce) {
-                menuweek2Menu.getMenu().setSideveggie(rce.getNewRecipe());
-                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
-                menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
-                Menu oldMenu = menuweek2Menu.getMenu();
-                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
-                psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
-            }
-
-            @Override
-            public void stocksChanged(Set<Stock> stocks) {
-                menuweek2Menu.getMenu().getSideveggieStocks().clear();
-                menuweek2Menu.getMenu().getSideveggieStocks().addAll(stocks);
-                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
-                psdChangeListener.stockListChanged(new PSDChangeEvent(this, menuweek2Menu.getMenu(), menuweek2Menu));
-            }
-        }));
-        listOfBlocks.add(new MenuBlock(menuweek2Menu.getMenu().getSidedish(), menuweek2Menu.getMenu().getSidedishStocks(), "Kartoffeln/Reis/Nudeln", new RecipeChangeListener() {
-            @Override
-            public void recipeChanged(RecipeChangeEvent rce) {
-                menuweek2Menu.getMenu().setSidedish(rce.getNewRecipe());
-                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
-                menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
-                Menu oldMenu = menuweek2Menu.getMenu();
-                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
-                psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
-            }
-
-            @Override
-            public void stocksChanged(Set<Stock> stocks) {
-                menuweek2Menu.getMenu().getSidedishStocks().clear();
-                menuweek2Menu.getMenu().getSidedishStocks().addAll(stocks);
-                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
-                psdChangeListener.stockListChanged(new PSDChangeEvent(this, menuweek2Menu.getMenu(), menuweek2Menu));
-            }
-        }));
-        listOfBlocks.add(new MenuBlock(menuweek2Menu.getMenu().getDessert(), menuweek2Menu.getMenu().getDessertStocks(), "Dessert", new RecipeChangeListener() {
-            @Override
-            public void recipeChanged(RecipeChangeEvent rce) {
-                menuweek2Menu.getMenu().setDessert(rce.getNewRecipe());
-                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
-                menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
-                Menu oldMenu = menuweek2Menu.getMenu();
-                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
-                psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
-            }
-
-            @Override
-            public void stocksChanged(Set<Stock> stocks) {
-                menuweek2Menu.getMenu().getDessertStocks().clear();
-                menuweek2Menu.getMenu().getDessertStocks().addAll(stocks);
-                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
-                psdChangeListener.stockListChanged(new PSDChangeEvent(this, menuweek2Menu.getMenu(), menuweek2Menu));
-            }
-        }));
+//        listOfBlocks.add(new MenuBlock(menuweek2Menu.getMenu().getStarter(), menuweek2Menu.getMenu().getStarterStocks(), "Vorspeise", new RecipeChangeListener() {
+//            @Override
+//            public void recipeChanged(RecipeChangeEvent rce) {
+////                menuweek2Menu.getMenu().setStarter(rce.getNewRecipe());
+//
+//                Menu oldMenu = menuweek2Menu.getMenu();
+//                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu(), MenuTools.STARTER, rce);
+//
+//                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
+////                menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
+//
+//                psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
+//            }
+//
+////            @Override
+////            public void stocksChanged(Set<Stock> stocks) {
+////                menuweek2Menu.getMenu().getStarterStocks().clear();
+////                menuweek2Menu.getMenu().getStarterStocks().addAll(stocks);
+////                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
+////                psdChangeListener.stockListChanged(new PSDChangeEvent(this, menuweek2Menu.getMenu(), menuweek2Menu));
+////            }
+//
+//
+//        }));
+//
+//        listOfBlocks.add(new MenuBlock(menuweek2Menu.getMenu().getMaincourse(), menuweek2Menu.getMenu().getMainStocks(), "Hauptgericht", new RecipeChangeListener() {
+//            @Override
+//            public void recipeChanged(RecipeChangeEvent rce) {
+//                menuweek2Menu.getMenu().setMaincourse(rce.getNewRecipe());
+//                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
+//                menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
+//                Menu oldMenu = menuweek2Menu.getMenu();
+//                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
+//                psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
+//            }
+//
+//            @Override
+//            public void stocksChanged(Set<Stock> stocks) {
+//                menuweek2Menu.getMenu().getMainStocks().clear();
+//                menuweek2Menu.getMenu().getMainStocks().addAll(stocks);
+//                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
+//                psdChangeListener.stockListChanged(new PSDChangeEvent(this, menuweek2Menu.getMenu(), menuweek2Menu));
+//            }
+//        }));
+//        listOfBlocks.add(new MenuBlock(menuweek2Menu.getMenu().getSauce(), menuweek2Menu.getMenu().getSauceStocks(), "Sauce", new RecipeChangeListener() {
+//            @Override
+//            public void recipeChanged(RecipeChangeEvent rce) {
+//                menuweek2Menu.getMenu().setSauce(rce.getNewRecipe());
+//                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
+//                menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
+//                Menu oldMenu = menuweek2Menu.getMenu();
+//                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
+//                psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
+//            }
+//
+//            @Override
+//            public void stocksChanged(Set<Stock> stocks) {
+//                menuweek2Menu.getMenu().getSauceStocks().clear();
+//                menuweek2Menu.getMenu().getSauceStocks().addAll(stocks);
+//                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
+//                psdChangeListener.stockListChanged(new PSDChangeEvent(this, menuweek2Menu.getMenu(), menuweek2Menu));
+//            }
+//        }));
+//        listOfBlocks.add(new MenuBlock(menuweek2Menu.getMenu().getSideveggie(), menuweek2Menu.getMenu().getSideveggieStocks(), "Gemüse/Beilagen/Salat", new RecipeChangeListener() {
+//            @Override
+//            public void recipeChanged(RecipeChangeEvent rce) {
+//                menuweek2Menu.getMenu().setSideveggie(rce.getNewRecipe());
+//                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
+//                menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
+//                Menu oldMenu = menuweek2Menu.getMenu();
+//                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
+//                psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
+//            }
+//
+//            @Override
+//            public void stocksChanged(Set<Stock> stocks) {
+//                menuweek2Menu.getMenu().getSideveggieStocks().clear();
+//                menuweek2Menu.getMenu().getSideveggieStocks().addAll(stocks);
+//                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
+//                psdChangeListener.stockListChanged(new PSDChangeEvent(this, menuweek2Menu.getMenu(), menuweek2Menu));
+//            }
+//        }));
+//        listOfBlocks.add(new MenuBlock(menuweek2Menu.getMenu().getSidedish(), menuweek2Menu.getMenu().getSidedishStocks(), "Kartoffeln/Reis/Nudeln", new RecipeChangeListener() {
+//            @Override
+//            public void recipeChanged(RecipeChangeEvent rce) {
+//                menuweek2Menu.getMenu().setSidedish(rce.getNewRecipe());
+//                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
+//                menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
+//                Menu oldMenu = menuweek2Menu.getMenu();
+//                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
+//                psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
+//            }
+//
+//            @Override
+//            public void stocksChanged(Set<Stock> stocks) {
+//                menuweek2Menu.getMenu().getSidedishStocks().clear();
+//                menuweek2Menu.getMenu().getSidedishStocks().addAll(stocks);
+//                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
+//                psdChangeListener.stockListChanged(new PSDChangeEvent(this, menuweek2Menu.getMenu(), menuweek2Menu));
+//            }
+//        }));
+//        listOfBlocks.add(new MenuBlock(menuweek2Menu.getMenu().getDessert(), menuweek2Menu.getMenu().getDessertStocks(), "Dessert", new RecipeChangeListener() {
+//            @Override
+//            public void recipeChanged(RecipeChangeEvent rce) {
+//                menuweek2Menu.getMenu().setDessert(rce.getNewRecipe());
+//                searcherWholeMenu.setText(MenuTools.getPrettyString(menuweek2Menu.getMenu()));
+//                menuweek2Menu.getMenu().setText(searcherWholeMenu.getText().toString());
+//                Menu oldMenu = menuweek2Menu.getMenu();
+//                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
+//                psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
+//            }
+//
+//            @Override
+//            public void stocksChanged(Set<Stock> stocks) {
+//                menuweek2Menu.getMenu().getDessertStocks().clear();
+//                menuweek2Menu.getMenu().getDessertStocks().addAll(stocks);
+//                menuweek2Menu = mergeChanges(menuweek2Menu.getMenu());
+//                psdChangeListener.stockListChanged(new PSDChangeEvent(this, menuweek2Menu.getMenu(), menuweek2Menu));
+//            }
+//        }));
 
         menuLine1.add(listOfBlocks.get(0));
         menuLine1.add(listOfBlocks.get(1));
@@ -326,7 +438,6 @@ public class PnlSingleDayMenu extends JPanel {
         lblOverlay.setForeground(Const.deepskyblue);
         lblOverlay.setFont(new Font("SansSerif", Font.BOLD, 10));
         ovrComment.addOverlayComponent(lblOverlay, DefaultOverlayable.SOUTH_EAST);
-
 
         btnCopyTo = new JButton(Const.icon24copy);
         btnCopyTo.addActionListener(new ActionListener() {
@@ -620,7 +731,7 @@ public class PnlSingleDayMenu extends JPanel {
                 public void focusLost(FocusEvent e) {
                     super.focusLost(e);
                     if (recipe != null && recipe.getId() == 0) {
-                        if (JOptionPane.showInternalConfirmDialog(Main.getDesktop().getMenuweek(), "Du hast das Rezept noch nicht bestätigt.\nSollen wir das jetzt machen ?", "Bisher unbekanntes Rezept", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48stop) == JOptionPane.YES_OPTION) {
+                        if (JOptionPane.showConfirmDialog(Main.getDesktop().getMenuweek(), "Du hast das Rezept noch nicht bestätigt.\nSollen wir das jetzt machen ?", "Bisher unbekanntes Rezept", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48stop) == JOptionPane.YES_OPTION) {
                             menuitemSave();
                             keyboardFocusManager.focusNextComponent();
                         }
@@ -637,7 +748,7 @@ public class PnlSingleDayMenu extends JPanel {
 
             ovrBadge = new DefaultOverlayable(btnMenu);
             ovrBadge.addOverlayComponent(lblBadge, DefaultOverlayable.NORTH_EAST);
-            btnMenu.setToolTipText(MenuTools.getStocksAsHTMLList(stocks));
+            btnMenu.setToolTipText("<html>" + RecipeTools.getIngTypesAsHTMLList(recipe) + MenuTools.getStocksAsHTMLList(stocks) + "</html>");
             ovrBadge.setPreferredSize(btnMenu.getPreferredSize());
             ovrBadge.setOverlayVisible(!stocks.isEmpty());
             setRecipe(recipeIn);
@@ -675,7 +786,6 @@ public class PnlSingleDayMenu extends JPanel {
         }
 
         public void menuitemStock() {
-
             if (recipe == null || recipe.getId() == 0) return;
 
             if (popupStocks != null && popupStocks.isVisible()) {
@@ -683,58 +793,30 @@ public class PnlSingleDayMenu extends JPanel {
             }
             Tools.unregisterListeners(popupStocks);
 
-
-//            final PnlAssign<Stock> pnlAssign = new PnlAssign<Stock>(new ArrayList<Stock>(stocks), Main.getStockList(false), new DefaultListRenderer());
-//            pnlAssign.setVisibleRowCount(30);
-
             final PnlRecipeMenuStock pnlAssign = new PnlRecipeMenuStock(recipe, new ArrayList<Stock>(stocks));
 
 
-            int response = JOptionPane.showInternalConfirmDialog(Main.getDesktop().getMenuweek(), pnlAssign, "Zuordnungen zu Rezept", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            final MyJDialog dlg = new MyJDialog(Main.getDesktop().getMenuweek());
 
+            pnlAssign.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dlg.dispose();
+                    if (e.getActionCommand().equals("OK")) {
+                        Pair<java.util.List<Stock>, java.util.List<Ingtypes2Recipes>> pair = (Pair<java.util.List<Stock>, java.util.List<Ingtypes2Recipes>>) pnlAssign.getResult();
+                        rcl.recipeChanged(new RecipeChangeEvent(searcher, recipe, pair.getSecond(), new HashSet<Stock>(pair.getFirst())));
+                    }
+                }
+            });
 
+            dlg.setModal(true);
+            dlg.getContentPane().setLayout(new BoxLayout(dlg.getContentPane(), BoxLayout.X_AXIS));
+            dlg.getContentPane().add(pnlAssign);
+            dlg.setResizable(true);
+            dlg.setTitle("Zuordnungen zu Rezept");
+            dlg.pack();
+            dlg.setVisible(true);
 
-            if (response == JOptionPane.OK_OPTION) {
-
-//                if (CollectionUtils.isEqualCollection((ArrayList<Stock>) pnlAssign.getResult(), stocks))
-//                    return;
-
-//                stocks.clear();
-//                stocks.addAll(((ArrayList<Stock>) pnlAssign.getResult()));
-//
-//                ovrBadge.setOverlayVisible(!stocks.isEmpty());
-//                btnMenu.setToolTipText(MenuTools.getStocksAsHTMLList(stocks));
-
-                Pair<java.util.List<Stock>, Recipes> pair = (Pair<java.util.List<Stock>, Recipes>) pnlAssign.getResult();
-
-                grmpf;
-                recipe.getIngTypes2Recipes().clear();
-                recipe.getIngTypes2Recipes().addAll(pair.getSecond().getIngTypes2Recipes());
-
-                setRecipe(recipe);
-                rcl.stocksChanged(new HashSet<Stock>(pair.getFirst()));
-
-            }
-
-
-//            popupStocks = GUITools.createPanelPopup(pnlAssign, new Closure() {
-//                @Override
-//                public void execute(Object o) {
-//                    if (o == null) return;
-//                    if (CollectionUtils.isEqualCollection((ArrayList<Stock>) pnlAssign.getResult(), stocks))
-//                        return;
-////                    stocks.clear();
-////                    for (Stock stock : pnlAssign.getAssigned()) {
-////                        stocks.add(stock);
-////                    }
-////                    lblBadge.setIcon(stocks.isEmpty() ? Const.icon16yellow : Const.icon16green);
-//                    ovrBadge.setOverlayVisible(!stocks.isEmpty());
-//                    btnMenu.setToolTipText(MenuTools.getStocksAsHTMLList(stocks));
-//                    rcl.stocksChanged(new HashSet<Stock>((ArrayList<Stock>) pnlAssign.getResult()));
-//                }
-//            }, ovrBadge);
-//
-//            GUITools.showPopup(popupStocks, SwingUtilities.CENTER);
         }
 
         private void goDownInList() {
@@ -783,6 +865,28 @@ public class PnlSingleDayMenu extends JPanel {
                 }
             });
         }
+
+
+//        void setRecipe(Recipes recipe, List<Ingtypes2Recipes> ingtypes2RecipesList) {
+//            this.recipe = recipe;
+//            searcher.setText(recipe == null ? "" : recipe.getTitle());
+//            searcher.setToolTipText(recipe == null ? "" : recipe.getText());
+//
+//            if (!initPhase && ((recipe != null && recipe.getId() != 0) || recipe == null)) {
+//                rcl.recipeChanged(new RecipeChangeEvent(searcher, recipe, ingtypes2RecipesList));
+//            }
+//
+//            setAccepted();
+//
+//            SwingUtilities.invokeLater(new Runnable() {
+//                @Override
+//                public void run() {
+//                    revalidate();
+//                    repaint();
+//                }
+//            });
+//        }
+
 
         void cancel() {
             searcher.setText(recipe == null ? "" : recipe.getTitle());
@@ -898,26 +1002,43 @@ public class PnlSingleDayMenu extends JPanel {
     private interface RecipeChangeListener extends EventListener {
         void recipeChanged(RecipeChangeEvent rce);
 
-        void stocksChanged(Set<Stock> stocks);
+//        void stocksChanged(Set<Stock> stocks);
+
+//        void ingTypesListChanged(List<IngTypes> ingTypes);
     }
 
     private class RecipeChangeEvent extends EventObject {
 
         private final Recipes newRecipe;
+        private final List<Ingtypes2Recipes> ingtypes2RecipesList;
+        private final Set<Stock> stocks;
 
-        /**
-         * Creates a new CaretEvent object.
-         *
-         * @param source the object responsible for the event
-         */
         public RecipeChangeEvent(Object source, Recipes newRecipe) {
             super(source);
             this.newRecipe = newRecipe;
+            this.ingtypes2RecipesList = null;
+            this.stocks = null;
+        }
+
+        public RecipeChangeEvent(Object source, Recipes newRecipe, List<Ingtypes2Recipes> ingtypes2RecipesList, Set<Stock> stocks1) {
+            super(source);
+            this.newRecipe = newRecipe;
+            this.ingtypes2RecipesList = ingtypes2RecipesList;
+            this.stocks = stocks1;
         }
 
 //        public boolean isRecipeDeleted() {
 //            return newRecipe == null;
 //        }
+
+
+        public List<Ingtypes2Recipes> getIngtypes2RecipesList() {
+            return ingtypes2RecipesList;
+        }
+
+        public Set<Stock> getStocks() {
+            return stocks;
+        }
 
         public Recipes getNewRecipe() {
             return newRecipe;

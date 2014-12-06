@@ -60,7 +60,6 @@ public class StockTableModel3 extends DefaultTableModel implements DeletableTabl
         return rowcount;
     }
 
-
     @Override
     public void removeRow(int row) {
         data.remove(row);

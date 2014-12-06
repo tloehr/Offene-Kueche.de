@@ -6,6 +6,26 @@ package entity;
 public class RecipeTools {
 
 
+    public static String getIngTypesAsHTMLList(Recipes recipe) {
+
+        if (recipe == null) return "";
+
+
+        if (recipe.getIngTypes2Recipes().isEmpty()) return "";
+
+        String html = "<h2>Zutaten</h2><ul>";
+
+        for (Ingtypes2Recipes its : recipe.getIngTypes2Recipes()) {
+            html += "<li>" + its.getIngType().getBezeichnung() + ": " + its.getAmount() + " " + IngTypesTools.EINHEIT[its.getIngType().getEinheit()] + "</li>";
+        }
+
+        html += "</ul>";
+
+        return html;
+
+    }
+
+
 //    public static String getAsHTML(Recipes recipe, ) {
 //            String html = "";
 //            HashSet<Allergene> setAllergenes = new HashSet<Allergene>();

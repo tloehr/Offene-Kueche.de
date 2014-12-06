@@ -385,7 +385,7 @@ public class PnlMenuWeek extends JPanel {
     }
 
     private void btnRemoveThisActionPerformed(ActionEvent e) {
-        if (JOptionPane.showInternalConfirmDialog(Main.getDesktop().getMenuweek(), "Wirklich ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48stop) == JOptionPane.YES_OPTION) {
+        if (JOptionPane.showConfirmDialog(Main.getDesktop().getMenuweek(), "Wirklich ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48stop) == JOptionPane.YES_OPTION) {
             Menuweek myMenuweek = null;
             Menuweekall myMenuweekall = null;
             EntityManager em = Main.getEMF().createEntityManager();
