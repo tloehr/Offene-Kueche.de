@@ -38,8 +38,13 @@ public class MenuweekTools {
                 "Handels- und Dienstleistungen GmbH & Co. KG<br/>\n" +
                 "02292-9137-0</h1>\n" +
                 "</div>\n";
+
+        html += "<div align=\"center\">\n" +
+                "<h1 id=\"fonth1\">-" + menuweek.getRecipefeature().getText() + "-</h1>\n" +
+                "</div>\n";
+
         if (!menuweek.getCustomers().isEmpty()) {
-            html += "<h2 id=\"fonth2\">Kunden: ";
+            html += "<p id=\"fontsmall\">Kunden: ";
 
             String line = "";
 
@@ -47,7 +52,7 @@ public class MenuweekTools {
                 line += customer + ", ";
             }
             html += Tools.left(line, line.length() - 2, "");
-            html += "</h2>\n";
+            html += "</p>\n";
         }
 
         HashSet<Additives> setAdditives = new HashSet<Additives>();

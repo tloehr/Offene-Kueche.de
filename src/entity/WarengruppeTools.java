@@ -1,6 +1,7 @@
 package entity;
 
 import Main.Main;
+import tools.Tools;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -32,7 +33,7 @@ public class WarengruppeTools {
 
     public static class MyTableCellEditor extends DefaultCellEditor {
         MyTableCellEditor() {
-            super(new JComboBox<Warengruppe>(new DefaultComboBoxModel<Warengruppe>(getAll())));
+            super(new JComboBox<Warengruppe>(Tools.newComboboxModel(getAll())));
             setClickCountToStart(2);
             ((JComboBox<Warengruppe>) editorComponent).setRenderer(new ListCellRenderer<Warengruppe>() {
                 @Override
@@ -106,7 +107,7 @@ public class WarengruppeTools {
     }
 
 
-    public static Warengruppe[] getAll() {
+    public static ArrayList<Warengruppe> getAll() {
         ArrayList<Warengruppe> list = new ArrayList<Warengruppe>();
         EntityManager em = Main.getEMF().createEntityManager();
         try {
@@ -117,6 +118,6 @@ public class WarengruppeTools {
         } finally {
             em.close();
         }
-        return list.toArray(new Warengruppe[]{});
+        return list;
     }
 }

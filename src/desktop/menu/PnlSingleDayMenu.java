@@ -57,6 +57,17 @@ public class PnlSingleDayMenu extends JPanel {
         }
     }
 
+//    public void updateRecipe(Recipes recipe) {
+//
+//
+//
+//        if (menuweek2Menu.getMenu().equals(updatedMenu)) {
+//            menuweek2Menu.setMenu(updatedMenu);
+//            initPanel();
+//        }
+//    }
+
+
     public PnlSingleDayMenu(Menuweek2Menu menuweek2Menu, HashMap<LocalDate, String> holidays, PSDChangeListener psdChangeListener) {
         super();
         this.menuweek2Menu = menuweek2Menu;
@@ -136,8 +147,9 @@ public class PnlSingleDayMenu extends JPanel {
 //        return myMenuweek2Menu;
 //    }
 
-    private Menuweek2Menu mergeChanges(Menu menu1, int dishIndex, RecipeChangeEvent rce) {
+    private ArrayList<Menu> mergeChanges(int dishIndex, RecipeChangeEvent rce) {
 
+        ArrayList<Menu> affectedMenus = new ArrayList<Menu>();
 
         Menuweek2Menu myMenuweek2Menu = null;
         EntityManager em = Main.getEMF().createEntityManager();
@@ -145,6 +157,8 @@ public class PnlSingleDayMenu extends JPanel {
         try {
             em.getTransaction().begin();
 
+
+            myMenuweek2Menu = em.merge(menuweek2Menu);
 
             Recipes newRecipe = null;
 
@@ -163,16 +177,23 @@ public class PnlSingleDayMenu extends JPanel {
             editedMenu = MenuTools.setDish(em.merge(menuweek2Menu.getMenu()), newRecipe, dishIndex);
 
             if (rce.getStocks() != null) {
-                editedMenu = MenuTools.clearStocklist(editedMenu, dishIndex);
+                // overwrite all other menus in this week who share the same recipe
+                for (Menuweek allMenuWMenuweek : myMenuweek2Menu.getMenuweek().getMenuweekall().getMenuweeks()) {
+                    for (Menuweek2Menu allMenuweeks2Menu : allMenuWMenuweek.getMenuweek2menus()) {
+                        for (int dish : MenuTools.indicesOf(allMenuweeks2Menu.getMenu(), rce.getNewRecipe())) {
+                            Menu otherMenu = em.merge(allMenuweeks2Menu.getMenu());
+                            MenuTools.clearStocklist(otherMenu, dish);
+                            for (Stock stock : rce.getStocks()) {
+                                otherMenu = MenuTools.add2Stocklist(otherMenu, em.merge(stock), dish);
 
-                for (Stock stock : rce.getStocks()) {
-                    editedMenu = MenuTools.add2Stocklist(editedMenu, em.merge(stock), dishIndex);
+                            }
+                            affectedMenus.add(otherMenu);
+                        }
+                    }
                 }
             }
 
             editedMenu.setText(MenuTools.getPrettyString(editedMenu));
-
-            myMenuweek2Menu = em.merge(menuweek2Menu);
 
 
             em.lock(myMenuweek2Menu, LockModeType.OPTIMISTIC);
@@ -193,10 +214,11 @@ public class PnlSingleDayMenu extends JPanel {
             Main.fatal(exc.getMessage());
         } finally {
             em.close();
+            menuweek2Menu = myMenuweek2Menu;
         }
 
 
-        return myMenuweek2Menu;
+        return affectedMenus;
     }
 
 
@@ -275,9 +297,12 @@ public class PnlSingleDayMenu extends JPanel {
                 @Override
                 public void recipeChanged(RecipeChangeEvent rce) {
                     Menu oldMenu = menuweek2Menu.getMenu();
-                    menuweek2Menu = mergeChanges(oldMenu, dishIndex, rce);
+                    ArrayList<Menu> affectedMenus = mergeChanges(dishIndex, rce);
                     searcherWholeMenu.setText(menuweek2Menu.getMenu().getText());
-                    psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, menuweek2Menu.getMenu(), menuweek2Menu));
+
+                    for (Menu afftectedMenu : affectedMenus) {
+                        psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, afftectedMenu, menuweek2Menu));
+                    }
                 }
             }));
         }
@@ -748,7 +773,7 @@ public class PnlSingleDayMenu extends JPanel {
 
             ovrBadge = new DefaultOverlayable(btnMenu);
             ovrBadge.addOverlayComponent(lblBadge, DefaultOverlayable.NORTH_EAST);
-            btnMenu.setToolTipText("<html>" + RecipeTools.getIngTypesAsHTMLList(recipe) + MenuTools.getStocksAsHTMLList(stocks) + "</html>");
+            btnMenu.setToolTipText("<html>" + RecipeTools.getIngTypesAsHTMLList(recipeIn) + MenuTools.getStocksAsHTMLList(stocks) + "</html>");
             ovrBadge.setPreferredSize(btnMenu.getPreferredSize());
             ovrBadge.setOverlayVisible(!stocks.isEmpty());
             setRecipe(recipeIn);

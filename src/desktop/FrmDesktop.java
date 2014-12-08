@@ -31,8 +31,8 @@ import java.beans.PropertyVetoException;
  */
 public class FrmDesktop extends JFrame {
     //    boolean ADMIN = true;
-    JInternalFrame einbuchen, ausbuchen, umbuchen, produkte, types, stock2product;
-    JFrame menuweek;
+    JInternalFrame einbuchen, ausbuchen, umbuchen, produkte, stock2product;
+    JFrame menuweek, types;
     FrmStock vorrat = null;
     FrmUser user = null;
     HeapStat hs;
@@ -355,16 +355,12 @@ public class FrmDesktop extends JFrame {
 
     private void typeMenuItemActionPerformed(ActionEvent e) {
         types = new FrmIngType();
-        types.addInternalFrameListener(myInternalFrameListener);
+        types.addWindowListener(myFrameListener);
         typeMenuItem.setEnabled(false);
-        desktopPane.add(types);
+        types.setVisible(true);
         Tools.centerOnParent(desktopPane, types);
         types.toFront();
-        try {
-            types.setMaximum(true);
-        } catch (PropertyVetoException e1) {
-            e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+
     }
 
     private void menuweekMenuItemActionPerformed(ActionEvent e) {
@@ -713,6 +709,10 @@ public class FrmDesktop extends JFrame {
                 menuweek.removeWindowListener(myFrameListener);
                 menuweek = null;
                 menuweekMenuItem.setEnabled(true);
+            } else if (e.getSource() instanceof FrmIngType) {
+                types.removeWindowListener(myFrameListener);
+                types = null;
+                typeMenuItem.setEnabled(true);
             }
             super.windowClosing(e);
         }
@@ -753,14 +753,7 @@ public class FrmDesktop extends JFrame {
             } else if (e.getSource() instanceof FrmProdukte) {
                 produkte.removeInternalFrameListener(myInternalFrameListener);
                 produkte = null;
-            } else if (e.getSource() instanceof FrmIngType) {
-                types.removeInternalFrameListener(myInternalFrameListener);
-                types = null;
-                typeMenuItem.setEnabled(true);
-//            } else if (e.getSource() instanceof FrmMenu) {
-//                menuweek.removeInternalFrameListener(myInternalFrameListener);
-//                menuweek = null;
-//                menuweekMenuItem.setEnabled(true);
+
             } else if (e.getSource() instanceof FrmReassignProduct) {
                 stock2product.removeInternalFrameListener(myInternalFrameListener);
                 stock2product = null;

@@ -25,33 +25,37 @@ public class IngTypesTools {
 
     public static final String[] EINHEIT = {"kg", "liter", "Stück"};
 
-//    public static TableCellRenderer getStorageRenderer() {
-//        return new TableCellRenderer() {
-//            @Override
-//            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-//                return new DefaultTableCellRenderer().getTableCellRendererComponent(table, LagerTools.LAGERART[(Short) value], isSelected, hasFocus, row, column);
-//            }
-//        };
-//    }
-//
-//    public static class MyTableCellEditor extends DefaultCellEditor {
-//        MyTableCellEditor() {
-//            super(new JComboBox<String>(new DefaultComboBoxModel<String>(LagerTools.LAGERART)));
-//            setClickCountToStart(2);
-//        }
-//
-//        @Override
-//        public Object getCellEditorValue() {
-//            return new Integer(((JComboBox<String>) editorComponent).getSelectedIndex()).shortValue();
-//        }
-//
-//        @Override
-//        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-//            ((JComboBox) editorComponent).setSelectedIndex((Short) value);
-//            return editorComponent;
-//        }
-//    }
-//
+    public static TableCellRenderer getStorageRenderer() {
+        return new TableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                return new DefaultTableCellRenderer().getTableCellRendererComponent(table, LagerTools.LAGERART[(Short) value], isSelected, hasFocus, row, column);
+            }
+        };
+    }
+
+
+    public static TableCellEditor getStorageEditor() {
+        return new MyStorageEditor();
+    }
+
+    public static class MyStorageEditor extends DefaultCellEditor {
+        MyStorageEditor() {
+            super(new JComboBox<String>(new DefaultComboBoxModel<String>(LagerTools.LAGERART)));
+            setClickCountToStart(2);
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return new Integer(((JComboBox<String>) editorComponent).getSelectedIndex()).shortValue();
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            ((JComboBox) editorComponent).setSelectedIndex((Short) value);
+            return editorComponent;
+        }
+    }
 
 
     public static TableCellRenderer getTableCellRenderer() {

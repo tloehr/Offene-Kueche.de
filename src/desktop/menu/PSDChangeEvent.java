@@ -38,8 +38,6 @@ public class PSDChangeEvent extends EventObject {
         this.changeDate = new Date();
     }
 
-
-
     public PSDChangeEvent(Object source, Menu newMenu, Menuweek2Menu menuweek2Menu) {
         super(source);
         this.oldMenu = null;

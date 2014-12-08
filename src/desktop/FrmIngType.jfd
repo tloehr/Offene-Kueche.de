@@ -3,15 +3,12 @@ JFDML JFormDesigner: "5.2.0.0.109" Java: "1.6.0_65" encoding: "UTF-8"
 new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
-		add( new FormContainer( "javax.swing.JInternalFrame", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 			"$columnSpecs": "default, labelcompgap, default:grow"
 			"$rowSpecs": "default:grow, linegap, default, linegap, default"
 		} ) {
 			name: "this"
 			"visible": true
-			"closable": true
-			"iconifiable": true
-			"maximizable": true
 			"resizable": true
 			addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentResized", "thisComponentResized", true ) )
 			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
@@ -23,32 +20,28 @@ new FormModel {
 					} ) {
 						name: "xTaskPane1"
 						"special": true
-						"title": "Suchen"
+						"title": "Funktionen"
 						"font": new java.awt.Font( "sansserif", 1, 18 )
 						add( new FormComponent( "javax.swing.JButton" ) {
-							name: "btnSearchAll"
-							"text": "Alle"
-							"font": new java.awt.Font( "sansserif", 0, 18 )
-							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnSearchAllActionPerformed", true ) )
+							name: "btnReload"
+							"text": "Reload"
+							"font": &Font0 new java.awt.Font( "sansserif", 0, 18 )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnReloadActionPerformed", true ) )
 						} )
 						add( new FormComponent( "org.jdesktop.swingx.JXSearchField" ) {
 							name: "xSearchField1"
 							"prompt": "Suchtext hier eingeben"
 							"font": new java.awt.Font( "sansserif", 0, 18 )
 							"minimumSize": new java.awt.Dimension( 230, 36 )
+							"instantSearchDelay": 750
 							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "xSearchField1ActionPerformed", true ) )
 						} )
-					} )
-					add( new FormContainer( "org.jdesktop.swingx.JXTaskPane", new FormLayoutManager( class org.jdesktop.swingx.VerticalLayout ) {
-						"gap": 10
-					} ) {
-						name: "xTaskPane2"
-						"title": "Warengruppen"
-						"font": new java.awt.Font( "sansserif", 1, 18 )
-						"collapsed": true
-					} )
-					add( new FormContainer( "org.jdesktop.swingx.JXTaskPane", new FormLayoutManager( class org.jdesktop.swingx.VerticalLayout ) ) {
-						name: "xTaskPane3"
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "btnNewIngType"
+							"text": "Neue Stoffart"
+							"font": #Font0
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnNewIngTypeActionPerformed", true ) )
+						} )
 					} )
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {

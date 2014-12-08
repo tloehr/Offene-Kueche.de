@@ -28,7 +28,6 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * @author Torsten Löhr
@@ -102,7 +101,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
         tblAssigned.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         cmbStoffart.setModel(Tools.newComboboxModel(IngTypesTools.getAll()));
-        cmbWarengruppe.setModel(Tools.newComboboxModel(new ArrayList(Arrays.asList(WarengruppeTools.getAll()))));
+        cmbWarengruppe.setModel(Tools.newComboboxModel(WarengruppeTools.getAll()));
         cmbUnit.setModel(new DefaultComboBoxModel(IngTypesTools.EINHEIT));
         cmbStorageType.setModel(new DefaultComboBoxModel(LagerTools.LAGERART));
 
@@ -140,24 +139,6 @@ public class PnlRecipeMenuStock extends PopupPanel {
 //                }
 //            };
 //            ingTypeFilterKriterium = null;
-
-        textFilter = new RowFilter<StockTableModel3, Integer>() {
-            @Override
-            public boolean include(Entry<? extends StockTableModel3, ? extends Integer> entry) {
-                if (searchUnassigned.getText().isEmpty()) return true;
-
-                String textKriterium = searchUnassigned.getText().trim();
-
-                int row = entry.getIdentifier();
-                Stock stock = entry.getModel().getStock(row);
-
-                return (stock.getProdukt().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0 ||
-                        Long.toString(stock.getId()).equals(textKriterium) ||
-                        Tools.catchNull(stock.getProdukt().getGtin()).indexOf(textKriterium) >= 0 ||
-                        stock.getProdukt().getIngTypes().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0 ||
-                        stock.getProdukt().getIngTypes().getWarengruppe().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0);
-            }
-        };
 
     }
 

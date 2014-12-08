@@ -13,13 +13,16 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
 import tablemodels.IngTypeTableModel;
-import tools.*;
+import tools.Const;
+import tools.MyInternalFrames;
+import tools.PnlAssign;
+import tools.Tools;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.OptimisticLockException;
-import javax.persistence.Query;
 import javax.swing.*;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -27,16 +30,35 @@ import java.util.ArrayList;
 /**
  * @author Torsten Löhr
  */
-public class FrmIngType extends JInternalFrame implements MyInternalFrames {
+public class FrmIngType extends JFrame implements MyInternalFrames {
 
-    private Pair<Integer, Object> criteria;
+    //    private Pair<Integer, Object> criteria;
     private JPopupMenu menu;
-    private JInternalFrame thisComponent;
+    private JFrame thisComponent;
+    RowFilter<IngTypeTableModel, Integer> textFilter;
+    private TableRowSorter<IngTypeTableModel> sorter;
+    private IngTypeTableModel itm;
 
     public FrmIngType() {
         initComponents();
         thisComponent = this;
-        criteria = new Pair<Integer, Object>(Const.ALLE, null);
+
+        textFilter = new RowFilter<IngTypeTableModel, Integer>() {
+            @Override
+            public boolean include(Entry<? extends IngTypeTableModel, ? extends Integer> entry) {
+                if (xSearchField1.getText().isEmpty()) return true;
+
+                String textKriterium = xSearchField1.getText().trim();
+
+                int row = entry.getIdentifier();
+                IngTypes ingType = entry.getModel().getIngType(row);
+
+                return (ingType.getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0 ||
+                        ingType.getWarengruppe().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0);
+            }
+        };
+
+
         loadTable();
 
         setTitle(Tools.getWindowTitle("Produkte-Verwaltung"));
@@ -54,25 +76,16 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
         java.util.List list = null;
 
 
-        if (criteria.getFirst() == Const.ALLE) {
-            EntityManager em = Main.getEMF().createEntityManager();
-            Query query = em.createQuery("" +
-                    " SELECT t FROM IngTypes t" +
-                    " ORDER BY t.bezeichnung ");
-            list = query.getResultList();
-            em.close();
-        } else if (criteria.getFirst() == Const.NAME_NR) {
-//            list = ProdukteTools.searchProdukte(criteria.getSecond().toString());
-        } else if (criteria.getFirst() == Const.STOFFART) {
-//            list = ProdukteTools.getProdukte((Stoffart) criteria.getSecond());
-        } else if (criteria.getFirst() == Const.WARENGRUPPE) {
-//            list = ProdukteTools.searchProdukte((Warengruppe) criteria.getSecond());
-        }
+        itm = new IngTypeTableModel(IngTypesTools.getAll());
 
-        tblTypes.setModel(new IngTypeTableModel(list));
+        tblTypes.setModel(itm);
+        sorter = new TableRowSorter(itm);
+        sorter.setRowFilter(null);
+        sorter.setSortsOnUpdates(true);
+        tblTypes.setRowSorter(sorter);
 
-//        tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_LAGERART).setCellRenderer(IngTypesTools.getStorageRenderer());
-//        tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_LAGERART).setCellEditor(IngTypesTools.getStorageEditor());
+        tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_LAGERART).setCellRenderer(IngTypesTools.getStorageRenderer());
+        tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_LAGERART).setCellEditor(IngTypesTools.getStorageEditor());
         tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_WARENGRUPPE).setCellRenderer(WarengruppeTools.getTableCellRenderer());
         tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_WARENGRUPPE).setCellEditor(WarengruppeTools.getTableCellEditor());
         tblTypes.getColumnModel().getColumn(IngTypeTableModel.COL_EINHEIT).setCellRenderer(LagerTools.getEinheitTableCellRenderer());
@@ -95,13 +108,9 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
 
     }
 
-    private void btnSearchAllActionPerformed(ActionEvent e) {
-        criteria = new Pair<Integer, Object>(Const.ALLE, null);
-        reload();
-    }
 
     private void xSearchField1ActionPerformed(ActionEvent e) {
-        // TODO add your code here
+        sorter.setRowFilter(textFilter);
     }
 
     private void thisComponentResized(ComponentEvent e) {
@@ -152,7 +161,10 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
                             if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zusammenfassen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
                                 IngTypesTools.mergeUs(listSelectedTypes, thisIngType);
-                                loadTable();
+                                itm.getData().clear();
+                                itm.getData().addAll(IngTypesTools.getAll());
+                                itm.fireTableDataChanged();
+                                sorter.setRowFilter(null);
                             }
                         }
                     });
@@ -307,20 +319,6 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
             menu.add(miAdditives);
 
 
-//
-//            JMenuItem miDelete = new JMenuItem("löschen (inkl. Vorräte)");
-//            miDelete.setFont(new Font("arial", Font.PLAIN, 18));
-//
-//            miDelete.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    EntityManager em1 = Main.getEMF().createEntityManager();
-//                    try {
-//                        em1.getTransaction().begin();
-//                        for (Produkte p : listSelectedProducts) {
-//                            if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-//                                Produkte myProdukt = em1.merge(p);
-//                                em1.remove(myProdukt);
 //                            }
 //                        }
 //                        em1.getTransaction().commit();
@@ -494,23 +492,55 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
         }
     }
 
+    private void btnReloadActionPerformed(ActionEvent e) {
+        itm.getData().clear();
+        itm.getData().addAll(IngTypesTools.getAll());
+        itm.fireTableDataChanged();
+        sorter.setRowFilter(null);
+    }
+
+    private void btnNewIngTypeActionPerformed(ActionEvent e) {
+        String input = JOptionPane.showInputDialog(thisComponent, "", "Neue Stoffart eingeben", JOptionPane.PLAIN_MESSAGE);
+
+        if (input == null || input.trim().isEmpty()) return;
+
+        input = input.trim();
+
+        EntityManager em = Main.getEMF().createEntityManager();
+        try {
+            em.getTransaction().begin();
+            IngTypes newIngType = em.merge(new IngTypes(input, WarengruppeTools.getAll().get(0)));
+            em.getTransaction().commit();
+            itm.getData().add(newIngType);
+            itm.fireTableDataChanged();
+//            itm.fireTableRowsInserted(itm.getRowCount() - 1, itm.getRowCount() - 1);
+
+        } catch (OptimisticLockException ole) {
+            Main.warn(ole);
+            em.getTransaction().rollback();
+        } catch (javax.persistence.RollbackException rbe) {
+            em.getTransaction().rollback();
+        } catch (Exception exc) {
+            em.getTransaction().rollback();
+            Main.fatal(e);
+        } finally {
+            em.close();
+        }
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         jspSearch = new JScrollPane();
         pnlSearch = new JXTaskPaneContainer();
         xTaskPane1 = new JXTaskPane();
-        btnSearchAll = new JButton();
+        btnReload = new JButton();
         xSearchField1 = new JXSearchField();
-        xTaskPane2 = new JXTaskPane();
-        xTaskPane3 = new JXTaskPane();
+        btnNewIngType = new JButton();
         scrollPane1 = new JScrollPane();
         tblTypes = new JTable();
 
         //======== this ========
         setVisible(true);
-        setClosable(true);
-        setIconifiable(true);
-        setMaximizable(true);
         setResizable(true);
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -532,25 +562,26 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
                 //======== xTaskPane1 ========
                 {
                     xTaskPane1.setSpecial(true);
-                    xTaskPane1.setTitle("Suchen");
+                    xTaskPane1.setTitle("Funktionen");
                     xTaskPane1.setFont(new Font("sansserif", Font.BOLD, 18));
                     xTaskPane1.setLayout(new VerticalLayout(10));
 
-                    //---- btnSearchAll ----
-                    btnSearchAll.setText("Alle");
-                    btnSearchAll.setFont(new Font("sansserif", Font.PLAIN, 18));
-                    btnSearchAll.addActionListener(new ActionListener() {
+                    //---- btnReload ----
+                    btnReload.setText("Reload");
+                    btnReload.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    btnReload.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            btnSearchAllActionPerformed(e);
+                            btnReloadActionPerformed(e);
                         }
                     });
-                    xTaskPane1.add(btnSearchAll);
+                    xTaskPane1.add(btnReload);
 
                     //---- xSearchField1 ----
                     xSearchField1.setPrompt("Suchtext hier eingeben");
                     xSearchField1.setFont(new Font("sansserif", Font.PLAIN, 18));
                     xSearchField1.setMinimumSize(new Dimension(230, 36));
+                    xSearchField1.setInstantSearchDelay(750);
                     xSearchField1.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -558,23 +589,19 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
                         }
                     });
                     xTaskPane1.add(xSearchField1);
+
+                    //---- btnNewIngType ----
+                    btnNewIngType.setText("Neue Stoffart");
+                    btnNewIngType.setFont(new Font("sansserif", Font.PLAIN, 18));
+                    btnNewIngType.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            btnNewIngTypeActionPerformed(e);
+                        }
+                    });
+                    xTaskPane1.add(btnNewIngType);
                 }
                 pnlSearch.add(xTaskPane1);
-
-                //======== xTaskPane2 ========
-                {
-                    xTaskPane2.setTitle("Warengruppen");
-                    xTaskPane2.setFont(new Font("sansserif", Font.BOLD, 18));
-                    xTaskPane2.setCollapsed(true);
-                    xTaskPane2.setLayout(new VerticalLayout(10));
-                }
-                pnlSearch.add(xTaskPane2);
-
-                //======== xTaskPane3 ========
-                {
-                    xTaskPane3.setLayout(new VerticalLayout());
-                }
-                pnlSearch.add(xTaskPane3);
             }
             jspSearch.setViewportView(pnlSearch);
         }
@@ -594,6 +621,8 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
             scrollPane1.setViewportView(tblTypes);
         }
         contentPane.add(scrollPane1, CC.xywh(3, 1, 1, 5, CC.DEFAULT, CC.FILL));
+        pack();
+        setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
@@ -601,10 +630,9 @@ public class FrmIngType extends JInternalFrame implements MyInternalFrames {
     private JScrollPane jspSearch;
     private JXTaskPaneContainer pnlSearch;
     private JXTaskPane xTaskPane1;
-    private JButton btnSearchAll;
+    private JButton btnReload;
     private JXSearchField xSearchField1;
-    private JXTaskPane xTaskPane2;
-    private JXTaskPane xTaskPane3;
+    private JButton btnNewIngType;
     private JScrollPane scrollPane1;
     private JTable tblTypes;
     // JFormDesigner - End of variables declaration  //GEN-END:variables

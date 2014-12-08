@@ -23,6 +23,12 @@ new FormModel {
 					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/edit_add.png" )
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnAddWeekmenuAllActionPerformed", true ) )
 				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnPrint"
+					"text": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/artwork/24x24/printer.png" )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnPrintActionPerformed", true ) )
+				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "North"
 			} )

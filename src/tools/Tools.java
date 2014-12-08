@@ -110,6 +110,14 @@ public class Tools {
         }
     }
 
+    public static <T> boolean isLastElement(T element, List<T> list) {
+        if (list == null) return false;
+        if (element == null) return false;
+        if (list.isEmpty()) return false;
+
+        return list.get(list.size() - 1).equals(element);
+    }
+
     /**
      * läuft rekursiv durch alle Kinder eines JFrames und entfernt evtl. vorhandene Listener.
      */
@@ -1499,132 +1507,132 @@ public class Tools {
 
 
     /**
-        * Berechnet zu einem gegebenen Jahr den Ostersonntag. Dieser wird als GregorianCalendar zurückgegeben.
-        * Der Algorhythmus wurde von der Internet-Seite www.th-o.de/kalender.htm entnommen.
-        * Dort wurde er von Walter Irion beschrieben. Danke, Walter und Thomas.
-        * <p/>
-        * Ich habe leider nicht die geringste Ahnung, was hier passiert. ;-)
-        *
-        * @param year
-        * @return Das Datum des Ostersonntags in dem angegebene Jahr.
-        * @THO99
-        */
-       public static GregorianCalendar Ostersonntag(int year) {
-           int a, b, c, d, e, f, g, h, i, k, l, m, n, p;
+     * Berechnet zu einem gegebenen Jahr den Ostersonntag. Dieser wird als GregorianCalendar zurückgegeben.
+     * Der Algorhythmus wurde von der Internet-Seite www.th-o.de/kalender.htm entnommen.
+     * Dort wurde er von Walter Irion beschrieben. Danke, Walter und Thomas.
+     * <p/>
+     * Ich habe leider nicht die geringste Ahnung, was hier passiert. ;-)
+     *
+     * @param year
+     * @return Das Datum des Ostersonntags in dem angegebene Jahr.
+     * @THO99
+     */
+    public static GregorianCalendar Ostersonntag(int year) {
+        int a, b, c, d, e, f, g, h, i, k, l, m, n, p;
 
-           a = year % 19;
+        a = year % 19;
 
-           b = year / 100;
-           c = year % 100;
+        b = year / 100;
+        c = year % 100;
 
-           d = b / 4;
-           e = b % 4;
+        d = b / 4;
+        e = b % 4;
 
-           f = (b + 8) / 25;
+        f = (b + 8) / 25;
 
-           g = (b - f + 1) / 3;
+        g = (b - f + 1) / 3;
 
-           h = (19 * a + b - d - g + 15) % 30;
+        h = (19 * a + b - d - g + 15) % 30;
 
-           i = c / 4;
-           k = c % 4;
+        i = c / 4;
+        k = c % 4;
 
-           l = (32 + 2 * e + 2 * i - h - k) % 7;
+        l = (32 + 2 * e + 2 * i - h - k) % 7;
 
-           m = (a + 11 * h + 22 * l) / 451;
+        m = (a + 11 * h + 22 * l) / 451;
 
-           n = (h + l - 7 * m + 114) / 31;
-           p = (h + l - 7 * m + 114) % 31;
+        n = (h + l - 7 * m + 114) / 31;
+        p = (h + l - 7 * m + 114) % 31;
 
-           return new GregorianCalendar(year, n - 1, p + 1);
-       }
+        return new GregorianCalendar(year, n - 1, p + 1);
+    }
 
-       public static GregorianCalendar Aschermittwoch(int year) {
-           GregorianCalendar gc = Ostersonntag(year);
-           gc.add(GregorianCalendar.DAY_OF_MONTH, -46);
-           return gc;
-       }
+    public static GregorianCalendar Aschermittwoch(int year) {
+        GregorianCalendar gc = Ostersonntag(year);
+        gc.add(GregorianCalendar.DAY_OF_MONTH, -46);
+        return gc;
+    }
 
-       public static GregorianCalendar Rosenmontag(int year) {
-           GregorianCalendar gc = Ostersonntag(year);
-           gc.add(GregorianCalendar.DAY_OF_MONTH, -48);
-           return gc;
-       }
+    public static GregorianCalendar Rosenmontag(int year) {
+        GregorianCalendar gc = Ostersonntag(year);
+        gc.add(GregorianCalendar.DAY_OF_MONTH, -48);
+        return gc;
+    }
 
-       public static GregorianCalendar Weiberfastnacht(int year) {
-           GregorianCalendar gc = Ostersonntag(year);
-           gc.add(GregorianCalendar.DAY_OF_MONTH, -52);
-           return gc;
-       }
+    public static GregorianCalendar Weiberfastnacht(int year) {
+        GregorianCalendar gc = Ostersonntag(year);
+        gc.add(GregorianCalendar.DAY_OF_MONTH, -52);
+        return gc;
+    }
 
-       public static GregorianCalendar Ostermontag(int year) {
-           GregorianCalendar gc = Ostersonntag(year);
-           gc.add(GregorianCalendar.DAY_OF_MONTH, 1);
-           return gc;
-       }
+    public static GregorianCalendar Ostermontag(int year) {
+        GregorianCalendar gc = Ostersonntag(year);
+        gc.add(GregorianCalendar.DAY_OF_MONTH, 1);
+        return gc;
+    }
 
-       public static GregorianCalendar Karfreitag(int year) {
-           GregorianCalendar gc = Ostersonntag(year);
-           gc.add(GregorianCalendar.DAY_OF_MONTH, -2);
-           return gc;
-       }
+    public static GregorianCalendar Karfreitag(int year) {
+        GregorianCalendar gc = Ostersonntag(year);
+        gc.add(GregorianCalendar.DAY_OF_MONTH, -2);
+        return gc;
+    }
 
-       public static GregorianCalendar Pfingstsonntag(int year) {
-           GregorianCalendar gc = Ostersonntag(year);
-           gc.add(GregorianCalendar.DAY_OF_MONTH, 49);
-           return gc;
-       }
+    public static GregorianCalendar Pfingstsonntag(int year) {
+        GregorianCalendar gc = Ostersonntag(year);
+        gc.add(GregorianCalendar.DAY_OF_MONTH, 49);
+        return gc;
+    }
 
-       public static GregorianCalendar Pfingstmontag(int year) {
-           GregorianCalendar gc = Ostersonntag(year);
-           gc.add(GregorianCalendar.DAY_OF_MONTH, 50);
-           return gc;
-       }
+    public static GregorianCalendar Pfingstmontag(int year) {
+        GregorianCalendar gc = Ostersonntag(year);
+        gc.add(GregorianCalendar.DAY_OF_MONTH, 50);
+        return gc;
+    }
 
-       public static GregorianCalendar ChristiHimmelfahrt(int year) {
-           GregorianCalendar gc = Ostersonntag(year);
-           gc.add(GregorianCalendar.DAY_OF_MONTH, 39);
-           return gc;
-       }
+    public static GregorianCalendar ChristiHimmelfahrt(int year) {
+        GregorianCalendar gc = Ostersonntag(year);
+        gc.add(GregorianCalendar.DAY_OF_MONTH, 39);
+        return gc;
+    }
 
-       public static GregorianCalendar Fronleichnam(int year) {
-           GregorianCalendar gc = Ostersonntag(year);
-           gc.add(GregorianCalendar.DAY_OF_MONTH, 60);
-           return gc;
-       }
+    public static GregorianCalendar Fronleichnam(int year) {
+        GregorianCalendar gc = Ostersonntag(year);
+        gc.add(GregorianCalendar.DAY_OF_MONTH, 60);
+        return gc;
+    }
 
 
-       /**
-        * Sucht alle Feiertage in einem Jahr zusammen.
-        *
-        * @return Eine Hashmap, die je das Datum als Zeichenkette der PrinterForm "jjjj-mm-tt" enthält und dazu die Bezeichnung des Feiertags.
-        */
-       public static HashMap<LocalDate, String> getHolidays(int from, int to) {
+    /**
+     * Sucht alle Feiertage in einem Jahr zusammen.
+     *
+     * @return Eine Hashmap, die je das Datum als Zeichenkette der PrinterForm "jjjj-mm-tt" enthält und dazu die Bezeichnung des Feiertags.
+     */
+    public static HashMap<LocalDate, String> getHolidays(int from, int to) {
 
-           HashMap<LocalDate, String> hm = new HashMap<LocalDate, String>();
+        HashMap<LocalDate, String> hm = new HashMap<LocalDate, String>();
 
-           // TODO: i18n
-           for (int year = from; year <= to; year++) {
-               // Feste Feiertage
-               hm.put(new LocalDate(year, 1, 1), "Neujahrstag");
-               hm.put(new LocalDate(year, 5, 1), "Maifeiertag");
-               hm.put(new LocalDate(year, 10, 3), "Tag der Einheit");
-               hm.put(new LocalDate(year, 11, 1), "Allerheiligen");
-               hm.put(new LocalDate(year, 12, 25), "1. Weihnachtstag");
-               hm.put(new LocalDate(year, 12, 26), "2. Weihnachtstag");
+        // TODO: i18n
+        for (int year = from; year <= to; year++) {
+            // Feste Feiertage
+            hm.put(new LocalDate(year, 1, 1), "Neujahrstag");
+            hm.put(new LocalDate(year, 5, 1), "Maifeiertag");
+            hm.put(new LocalDate(year, 10, 3), "Tag der Einheit");
+            hm.put(new LocalDate(year, 11, 1), "Allerheiligen");
+            hm.put(new LocalDate(year, 12, 25), "1. Weihnachtstag");
+            hm.put(new LocalDate(year, 12, 26), "2. Weihnachtstag");
 
-               // Bewegliche Feiertage
-               hm.put(new LocalDate(Karfreitag(year)), "Karfreitag");
-               hm.put(new LocalDate(Ostersonntag(year)), "Ostersonntag");
-               hm.put(new LocalDate(Ostermontag(year)), "Ostermontag");
-               hm.put(new LocalDate(ChristiHimmelfahrt(year)), "Christi Himmelfahrt");
-               hm.put(new LocalDate(Pfingstsonntag(year)), "Pfingstsonntag");
-               hm.put(new LocalDate(Pfingstmontag(year)), "Pfingstmontag");
-               hm.put(new LocalDate(Fronleichnam(year)), "Fronleichnam");
-           }
+            // Bewegliche Feiertage
+            hm.put(new LocalDate(Karfreitag(year)), "Karfreitag");
+            hm.put(new LocalDate(Ostersonntag(year)), "Ostersonntag");
+            hm.put(new LocalDate(Ostermontag(year)), "Ostermontag");
+            hm.put(new LocalDate(ChristiHimmelfahrt(year)), "Christi Himmelfahrt");
+            hm.put(new LocalDate(Pfingstsonntag(year)), "Pfingstsonntag");
+            hm.put(new LocalDate(Pfingstmontag(year)), "Pfingstmontag");
+            hm.put(new LocalDate(Fronleichnam(year)), "Fronleichnam");
+        }
 
-           return hm;
-       }
+        return hm;
+    }
 
 
 }

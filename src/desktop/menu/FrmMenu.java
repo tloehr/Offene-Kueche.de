@@ -7,12 +7,10 @@ package desktop.menu;
 import Main.Main;
 import com.jidesoft.swing.JidePopupMenu;
 import com.toedter.calendar.JCalendar;
-import entity.Menuweek;
-import entity.Menuweekall;
-import entity.MenuweekallTools;
-import entity.RecipeFeatureTools;
+import entity.*;
 import org.apache.commons.collections.Closure;
 import org.joda.time.LocalDate;
+import printer.Printers;
 import tools.GUITools;
 import tools.PopupPanel;
 import tools.Tools;
@@ -368,12 +366,22 @@ public class FrmMenu extends JFrame {
         jMenu.show(btnAddWeekmenuAll, 0, btnAddWeekmenuAll.getPreferredSize().height);
     }
 
+    private void btnPrintActionPerformed(ActionEvent e) {
+        String html = "";
+        for (Menuweek menuweek : ((Menuweekall) cmbWeeks.getSelectedItem()).getMenuweeks()){
+            html += MenuweekTools.getAsHTML(menuweek);
+            html += Tools.isLastElement(menuweek, ((Menuweekall) cmbWeeks.getSelectedItem()).getMenuweeks()) ? "" : "<p style=\"page-break-before:always\"\\>";
+        }
+        Printers.print(Main.getDesktop(), html, true);
+    }
+
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         panel1 = new JPanel();
         cmbWeeks = new JComboBox<Menuweekall>();
         btnAddWeekmenuAll = new JButton();
+        btnPrint = new JButton();
 
         //======== this ========
         setVisible(true);
@@ -405,6 +413,17 @@ public class FrmMenu extends JFrame {
                 }
             });
             panel1.add(btnAddWeekmenuAll);
+
+            //---- btnPrint ----
+            btnPrint.setText(null);
+            btnPrint.setIcon(new ImageIcon(getClass().getResource("/artwork/24x24/printer.png")));
+            btnPrint.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    btnPrintActionPerformed(e);
+                }
+            });
+            panel1.add(btnPrint);
         }
         contentPane.add(panel1, BorderLayout.NORTH);
         pack();
@@ -416,5 +435,6 @@ public class FrmMenu extends JFrame {
     private JPanel panel1;
     private JComboBox<Menuweekall> cmbWeeks;
     private JButton btnAddWeekmenuAll;
+    private JButton btnPrint;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

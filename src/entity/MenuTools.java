@@ -18,6 +18,7 @@ public class MenuTools {
     public static final int SIDEDISH = 4;
     public static final int DESSERT = 5;
 
+    public static final int[] DISHES = new int[]{STARTER, MAIN, SAUCE, VEGGIE, SIDEDISH, DESSERT};
 
     public static String getStocksAsHTMLList(Set<Stock> stocks) {
 
@@ -182,6 +183,17 @@ public class MenuTools {
 
         return html;
 
+    }
+
+
+    public static Integer[] indicesOf(Menu menu, Recipes recipe) {
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        for (int dish : DISHES) {
+            if (getDish(menu, dish) != null && getDish(menu, dish).equals(recipe)) {
+                list.add(dish);
+            }
+        }
+        return list.toArray(new Integer[]{});
     }
 
 

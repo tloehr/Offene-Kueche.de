@@ -212,6 +212,8 @@ public class ProdukteTableModel extends DefaultTableModel {
                 break;
             }
             case COL_LAGERART: {
+                Main.debug(produkte.getId());
+                Main.debug(produkte.getBezeichnung());
                 value = LagerTools.LAGERART[produkte.getIngTypes().getLagerart()];
                 break;
             }
