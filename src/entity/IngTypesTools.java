@@ -1,6 +1,7 @@
 package entity;
 
 import Main.Main;
+import tools.Tools;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
@@ -68,8 +69,9 @@ public class IngTypesTools {
     }
 
     public static class MyTableCellEditor extends DefaultCellEditor {
+
         MyTableCellEditor() {
-            super(new JComboBox<IngTypes>(new DefaultComboBoxModel<IngTypes>(getAll().toArray(new IngTypes[]{}))));
+            super(new JComboBox<IngTypes>(Tools.newComboboxModel(getAll())));
             setClickCountToStart(2);
             ((JComboBox<IngTypes>) editorComponent).setRenderer(new ListCellRenderer<IngTypes>() {
                 @Override
@@ -122,6 +124,21 @@ public class IngTypesTools {
         EntityManager em = Main.getEMF().createEntityManager();
         Query query = em.createQuery("SELECT s FROM IngTypes s ORDER BY s.bezeichnung");
         try {
+            list.addAll(query.getResultList());
+        } catch (Exception e) { // nicht gefunden
+            Main.fatal(e);
+        } finally {
+            em.close();
+        }
+        return list;
+    }
+
+    public static ArrayList<IngTypes> getAll(String search) {
+        ArrayList<IngTypes> list = new ArrayList<IngTypes>();
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createQuery("SELECT s FROM IngTypes s WHERE s.bezeichnung like :search ORDER BY s.bezeichnung");
+        try {
+            query.setParameter("search", "%" + search.trim() + "%");
             list.addAll(query.getResultList());
         } catch (Exception e) { // nicht gefunden
             Main.fatal(e);
@@ -210,9 +227,16 @@ public class IngTypesTools {
                     myProduct.setIngTypes(myTarget);
                 }
 
+                for (Ingtypes2Recipes it2r : oldType.getIngtypes2RecipesCollection()) {
+                    Ingtypes2Recipes myit2r = em.merge(it2r);
+                    em.lock(myit2r.getRecipes(), LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+                    myit2r.setIngType(myTarget);
+                }
+
                 oldType.getAdditives().clear();
                 oldType.getAllergenes().clear();
                 oldType.getProdukteCollection().clear();
+                oldType.getIngtypes2RecipesCollection().clear();
 
                 em.remove(oldType);
             }

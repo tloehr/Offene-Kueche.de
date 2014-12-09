@@ -31,8 +31,8 @@ import java.beans.PropertyVetoException;
  */
 public class FrmDesktop extends JFrame {
     //    boolean ADMIN = true;
-    JInternalFrame einbuchen, ausbuchen, umbuchen, produkte, stock2product;
-    JFrame menuweek, types;
+    JInternalFrame einbuchen, ausbuchen, umbuchen, stock2product;
+    JFrame menuweek, types, produkte;
     FrmStock vorrat = null;
     FrmUser user = null;
     HeapStat hs;
@@ -156,9 +156,15 @@ public class FrmDesktop extends JFrame {
         Main.setCurrentUser(null);
         myDispose(einbuchen);
         myDispose(vorrat);
-        myDispose(produkte);
+
         if (menuweek != null) {
             menuweek.dispose();
+        }
+        if (types != null) {
+            types.dispose();
+        }
+        if (produkte != null) {
+            produkte.dispose();
         }
         //myDispose(drucker);
         myDispose(user);
@@ -295,16 +301,12 @@ public class FrmDesktop extends JFrame {
         }
 
         produkte = new FrmProdukte();
-        produkte.addInternalFrameListener(myInternalFrameListener);
+        produkte.addWindowListener(myFrameListener);
 //        produkteMenuItem.setEnabled(false);
-        desktopPane.add(produkte);
-        Tools.centerOnParent(desktopPane, produkte);
+        produkte.setVisible(true);
+
         produkte.toFront();
-        try {
-            produkte.setMaximum(true);
-        } catch (PropertyVetoException e1) {
-            e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        produkte.setExtendedState(MAXIMIZED_BOTH);
     }
 
     private void umbuchenMenuItemActionPerformed(ActionEvent e) {
@@ -713,6 +715,9 @@ public class FrmDesktop extends JFrame {
                 types.removeWindowListener(myFrameListener);
                 types = null;
                 typeMenuItem.setEnabled(true);
+            } else if (e.getSource() instanceof FrmProdukte) {
+                produkte.removeWindowListener(myFrameListener);
+                produkte = null;
             }
             super.windowClosing(e);
         }
@@ -750,9 +755,6 @@ public class FrmDesktop extends JFrame {
                 user.removeInternalFrameListener(myInternalFrameListener);
                 user = null;
                 userMenuItem.setEnabled(true);
-            } else if (e.getSource() instanceof FrmProdukte) {
-                produkte.removeInternalFrameListener(myInternalFrameListener);
-                produkte = null;
 
             } else if (e.getSource() instanceof FrmReassignProduct) {
                 stock2product.removeInternalFrameListener(myInternalFrameListener);

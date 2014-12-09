@@ -601,7 +601,7 @@ public class PnlSingleDayMenu extends JPanel {
         private boolean initPhase;
         private JList<Recipes> jList;
         private JScrollPane scrl;
-        private JLabel lblBadge;
+        private JLabel lblBadgeRed, lblBadgeGreen;
         private DefaultOverlayable ovrBadge;
 
         MenuBlock(final Recipes recipeIn, Set<Stock> stocks, String overlay, RecipeChangeListener rclIn) {
@@ -681,6 +681,8 @@ public class PnlSingleDayMenu extends JPanel {
                 public void actionPerformed(ActionEvent ae) {
                     if (jList != null && jList.getSelectedValue() != null) {
                         setRecipe(jList.getSelectedValue());
+                    } else if (searcher.getText().isEmpty()) {
+                        setRecipe(null);
                     } else {
                         createRecipeIfNecessary(searcher.getText());
                     }
@@ -764,18 +766,29 @@ public class PnlSingleDayMenu extends JPanel {
                 }
             });
 
-
-            lblBadge = new JLabel(Integer.toString(stocks.size()), Const.icon24redBadge, SwingConstants.CENTER);
-            lblBadge.setHorizontalTextPosition(SwingConstants.CENTER);
-            lblBadge.setVerticalTextPosition(SwingConstants.CENTER);
-            lblBadge.setFont(new Font("SansSerif", Font.BOLD, 11));
-            lblBadge.setForeground(Color.YELLOW);
-
             ovrBadge = new DefaultOverlayable(btnMenu);
-            ovrBadge.addOverlayComponent(lblBadge, DefaultOverlayable.NORTH_EAST);
+
+            if (!stocks.isEmpty()) {
+                lblBadgeRed = new JLabel(Integer.toString(stocks.size()), Const.icon24redBadge, SwingConstants.CENTER);
+                lblBadgeRed.setHorizontalTextPosition(SwingConstants.CENTER);
+                lblBadgeRed.setVerticalTextPosition(SwingConstants.CENTER);
+                lblBadgeRed.setFont(new Font("SansSerif", Font.BOLD, 11));
+                lblBadgeRed.setForeground(Color.YELLOW);
+                ovrBadge.addOverlayComponent(lblBadgeRed, DefaultOverlayable.NORTH_EAST);
+            }
+
+            if (recipeIn != null && !recipeIn.getIngTypes2Recipes().isEmpty()) {
+                lblBadgeGreen = new JLabel(Integer.toString(recipeIn.getIngTypes2Recipes().size()), Const.icon24greenBadge, SwingConstants.CENTER);
+                lblBadgeGreen.setHorizontalTextPosition(SwingConstants.CENTER);
+                lblBadgeGreen.setVerticalTextPosition(SwingConstants.CENTER);
+                lblBadgeGreen.setFont(new Font("SansSerif", Font.BOLD, 11));
+                lblBadgeGreen.setForeground(Color.BLACK);
+                ovrBadge.addOverlayComponent(lblBadgeGreen, DefaultOverlayable.SOUTH_WEST);
+            }
+
             btnMenu.setToolTipText("<html>" + RecipeTools.getIngTypesAsHTMLList(recipeIn) + MenuTools.getStocksAsHTMLList(stocks) + "</html>");
             ovrBadge.setPreferredSize(btnMenu.getPreferredSize());
-            ovrBadge.setOverlayVisible(!stocks.isEmpty());
+//            ovrBadge.setOverlayVisible(!stocks.isEmpty());
             setRecipe(recipeIn);
 
             add(ovrComment);
@@ -861,14 +874,24 @@ public class PnlSingleDayMenu extends JPanel {
         }
 
         void setAccepted() {
+            ovrBadge.removeOverlayComponent(lblBadgeRed);
+            ovrBadge.removeOverlayComponent(lblBadgeGreen);
             if (recipe == null) {
                 btnMenu.setIcon(Const.icon24ledGreenOff);
             } else if (recipe.getId() == 0) {
                 btnMenu.setIcon(Const.icon24ledRedOn);
             } else {
                 btnMenu.setIcon(Const.icon24ledGreenOn);
+                if (!stocks.isEmpty()) {
+                    lblBadgeRed.setText(Integer.toString(stocks.size()));
+                    ovrBadge.addOverlayComponent(lblBadgeRed, DefaultOverlayable.NORTH_EAST);
+                }
+                if (recipe != null && !recipe.getIngTypes2Recipes().isEmpty()) {
+                    lblBadgeGreen.setText(Integer.toString(recipe.getIngTypes2Recipes().size()));
+                    ovrBadge.addOverlayComponent(lblBadgeGreen, DefaultOverlayable.SOUTH_WEST);
+                }
             }
-//            searcher.setEditable(recipe == null || recipe.getId() == 0);
+
         }
 
         void setRecipe(Recipes recipe) {

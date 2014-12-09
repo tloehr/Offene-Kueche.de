@@ -140,6 +140,7 @@ public class Const {
     public static final Icon icon16redBadge = new ImageIcon(Const.class.getResource("/artwork/16x16/redstar.png"));
 
     public static final Icon icon24redBadge = new ImageIcon(Const.class.getResource("/artwork/24x24/redstar.png"));
+    public static final Icon icon24greenBadge = new ImageIcon(Const.class.getResource("/artwork/24x24/greenstar.png"));
 
     public static final Icon icon24add = new ImageIcon(Const.class.getResource("/artwork/24x24/edit_add.png"));
     // http://findicons.com/icon/94106/edit_clear?id=96593
@@ -154,6 +155,7 @@ public class Const {
     public static final Icon icon24ledGreenOff4 = new ImageIcon(Const.class.getResource("/artwork/24x24/leddarkgreen4.png"));
     public static final Icon icon24ledRedOn = new ImageIcon(Const.class.getResource("/artwork/24x24/ledred.png"));
     public static final Icon icon24rightArrow = new ImageIcon(Const.class.getResource("/artwork/24x24/1rightarrow.png"));
+    public static final Icon icon24upArrow = new ImageIcon(Const.class.getResource("/artwork/24x24/2uparrow.png"));
 
     public static final Icon icon24menu = new ImageIcon(Const.class.getResource("/artwork/24x24/player_eject.png"));
     public static final Icon icon24find = new ImageIcon(Const.class.getResource("/artwork/24x24/find.png"));

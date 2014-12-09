@@ -116,7 +116,6 @@ public class Menu implements Cloneable {
         dessertStocks.clear();
     }
 
-
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "stock2menustarter", joinColumns =
     @JoinColumn(name = "menuid"), inverseJoinColumns =

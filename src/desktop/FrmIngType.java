@@ -153,7 +153,6 @@ public class FrmIngType extends JFrame implements MyInternalFrames {
 
                 for (final IngTypes thisIngType : listSelectedTypes) {
 
-
                     JMenuItem mi = new JMenuItem("[" + thisIngType.getId() + "] " + thisIngType.getBezeichnung());
                     mi.setFont(new Font("arial", Font.PLAIN, 18));
 

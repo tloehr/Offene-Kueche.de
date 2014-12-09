@@ -3,6 +3,7 @@ package entity;
 import tools.Tools;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ public class MenuTools {
     public static final int DESSERT = 5;
 
     public static final int[] DISHES = new int[]{STARTER, MAIN, SAUCE, VEGGIE, SIDEDISH, DESSERT};
+
 
     public static String getStocksAsHTMLList(Set<Stock> stocks) {
 
@@ -37,16 +39,21 @@ public class MenuTools {
     }
 
 
-    private static String getAllergeneLine(ArrayList<Allergene> allergenes) {
+    private static String getAllergeneLine(Set<Allergene> allergenes) {
         String line = "";
-        for (Allergene allergene : allergenes) {
+
+        ArrayList<Allergene> list = new ArrayList<Allergene>(allergenes);
+        Collections.sort(list);
+        for (Allergene allergene : list) {
             line += allergene.getKennung() + " ";
         }
         return line;
     }
 
-    private static String getAdditiveLine(ArrayList<Additives> additives) {
+    private static String getAdditiveLine(Set<Additives> additives) {
         String line = "";
+        ArrayList<Additives> list = new ArrayList<Additives>(additives);
+        Collections.sort(list);
         for (Additives additive : additives) {
             line += additive.getSymbol() + " ";
         }
@@ -64,119 +71,49 @@ public class MenuTools {
         HashSet<Allergene> setAllergenes = new HashSet<Allergene>();
         HashSet<Additives> setAdditives = new HashSet<Additives>();
 
-        if (menu.getStarter() != null) {
 
-            if (!html.isEmpty()) html += ", ";
+        for (int dish : DISHES) {
+            if (getDish(menu, dish) != null) {
 
-            html += "<font size=\"+1\">" + menu.getStarter().getTitle() + "<font>";
-            if (!menu.getStarterStocks().isEmpty()) {
-                ArrayList<Allergene> allergenes = StockTools.getAllergenes(menu.getStarterStocks());
-                if (!allergenes.isEmpty()) {
-                    setAllergenes.addAll(allergenes);
-                    html += "<sub id=\"fontsmall\">" + getAllergeneLine(allergenes) + "</sub>";
+                if (!html.isEmpty()) html += ", ";
+
+                html += "<font size=\"+1\">" + getDish(menu, dish).getTitle() + "<font>";
+
+
+                HashSet<Allergene> myAllergenes = new HashSet<Allergene>();
+                HashSet<Additives> myAdditives = new HashSet<Additives>();
+
+
+                if (!getDish(menu, dish).getIngTypes2Recipes().isEmpty()) {
+
+                    myAllergenes.addAll(StockTools.getAllergenes(getStocklist(menu, dish)));
+                    myAdditives.addAll(StockTools.getAdditives(getStocklist(menu, dish)));
                 }
 
-                ArrayList<Additives> additives = StockTools.getAdditives(menu.getStarterStocks());
-                if (!additives.isEmpty()) {
-                    setAdditives.addAll(additives);
-                    html += "<sub id=\"fontsmall\">" + getAdditiveLine(additives) + "</sub>\n";
+                if (!getStocklist(menu, dish).isEmpty()) {
+                    myAllergenes.addAll(StockTools.getAllergenes(getStocklist(menu, dish)));
+                    myAdditives.addAll(StockTools.getAdditives(getStocklist(menu, dish)));
+                }
+
+
+                if (!myAllergenes.isEmpty()) {
+                    setAllergenes.addAll(myAllergenes);
+                    html += "<sub id=\"fontsmall\">" + getAllergeneLine(myAllergenes) + "</sub>";
+                }
+                if (!myAdditives.isEmpty()) {
+                    setAdditives.addAll(myAdditives);
+                    html += "<sub id=\"fontsmall\">" + getAdditiveLine(myAdditives) + "</sub>\n";
                 }
             }
         }
-
-        if (menu.getMaincourse() != null) {
-            if (!html.isEmpty()) html += ", ";
-            html += "<font size=\"+1\">" + menu.getMaincourse().getTitle() + "<font>";
-            if (!menu.getMainStocks().isEmpty()) {
-                ArrayList<Allergene> allergenes = StockTools.getAllergenes(menu.getMainStocks());
-                if (!allergenes.isEmpty()) {
-                    setAllergenes.addAll(allergenes);
-                    html += "<sub id=\"fontsmall\">" + getAllergeneLine(allergenes) + "</sub>";
-                }
-                ArrayList<Additives> additives = StockTools.getAdditives(menu.getMainStocks());
-                if (!additives.isEmpty()) {
-                    setAdditives.addAll(additives);
-                    html += "<sub id=\"fontsmall\">" + getAdditiveLine(additives) + "</sub>\n";
-                }
-            }
-        }
-
-        if (menu.getSauce() != null) {
-            if (!html.isEmpty()) html += ", ";
-            html += "<font size=\"+1\">" + menu.getSauce().getTitle() + "<font>";
-            if (!menu.getSauceStocks().isEmpty()) {
-                ArrayList<Allergene> allergenes = StockTools.getAllergenes(menu.getSauceStocks());
-                if (!allergenes.isEmpty()) {
-                    setAllergenes.addAll(allergenes);
-                    html += "<sub id=\"fontsmall\">" + getAllergeneLine(allergenes) + "</sub>";
-                }
-                ArrayList<Additives> additives = StockTools.getAdditives(menu.getSauceStocks());
-                if (!additives.isEmpty()) {
-                    setAdditives.addAll(additives);
-                    html += "<sub id=\"fontsmall\">" + getAdditiveLine(additives) + "</sub>\n";
-                }
-            }
-        }
-
-        if (menu.getSideveggie() != null) {
-            if (!html.isEmpty()) html += ", ";
-            html += "<font size=\"+1\">" + menu.getSideveggie().getTitle() + "<font>";
-            if (!menu.getSideveggieStocks().isEmpty()) {
-                ArrayList<Allergene> allergenes = StockTools.getAllergenes(menu.getSideveggieStocks());
-                if (!allergenes.isEmpty()) {
-                    setAllergenes.addAll(allergenes);
-                    html += "<sub id=\"fontsmall\">" + getAllergeneLine(allergenes) + "</sub>";
-                }
-                ArrayList<Additives> additives = StockTools.getAdditives(menu.getSideveggieStocks());
-                if (!additives.isEmpty()) {
-                    setAdditives.addAll(additives);
-                    html += "<sub id=\"fontsmall\">" + getAdditiveLine(additives) + "</sub>\n";
-                }
-            }
-        }
-
-        if (menu.getSidedish() != null) {
-            if (!html.isEmpty()) html += ", ";
-            html += "<font size=\"+1\">" + menu.getSidedish().getTitle() + "<font>";
-            if (!menu.getSidedishStocks().isEmpty()) {
-                ArrayList<Allergene> allergenes = StockTools.getAllergenes(menu.getSidedishStocks());
-                if (!allergenes.isEmpty()) {
-                    setAllergenes.addAll(allergenes);
-                    html += "<sub id=\"fontsmall\">" + getAllergeneLine(allergenes) + "</sub>";
-                }
-                ArrayList<Additives> additives = StockTools.getAdditives(menu.getSidedishStocks());
-                if (!additives.isEmpty()) {
-                    setAdditives.addAll(additives);
-                    html += "<sub id=\"fontsmall\">" + getAdditiveLine(additives) + "</sub>\n";
-                }
-            }
-        }
-
-        if (menu.getDessert() != null) {
-            if (!html.isEmpty()) html += ", ";
-            html += "<font size=\"+1\">" + menu.getDessert().getTitle() + "<font>";
-            if (!menu.getDessertStocks().isEmpty()) {
-                ArrayList<Allergene> allergenes = StockTools.getAllergenes(menu.getDessertStocks());
-                if (!allergenes.isEmpty()) {
-                    setAllergenes.addAll(allergenes);
-                    html += "<sub id=\"fontsmall\">" + getAllergeneLine(allergenes) + "</sub>";
-                }
-                ArrayList<Additives> additives = StockTools.getAdditives(menu.getDessertStocks());
-                if (!additives.isEmpty()) {
-                    setAdditives.addAll(additives);
-                    html += "<sub id=\"fontsmall\">" + getAdditiveLine(additives) + "</sub>\n";
-                }
-            }
-        }
-
 
         if (!setAllergenes.isEmpty()) {
-            html += "<br/>Allergene: " + getAllergeneLine(new ArrayList<Allergene>(setAllergenes)) + "\n";
+            html += "<br/>Allergene: " + getAllergeneLine(setAllergenes) + "\n";
             setGlobalAllergenes.addAll(setAllergenes);
         }
 
         if (!setAdditives.isEmpty()) {
-            html += (setAllergenes.isEmpty() ? "" : " // ") + "Zusatzstoffe: " + getAdditiveLine(new ArrayList<Additives>(setAdditives)) + "\n";
+            html += (setAllergenes.isEmpty() ? "" : " // ") + "Zusatzstoffe: " + getAdditiveLine(setAdditives) + "\n";
             setGlobalAdditives.addAll(setAdditives);
         }
 

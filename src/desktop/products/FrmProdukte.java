@@ -41,7 +41,7 @@ import java.util.List;
 /**
  * @author Torsten Löhr
  */
-public class FrmProdukte extends JInternalFrame {
+public class FrmProdukte extends JFrame {
 
     JTree tree;
     RowFilter<ProdukteTableModel, Integer> warengruppeFilter;
@@ -55,7 +55,7 @@ public class FrmProdukte extends JInternalFrame {
     Stock foundStock = null;
     private JPopupMenu menu;
     private JidePopup popup;
-    private JComponent thisComponent;
+    private JFrame thisComponent;
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     private JScrollPane jspSearch;
     private JXTaskPaneContainer pnlSearch;
@@ -64,6 +64,7 @@ public class FrmProdukte extends JInternalFrame {
     private JXSearchField xSearchField1;
     private JXTaskPane xTaskPane3;
     private JButton btnSearchEditProducts;
+    private JButton btnNewIngType;
     private JXTaskPane xTaskPane2;
     private JPanel pnlMain;
     private JScrollPane jspProdukt;
@@ -456,7 +457,7 @@ public class FrmProdukte extends JInternalFrame {
                         text += "Active IDs: " + ids;
                     }
 
-                    JOptionPane.showInternalMessageDialog(thisComponent, text, "Vorrat Info", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(thisComponent, text, "Vorrat Info", JOptionPane.INFORMATION_MESSAGE);
 
                     Main.debug(text);
 
@@ -475,7 +476,7 @@ public class FrmProdukte extends JInternalFrame {
                     try {
                         em1.getTransaction().begin();
                         for (Produkte p : listSelectedProducts) {
-                            if (JOptionPane.showConfirmDialog(thisComponent, "Das Produkt "+p.getId()+" hat "+ p.getStockCollection().size()+" Vorräte.\nWirklich löschen ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+                            if (JOptionPane.showConfirmDialog(thisComponent, "Das Produkt " + p.getId() + " hat " + p.getStockCollection().size() + " Vorräte.\nWirklich löschen ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
                                 Produkte myProdukt = em1.merge(p);
                                 em1.remove(myProdukt);
                                 ptm.remove(myProdukt);
@@ -1167,6 +1168,35 @@ public class FrmProdukte extends JInternalFrame {
         xSearchField1.selectAll();
     }
 
+    private void btnNewIngTypeActionPerformed(ActionEvent e) {
+        String input = JOptionPane.showInputDialog(thisComponent, "", "Neue Stoffart eingeben", JOptionPane.PLAIN_MESSAGE);
+
+        if (input == null || input.trim().isEmpty()) return;
+
+        input = input.trim();
+
+        EntityManager em = Main.getEMF().createEntityManager();
+        try {
+            em.getTransaction().begin();
+            IngTypes newIngType = em.merge(new IngTypes(input, WarengruppeTools.getAll().get(0)));
+            em.getTransaction().commit();
+
+            tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_INGTYPE).setCellEditor(IngTypesTools.getTableCellEditor());
+
+        } catch (OptimisticLockException ole) {
+            Main.warn(ole);
+            em.getTransaction().rollback();
+        } catch (javax.persistence.RollbackException rbe) {
+            Main.warn(rbe);
+            em.getTransaction().rollback();
+        } catch (Exception exc) {
+            em.getTransaction().rollback();
+            Main.fatal(e);
+        } finally {
+            em.close();
+        }
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         jspSearch = new JScrollPane();
@@ -1176,6 +1206,7 @@ public class FrmProdukte extends JInternalFrame {
         xSearchField1 = new JXSearchField();
         xTaskPane3 = new JXTaskPane();
         btnSearchEditProducts = new JButton();
+        btnNewIngType = new JButton();
         xTaskPane2 = new JXTaskPane();
         pnlMain = new JPanel();
         jspProdukt = new JScrollPane();
@@ -1183,10 +1214,7 @@ public class FrmProdukte extends JInternalFrame {
 
         //======== this ========
         setVisible(true);
-        setIconifiable(true);
-        setMaximizable(true);
         setResizable(true);
-        setClosable(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
             "134dlu, default:grow",
@@ -1255,6 +1283,16 @@ public class FrmProdukte extends JInternalFrame {
                         }
                     });
                     xTaskPane3.add(btnSearchEditProducts);
+
+                    //---- btnNewIngType ----
+                    btnNewIngType.setText("Neue Stoffart");
+                    btnNewIngType.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            btnNewIngTypeActionPerformed(e);
+                        }
+                    });
+                    xTaskPane3.add(btnNewIngType);
                 }
                 pnlSearch.add(xTaskPane3);
 
@@ -1298,6 +1336,8 @@ public class FrmProdukte extends JInternalFrame {
             pnlMain.add(jspProdukt);
         }
         contentPane.add(pnlMain, CC.xy(2, 1, CC.FILL, CC.FILL));
+        pack();
+        setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 

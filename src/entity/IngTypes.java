@@ -109,6 +109,14 @@ public class IngTypes implements Comparable<IngTypes> {
         return produkteCollection;
     }
 
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "ingType")
+    private Collection<Ingtypes2Recipes> ingtypes2RecipesCollection;
+
+    public Collection<Ingtypes2Recipes> getIngtypes2RecipesCollection() {
+        return ingtypes2RecipesCollection;
+    }
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "allergene2types", joinColumns =
     @JoinColumn(name = "allergenid"), inverseJoinColumns =
@@ -138,15 +146,15 @@ public class IngTypes implements Comparable<IngTypes> {
 //        return recipes;
 //    }
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinTable(name = "types2menu", joinColumns =
-    @JoinColumn(name = "menuid"), inverseJoinColumns =
-    @JoinColumn(name = "typeid"))
-    private Set<Menu> menus;
-
-    public Set<Menu> getMenus() {
-        return menus;
-    }
+//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+//    @JoinTable(name = "types2menu", joinColumns =
+//    @JoinColumn(name = "menuid"), inverseJoinColumns =
+//    @JoinColumn(name = "typeid"))
+//    private Set<Menu> menus;
+//
+//    public Set<Menu> getMenus() {
+//        return menus;
+//    }
 
     @Version
     @Column(name = "version")
@@ -174,7 +182,7 @@ public class IngTypes implements Comparable<IngTypes> {
 
         result = 31 * result + (allergenes != null ? allergenes.hashCode() : 0);
         result = 31 * result + (additives != null ? additives.hashCode() : 0);
-        result = 31 * result + (menus != null ? menus.hashCode() : 0);
+//        result = 31 * result + (menus != null ? menus.hashCode() : 0);
         result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;
     }

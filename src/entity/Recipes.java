@@ -1,6 +1,7 @@
 package entity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -70,6 +71,7 @@ public class Recipes {
 
     public Recipes(String title) {
         this.title = title;
+        ingTypes2Recipes = new ArrayList<Ingtypes2Recipes>();
     }
 
     @Version
