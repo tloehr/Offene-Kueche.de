@@ -1635,4 +1635,24 @@ public class Tools {
     }
 
 
+    /**
+     * tiny method to automatically find out if the message is a language key or not.
+     * <i>still an empty stub</i>
+     *
+     * @param message
+     * @return replaced message or the original message if there is no appropriate language key.
+     */
+    public static String xx(String message) {
+
+        return catchNull(message);
+
+//           String title = Tools.catchNull(message);
+//           try {
+//               title = OPDE.lang.getString(message);
+//           } catch (Exception e) {
+//               // ok, its not a langbundle key
+//           }
+//           return title;
+    }
+
 }

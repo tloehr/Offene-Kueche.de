@@ -392,6 +392,8 @@ public class StockTools {
         for (Stock stock : stocks) {
             mySet.addAll(stock.getProdukt().getAllergenes());
         }
+
+        Main.debug(mySet.size());
 //        ArrayList<Allergene> list = new ArrayList<Allergene>(mySet);
 //        Collections.sort(list);
         return mySet;

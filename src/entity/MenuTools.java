@@ -84,11 +84,10 @@ public class MenuTools {
                 HashSet<Additives> myAdditives = new HashSet<Additives>();
 
 
-                if (!getDish(menu, dish).getIngTypes2Recipes().isEmpty()) {
-
-                    myAllergenes.addAll(StockTools.getAllergenes(getStocklist(menu, dish)));
-                    myAdditives.addAll(StockTools.getAdditives(getStocklist(menu, dish)));
-                }
+//                if (!getDish(menu, dish).getIngTypes2Recipes().isEmpty()) {
+//                    myAllergenes.addAll(StockTools.getAllergenes(getStocklist(menu, dish)));
+//                    myAdditives.addAll(StockTools.getAdditives(getStocklist(menu, dish)));
+//                }
 
                 if (!getStocklist(menu, dish).isEmpty()) {
                     myAllergenes.addAll(StockTools.getAllergenes(getStocklist(menu, dish)));
@@ -121,6 +120,8 @@ public class MenuTools {
         return html;
 
     }
+
+
 
 
     public static Integer[] indicesOf(Menu menu, Recipes recipe) {

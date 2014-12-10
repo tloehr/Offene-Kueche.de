@@ -11,6 +11,7 @@ import entity.*;
 import org.apache.commons.collections.Closure;
 import org.joda.time.LocalDate;
 import printer.Printers;
+import tools.Const;
 import tools.GUITools;
 import tools.PopupPanel;
 import tools.Tools;
@@ -367,12 +368,40 @@ public class FrmMenu extends JFrame {
     }
 
     private void btnPrintActionPerformed(ActionEvent e) {
-        String html = "";
-        for (Menuweek menuweek : ((Menuweekall) cmbWeeks.getSelectedItem()).getMenuweeks()){
-            html += MenuweekTools.getAsHTML(menuweek);
-            html += Tools.isLastElement(menuweek, ((Menuweekall) cmbWeeks.getSelectedItem()).getMenuweeks()) ? "" : "<p style=\"page-break-before:always\"\\>";
-        }
-        Printers.print(Main.getDesktop(), html, true);
+
+        JidePopupMenu jMenu = new JidePopupMenu();
+        JMenuItem miPrintAllMenus = new JMenuItem("Alle Speisepläne drucken");
+        miPrintAllMenus.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        JMenuItem miIngTypesAndStocks = new JMenuItem("Zutaten und Vorratslisten drucken", Const.icon24ledGreenOff);
+        miIngTypesAndStocks.setFont(new Font("SansSerif", Font.PLAIN, 18));
+
+        jMenu.add(miPrintAllMenus);
+        jMenu.add(miIngTypesAndStocks);
+
+        miPrintAllMenus.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String html = "";
+                for (Menuweek menuweek : ((Menuweekall) cmbWeeks.getSelectedItem()).getMenuweeks()) {
+                    html += MenuweekTools.getAsHTML(menuweek);
+                    html += Tools.isLastElement(menuweek, ((Menuweekall) cmbWeeks.getSelectedItem()).getMenuweeks()) ? "" : "<p style=\"page-break-before:always\"\\>";
+                }
+                Printers.print(Main.getDesktop(), html, true);
+            }
+        });
+
+
+        miIngTypesAndStocks.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Printers.print(Main.getDesktop(), MenuweekallTools.getIngTypesAndStocksAsHTML(((Menuweekall) cmbWeeks.getSelectedItem())), true);
+            }
+        });
+
+
+        jMenu.show(btnPrint, 0, btnPrint.getPreferredSize().height);
+
+
     }
 
 
