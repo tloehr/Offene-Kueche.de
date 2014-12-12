@@ -40,7 +40,8 @@ public class PnlSingleDayMenu extends JPanel {
     KeyboardFocusManager keyboardFocusManager;
     private JButton btnEmpty;
     //    private JButton btnRedToGreen;
-    private JButton btnCopyTo;
+    private JButton btnCopy;
+    private JButton btnPaste;
     private Menuweek2Menu menuweek2Menu;
     private ArrayList<MenuBlock> listOfBlocks;
     SimpleDateFormat sdf = new SimpleDateFormat("EEEE, d MMM yyyy");
@@ -344,65 +345,129 @@ public class PnlSingleDayMenu extends JPanel {
         lblOverlay.setFont(new Font("SansSerif", Font.BOLD, 10));
         ovrComment.addOverlayComponent(lblOverlay, DefaultOverlayable.SOUTH_EAST);
 
-        btnCopyTo = new JButton(Const.icon24copy);
-        btnCopyTo.addActionListener(new ActionListener() {
+        btnCopy = new JButton(Const.icon24copy);
+        btnCopy.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Main.cbCopy(menuweek2Menu.clone());
+
+
+//                JidePopupMenu jMenu = new JidePopupMenu();
+
+//                for (final Menuweek menuweek : menuweek2Menu.getMenuweek().getMenuweekall().getMenuweeks()) {
+//                    JMenu innerMenu = new JMenu("Speiseplan: " + menuweek.getRecipefeature().getText());
+//                    innerMenu.setFont(new Font("SansSerif", Font.PLAIN, 18));
+////                    for (final Menuweek2Menu myMenuweek2Menu : menuweek.getMenuweek2menus()) {
+////                        JMenuItem mi = new JMenuItem(sdf.format(myMenuweek2Menu.getDate()));
+////                        innerMenu.add(mi);
+////                        mi.setEnabled(!myMenuweek2Menu.equals(menuweek2Menu));
+////                        mi.setFont(new Font("SansSerif", myMenuweek2Menu.getMenu().isEmpty() ? Font.PLAIN : Font.BOLD, 18));
+////                        mi.setIcon(myMenuweek2Menu.getMenu().isEmpty() ? null : Const.icon16info);
+////                        mi.addActionListener(new ActionListener() {
+////                            @Override
+////                            public void actionPerformed(ActionEvent e) {
+////                                EntityManager em = Main.getEMF().createEntityManager();
+////                                Menu oldMenu = null;
+////                                Menu replaceMenu = null;
+////                                Menuweek2Menu otherMenuweek2menu = null;
+////                                try {
+////                                    em.getTransaction().begin();
+////
+////                                    replaceMenu = em.merge(menuweek2Menu.getMenu());
+////                                    otherMenuweek2menu = em.merge(myMenuweek2Menu);
+////
+////                                    oldMenu = em.merge(otherMenuweek2menu.getMenu());
+////                                    oldMenu.getMenu2menuweeks().remove(otherMenuweek2menu);
+////
+////                                    otherMenuweek2menu.setMenu(replaceMenu);
+////                                    replaceMenu.getMenu2menuweeks().add(otherMenuweek2menu);
+////
+////                                    em.lock(otherMenuweek2menu, LockModeType.OPTIMISTIC);
+////                                    em.lock(replaceMenu, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+////
+////                                    em.getTransaction().commit();
+////                                } catch (OptimisticLockException ole) {
+////                                    em.getTransaction().rollback();
+////                                    Main.warn(ole);
+////                                } catch (Exception exc) {
+////                                    Main.error(exc.getMessage());
+////                                    em.getTransaction().rollback();
+////                                    Main.fatal(exc.getMessage());
+////                                } finally {
+////                                    em.close();
+////                                    psdChangeListener.menuReplaced(new PSDChangeEvent(this, oldMenu, replaceMenu, otherMenuweek2menu));
+////                                }
+////                            }
+////                        });
+////                    }
+//                    jMenu.add(innerMenu);
+//                }
+
+            }
+        });
+
+
+        btnPaste = new JButton(Const.icon24paste);
+        btnPaste.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
+                if (!Main.copyQueueContainsClass(Menuweek2Menu.class)) return;
+
+
                 JidePopupMenu jMenu = new JidePopupMenu();
 
-                for (final Menuweek menuweek : menuweek2Menu.getMenuweek().getMenuweekall().getMenuweeks()) {
-                    JMenu innerMenu = new JMenu("Speiseplan: " + menuweek.getRecipefeature().getText());
-                    innerMenu.setFont(new Font("SansSerif", Font.PLAIN, 18));
-                    for (final Menuweek2Menu myMenuweek2Menu : menuweek.getMenuweek2menus()) {
-                        JMenuItem mi = new JMenuItem(sdf.format(myMenuweek2Menu.getDate()));
-                        innerMenu.add(mi);
-                        mi.setEnabled(!myMenuweek2Menu.equals(menuweek2Menu));
-                        mi.setFont(new Font("SansSerif", myMenuweek2Menu.getMenu().isEmpty() ? Font.PLAIN : Font.BOLD, 18));
-                        mi.setIcon(myMenuweek2Menu.getMenu().isEmpty() ? null : Const.icon16info);
-                        mi.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                EntityManager em = Main.getEMF().createEntityManager();
-                                Menu oldMenu = null;
-                                Menu replaceMenu = null;
-                                Menuweek2Menu otherMenuweek2menu = null;
-                                try {
-                                    em.getTransaction().begin();
+                for (final Object obj : Main.getCopyQueue()) {
 
-                                    replaceMenu = em.merge(menuweek2Menu.getMenu());
-                                    otherMenuweek2menu = em.merge(myMenuweek2Menu);
+                    if (obj instanceof Menuweek2Menu) {
+                        JMenu innerMenu = new JMenu(sdf.format(((Menuweek2Menu) obj).getDate()) + " " + Tools.left(((Menuweek2Menu) obj).getMenu().getText(), 15));
+                        innerMenu.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
-                                    oldMenu = em.merge(otherMenuweek2menu.getMenu());
-                                    oldMenu.getMenu2menuweeks().remove(otherMenuweek2menu);
+                        EntityManager em = Main.getEMF().createEntityManager();
+                        Menu oldMenu = null;
+                        Menu replaceMenu = null;
+                        Menuweek2Menu myMenuweek2menu = null;
+                        try {
+                            em.getTransaction().begin();
 
-                                    otherMenuweek2menu.setMenu(replaceMenu);
-                                    replaceMenu.getMenu2menuweeks().add(otherMenuweek2menu);
+                            replaceMenu = em.merge(((Menuweek2Menu) obj).getMenu());
+                            myMenuweek2menu = em.merge(menuweek2Menu);
 
-                                    em.lock(otherMenuweek2menu, LockModeType.OPTIMISTIC);
-                                    em.lock(replaceMenu, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+                            oldMenu = em.merge(myMenuweek2menu.getMenu());
+                            oldMenu.getMenu2menuweeks().remove(menuweek2Menu);
 
-                                    em.getTransaction().commit();
-                                } catch (OptimisticLockException ole) {
-                                    em.getTransaction().rollback();
-                                    Main.warn(ole);
-                                } catch (Exception exc) {
-                                    Main.error(exc.getMessage());
-                                    em.getTransaction().rollback();
-                                    Main.fatal(exc.getMessage());
-                                } finally {
-                                    em.close();
-                                    psdChangeListener.menuReplaced(new PSDChangeEvent(this, oldMenu, replaceMenu, otherMenuweek2menu));
-                                }
-                            }
-                        });
+                            myMenuweek2menu.setMenu(replaceMenu);
+                            replaceMenu.getMenu2menuweeks().add(myMenuweek2menu);
+
+                            em.lock(myMenuweek2menu, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+                            em.lock(replaceMenu, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+
+                            em.getTransaction().commit();
+
+                            menuweek2Menu = myMenuweek2menu;
+
+                        } catch (OptimisticLockException ole) {
+                            em.getTransaction().rollback();
+                            Main.warn(ole);
+                        } catch (Exception exc) {
+                            Main.error(exc.getMessage());
+                            em.getTransaction().rollback();
+                            Main.fatal(exc.getMessage());
+                        } finally {
+                            em.close();
+                            psdChangeListener.menuReplaced(new PSDChangeEvent(this, oldMenu, replaceMenu, menuweek2Menu));
+                        }
+
+
+                        jMenu.add(innerMenu);
                     }
-                    jMenu.add(innerMenu);
+
                 }
-                jMenu.show(btnCopyTo, 0, btnCopyTo.getPreferredSize().height);
+
             }
         });
-        btnCopyTo.setEnabled(!menuweek2Menu.getMenu().isEmpty());
+
+//        btnCopy.setEnabled(!menuweek2Menu.getMenu().isEmpty());
 
 
         btnEmpty = new JButton(Const.icon24clear);
@@ -417,7 +482,7 @@ public class PnlSingleDayMenu extends JPanel {
 
         menuLine3.add(ovrComment);
         menuLine3.add(getMenuFindButton());
-        menuLine3.add(btnCopyTo);
+        menuLine3.add(btnCopy);
         menuLine3.add(btnEmpty);
 
         menuComplete.add(menuLine0);
@@ -488,6 +553,10 @@ public class PnlSingleDayMenu extends JPanel {
             super();
             this.stocks = stocks;
             this.rcl = rclIn;
+            lblBadgeRed = new JLabel(Const.icon24redBadge);
+            lblBadgeRed.setHorizontalTextPosition(SwingConstants.CENTER);
+            lblBadgeGreen = new JLabel(Const.icon24greenBadge);
+            lblBadgeGreen.setHorizontalTextPosition(SwingConstants.CENTER);
             initPhase = true;
             setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
             dlm = new DefaultListModel<Recipes>();
@@ -649,7 +718,7 @@ public class PnlSingleDayMenu extends JPanel {
             ovrBadge = new DefaultOverlayable(btnMenu);
 
             if (!stocks.isEmpty()) {
-                lblBadgeRed = new JLabel(Integer.toString(stocks.size()), Const.icon24redBadge, SwingConstants.CENTER);
+                lblBadgeRed.setText(Integer.toString(stocks.size()));
                 lblBadgeRed.setHorizontalTextPosition(SwingConstants.CENTER);
                 lblBadgeRed.setVerticalTextPosition(SwingConstants.CENTER);
                 lblBadgeRed.setFont(new Font("SansSerif", Font.BOLD, 11));
@@ -658,7 +727,7 @@ public class PnlSingleDayMenu extends JPanel {
             }
 
             if (recipeIn != null && !recipeIn.getIngTypes2Recipes().isEmpty()) {
-                lblBadgeGreen = new JLabel(Integer.toString(recipeIn.getIngTypes2Recipes().size()), Const.icon24greenBadge, SwingConstants.CENTER);
+                lblBadgeGreen.setText(Integer.toString(recipeIn.getIngTypes2Recipes().size()));
                 lblBadgeGreen.setHorizontalTextPosition(SwingConstants.CENTER);
                 lblBadgeGreen.setVerticalTextPosition(SwingConstants.CENTER);
                 lblBadgeGreen.setFont(new Font("SansSerif", Font.BOLD, 11));

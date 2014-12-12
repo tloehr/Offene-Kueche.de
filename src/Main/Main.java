@@ -55,6 +55,7 @@ public class Main {
     private static String jdbcurl = "";
     private static Dimension startResolution = null;
     private static ArrayList<Stock> stockList;
+    private static ArrayList copyQueue;
 
     private static boolean devmode = false;
     private static String css = "";
@@ -74,7 +75,7 @@ public class Main {
         return mainframe;
     }
 
-    public static FrmDesktop getDesktop(){
+    public static FrmDesktop getDesktop() {
         return (FrmDesktop) mainframe;
     }
 
@@ -101,6 +102,7 @@ public class Main {
         cache = new HashMap();
 
         animation = false;
+        copyQueue = new ArrayList();
 
         // Das hier fängt alle ungefangenen Exceptions auf.
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -181,7 +183,6 @@ public class Main {
         css = Tools.readFileAsString(Main.props.getProperty("workdir") + System.getProperty("file.separator") + "standard.css");
 
 
-
         if (mode == DESKTOP) {
             mainframe = new FrmDesktop();
         } else {
@@ -234,10 +235,30 @@ public class Main {
         logger.debug(msg);
     }
 
+    public static boolean copyQueueContainsClass(Class c) {
+        boolean res = false;
+        for (Object object : copyQueue) {
+            if (object.getClass().equals(c)) {
+                res = true;
+                break;
+            }
+        }
+        return res;
+    }
+
     public static boolean isDebug() {
         return debug;
     }
 
+    public static ArrayList getCopyQueue() {
+        return copyQueue;
+    }
+
+    public static void cbCopy(Object c) {
+        if (!copyQueue.contains(c)){
+            copyQueue.add(0, c);
+        }
+    }
 
     public static void warn(Object msg) {
         JOptionPane.showMessageDialog(getMainframe(), msg, "!! Wichtiger Hinweis !!", JOptionPane.WARNING_MESSAGE);
@@ -248,7 +269,7 @@ public class Main {
         logger.error(msg);
     }
 
-    public static void fatal(String msg){
+    public static void fatal(String msg) {
         fatal(new Throwable(msg));
     }
 

@@ -147,6 +147,7 @@ public class Const {
     public static final Icon icon24clear = new ImageIcon(Const.class.getResource("/artwork/24x24/edit_clear24.png"));
     // http://findicons.com/icon/15991/copy?id=15991
     public static final Icon icon24copy = new ImageIcon(Const.class.getResource("/artwork/24x24/copy24.png"));
+    public static final Icon icon24paste = new ImageIcon(Const.class.getResource("/artwork/24x24/paste.png"));
     public static final Icon icon24apply = new ImageIcon(Const.class.getResource("/artwork/24x24/apply.png"));
     public static final Icon icon24ledBlueOff = new ImageIcon(Const.class.getResource("/artwork/24x24/leddarkblue.png"));
     public static final Icon icon24ledGreenOn = new ImageIcon(Const.class.getResource("/artwork/24x24/ledgreen.png"));

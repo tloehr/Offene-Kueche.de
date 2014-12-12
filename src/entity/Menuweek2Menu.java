@@ -10,7 +10,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "menuweek2menu")
-public class Menuweek2Menu {
+public class Menuweek2Menu implements Cloneable {
 
     @Column(name = "ID", nullable = false, insertable = true, updatable = true, length = 20, precision = 0)
     @Id
@@ -111,4 +111,11 @@ public class Menuweek2Menu {
     private Long version;
 
 
+    @Override
+    public Object clone()  {
+        Menuweek2Menu clone = new Menuweek2Menu();
+        clone.setMenuweek(menuweek);
+        clone.setMenu(menu.clone());
+        return clone;
+    }
 }
