@@ -12,6 +12,7 @@ import entity.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.jdesktop.swingx.JXSearchField;
+import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import tablemodels.IngType2recipeTableModel;
 import tablemodels.StockTableModel3;
 import tools.*;
@@ -27,6 +28,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 /**
@@ -41,10 +43,10 @@ public class PnlRecipeMenuStock extends PopupPanel {
     private JPopupMenu menu;
     RowFilter<StockTableModel3, Integer> textFilter;
     private TableRowSorter<StockTableModel3> sorter;
-    private int response;
     private java.util.List<ActionListener> listActions;
     private Warengruppe someDefaultCG;
     private ArrayList<IngTypes> listIngTypes;
+    private ArrayList<Recipes> listRecipes;
 
     public void addActionListener(ActionListener al) {
         listActions.add(al);
@@ -62,12 +64,13 @@ public class PnlRecipeMenuStock extends PopupPanel {
         stmUnass = new StockTableModel3(unassigned);
         stmAss = new StockTableModel3(assigned);
 
-        response = JOptionPane.CANCEL_OPTION;
+//        response = JOptionPane.CANCEL_OPTION;
 
         someDefaultCG = WarengruppeTools.getAll().get(0);
 
         listIngTypes = IngTypesTools.getAll();
-
+        listRecipes = RecipeTools.getAll();
+        listRecipes.remove(recipe);
         initComponents();
         initPanel();
     }
@@ -107,7 +110,12 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
 //        cmbStoffart.setModel(Tools.newComboboxModel(IngTypesTools.getAll()));
 
-
+        cmbIngTypeOrRecipe.setRenderer(new DefaultListRenderer(){
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                return new DefaultListCellRenderer().getListCellRendererComponent(list, (value instanceof Recipes ? "R." : "S.") + value.toString(), index, isSelected, cellHasFocus);
+            }
+        });
 
         thisComponentResized(null);
     }
@@ -810,19 +818,6 @@ public class PnlRecipeMenuStock extends PopupPanel {
 //
 //    }
 
-    private void btnAddITActionPerformed(ActionEvent e) {
-
-
-        it2rm.add((IngTypes) cmbStoffart.getSelectedItem(), recipe);
-        it2rm.fireTableDataChanged();
-    }
-
-
-    private void cmbStoffartItemStateChanged(ItemEvent e) {
-        // TODO add your code here
-    }
-
-
     private void btnOkActionPerformed(ActionEvent e) {
         actionPerformed("OK");
     }
@@ -838,27 +833,49 @@ public class PnlRecipeMenuStock extends PopupPanel {
     }
 
     private void txtSearchNewIngTypeActionPerformed(ActionEvent e) {
+        ArrayList listAllToSearchIn = new ArrayList();
+
         if (txtSearchNewIngType.getText().trim().isEmpty()) {
-            cmbStoffart.setModel(Tools.newComboboxModel(listIngTypes));
+
+            listAllToSearchIn.addAll(listIngTypes);
+            listAllToSearchIn.addAll(listRecipes);
+
+            cmbIngTypeOrRecipe.setModel(Tools.newComboboxModel(listAllToSearchIn));
             btnAddNew.setIcon(Const.icon24upArrow);
             return;
         }
         final String searchText = txtSearchNewIngType.getText().trim().toLowerCase();
 
-        ArrayList<IngTypes> myListIT = new ArrayList<IngTypes>(listIngTypes);
-        CollectionUtils.filter(myListIT, new Predicate() {
+        listAllToSearchIn.addAll(listIngTypes);
+        listAllToSearchIn.addAll(listRecipes);
+
+        CollectionUtils.filter(listAllToSearchIn, new Predicate() {
             @Override
             public boolean evaluate(Object o) {
-                return ((IngTypes) o).getBezeichnung().toLowerCase().indexOf(searchText) > -1;
+                if (o instanceof Recipes){
+                    return ((Recipes) o).getTitle().trim().toLowerCase().indexOf(searchText) > -1;
+                } else {
+                    return ((IngTypes) o).getBezeichnung().trim().toLowerCase().indexOf(searchText) > -1;
+                }
             }
         });
 
-        btnAddNew.setIcon(myListIT.isEmpty() ? Const.icon24add : Const.icon24upArrow);
-        if (myListIT.isEmpty()) {
-            cmbStoffart.setModel(new DefaultComboBoxModel<IngTypes>(new IngTypes[]{new IngTypes(txtSearchNewIngType.getText().trim(), someDefaultCG)}));
+        btnAddNew.setIcon(containsOnlyRecipesOrIsEmpty(listAllToSearchIn) ? Const.icon24add : Const.icon24upArrow);
+        if (containsOnlyRecipesOrIsEmpty(listAllToSearchIn)) {
+            cmbIngTypeOrRecipe.setModel(new DefaultComboBoxModel(new IngTypes[]{new IngTypes(txtSearchNewIngType.getText().trim(), someDefaultCG)}));
         } else {
-            cmbStoffart.setModel(Tools.newComboboxModel(IngTypesTools.getAll(txtSearchNewIngType.getText())));
+            cmbIngTypeOrRecipe.setModel(Tools.newComboboxModel(listAllToSearchIn));
         }
+    }
+
+
+    boolean containsOnlyRecipesOrIsEmpty(ArrayList list){
+        boolean positive = list.isEmpty();
+        for (Object o :list){
+            positive = o instanceof Recipes;
+            if (!positive) break;
+        }
+        return positive;
     }
 
     private void btnAddNewActionPerformed(ActionEvent e) {
@@ -869,8 +886,16 @@ public class PnlRecipeMenuStock extends PopupPanel {
 //
 //        }
 
-        it2rm.add((IngTypes) cmbStoffart.getSelectedItem(), recipe);
-        it2rm.fireTableDataChanged();
+
+        if (cmbIngTypeOrRecipe.getSelectedItem() instanceof Recipes && !((Recipes) cmbIngTypeOrRecipe.getSelectedItem()).getIngTypes2Recipes().isEmpty()){
+            for (Ingtypes2Recipes it2r : ((Recipes) cmbIngTypeOrRecipe.getSelectedItem()).getIngTypes2Recipes()){
+                it2rm.add(it2r.getIngType(), recipe, it2r.getAmount());
+            }
+        } else {
+            it2rm.add((IngTypes) cmbIngTypeOrRecipe.getSelectedItem(), recipe, BigDecimal.ZERO);
+        }
+
+//        it2rm.fireTableDataChanged();
     }
 
     private void searchUnAssActionPerformed(ActionEvent e) {
@@ -890,7 +915,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
         tblIngTypes = new JTable();
         txtSearchNewIngType = new JXSearchField();
         btnAddNew = new JButton();
-        cmbStoffart = new JComboBox();
+        cmbIngTypeOrRecipe = new JComboBox();
         panel2 = new JPanel();
         btnCancel = new JButton();
         btnOk = new JButton();
@@ -989,20 +1014,14 @@ public class PnlRecipeMenuStock extends PopupPanel {
         });
         add(btnAddNew, CC.xywh(3, 7, 1, 3));
 
-        //---- cmbStoffart ----
-        cmbStoffart.setFont(new Font("SansSerif", Font.BOLD, 14));
-        cmbStoffart.setModel(new DefaultComboBoxModel(new String[] {
+        //---- cmbIngTypeOrRecipe ----
+        cmbIngTypeOrRecipe.setFont(new Font("SansSerif", Font.BOLD, 14));
+        cmbIngTypeOrRecipe.setModel(new DefaultComboBoxModel(new String[] {
             "item 1",
             "item 2",
             "item 3"
         }));
-        cmbStoffart.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                cmbStoffartItemStateChanged(e);
-            }
-        });
-        add(cmbStoffart, CC.xy(1, 9));
+        add(cmbIngTypeOrRecipe, CC.xy(1, 9));
 
         //======== panel2 ========
         {
@@ -1058,7 +1077,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
     private JTable tblIngTypes;
     private JXSearchField txtSearchNewIngType;
     private JButton btnAddNew;
-    private JComboBox cmbStoffart;
+    private JComboBox cmbIngTypeOrRecipe;
     private JPanel panel2;
     private JButton btnCancel;
     private JButton btnOk;

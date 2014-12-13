@@ -48,10 +48,11 @@ public class IngType2recipeTableModel extends DefaultTableModel {
         removeRow(data.indexOf(ingtypes2Recipe));
     }
 
-    public void add(IngTypes ingType, Recipes recipe) {
+    public void add(IngTypes ingType, Recipes recipe, BigDecimal amount) {
         if (!contains(ingType)) {
             Ingtypes2Recipes newIngType2Recipe = new Ingtypes2Recipes(recipe, ingType);
-            amountMap.put(ingType, BigDecimal.ZERO);
+            newIngType2Recipe.setAmount(amount);
+            amountMap.put(ingType, amount);
             data.add(newIngType2Recipe);
             fireTableRowsInserted(data.size() - 1, data.size() - 1);
         }

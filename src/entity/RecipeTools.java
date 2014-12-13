@@ -1,5 +1,11 @@
 package entity;
 
+import Main.Main;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import java.util.ArrayList;
+
 /**
  * Created by tloehr on 28.11.14.
  */
@@ -25,6 +31,20 @@ public class RecipeTools {
 
     }
 
+
+    public static ArrayList<Recipes> getAll() {
+           ArrayList<Recipes> list = new ArrayList<Recipes>();
+           EntityManager em = Main.getEMF().createEntityManager();
+           Query query = em.createQuery("SELECT r FROM Recipes r ORDER BY r.title");
+           try {
+               list.addAll(query.getResultList());
+           } catch (Exception e) { // nicht gefunden
+               Main.fatal(e);
+           } finally {
+               em.close();
+           }
+           return list;
+       }
 
 //    public static String getAsHTML(Recipes recipe, ) {
 //            String html = "";
