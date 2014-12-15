@@ -15,7 +15,6 @@ import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
 import tablemodels.ProdukteTableModel;
 import tools.Const;
-import tools.PnlAssign;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
@@ -23,19 +22,16 @@ import javax.persistence.LockModeType;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.Query;
 import javax.swing.*;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.TableRowSorter;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -65,7 +61,6 @@ public class FrmProdukte extends JFrame {
     private JXTaskPane xTaskPane3;
     private JButton btnSearchEditProducts;
     private JButton btnNewIngType;
-    private JXTaskPane xTaskPane2;
     private JPanel pnlMain;
     private JScrollPane jspProdukt;
     private JTable tblProdukt;
@@ -80,7 +75,7 @@ public class FrmProdukte extends JFrame {
         createFilters();
         reload();
 
-        createTree();
+//        createTree();
         setTitle(Tools.getWindowTitle("Produkte-Verwaltung"));
 
         pack();
@@ -130,8 +125,6 @@ public class FrmProdukte extends JFrame {
                         Tools.catchNull(produkt.getGtin()).indexOf(textKriterium.trim()) >= 0 ||
                         produkt.getIngTypes().getBezeichnung().toLowerCase().indexOf(textKriterium.trim()) >= 0 ||
                         produkt.getIngTypes().getWarengruppe().getBezeichnung().toLowerCase().indexOf(textKriterium.trim()) >= 0;
-
-
             }
         };
         textKriterium = null;
@@ -156,9 +149,20 @@ public class FrmProdukte extends JFrame {
 
         tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_INGTYPE).setCellRenderer(IngTypesTools.getTableCellRenderer());
         tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_INGTYPE).setCellEditor(IngTypesTools.getTableCellEditor());
+        tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_WARENGRUPPE).setCellRenderer(WarengruppeTools.getTableCellRenderer());
+        tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_WARENGRUPPE).setCellEditor(WarengruppeTools.getTableCellEditor());
+        tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_LAGERART).setCellRenderer(IngTypesTools.getStorageRenderer());
+        tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_LAGERART).setCellEditor(IngTypesTools.getStorageEditor());
+        tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_EINHEIT).setCellRenderer(LagerTools.getEinheitTableCellRenderer());
+        tblProdukt.getColumnModel().getColumn(ProdukteTableModel.COL_EINHEIT).setCellEditor(LagerTools.getEinheitTableCellEditor());
 
         sorter = new TableRowSorter(ptm);
-
+        sorter.setComparator(ProdukteTableModel.COL_INGTYPE, new Comparator<IngTypes>() {
+            @Override
+            public int compare(IngTypes o1, IngTypes o2) {
+                return o1.compareTo(o2);
+            }
+        });
         sorter.setRowFilter(null);
         sorter.setSortsOnUpdates(true);
         tblProdukt.setRowSorter(sorter);
@@ -251,140 +255,51 @@ public class FrmProdukte extends JFrame {
             lsm.setSelectionInterval(row, row);
         }
 
-        if (SwingUtilities.isLeftMouseButton(e) && col == ProdukteTableModel.COL_ALLERGENES && e.getClickCount() == 2) {
-            if (popup != null && popup.isVisible()) {
-                popup.hidePopup();
-            }
-
-            Tools.unregisterListeners(popup);
-            popup = new JidePopup();
+        if (SwingUtilities.isLeftMouseButton(e) && col == ProdukteTableModel.COL_ALLADD && e.getClickCount() == 2) {
             final int thisRow = tblProdukt.convertRowIndexToModel(row);
-            final PnlAssign<Allergene> pnlAssign = new PnlAssign<Allergene>(ptm.getProdukt(thisRow).getAllergenes(), AllergeneTools.getAll(), AllergeneTools.getListCellRenderer());
 
-            popup.setTransient(true);
-            popup.setOwner(tblProdukt);
-            popup.getContentPane().add(pnlAssign);
-            popup.setFocusable(true);
-            popup.setDefaultFocusComponent(pnlAssign.getDefaultFocusComponent());
-
-            popup.addPopupMenuListener(new PopupMenuListener() {
+            final PnlAssignAdditives dlgAssign = new PnlAssignAdditives(this, ptm.getProdukt(thisRow).getAdditives(), ptm.getProdukt(thisRow).getAllergenes());
+            dlgAssign.addWindowListener(new WindowAdapter() {
                 @Override
-                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                public void windowClosed(WindowEvent e) {
+                    if (dlgAssign.getResponse() == JOptionPane.OK_OPTION) {
+                        EntityManager em = Main.getEMF().createEntityManager();
+                        try {
+                            em.getTransaction().begin();
 
-                }
+                            Produkte product = em.merge(ptm.getProdukt(thisRow));
+                            em.lock(product, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
 
-                @Override
-                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                            product.getAllergenes().clear();
+                            for (Allergene allergene : dlgAssign.getAssignedAllergenes()) {
+                                product.getAllergenes().add(em.merge(allergene));
+                            }
 
-                    if (pnlAssign.getAssigned() == null) return;
+                            product.getAdditives().clear();
+                            for (Additives additives : dlgAssign.getAssignedAdditives()) {
+                                product.getAdditives().add(em.merge(additives));
+                            }
 
-                    EntityManager em = Main.getEMF().createEntityManager();
-                    try {
-                        em.getTransaction().begin();
+                            em.getTransaction().commit();
 
-                        Produkte product = em.merge(ptm.getProdukt(thisRow));
-                        em.lock(product, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-
-                        product.getAllergenes().clear();
-                        for (Allergene allergene : pnlAssign.getAssigned()) {
-                            product.getAllergenes().add(em.merge(allergene));
+                            ptm.update(product);
+                        } catch (OptimisticLockException ole) {
+                            em.getTransaction().rollback();
+                            Main.warn(ole);
+                        } catch (Exception exc) {
+                            em.getTransaction().rollback();
+                            Main.fatal(e);
+                        } finally {
+                            em.close();
+                            popup = null;
                         }
-
-                        em.getTransaction().commit();
-
-                        ptm.update(product);
-                    } catch (OptimisticLockException ole) {
-                        em.getTransaction().rollback();
-                        Main.warn(ole);
-                    } catch (Exception exc) {
-                        em.getTransaction().rollback();
-                        Main.fatal(e);
-                    } finally {
-                        em.close();
-                        popup = null;
                     }
                 }
-
-                @Override
-                public void popupMenuCanceled(PopupMenuEvent e) {
-
-                }
             });
+            dlgAssign.setVisible(true);
 
-            SwingUtilities.convertPointToScreen(p, tblProdukt);
-
-            popup.showPopup(p.x - (pnlAssign.getPreferredSize().width / 2), p.y + 10);
 
         }
-
-
-        if (SwingUtilities.isLeftMouseButton(e) && col == ProdukteTableModel.COL_ADDITIVES && e.getClickCount() == 2) {
-            if (popup != null && popup.isVisible()) {
-                popup.hidePopup();
-            }
-
-            Tools.unregisterListeners(popup);
-            popup = new JidePopup();
-            final int thisRow = tblProdukt.convertRowIndexToModel(row);
-            final PnlAssign<Additives> pnlAssign = new PnlAssign<Additives>(ptm.getProdukt(thisRow).getAdditives(), AdditivesTools.getAll(), AdditivesTools.getListCellRenderer());
-
-            popup.setMovable(false);
-            popup.setTransient(true);
-            popup.setOwner(tblProdukt);
-            popup.getContentPane().add(pnlAssign);
-            popup.setFocusable(true);
-            popup.setDefaultFocusComponent(pnlAssign.getDefaultFocusComponent());
-
-            popup.addPopupMenuListener(new PopupMenuListener() {
-                @Override
-                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-
-                }
-
-                @Override
-                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-
-                    if (pnlAssign.getAssigned() == null) return;
-
-                    EntityManager em = Main.getEMF().createEntityManager();
-                    try {
-                        em.getTransaction().begin();
-
-                        Produkte product = em.merge(ptm.getProdukt(thisRow));
-                        em.lock(product, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-
-                        product.getAdditives().clear();
-                        for (Additives additive : pnlAssign.getAssigned()) {
-                            product.getAdditives().add(em.merge(additive));
-                        }
-
-                        em.getTransaction().commit();
-
-                        ptm.update(product);
-                    } catch (OptimisticLockException ole) {
-                        em.getTransaction().rollback();
-                        Main.warn(ole);
-                    } catch (Exception exc) {
-                        em.getTransaction().rollback();
-                        Main.fatal(e);
-                    } finally {
-                        em.close();
-                        popup = null;
-                    }
-                }
-
-                @Override
-                public void popupMenuCanceled(PopupMenuEvent e) {
-
-                }
-            });
-
-            SwingUtilities.convertPointToScreen(p, tblProdukt);
-
-            popup.showPopup(p.x - (pnlAssign.getPreferredSize().width / 2), p.y + 10);
-
-        }
-
 
         if (SwingUtilities.isRightMouseButton(e)) {
 
@@ -523,588 +438,453 @@ public class FrmProdukte extends JFrame {
                 menu.add(miPopupMerge);
             }
 
-
-//            JMenu menuLagerart = new JMenu("Lagerart setzen");
-//            menuLagerart.setFont(new Font("arial", Font.PLAIN, 18));
-//            for (final String lagerart : LagerTools.LAGERART) {
-//
-//                JMenuItem miLagerart = new JMenuItem(lagerart);
-//                miLagerart.addActionListener(new ActionListener() {
-//                    @Override
-//                    public void actionPerformed(ActionEvent e) {
-////                        if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-//                        EntityManager em1 = Main.getEMF().createEntityManager();
-//                        try {
-//                            em1.getTransaction().begin();
-//                            for (Produkte p : listSelectedProducts) {
-//                                Produkte myProdukt = em1.merge(p);
-//                                em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-//                                myProdukt.getIngTypes().setLagerart((short) ArrayUtils.indexOf(LagerTools.LAGERART, lagerart));
-//                            }
-//                            em1.getTransaction().commit();
-//                            ptm.update(listSelectedProducts);
-//                        } catch (OptimisticLockException ole) {
-//                            Main.warn(ole);
-//                            em1.getTransaction().rollback();
-//                        } catch (Exception exc) {
-//                            em1.getTransaction().rollback();
-//                            Main.fatal(e);
-//                        } finally {
-//                            em1.close();
-////                            reload();
-//                        }
-////                        }
-//                    }
-//                });
-//                menuLagerart.add(miLagerart);
-//
-//
-//            }
-//            menu.add(menuLagerart);
-//
-//
-//            JMenu menuEinheit = new JMenu("Einheit setzen");
-//            menuEinheit.setFont(new Font("arial", Font.PLAIN, 18));
-//            for (final String einheit : IngTypesTools.EINHEIT) {
-//
-//                JMenuItem miEinheit = new JMenuItem(einheit);
-//                miEinheit.addActionListener(new ActionListener() {
-//                    @Override
-//                    public void actionPerformed(ActionEvent e) {
-////                        if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-//                        EntityManager em1 = Main.getEMF().createEntityManager();
-//                        try {
-//                            em1.getTransaction().begin();
-//                            for (Produkte p : listSelectedProducts) {
-//                                Produkte myProdukt = em1.merge(p);
-//                                em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-//                                myProdukt.getIngTypes().setEinheit((short) ArrayUtils.indexOf(IngTypesTools.EINHEIT, einheit));
-//                            }
-//                            em1.getTransaction().commit();
-//                            ptm.update(listSelectedProducts);
-//                        } catch (OptimisticLockException ole) {
-//                            Main.warn(ole);
-//                            em1.getTransaction().rollback();
-//                        } catch (Exception exc) {
-//                            em1.getTransaction().rollback();
-//                            Main.fatal(e);
-//                        } finally {
-//                            em1.close();
-////                            reload();
-//                        }
-////                        }
-//                    }
-//                });
-//                menuEinheit.add(miEinheit);
-//            }
-//            menu.add(menuEinheit);
-//
-//            JMenu menuPopupAssign = new JMenu("zuweisen zu Stoffart");
-//            menuPopupAssign.setFont(new Font("arial", Font.PLAIN, 18));
-//
-//
-//            EntityManager em = Main.getEMF().createEntityManager();
-//            try {
-//                Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung ");
-//                ArrayList<Warengruppe> listWarengruppen = new ArrayList<Warengruppe>(query.getResultList());
-//
-//
-//                for (Warengruppe warengruppe : listWarengruppen) {
-//
-//                    JMenu menuWarengruppe = new JMenu(warengruppe.getBezeichnung());
-//
-//                    ArrayList<IngTypes> listStoffarten = new ArrayList<IngTypes>(warengruppe.getIngTypesCollection());
-//                    Collections.sort(listStoffarten);
-//
-//                    for (final IngTypes ingTypes : listStoffarten) {
-//                        JMenuItem miStoffart = new JMenuItem(ingTypes.getBezeichnung());
-//                        miStoffart.addActionListener(new ActionListener() {
-//                            @Override
-//                            public void actionPerformed(ActionEvent e) {
-//                                if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-//                                    EntityManager em1 = Main.getEMF().createEntityManager();
-//                                    try {
-//                                        em1.getTransaction().begin();
-//                                        for (Produkte p : listSelectedProducts) {
-//                                            Produkte myProdukt = em1.merge(p);
-//                                            em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-//                                            myProdukt.setIngTypes(em1.merge(ingTypes));
-//                                        }
-//                                        em1.getTransaction().commit();
-//                                        ptm.update(listSelectedProducts);
-//                                    } catch (OptimisticLockException ole) {
-//                                        Main.warn(ole);
-//                                        em1.getTransaction().rollback();
-//                                    } catch (Exception exc) {
-//                                        em1.getTransaction().rollback();
-//                                        Main.fatal(e);
-//                                    } finally {
-//                                        em1.close();
-////                                        reload();
-//                                    }
-//                                }
-//                            }
-//                        });
-//                        menuWarengruppe.add(miStoffart);
-//                    }
-//                    menuPopupAssign.add(menuWarengruppe);
-//                }
-//            } catch (Exception exc) {
-//                Main.fatal(exc.getMessage());
-//            } finally {
-//                em.close();
-//            }
-//
-//            menu.add(menuPopupAssign);
-
-
             menu.show(tblProdukt, (int) p.getX(), (int) p.getY());
         }
 
 
     }
 
-    private void createTree() {
-        xTaskPane2.removeAll();
-
-        String expansion = null;
-        if (tree != null) {
-            expansion = Tools.getExpansionState(tree, 0);
-            tree.removeAll();
-        }
-
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Warengruppen");
-        tree = new JTree(root);
-//        tree.setOpaque(false);
-
-
-        EntityManager em = Main.getEMF().createEntityManager();
-        try {
-            Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung ");
-            ArrayList<Warengruppe> listWarengruppen = new ArrayList<Warengruppe>(query.getResultList());
-
-            for (Warengruppe warengruppe : listWarengruppen) {
-
-                DefaultMutableTreeNode nodeWG = new DefaultMutableTreeNode(warengruppe);
-                root.add(nodeWG);
-
-                ArrayList<IngTypes> listStoffarten = new ArrayList<IngTypes>(warengruppe.getIngTypesCollection());
-                Collections.sort(listStoffarten);
-
-                for (IngTypes ingTypes : listStoffarten) {
-                    DefaultMutableTreeNode nodeSA = new DefaultMutableTreeNode(ingTypes);
-                    nodeWG.add(nodeSA);
-                }
-            }
-        } catch (Exception e) {
-            Main.fatal(e);
-        } finally {
-            em.close();
-        }
-
-        tree.setCellRenderer(new TreeCellRenderer() {
-            @Override
-            public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-
-//                Main.debug(value.getClass().getName());
-
-                String text = value.toString();
-
-                if (value instanceof DefaultMutableTreeNode) {
-                    if (((DefaultMutableTreeNode) value).getUserObject() instanceof Warengruppe) {
-
-                        Warengruppe warengruppe = (Warengruppe) ((DefaultMutableTreeNode) value).getUserObject();
-
-                        text = warengruppe.getBezeichnung() + " [" + WarengruppeTools.getNumOfProducts(warengruppe) + "]";
-                    } else if (((DefaultMutableTreeNode) value).getUserObject() instanceof IngTypes) {
-
-                        IngTypes ingTypes = (IngTypes) ((DefaultMutableTreeNode) value).getUserObject();
-
-                        text = ingTypes.getBezeichnung() + " [" + IngTypesTools.getNumOfProducts(ingTypes) + "]";
-                    }
-                }
-
-                setFont(new Font("arial", Font.PLAIN, 16));
-//                setOpaque(false);
-
-                return new DefaultTreeCellRenderer().getTreeCellRendererComponent(tree, text, selected, expanded, leaf, row, hasFocus);
-            }
-        });
-
-        tree.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-
-                Point p = e.getPoint();
-                final int row = tree.getClosestRowForLocation(p.x, p.y);
-//                final int row = tblProdukt.rowAtPoint(p);
-                TreeSelectionModel tsm = tree.getSelectionModel();
-
-                //lsm.setSelectionInterval(row, row);
-                boolean singleRowSelected = tsm.getMaxSelectionRow() == tsm.getMinSelectionRow();
-
-                if (singleRowSelected) {
-                    tsm.setSelectionPath(tree.getPathForRow(row));
-                }
-
-                if (e.isPopupTrigger()) {
-                    if (menu != null && menu.isVisible()) {
-                        menu.setVisible(false);
-                    }
-
-                    Tools.unregisterListeners(menu);
-                    menu = new JPopupMenu();
-
-
-                    JMenuItem miNewWarengruppe = new JMenuItem("Neue Warengruppe erstellen");
-                    miNewWarengruppe.setFont(new Font("arial", Font.PLAIN, 18));
-                    miNewWarengruppe.setEnabled(singleRowSelected);
-                    miNewWarengruppe.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            String newText = JOptionPane.showInputDialog(thisComponent, "Warengruppe", "Neu erstellen", JOptionPane.OK_CANCEL_OPTION);
-                            if (newText != null && !newText.trim().isEmpty()) {
-                                EntityManager em = Main.getEMF().createEntityManager();
-                                try {
-                                    em.getTransaction().begin();
-                                    Warengruppe myWarengruppe = em.merge(new Warengruppe(newText));
-                                    em.getTransaction().commit();
-                                } catch (OptimisticLockException ole) {
-                                    em.getTransaction().rollback();
-                                    Main.warn(ole);
-                                } catch (Exception exc) {
-                                    em.getTransaction().rollback();
-                                    Main.fatal(e);
-                                } finally {
-                                    em.close();
-                                    createTree();
-                                }
-                            }
-                        }
-                    });
-                    miNewWarengruppe.setEnabled(singleRowSelected && ((DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent()).getUserObject() instanceof Warengruppe);
-                    menu.add(miNewWarengruppe);
-
-                    JMenuItem miNewStoffart = new JMenuItem("Neue Stoffart erstellen");
-                    miNewStoffart.setFont(new Font("arial", Font.PLAIN, 18));
-                    miNewStoffart.setEnabled(singleRowSelected);
-                    miNewStoffart.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            String newText = JOptionPane.showInputDialog(thisComponent, "Stoffart", "Neu erstellen", JOptionPane.OK_CANCEL_OPTION);
-                            if (newText != null && !newText.trim().isEmpty()) {
-                                EntityManager em = Main.getEMF().createEntityManager();
-                                try {
-                                    em.getTransaction().begin();
-                                    DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent();
-                                    Warengruppe myWarengruppe = em.merge((Warengruppe) thisNode.getUserObject());
-                                    IngTypes myIngTypes = em.merge(new IngTypes(newText, myWarengruppe));
-                                    em.getTransaction().commit();
-                                } catch (OptimisticLockException ole) {
-                                    em.getTransaction().rollback();
-                                    Main.warn(ole);
-                                } catch (Exception exc) {
-                                    em.getTransaction().rollback();
-                                    Main.fatal(e);
-                                } finally {
-                                    em.close();
-                                    createTree();
-                                }
-                            }
-                        }
-                    });
-                    miNewStoffart.setEnabled(singleRowSelected && ((DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent()).getUserObject() instanceof Warengruppe);
-                    menu.add(miNewStoffart);
-
-                    JMenuItem miRename = new JMenuItem("Markiertes Objekt umbennen");
-                    miRename.setFont(new Font("arial", Font.PLAIN, 18));
-                    miRename.setEnabled(singleRowSelected);
-                    miRename.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent();
-
-                            String text = "";
-                            if (thisNode.getUserObject() instanceof Warengruppe) {
-                                text = ((Warengruppe) thisNode.getUserObject()).getBezeichnung();
-
-                            } else if (thisNode.getUserObject() instanceof IngTypes) {
-                                text = ((IngTypes) thisNode.getUserObject()).getBezeichnung();
-                            }
-
-                            String newText = JOptionPane.showInputDialog(thisComponent, "Bezeichnung", text);
-                            if (newText != null && !newText.trim().isEmpty()) {
-                                EntityManager em = Main.getEMF().createEntityManager();
-                                try {
-                                    em.getTransaction().begin();
-
-                                    if (thisNode.getUserObject() instanceof IngTypes) {
-                                        IngTypes myIngTypes = em.merge((IngTypes) thisNode.getUserObject());
-                                        em.lock(myIngTypes, LockModeType.OPTIMISTIC);
-                                        myIngTypes.setBezeichnung(newText);
-                                    } else if (thisNode.getUserObject() instanceof Warengruppe) {
-                                        Warengruppe myWarengruppe = em.merge((Warengruppe) thisNode.getUserObject());
-                                        em.lock(myWarengruppe, LockModeType.OPTIMISTIC);
-                                        myWarengruppe.setBezeichnung(newText);
-                                    }
-
-                                    em.getTransaction().commit();
-                                } catch (OptimisticLockException ole) {
-                                    em.getTransaction().rollback();
-                                    Main.warn(ole);
-                                } catch (Exception exc) {
-                                    em.getTransaction().rollback();
-                                    Main.fatal(e);
-                                } finally {
-                                    em.close();
-                                    createTree();
-                                }
-                            }
-
-                        }
-                    });
-                    menu.add(miRename);
-
-                    if (isOnlyStoffartSelected()) {
-
-                        JMenuItem miDelete = new JMenuItem("Markierte Stoffgruppe löschen, wenn leer");
-                        miDelete.setFont(new Font("arial", Font.PLAIN, 18));
-//                        miDelete.setEnabled(StoffartTools.getNumOfProducts(stoffart) == 0);
-                        miDelete.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-                                    EntityManager em = Main.getEMF().createEntityManager();
-                                    try {
-                                        em.getTransaction().begin();
-
-                                        for (TreePath path : tree.getSelectionPaths()) {
-                                            DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-                                            IngTypes myIngTypes = em.merge((IngTypes) thisNode.getUserObject());
-                                            if (myIngTypes.getProdukteCollection().isEmpty()) {
-                                                em.remove(myIngTypes);
-                                            }
-                                        }
-
-                                        em.getTransaction().commit();
-                                    } catch (OptimisticLockException ole) {
-                                        em.getTransaction().rollback();
-                                        Main.warn(ole);
-                                    } catch (Exception exc) {
-                                        em.getTransaction().rollback();
-                                        Main.fatal(e);
-                                    } finally {
-                                        em.close();
-                                        createTree();
-                                    }
-                                }
-                            }
-                        });
-                        menu.add(miDelete);
-                    }
-
-                    if (isOnlyStoffartSelected() && singleRowSelected) {
-                        final IngTypes ingTypes = (IngTypes) ((DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent()).getUserObject();
-                        JMenu menuDeleteReplace = new JMenu("Markierte Stoffgruppe löschen, Produkte zuweisen zu");
-                        menuDeleteReplace.setFont(new Font("arial", Font.PLAIN, 18));
-                        menuDeleteReplace.setEnabled(IngTypesTools.getNumOfProducts(ingTypes) > 0);
-
-                        EntityManager em = Main.getEMF().createEntityManager();
-                        try {
-                            Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung ");
-                            ArrayList<Warengruppe> listWarengruppen = new ArrayList<Warengruppe>(query.getResultList());
-
-
-                            for (Warengruppe warengruppe : listWarengruppen) {
-
-                                JMenu menuWarengruppe = new JMenu(warengruppe.getBezeichnung());
-
-                                ArrayList<IngTypes> listStoffarten = new ArrayList<IngTypes>(warengruppe.getIngTypesCollection());
-                                Collections.sort(listStoffarten);
-
-                                for (final IngTypes s : listStoffarten) {
-                                    JMenuItem miStoffart = new JMenuItem(s.getBezeichnung());
-                                    miStoffart.addActionListener(new ActionListener() {
-                                        @Override
-                                        public void actionPerformed(ActionEvent e) {
-                                            if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-                                                EntityManager em1 = Main.getEMF().createEntityManager();
-                                                try {
-                                                    em1.getTransaction().begin();
-                                                    IngTypes myIngTypes = em1.merge(s);
-                                                    IngTypes ingTypes2delete = em1.merge(ingTypes);
-                                                    for (Produkte p : ingTypes2delete.getProdukteCollection()) {
-                                                        Produkte myProdukt = em1.merge(p);
-                                                        em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-                                                        myProdukt.setIngTypes(myIngTypes);
-                                                    }
-                                                    ingTypes2delete.getProdukteCollection().clear();
-                                                    em1.remove(ingTypes2delete);
-                                                    em1.getTransaction().commit();
-                                                } catch (OptimisticLockException ole) {
-                                                    em1.getTransaction().rollback();
-                                                    Main.warn(ole);
-                                                } catch (Exception exc) {
-                                                    em1.getTransaction().rollback();
-                                                    Main.fatal(e);
-                                                } finally {
-                                                    em1.close();
-                                                    createTree();
-                                                }
-                                            }
-                                        }
-                                    });
-                                    menuWarengruppe.add(miStoffart);
-                                }
-                                menuDeleteReplace.add(menuWarengruppe);
-                            }
-                        } catch (Exception exc) {
-                            Main.fatal(exc.getMessage());
-                        } finally {
-                            em.close();
-                        }
-                        menu.add(menuDeleteReplace);
-
-                    }
-
-
-                    if (isOnlyWarengruppeSelected() && singleRowSelected) {
-
-                        final Warengruppe warengruppe = (Warengruppe) ((DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent()).getUserObject();
-
-                        JMenuItem miDelete = new JMenuItem("Markierte Warengruppe löschen");
-                        miDelete.setFont(new Font("arial", Font.PLAIN, 18));
-                        miDelete.setEnabled(WarengruppeTools.getNumOfProducts(warengruppe) == 0);
-                        miDelete.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-                                    EntityManager em = Main.getEMF().createEntityManager();
-                                    try {
-                                        em.getTransaction().begin();
-
-                                        Warengruppe myWarengruppe = em.merge(warengruppe);
-                                        em.remove(myWarengruppe);
-
-                                        em.getTransaction().commit();
-                                    } catch (OptimisticLockException ole) {
-                                        em.getTransaction().rollback();
-                                        Main.warn(ole);
-                                    } catch (Exception exc) {
-                                        em.getTransaction().rollback();
-                                        Main.fatal(e);
-                                    } finally {
-                                        em.close();
-                                        createTree();
-                                    }
-                                }
-                            }
-                        });
-                        menu.add(miDelete);
-                    }
-
-                    if (isOnlyStoffartSelected()) {
-
-                        JMenu menuAssign = new JMenu("Stoffgruppe[n] zuordnen zu");
-                        menuAssign.setFont(new Font("arial", Font.PLAIN, 18));
-
-
-                        DefaultMutableTreeNode prevNode = (DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent();
-
-                        if (isAllHaveTheSameWarengruppe()) {
-                            EntityManager em = Main.getEMF().createEntityManager();
-                            try {
-                                Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung ");
-                                ArrayList<Warengruppe> listWarengruppen = new ArrayList<Warengruppe>(query.getResultList());
-                                for (final Warengruppe warengruppe : listWarengruppen) {
-                                    JMenuItem miWarengruppe = new JMenuItem(warengruppe.getBezeichnung());
-                                    miWarengruppe.addActionListener(new ActionListener() {
-                                        @Override
-                                        public void actionPerformed(ActionEvent e) {
-                                            if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-                                                EntityManager em = Main.getEMF().createEntityManager();
-                                                try {
-                                                    em.getTransaction().begin();
-                                                    for (TreePath path : tree.getSelectionPaths()) {
-                                                        DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-                                                        IngTypes myIngTypes = em.merge((IngTypes) thisNode.getUserObject());
-                                                        em.lock(myIngTypes, LockModeType.OPTIMISTIC);
-                                                        myIngTypes.setWarengruppe(em.merge(warengruppe));
-                                                    }
-                                                    em.getTransaction().commit();
-                                                } catch (OptimisticLockException ole) {
-                                                    em.getTransaction().rollback();
-                                                    Main.warn(ole);
-                                                } catch (Exception exc) {
-                                                    em.getTransaction().rollback();
-                                                    Main.fatal(e);
-                                                } finally {
-                                                    em.close();
-                                                    createTree();
-                                                }
-                                            }
-                                        }
-                                    });
-                                    menuAssign.add(miWarengruppe);
-                                }
-                            } catch (Exception exc) {
-                                Main.fatal(exc.getMessage());
-                            } finally {
-                                em.close();
-                            }
-
-                            menu.add(menuAssign);
-                        }
-                    }
-                    menu.show(tree, (int) p.getX(), (int) p.getY());
-                }
-
-
-            }
-        });
-
-
-        tree.addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent e) {
-
-                JTree myTree = (JTree) e.getSource();
-
+//    private void createTree() {
+//        xTaskPane2.removeAll();
 //
-//                if (myTree.getSelectionPaths().length != 1) {
-//                    tblProdukt.setModel(new DefaultTableModel());
-//                    return;
+//        String expansion = null;
+//        if (tree != null) {
+//            expansion = Tools.getExpansionState(tree, 0);
+//            tree.removeAll();
+//        }
+//
+//        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Warengruppen");
+//        tree = new JTree(root);
+////        tree.setOpaque(false);
+//
+//
+//        EntityManager em = Main.getEMF().createEntityManager();
+//        try {
+//            Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung ");
+//            ArrayList<Warengruppe> listWarengruppen = new ArrayList<Warengruppe>(query.getResultList());
+//
+//            for (Warengruppe warengruppe : listWarengruppen) {
+//
+//                DefaultMutableTreeNode nodeWG = new DefaultMutableTreeNode(warengruppe);
+//                root.add(nodeWG);
+//
+//                ArrayList<IngTypes> listStoffarten = new ArrayList<IngTypes>(warengruppe.getIngTypesCollection());
+//                Collections.sort(listStoffarten);
+//
+//                for (IngTypes ingTypes : listStoffarten) {
+//                    DefaultMutableTreeNode nodeSA = new DefaultMutableTreeNode(ingTypes);
+//                    nodeWG.add(nodeSA);
 //                }
-
-                TreePath path = e.getNewLeadSelectionPath();
-
-                if (path != null) {
-                    DefaultMutableTreeNode lastComponent = (DefaultMutableTreeNode) path.getLastPathComponent();
-
-
-                    if (lastComponent.getUserObject() instanceof IngTypes) {
-                        ingTypeFilterKriterium = (IngTypes) lastComponent.getUserObject();
-                        sorter.setRowFilter(ingTypeFilter);
-                    } else if (lastComponent.getUserObject() instanceof Warengruppe) {
-                        warengruppeFilterKriterium = (Warengruppe) lastComponent.getUserObject();
-                        sorter.setRowFilter(warengruppeFilter);
-//                        criteria = new Pair<Integer, Object>(Const.WARENGRUPPE, lastComponent.getUserObject());
-//                        reload();
-                    }
-
-                }
-            }
-        });
-
-
-        if (expansion != null) {
-            Tools.restoreExpansionState(tree, 0, expansion);
-        }
-
-        xTaskPane2.add(tree);
-
-    }
+//            }
+//        } catch (Exception e) {
+//            Main.fatal(e);
+//        } finally {
+//            em.close();
+//        }
+//
+//        tree.setCellRenderer(new TreeCellRenderer() {
+//            @Override
+//            public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+//
+////                Main.debug(value.getClass().getName());
+//
+//                String text = value.toString();
+//
+//                if (value instanceof DefaultMutableTreeNode) {
+//                    if (((DefaultMutableTreeNode) value).getUserObject() instanceof Warengruppe) {
+//
+//                        Warengruppe warengruppe = (Warengruppe) ((DefaultMutableTreeNode) value).getUserObject();
+//
+//                        text = warengruppe.getBezeichnung() + " [" + WarengruppeTools.getNumOfProducts(warengruppe) + "]";
+//                    } else if (((DefaultMutableTreeNode) value).getUserObject() instanceof IngTypes) {
+//
+//                        IngTypes ingTypes = (IngTypes) ((DefaultMutableTreeNode) value).getUserObject();
+//
+//                        text = ingTypes.getBezeichnung() + " [" + IngTypesTools.getNumOfProducts(ingTypes) + "]";
+//                    }
+//                }
+//
+//                setFont(new Font("arial", Font.PLAIN, 16));
+////                setOpaque(false);
+//
+//                return new DefaultTreeCellRenderer().getTreeCellRendererComponent(tree, text, selected, expanded, leaf, row, hasFocus);
+//            }
+//        });
+//
+//        tree.addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mousePressed(MouseEvent e) {
+//                super.mousePressed(e);
+//
+//                Point p = e.getPoint();
+//                final int row = tree.getClosestRowForLocation(p.x, p.y);
+////                final int row = tblProdukt.rowAtPoint(p);
+//                TreeSelectionModel tsm = tree.getSelectionModel();
+//
+//                //lsm.setSelectionInterval(row, row);
+//                boolean singleRowSelected = tsm.getMaxSelectionRow() == tsm.getMinSelectionRow();
+//
+//                if (singleRowSelected) {
+//                    tsm.setSelectionPath(tree.getPathForRow(row));
+//                }
+//
+//                if (e.isPopupTrigger()) {
+//                    if (menu != null && menu.isVisible()) {
+//                        menu.setVisible(false);
+//                    }
+//
+//                    Tools.unregisterListeners(menu);
+//                    menu = new JPopupMenu();
+//
+//
+//                    JMenuItem miNewWarengruppe = new JMenuItem("Neue Warengruppe erstellen");
+//                    miNewWarengruppe.setFont(new Font("arial", Font.PLAIN, 18));
+//                    miNewWarengruppe.setEnabled(singleRowSelected);
+//                    miNewWarengruppe.addActionListener(new ActionListener() {
+//                        @Override
+//                        public void actionPerformed(ActionEvent e) {
+//                            String newText = JOptionPane.showInputDialog(thisComponent, "Warengruppe", "Neu erstellen", JOptionPane.OK_CANCEL_OPTION);
+//                            if (newText != null && !newText.trim().isEmpty()) {
+//                                EntityManager em = Main.getEMF().createEntityManager();
+//                                try {
+//                                    em.getTransaction().begin();
+//                                    Warengruppe myWarengruppe = em.merge(new Warengruppe(newText));
+//                                    em.getTransaction().commit();
+//                                } catch (OptimisticLockException ole) {
+//                                    em.getTransaction().rollback();
+//                                    Main.warn(ole);
+//                                } catch (Exception exc) {
+//                                    em.getTransaction().rollback();
+//                                    Main.fatal(e);
+//                                } finally {
+//                                    em.close();
+//                                    createTree();
+//                                }
+//                            }
+//                        }
+//                    });
+//                    miNewWarengruppe.setEnabled(singleRowSelected && ((DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent()).getUserObject() instanceof Warengruppe);
+//                    menu.add(miNewWarengruppe);
+//
+//                    JMenuItem miNewStoffart = new JMenuItem("Neue Stoffart erstellen");
+//                    miNewStoffart.setFont(new Font("arial", Font.PLAIN, 18));
+//                    miNewStoffart.setEnabled(singleRowSelected);
+//                    miNewStoffart.addActionListener(new ActionListener() {
+//                        @Override
+//                        public void actionPerformed(ActionEvent e) {
+//                            String newText = JOptionPane.showInputDialog(thisComponent, "Stoffart", "Neu erstellen", JOptionPane.OK_CANCEL_OPTION);
+//                            if (newText != null && !newText.trim().isEmpty()) {
+//                                EntityManager em = Main.getEMF().createEntityManager();
+//                                try {
+//                                    em.getTransaction().begin();
+//                                    DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent();
+//                                    Warengruppe myWarengruppe = em.merge((Warengruppe) thisNode.getUserObject());
+//                                    IngTypes myIngTypes = em.merge(new IngTypes(newText, myWarengruppe));
+//                                    em.getTransaction().commit();
+//                                } catch (OptimisticLockException ole) {
+//                                    em.getTransaction().rollback();
+//                                    Main.warn(ole);
+//                                } catch (Exception exc) {
+//                                    em.getTransaction().rollback();
+//                                    Main.fatal(e);
+//                                } finally {
+//                                    em.close();
+//                                    createTree();
+//                                }
+//                            }
+//                        }
+//                    });
+//                    miNewStoffart.setEnabled(singleRowSelected && ((DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent()).getUserObject() instanceof Warengruppe);
+//                    menu.add(miNewStoffart);
+//
+//                    JMenuItem miRename = new JMenuItem("Markiertes Objekt umbennen");
+//                    miRename.setFont(new Font("arial", Font.PLAIN, 18));
+//                    miRename.setEnabled(singleRowSelected);
+//                    miRename.addActionListener(new ActionListener() {
+//                        @Override
+//                        public void actionPerformed(ActionEvent e) {
+//                            DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent();
+//
+//                            String text = "";
+//                            if (thisNode.getUserObject() instanceof Warengruppe) {
+//                                text = ((Warengruppe) thisNode.getUserObject()).getBezeichnung();
+//
+//                            } else if (thisNode.getUserObject() instanceof IngTypes) {
+//                                text = ((IngTypes) thisNode.getUserObject()).getBezeichnung();
+//                            }
+//
+//                            String newText = JOptionPane.showInputDialog(thisComponent, "Bezeichnung", text);
+//                            if (newText != null && !newText.trim().isEmpty()) {
+//                                EntityManager em = Main.getEMF().createEntityManager();
+//                                try {
+//                                    em.getTransaction().begin();
+//
+//                                    if (thisNode.getUserObject() instanceof IngTypes) {
+//                                        IngTypes myIngTypes = em.merge((IngTypes) thisNode.getUserObject());
+//                                        em.lock(myIngTypes, LockModeType.OPTIMISTIC);
+//                                        myIngTypes.setBezeichnung(newText);
+//                                    } else if (thisNode.getUserObject() instanceof Warengruppe) {
+//                                        Warengruppe myWarengruppe = em.merge((Warengruppe) thisNode.getUserObject());
+//                                        em.lock(myWarengruppe, LockModeType.OPTIMISTIC);
+//                                        myWarengruppe.setBezeichnung(newText);
+//                                    }
+//
+//                                    em.getTransaction().commit();
+//                                } catch (OptimisticLockException ole) {
+//                                    em.getTransaction().rollback();
+//                                    Main.warn(ole);
+//                                } catch (Exception exc) {
+//                                    em.getTransaction().rollback();
+//                                    Main.fatal(e);
+//                                } finally {
+//                                    em.close();
+//                                    createTree();
+//                                }
+//                            }
+//
+//                        }
+//                    });
+//                    menu.add(miRename);
+//
+//                    if (isOnlyStoffartSelected()) {
+//
+//                        JMenuItem miDelete = new JMenuItem("Markierte Stoffgruppe löschen, wenn leer");
+//                        miDelete.setFont(new Font("arial", Font.PLAIN, 18));
+////                        miDelete.setEnabled(StoffartTools.getNumOfProducts(stoffart) == 0);
+//                        miDelete.addActionListener(new ActionListener() {
+//                            @Override
+//                            public void actionPerformed(ActionEvent e) {
+//                                if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+//                                    EntityManager em = Main.getEMF().createEntityManager();
+//                                    try {
+//                                        em.getTransaction().begin();
+//
+//                                        for (TreePath path : tree.getSelectionPaths()) {
+//                                            DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+//                                            IngTypes myIngTypes = em.merge((IngTypes) thisNode.getUserObject());
+//                                            if (myIngTypes.getProdukteCollection().isEmpty()) {
+//                                                em.remove(myIngTypes);
+//                                            }
+//                                        }
+//
+//                                        em.getTransaction().commit();
+//                                    } catch (OptimisticLockException ole) {
+//                                        em.getTransaction().rollback();
+//                                        Main.warn(ole);
+//                                    } catch (Exception exc) {
+//                                        em.getTransaction().rollback();
+//                                        Main.fatal(e);
+//                                    } finally {
+//                                        em.close();
+//                                        createTree();
+//                                    }
+//                                }
+//                            }
+//                        });
+//                        menu.add(miDelete);
+//                    }
+//
+//                    if (isOnlyStoffartSelected() && singleRowSelected) {
+//                        final IngTypes ingTypes = (IngTypes) ((DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent()).getUserObject();
+//                        JMenu menuDeleteReplace = new JMenu("Markierte Stoffgruppe löschen, Produkte zuweisen zu");
+//                        menuDeleteReplace.setFont(new Font("arial", Font.PLAIN, 18));
+//                        menuDeleteReplace.setEnabled(IngTypesTools.getNumOfProducts(ingTypes) > 0);
+//
+//                        EntityManager em = Main.getEMF().createEntityManager();
+//                        try {
+//                            Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung ");
+//                            ArrayList<Warengruppe> listWarengruppen = new ArrayList<Warengruppe>(query.getResultList());
+//
+//
+//                            for (Warengruppe warengruppe : listWarengruppen) {
+//
+//                                JMenu menuWarengruppe = new JMenu(warengruppe.getBezeichnung());
+//
+//                                ArrayList<IngTypes> listStoffarten = new ArrayList<IngTypes>(warengruppe.getIngTypesCollection());
+//                                Collections.sort(listStoffarten);
+//
+//                                for (final IngTypes s : listStoffarten) {
+//                                    JMenuItem miStoffart = new JMenuItem(s.getBezeichnung());
+//                                    miStoffart.addActionListener(new ActionListener() {
+//                                        @Override
+//                                        public void actionPerformed(ActionEvent e) {
+//                                            if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+//                                                EntityManager em1 = Main.getEMF().createEntityManager();
+//                                                try {
+//                                                    em1.getTransaction().begin();
+//                                                    IngTypes myIngTypes = em1.merge(s);
+//                                                    IngTypes ingTypes2delete = em1.merge(ingTypes);
+//                                                    for (Produkte p : ingTypes2delete.getProdukteCollection()) {
+//                                                        Produkte myProdukt = em1.merge(p);
+//                                                        em1.lock(myProdukt, LockModeType.OPTIMISTIC);
+//                                                        myProdukt.setIngTypes(myIngTypes);
+//                                                    }
+//                                                    ingTypes2delete.getProdukteCollection().clear();
+//                                                    em1.remove(ingTypes2delete);
+//                                                    em1.getTransaction().commit();
+//                                                } catch (OptimisticLockException ole) {
+//                                                    em1.getTransaction().rollback();
+//                                                    Main.warn(ole);
+//                                                } catch (Exception exc) {
+//                                                    em1.getTransaction().rollback();
+//                                                    Main.fatal(e);
+//                                                } finally {
+//                                                    em1.close();
+//                                                    createTree();
+//                                                }
+//                                            }
+//                                        }
+//                                    });
+//                                    menuWarengruppe.add(miStoffart);
+//                                }
+//                                menuDeleteReplace.add(menuWarengruppe);
+//                            }
+//                        } catch (Exception exc) {
+//                            Main.fatal(exc.getMessage());
+//                        } finally {
+//                            em.close();
+//                        }
+//                        menu.add(menuDeleteReplace);
+//
+//                    }
+//
+//
+//                    if (isOnlyWarengruppeSelected() && singleRowSelected) {
+//
+//                        final Warengruppe warengruppe = (Warengruppe) ((DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent()).getUserObject();
+//
+//                        JMenuItem miDelete = new JMenuItem("Markierte Warengruppe löschen");
+//                        miDelete.setFont(new Font("arial", Font.PLAIN, 18));
+//                        miDelete.setEnabled(WarengruppeTools.getNumOfProducts(warengruppe) == 0);
+//                        miDelete.addActionListener(new ActionListener() {
+//                            @Override
+//                            public void actionPerformed(ActionEvent e) {
+//                                if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+//                                    EntityManager em = Main.getEMF().createEntityManager();
+//                                    try {
+//                                        em.getTransaction().begin();
+//
+//                                        Warengruppe myWarengruppe = em.merge(warengruppe);
+//                                        em.remove(myWarengruppe);
+//
+//                                        em.getTransaction().commit();
+//                                    } catch (OptimisticLockException ole) {
+//                                        em.getTransaction().rollback();
+//                                        Main.warn(ole);
+//                                    } catch (Exception exc) {
+//                                        em.getTransaction().rollback();
+//                                        Main.fatal(e);
+//                                    } finally {
+//                                        em.close();
+//                                        createTree();
+//                                    }
+//                                }
+//                            }
+//                        });
+//                        menu.add(miDelete);
+//                    }
+//
+//                    if (isOnlyStoffartSelected()) {
+//
+//                        JMenu menuAssign = new JMenu("Stoffgruppe[n] zuordnen zu");
+//                        menuAssign.setFont(new Font("arial", Font.PLAIN, 18));
+//
+//
+//                        DefaultMutableTreeNode prevNode = (DefaultMutableTreeNode) tree.getSelectionPaths()[0].getLastPathComponent();
+//
+//                        if (isAllHaveTheSameWarengruppe()) {
+//                            EntityManager em = Main.getEMF().createEntityManager();
+//                            try {
+//                                Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung ");
+//                                ArrayList<Warengruppe> listWarengruppen = new ArrayList<Warengruppe>(query.getResultList());
+//                                for (final Warengruppe warengruppe : listWarengruppen) {
+//                                    JMenuItem miWarengruppe = new JMenuItem(warengruppe.getBezeichnung());
+//                                    miWarengruppe.addActionListener(new ActionListener() {
+//                                        @Override
+//                                        public void actionPerformed(ActionEvent e) {
+//                                            if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
+//                                                EntityManager em = Main.getEMF().createEntityManager();
+//                                                try {
+//                                                    em.getTransaction().begin();
+//                                                    for (TreePath path : tree.getSelectionPaths()) {
+//                                                        DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+//                                                        IngTypes myIngTypes = em.merge((IngTypes) thisNode.getUserObject());
+//                                                        em.lock(myIngTypes, LockModeType.OPTIMISTIC);
+//                                                        myIngTypes.setWarengruppe(em.merge(warengruppe));
+//                                                    }
+//                                                    em.getTransaction().commit();
+//                                                } catch (OptimisticLockException ole) {
+//                                                    em.getTransaction().rollback();
+//                                                    Main.warn(ole);
+//                                                } catch (Exception exc) {
+//                                                    em.getTransaction().rollback();
+//                                                    Main.fatal(e);
+//                                                } finally {
+//                                                    em.close();
+//                                                    createTree();
+//                                                }
+//                                            }
+//                                        }
+//                                    });
+//                                    menuAssign.add(miWarengruppe);
+//                                }
+//                            } catch (Exception exc) {
+//                                Main.fatal(exc.getMessage());
+//                            } finally {
+//                                em.close();
+//                            }
+//
+//                            menu.add(menuAssign);
+//                        }
+//                    }
+//                    menu.show(tree, (int) p.getX(), (int) p.getY());
+//                }
+//
+//
+//            }
+//        });
+//
+//
+//        tree.addTreeSelectionListener(new TreeSelectionListener() {
+//            @Override
+//            public void valueChanged(TreeSelectionEvent e) {
+//
+//                JTree myTree = (JTree) e.getSource();
+//
+////
+////                if (myTree.getSelectionPaths().length != 1) {
+////                    tblProdukt.setModel(new DefaultTableModel());
+////                    return;
+////                }
+//
+//                TreePath path = e.getNewLeadSelectionPath();
+//
+//                if (path != null) {
+//                    DefaultMutableTreeNode lastComponent = (DefaultMutableTreeNode) path.getLastPathComponent();
+//
+//
+//                    if (lastComponent.getUserObject() instanceof IngTypes) {
+//                        ingTypeFilterKriterium = (IngTypes) lastComponent.getUserObject();
+//                        sorter.setRowFilter(ingTypeFilter);
+//                    } else if (lastComponent.getUserObject() instanceof Warengruppe) {
+//                        warengruppeFilterKriterium = (Warengruppe) lastComponent.getUserObject();
+//                        sorter.setRowFilter(warengruppeFilter);
+////                        criteria = new Pair<Integer, Object>(Const.WARENGRUPPE, lastComponent.getUserObject());
+////                        reload();
+//                    }
+//
+//                }
+//            }
+//        });
+//
+//
+//        if (expansion != null) {
+//            Tools.restoreExpansionState(tree, 0, expansion);
+//        }
+//
+//        xTaskPane2.add(tree);
+//
+//    }
 
     boolean isOnlyStoffartSelected() {
         boolean onlyStoffarten = true;
@@ -1147,7 +927,13 @@ public class FrmProdukte extends JFrame {
     }
 
     private void pnlMainComponentResized(ComponentEvent e) {
-        Tools.packTable(tblProdukt, 0);
+//        Tools.packTable(tblProdukt, 0);
+        int[] widths = new int[]{69, 592, 145, 89, 134, 386, 50, 171, 260};
+
+        for (int col = 0; col < widths.length; col++) {
+            tblProdukt.getColumnModel().getColumn(col).setPreferredWidth(widths[col]);
+
+        }
     }
 
     private void btnSearchEditProductsActionPerformed(ActionEvent e) {
@@ -1207,7 +993,6 @@ public class FrmProdukte extends JFrame {
         xTaskPane3 = new JXTaskPane();
         btnSearchEditProducts = new JButton();
         btnNewIngType = new JButton();
-        xTaskPane2 = new JXTaskPane();
         pnlMain = new JPanel();
         jspProdukt = new JScrollPane();
         tblProdukt = new JTable();
@@ -1276,6 +1061,7 @@ public class FrmProdukte extends JFrame {
 
                     //---- btnSearchEditProducts ----
                     btnSearchEditProducts.setText("Produkte einzeln bearbeiten");
+                    btnSearchEditProducts.setEnabled(false);
                     btnSearchEditProducts.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -1295,15 +1081,6 @@ public class FrmProdukte extends JFrame {
                     xTaskPane3.add(btnNewIngType);
                 }
                 pnlSearch.add(xTaskPane3);
-
-                //======== xTaskPane2 ========
-                {
-                    xTaskPane2.setTitle("Warengruppen");
-                    xTaskPane2.setFont(new Font("sansserif", Font.BOLD, 18));
-                    xTaskPane2.setCollapsed(true);
-                    xTaskPane2.setLayout(new VerticalLayout(10));
-                }
-                pnlSearch.add(xTaskPane2);
             }
             jspSearch.setViewportView(pnlSearch);
         }

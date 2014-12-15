@@ -382,9 +382,16 @@ public class FrmMenu extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String html = "";
+
                 for (Menuweek menuweek : ((Menuweekall) cmbWeeks.getSelectedItem()).getMenuweeks()) {
-                    html += MenuweekTools.getAsHTML(menuweek);
-                    html += Tools.isLastElement(menuweek, ((Menuweekall) cmbWeeks.getSelectedItem()).getMenuweeks()) ? "" : "<p style=\"page-break-before:always\"\\>";
+
+                    EntityManager em = Main.getEMF().createEntityManager();
+                    Menuweek mergedMenuweek = em.merge(menuweek);
+                    em.refresh(mergedMenuweek);
+                    em.close();
+
+                    html += MenuweekTools.getAsHTML(mergedMenuweek);
+                    html += Tools.isLastElement(mergedMenuweek, ((Menuweekall) cmbWeeks.getSelectedItem()).getMenuweeks()) ? "" : "<p style=\"page-break-before:always\"\\>";
                 }
                 Printers.print(Main.getDesktop(), html, true);
             }

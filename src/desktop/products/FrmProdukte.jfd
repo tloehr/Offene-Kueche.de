@@ -199,6 +199,10 @@
                <string>text</string> 
                <string>Produkte einzeln bearbeiten</string> 
               </void> 
+              <void method="setProperty"> 
+               <string>enabled</string> 
+               <boolean>false</boolean> 
+              </void> 
               <void property="name"> 
                <string>btnSearchEditProducts</string> 
               </void> 
@@ -231,37 +235,6 @@
                </object> 
               </void> 
              </object> 
-            </void> 
-           </object> 
-          </void> 
-          <void method="add"> 
-           <object class="com.jformdesigner.model.FormContainer"> 
-            <string>org.jdesktop.swingx.JXTaskPane</string> 
-            <object class="com.jformdesigner.model.FormLayoutManager"> 
-             <class>org.jdesktop.swingx.VerticalLayout</class> 
-             <void method="setProperty"> 
-              <string>gap</string> 
-              <int>10</int> 
-             </void> 
-            </object> 
-            <void method="setProperty"> 
-             <string>title</string> 
-             <string>Warengruppen</string> 
-            </void> 
-            <void method="setProperty"> 
-             <string>font</string> 
-             <object class="java.awt.Font"> 
-              <string>sansserif</string> 
-              <int>1</int> 
-              <int>18</int> 
-             </object> 
-            </void> 
-            <void method="setProperty"> 
-             <string>collapsed</string> 
-             <boolean>true</boolean> 
-            </void> 
-            <void property="name"> 
-             <string>xTaskPane2</string> 
             </void> 
            </object> 
           </void> 

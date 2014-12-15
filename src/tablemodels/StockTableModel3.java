@@ -26,17 +26,17 @@ public class StockTableModel3 extends DefaultTableModel implements DeletableTabl
     public static final int COL_VORRAT_ID = 0;
     public static final int COL_BEZEICHNUNG = 1;
     public static final int COL_RESTMENGE = 2;
-    public static final int COL_ALLERGENES = 3;
-    public static final int COL_ADDITIVES = 4;
-    public static final int COL_LAGER = 5;
-    public static final int COL_LIEFERANT = 6;
-    public static final int COL_INGTYPE = 7;
-    public static final int COL_WARENGRUPPE = 8;
-    public static final int COL_GTIN = 9;
+    public static final int COL_ALLADD = 3;
+    //    public static final int COL_ADDITIVES = 4;
+    public static final int COL_LAGER = 4;
+    public static final int COL_LIEFERANT = 5;
+    public static final int COL_INGTYPE = 6;
+    public static final int COL_WARENGRUPPE = 7;
+    public static final int COL_GTIN = 8;
 
     private List<Stock> data;
     private DecimalFormat decf;
-    private Object[] colID = new Object[]{"VorratID", "Bezeichnung", "Menge", "Allergene", "Zusatzstoffe", "Lager", "Lieferant", "Stoffart", "Warengruppe", "GTIN"};
+    private Object[] colID = new Object[]{"VorratID", "Bezeichnung", "Menge", "Allergene, Zusatzstoffe", "Lager", "Lieferant", "Stoffart", "Warengruppe", "GTIN"};
     private DateFormat df;
 
     public StockTableModel3(List<Stock> data) {
@@ -125,10 +125,6 @@ public class StockTableModel3 extends DefaultTableModel implements DeletableTabl
         Class c;
         if (columnIndex == COL_VORRAT_ID) {
             c = Long.class;
-        } else if (columnIndex == COL_ADDITIVES) {
-            c = Integer.class;
-        } else if (columnIndex == COL_ALLERGENES) {
-            c = Integer.class;
         } else if (columnIndex == COL_INGTYPE) {
             c = IngTypes.class;
         } else if (columnIndex == COL_LAGER) {
@@ -188,14 +184,17 @@ public class StockTableModel3 extends DefaultTableModel implements DeletableTabl
                 value = stock.getProdukt().getIngTypes().getWarengruppe().getBezeichnung();
                 break;
             }
-            case COL_ALLERGENES: {
-                value = stock.getProdukt().getAllergenes().size() == 0 ? "" : Integer.toString(stock.getProdukt().getAllergenes().size());
+            case COL_ALLADD: {
+                value = (stock.getProdukt().getAllergenes().size() == 0 ? "" : "A." + Integer.toString(stock.getProdukt().getAllergenes().size())) + "  " +
+                (stock.getProdukt().getAdditives().size() == 0 ? "" : "Z." + Integer.toString(stock.getProdukt().getAdditives().size()));
+
+//                value = stock.getProdukt().getAllergenes().size() == 0 ? "" : "A." + Integer.toString(stock.getProdukt().getAllergenes().size());
                 break;
             }
-            case COL_ADDITIVES: {
-                value = stock.getProdukt().getAdditives().size() == 0 ? "" : Integer.toString(stock.getProdukt().getAdditives().size());
-                break;
-            }
+//            case COL_ADDITIVES: {
+//                value = stock.getProdukt().getAdditives().size() == 0 ? "" : Integer.toString(stock.getProdukt().getAdditives().size());
+//                break;
+//            }
             default: {
                 value = null;
             }
@@ -232,7 +231,7 @@ public class StockTableModel3 extends DefaultTableModel implements DeletableTabl
 
             em.getTransaction().commit();
 
-            if (column == COL_INGTYPE){
+            if (column == COL_INGTYPE) {
                 update(stock.getProdukt());
             } else {
                 update(stock);

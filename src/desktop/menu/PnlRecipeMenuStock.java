@@ -8,6 +8,7 @@ import Main.Main;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jidesoft.popup.JidePopup;
+import desktop.products.PnlAssignAdditives;
 import entity.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -15,14 +16,15 @@ import org.jdesktop.swingx.JXSearchField;
 import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import tablemodels.IngType2recipeTableModel;
 import tablemodels.StockTableModel3;
-import tools.*;
+import tools.Const;
+import tools.Pair;
+import tools.PopupPanel;
+import tools.Tools;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.OptimisticLockException;
 import javax.swing.*;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableRowSorter;
@@ -41,7 +43,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
     private IngType2recipeTableModel it2rm;
     private JidePopup popup;
     private JPopupMenu menu;
-    RowFilter<StockTableModel3, Integer> textFilter;
+    private RowFilter<StockTableModel3, Integer> textFilter, ingTypeFilter;
     private TableRowSorter<StockTableModel3> sorter;
     private java.util.List<ActionListener> listActions;
     private Warengruppe someDefaultCG;
@@ -64,8 +66,6 @@ public class PnlRecipeMenuStock extends PopupPanel {
         stmUnass = new StockTableModel3(unassigned);
         stmAss = new StockTableModel3(assigned);
 
-//        response = JOptionPane.CANCEL_OPTION;
-
         someDefaultCG = WarengruppeTools.getAll().get(0);
 
         listIngTypes = IngTypesTools.getAll();
@@ -87,7 +87,6 @@ public class PnlRecipeMenuStock extends PopupPanel {
         sorter = new TableRowSorter(stmUnass);
         sorter.setSortsOnUpdates(true);
         tblUnassigned.setRowSorter(sorter);
-        sorter.setRowFilter(textFilter);
 
         tblAssigned.getColumnModel().getColumn(StockTableModel3.COL_INGTYPE).setCellRenderer(IngTypesTools.getTableCellRenderer());
         tblAssigned.getColumnModel().getColumn(StockTableModel3.COL_INGTYPE).setCellEditor(IngTypesTools.getTableCellEditor());
@@ -108,9 +107,59 @@ public class PnlRecipeMenuStock extends PopupPanel {
         tblUnassigned.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         tblAssigned.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-//        cmbStoffart.setModel(Tools.newComboboxModel(IngTypesTools.getAll()));
 
-        cmbIngTypeOrRecipe.setRenderer(new DefaultListRenderer(){
+        tblUnassigned.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+
+
+                    final int[] rows = tblUnassigned.getSelectedRows();
+                    final ArrayList<Stock> listSelected = new ArrayList<Stock>();
+                    for (int r = 0; r < rows.length; r++) {
+                        //                    final int finalR = r;
+                        int thisRow = tblUnassigned.convertRowIndexToModel(rows[r]);
+                        listSelected.add(stmUnass.getStock(thisRow));
+                    }
+
+                    stmAss.getData().addAll(listSelected);
+                    stmAss.fireTableDataChanged();
+                    Tools.packTable(tblAssigned, 0);
+
+                    stmUnass.getData().removeAll(listSelected);
+                    stmUnass.fireTableDataChanged();
+
+                    thisComponentResized(null);
+                }
+            }
+        });
+
+        tblAssigned.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    Point p = e.getPoint();
+                    final int col = tblAssigned.columnAtPoint(p);
+                    if (col == StockTableModel3.COL_ALLADD) return;
+
+                    final int[] rows = tblAssigned.getSelectedRows();
+                    final ArrayList<Stock> listSelected = new ArrayList<Stock>();
+                    for (int r = 0; r < rows.length; r++) {
+                        //                    final int finalR = r;
+                        int thisRow = tblAssigned.convertRowIndexToModel(rows[r]);
+                        listSelected.add(stmAss.getStock(thisRow));
+                    }
+
+                    stmAss.getData().removeAll(listSelected);
+                    stmAss.fireTableDataChanged();
+
+                    stmUnass.getData().addAll(listSelected);
+                    stmUnass.fireTableDataChanged();
+                }
+            }
+        });
+
+        cmbIngTypeOrRecipe.setRenderer(new DefaultListRenderer() {
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 return new DefaultListCellRenderer().getListCellRendererComponent(list, (value instanceof Recipes ? "R." : "S.") + value.toString(), index, isSelected, cellHasFocus);
@@ -136,20 +185,26 @@ public class PnlRecipeMenuStock extends PopupPanel {
 //            };
 //            warengruppeFilterKriterium = null;
 //
-//            ingTypeFilter = new RowFilter<ProdukteTableModel, Integer>() {
-//                @Override
-//                public boolean include(Entry<? extends ProdukteTableModel, ? extends Integer> entry) {
-//                    if (ingTypeFilterKriterium == null) return true;
-//
-//                    int row = entry.getIdentifier();
-//                    Produkte produkt = entry.getModel().getProdukt(row);
-//
-//
-//                    return produkt.getIngTypes().equals(ingTypeFilterKriterium);
-//                }
-//            };
-//            ingTypeFilterKriterium = null;
+        ingTypeFilter = new RowFilter<StockTableModel3, Integer>() {
+            @Override
+            public boolean include(Entry<? extends StockTableModel3, ? extends Integer> entry) {
+                if (it2rm.getRowCount() == 0 || tblIngTypes.getSelectedRows().length == 0) return true;
 
+                int row = entry.getIdentifier();
+                IngTypes ingTypes = entry.getModel().getStock(row).getProdukt().getIngTypes();
+
+                boolean includeMe = false;
+                for (int r : tblIngTypes.getSelectedRows()) {
+                    int itRow = tblIngTypes.convertRowIndexToModel(r);
+                    if (it2rm.getData().get(itRow).getIngType().equals(ingTypes)){
+                        includeMe = true;
+                        break;
+                    }
+                }
+
+                return includeMe;
+            }
+        };
 
         textFilter = new RowFilter<StockTableModel3, Integer>() {
             @Override
@@ -216,7 +271,6 @@ public class PnlRecipeMenuStock extends PopupPanel {
                 listSelected.add(stmUnass.getStock(thisRow));
             }
 
-
             miAssign.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -263,70 +317,55 @@ public class PnlRecipeMenuStock extends PopupPanel {
             lsm.setSelectionInterval(row, row);
         }
 
-        if (SwingUtilities.isLeftMouseButton(e) && col == StockTableModel3.COL_ALLERGENES && e.getClickCount() == 2) {
-            if (popup != null && popup.isVisible()) {
-                popup.hidePopup();
-            }
-
-            Tools.unregisterListeners(popup);
-            popup = new JidePopup();
+        if (SwingUtilities.isLeftMouseButton(e) && col == StockTableModel3.COL_ALLADD && e.getClickCount() == 2) {
+//            if (popup != null && popup.isVisible()) {
+//                popup.hidePopup();
+//            }
+//
+//            Tools.unregisterListeners(popup);
+//            popup = new JidePopup();
             final int thisRow = tblAssigned.convertRowIndexToModel(row);
-            final PnlAssign<Allergene> pnlAssign = new PnlAssign<Allergene>(stmAss.getStock(thisRow).getProdukt().getAllergenes(), AllergeneTools.getAll(), AllergeneTools.getListCellRenderer());
 
-            popup.setTransient(true);
-            popup.setOwner(tblAssigned);
-            popup.getContentPane().add(pnlAssign);
-            popup.setFocusable(true);
-            popup.setDefaultFocusComponent(pnlAssign.getDefaultFocusComponent());
 
-            popup.addPopupMenuListener(new PopupMenuListener() {
+            final PnlAssignAdditives dlgAssign = new PnlAssignAdditives(Main.getDesktop().getMenuweek(), stmAss.getStock(thisRow).getProdukt().getAdditives(), stmAss.getStock(thisRow).getProdukt().getAllergenes());
+            dlgAssign.addWindowListener(new WindowAdapter() {
                 @Override
-                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                public void windowClosed(WindowEvent e) {
+                    if (dlgAssign.getResponse() == JOptionPane.OK_OPTION) {
+                        EntityManager em = Main.getEMF().createEntityManager();
+                        try {
+                            em.getTransaction().begin();
 
-                }
+                            Produkte product = em.merge(stmAss.getStock(thisRow).getProdukt());
+                            em.lock(product, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
 
-                @Override
-                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                            product.getAllergenes().clear();
+                            for (Allergene allergene : dlgAssign.getAssignedAllergenes()) {
+                                product.getAllergenes().add(em.merge(allergene));
+                            }
 
-                    if (pnlAssign.getAssigned() == null) return;
+                            product.getAdditives().clear();
+                            for (Additives additives : dlgAssign.getAssignedAdditives()) {
+                                product.getAdditives().add(em.merge(additives));
+                            }
 
-                    EntityManager em = Main.getEMF().createEntityManager();
-                    try {
-                        em.getTransaction().begin();
+                            em.getTransaction().commit();
 
-                        Produkte product = em.merge(stmAss.getStock(thisRow).getProdukt());
-                        em.lock(product, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-
-                        product.getAllergenes().clear();
-                        for (Allergene allergene : pnlAssign.getAssigned()) {
-                            product.getAllergenes().add(em.merge(allergene));
+                            stmAss.update(product);
+                        } catch (OptimisticLockException ole) {
+                            em.getTransaction().rollback();
+                            Main.warn(ole);
+                        } catch (Exception exc) {
+                            em.getTransaction().rollback();
+                            Main.fatal(e);
+                        } finally {
+                            em.close();
+                            popup = null;
                         }
-
-                        em.getTransaction().commit();
-
-                        stmAss.update(product);
-                    } catch (OptimisticLockException ole) {
-                        em.getTransaction().rollback();
-                        Main.warn(ole);
-                    } catch (Exception exc) {
-                        em.getTransaction().rollback();
-                        Main.fatal(e);
-                    } finally {
-                        em.close();
-                        popup = null;
                     }
                 }
-
-                @Override
-                public void popupMenuCanceled(PopupMenuEvent e) {
-
-                }
             });
-
-            SwingUtilities.convertPointToScreen(p, tblAssigned);
-
-            popup.showPopup(p.x - (pnlAssign.getPreferredSize().width / 2), p.y + 10);
-
+            dlgAssign.setVisible(true);
         }
 
 
@@ -372,350 +411,6 @@ public class PnlRecipeMenuStock extends PopupPanel {
         }
 
 
-//        if (SwingUtilities.isLeftMouseButton(e) && col == ProdukteTableModel.COL_ADDITIVES && e.getClickCount() == 2) {
-//            if (popup != null && popup.isVisible()) {
-//                popup.hidePopup();
-//            }
-//
-//            Tools.unregisterListeners(popup);
-//            popup = new JidePopup();
-//            final int thisRow = tblProdukt.convertRowIndexToModel(row);
-//            final PnlAssign<Additives> pnlAssign = new PnlAssign<Additives>(ptm.getProdukt(thisRow).getAdditives(), AdditivesTools.getAll(), AdditivesTools.getListCellRenderer());
-//
-//            popup.setMovable(false);
-//            popup.setTransient(true);
-//            popup.setOwner(tblProdukt);
-//            popup.getContentPane().add(pnlAssign);
-//            popup.setFocusable(true);
-//            popup.setDefaultFocusComponent(pnlAssign.getDefaultFocusComponent());
-//
-//            popup.addPopupMenuListener(new PopupMenuListener() {
-//                @Override
-//                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-//
-//                }
-//
-//                @Override
-//                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-//
-//                    if (pnlAssign.getAssigned() == null) return;
-//
-//                    EntityManager em = Main.getEMF().createEntityManager();
-//                    try {
-//                        em.getTransaction().begin();
-//
-//                        Produkte product = em.merge(ptm.getProdukt(thisRow));
-//                        em.lock(product, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-//
-//                        product.getAdditives().clear();
-//                        for (Additives additive : pnlAssign.getAssigned()) {
-//                            product.getAdditives().add(em.merge(additive));
-//                        }
-//
-//                        em.getTransaction().commit();
-//
-//                        ptm.update(product);
-//                    } catch (OptimisticLockException ole) {
-//                        em.getTransaction().rollback();
-//                        Main.warn(ole);
-//                    } catch (Exception exc) {
-//                        em.getTransaction().rollback();
-//                        Main.fatal(e);
-//                    } finally {
-//                        em.close();
-//                        popup = null;
-//                    }
-//                }
-//
-//                @Override
-//                public void popupMenuCanceled(PopupMenuEvent e) {
-//
-//                }
-//            });
-//
-//            SwingUtilities.convertPointToScreen(p, tblProdukt);
-//
-//            popup.showPopup(p.x - (pnlAssign.getPreferredSize().width / 2), p.y + 10);
-//
-//        }
-
-
-//        if (SwingUtilities.isRightMouseButton(e)) {
-//
-//
-//            if (menu != null && menu.isVisible()) {
-//                menu.setVisible(false);
-//            }
-//
-//            Tools.unregisterListeners(menu);
-//            menu = new JPopupMenu();
-//
-//
-//            JMenuItem miEdit = new JMenuItem("Markierte Produkte bearbeiten");
-//            miEdit.setFont(new Font("arial", Font.PLAIN, 18));
-//            final int[] rows = tblProdukt.getSelectedRows();
-//            final ArrayList<Produkte> listSelectedProducts = new ArrayList<Produkte>();
-//            for (int r = 0; r < rows.length; r++) {
-//                //                    final int finalR = r;
-//                int thisRow = tblProdukt.convertRowIndexToModel(rows[r]);
-//                listSelectedProducts.add(((ProdukteTableModel) tblProdukt.getModel()).getProdukt(thisRow));
-//            }
-//
-//
-//            miEdit.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    //                    ArrayList<Produkte> listProdukte = new ArrayList<Produkte>(rows.length);
-//                    //                    for (int r = 0; r < rows.length; r++) {
-//                    //                        final int finalR = r;
-//                    //                        final int thisRow = tblProdukt.convertRowIndexToModel(rows[finalR]);
-//                    //                        listProdukte.add(((ProdukteTableModel) tblProdukt.getModel()).getProdukt(thisRow));
-//                    //                    }
-//                    final DlgProdukt dlg = new DlgProdukt(Main.mainframe, listSelectedProducts.get(0));
-//                    dlg.addComponentListener(new ComponentAdapter() {
-//                        @Override
-//                        public void componentHidden(ComponentEvent e) {
-//                            super.componentHidden(e);
-//
-//                            ptm.update(dlg.getProduct());
-//                        }
-//                    });
-//
-//                }
-//            });
-//            miEdit.setEnabled(listSelectedProducts.size() == 1);
-//            menu.add(miEdit);
-//
-//            JMenuItem miInfo = new JMenuItem("Vorrat Info");
-//            miInfo.setFont(new Font("arial", Font.PLAIN, 18));
-//
-//            miInfo.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    String ids = "";
-//                    BigDecimal menge = BigDecimal.ZERO;
-//                    int active = 0;
-//                    for (Stock stock : listSelectedProducts.get(0).getStockCollection()) {
-//                        if (!stock.isAusgebucht()) {
-//                            active++;
-//                            ids += stock.getId() + ", " + DateFormat.getDateInstance(DateFormat.SHORT).format(stock.getEingang()) + (active % 6 == 0 ? "\n" : "; ");
-//                            menge = menge.add(StockTools.getSumme(stock));
-//                        }
-//                    }
-//
-//                    String text = "Produkt ID: " + listSelectedProducts.get(0).getId() + "\n";
-//                    text += listSelectedProducts.get(0).getStockCollection().size() + " Vorräte insgesamt.\n";
-//                    text += "Davon " + active + " noch nicht verbraucht.\n";
-//                    if (active > 0) {
-//                        text += "Noch vorhandene Gesamtmenge: " + menge.setScale(2, RoundingMode.HALF_UP).toString() + " " + IngTypesTools.EINHEIT[listSelectedProducts.get(0).getIngTypes().getEinheit()] + "\n";
-//                        text += "Active IDs: " + ids;
-//                    }
-//
-//                    JOptionPane.showInternalMessageDialog(thisComponent, text, "Vorrat Info", JOptionPane.INFORMATION_MESSAGE);
-//
-//                    Main.debug(text);
-//
-//                }
-//            });
-//            miInfo.setEnabled(listSelectedProducts.size() == 1);
-//            menu.add(miInfo);
-//
-//            JMenuItem miDelete = new JMenuItem("löschen (inkl. Vorräte)");
-//            miDelete.setFont(new Font("arial", Font.PLAIN, 18));
-//
-//            miDelete.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    EntityManager em1 = Main.getEMF().createEntityManager();
-//                    try {
-//                        em1.getTransaction().begin();
-//                        for (Produkte p : listSelectedProducts) {
-//                            if (JOptionPane.showConfirmDialog(thisComponent, "Das Produkt " + p.getId() + " hat " + p.getStockCollection().size() + " Vorräte.\nWirklich löschen ?", "Löschen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-//                                Produkte myProdukt = em1.merge(p);
-//                                em1.remove(myProdukt);
-//                                ptm.remove(myProdukt);
-//                            }
-//                        }
-//                        em1.getTransaction().commit();
-//                    } catch (OptimisticLockException ole) {
-//
-//                        em1.getTransaction().rollback();
-//                        Main.warn(ole);
-//                    } catch (Exception exc) {
-//                        em1.getTransaction().rollback();
-//                        Main.fatal(e);
-//                    } finally {
-//                        em1.close();
-//                        //                        reload();
-//                    }
-//                    //                    reload();
-//                }
-//            });
-//            miDelete.setEnabled(listSelectedProducts.size() > 0 && Main.getCurrentUser().isAdmin());
-//            menu.add(miDelete);
-//
-//            if (listSelectedProducts.size() > 1) {
-//                JMenu miPopupMerge = new JMenu("Markierte Produkte zusammenfassen zu");
-//                miPopupMerge.setFont(new Font("arial", Font.PLAIN, 18));
-//
-//                for (final Produkte thisProduct : listSelectedProducts) {
-//                    JMenuItem mi = new JMenuItem("[" + thisProduct.getId() + "] " + thisProduct.getBezeichnung());
-//                    mi.setFont(new Font("arial", Font.PLAIN, 18));
-//
-//                    mi.addActionListener(new java.awt.event.ActionListener() {
-//                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-//                            if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zusammenfassen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-//                                mergeUs(listSelectedProducts, thisProduct);
-//                                //                                reload();
-//                            }
-//                        }
-//                    });
-//
-//                    miPopupMerge.add(mi);
-//                }
-//
-//                menu.add(miPopupMerge);
-//            }
-//
-//
-//            //            JMenu menuLagerart = new JMenu("Lagerart setzen");
-//            //            menuLagerart.setFont(new Font("arial", Font.PLAIN, 18));
-//            //            for (final String lagerart : LagerTools.LAGERART) {
-//            //
-//            //                JMenuItem miLagerart = new JMenuItem(lagerart);
-//            //                miLagerart.addActionListener(new ActionListener() {
-//            //                    @Override
-//            //                    public void actionPerformed(ActionEvent e) {
-//            ////                        if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-//            //                        EntityManager em1 = Main.getEMF().createEntityManager();
-//            //                        try {
-//            //                            em1.getTransaction().begin();
-//            //                            for (Produkte p : listSelectedProducts) {
-//            //                                Produkte myProdukt = em1.merge(p);
-//            //                                em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-//            //                                myProdukt.getIngTypes().setLagerart((short) ArrayUtils.indexOf(LagerTools.LAGERART, lagerart));
-//            //                            }
-//            //                            em1.getTransaction().commit();
-//            //                            ptm.update(listSelectedProducts);
-//            //                        } catch (OptimisticLockException ole) {
-//            //                            Main.warn(ole);
-//            //                            em1.getTransaction().rollback();
-//            //                        } catch (Exception exc) {
-//            //                            em1.getTransaction().rollback();
-//            //                            Main.fatal(e);
-//            //                        } finally {
-//            //                            em1.close();
-//            ////                            reload();
-//            //                        }
-//            ////                        }
-//            //                    }
-//            //                });
-//            //                menuLagerart.add(miLagerart);
-//            //
-//            //
-//            //            }
-//            //            menu.add(menuLagerart);
-//            //
-//            //
-//            //            JMenu menuEinheit = new JMenu("Einheit setzen");
-//            //            menuEinheit.setFont(new Font("arial", Font.PLAIN, 18));
-//            //            for (final String einheit : IngTypesTools.EINHEIT) {
-//            //
-//            //                JMenuItem miEinheit = new JMenuItem(einheit);
-//            //                miEinheit.addActionListener(new ActionListener() {
-//            //                    @Override
-//            //                    public void actionPerformed(ActionEvent e) {
-//            ////                        if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-//            //                        EntityManager em1 = Main.getEMF().createEntityManager();
-//            //                        try {
-//            //                            em1.getTransaction().begin();
-//            //                            for (Produkte p : listSelectedProducts) {
-//            //                                Produkte myProdukt = em1.merge(p);
-//            //                                em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-//            //                                myProdukt.getIngTypes().setEinheit((short) ArrayUtils.indexOf(IngTypesTools.EINHEIT, einheit));
-//            //                            }
-//            //                            em1.getTransaction().commit();
-//            //                            ptm.update(listSelectedProducts);
-//            //                        } catch (OptimisticLockException ole) {
-//            //                            Main.warn(ole);
-//            //                            em1.getTransaction().rollback();
-//            //                        } catch (Exception exc) {
-//            //                            em1.getTransaction().rollback();
-//            //                            Main.fatal(e);
-//            //                        } finally {
-//            //                            em1.close();
-//            ////                            reload();
-//            //                        }
-//            ////                        }
-//            //                    }
-//            //                });
-//            //                menuEinheit.add(miEinheit);
-//            //            }
-//            //            menu.add(menuEinheit);
-//            //
-//            //            JMenu menuPopupAssign = new JMenu("zuweisen zu Stoffart");
-//            //            menuPopupAssign.setFont(new Font("arial", Font.PLAIN, 18));
-//            //
-//            //
-//            //            EntityManager em = Main.getEMF().createEntityManager();
-//            //            try {
-//            //                Query query = em.createQuery("SELECT w FROM Warengruppe w ORDER BY w.bezeichnung ");
-//            //                ArrayList<Warengruppe> listWarengruppen = new ArrayList<Warengruppe>(query.getResultList());
-//            //
-//            //
-//            //                for (Warengruppe warengruppe : listWarengruppen) {
-//            //
-//            //                    JMenu menuWarengruppe = new JMenu(warengruppe.getBezeichnung());
-//            //
-//            //                    ArrayList<IngTypes> listStoffarten = new ArrayList<IngTypes>(warengruppe.getIngTypesCollection());
-//            //                    Collections.sort(listStoffarten);
-//            //
-//            //                    for (final IngTypes ingTypes : listStoffarten) {
-//            //                        JMenuItem miStoffart = new JMenuItem(ingTypes.getBezeichnung());
-//            //                        miStoffart.addActionListener(new ActionListener() {
-//            //                            @Override
-//            //                            public void actionPerformed(ActionEvent e) {
-//            //                                if (JOptionPane.showConfirmDialog(thisComponent, "Echt jetzt ?", "Zuweisen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, Const.icon48remove) == JOptionPane.YES_OPTION) {
-//            //                                    EntityManager em1 = Main.getEMF().createEntityManager();
-//            //                                    try {
-//            //                                        em1.getTransaction().begin();
-//            //                                        for (Produkte p : listSelectedProducts) {
-//            //                                            Produkte myProdukt = em1.merge(p);
-//            //                                            em1.lock(myProdukt, LockModeType.OPTIMISTIC);
-//            //                                            myProdukt.setIngTypes(em1.merge(ingTypes));
-//            //                                        }
-//            //                                        em1.getTransaction().commit();
-//            //                                        ptm.update(listSelectedProducts);
-//            //                                    } catch (OptimisticLockException ole) {
-//            //                                        Main.warn(ole);
-//            //                                        em1.getTransaction().rollback();
-//            //                                    } catch (Exception exc) {
-//            //                                        em1.getTransaction().rollback();
-//            //                                        Main.fatal(e);
-//            //                                    } finally {
-//            //                                        em1.close();
-//            ////                                        reload();
-//            //                                    }
-//            //                                }
-//            //                            }
-//            //                        });
-//            //                        menuWarengruppe.add(miStoffart);
-//            //                    }
-//            //                    menuPopupAssign.add(menuWarengruppe);
-//            //                }
-//            //            } catch (Exception exc) {
-//            //                Main.fatal(exc.getMessage());
-//            //            } finally {
-//            //                em.close();
-//            //            }
-//            //
-//            //            menu.add(menuPopupAssign);
-//
-//
-//            menu.show(tblProdukt, (int) p.getX(), (int) p.getY());
-//        }
-
-
     }
 
 //    public ArrayList<Stock> getAssigned() {
@@ -724,7 +419,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
     private void thisComponentResized(ComponentEvent e) {
 
-        int[] widths = new int[]{60, 343, 80, 56, 72, 87, 99, 259, 173, 116};
+        int[] widths = new int[]{60, 150, 80, 100, 87, 99, 259, 173, 116};
 
         for (int col = 0; col < widths.length; col++) {
             tblUnassigned.getColumnModel().getColumn(col).setPreferredWidth(widths[col]);
@@ -732,10 +427,6 @@ public class PnlRecipeMenuStock extends PopupPanel {
         }
 
 //        Tools.packTable(tblIngTypes, 0);
-
-    }
-
-    private void cmbIngTypesItemStateChanged(ItemEvent e) {
 
     }
 
@@ -759,10 +450,12 @@ public class PnlRecipeMenuStock extends PopupPanel {
             lsm.setSelectionInterval(row, row);
         }
 
+        if (SwingUtilities.isLeftMouseButton(e)){
+            sorter.setRowFilter(ingTypeFilter);
+            stmUnass.fireTableDataChanged();
+        }
 
         if (SwingUtilities.isRightMouseButton(e)) {
-
-
             if (menu != null && menu.isVisible()) {
                 menu.setVisible(false);
             }
@@ -798,6 +491,8 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
             menu.show(tblIngTypes, (int) p.getX(), (int) p.getY());
         }
+
+
     }
 
 //    private void cmbIngTypesActionPerformed(ActionEvent e) {
@@ -852,7 +547,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
         CollectionUtils.filter(listAllToSearchIn, new Predicate() {
             @Override
             public boolean evaluate(Object o) {
-                if (o instanceof Recipes){
+                if (o instanceof Recipes) {
                     return ((Recipes) o).getTitle().trim().toLowerCase().indexOf(searchText) > -1;
                 } else {
                     return ((IngTypes) o).getBezeichnung().trim().toLowerCase().indexOf(searchText) > -1;
@@ -869,9 +564,9 @@ public class PnlRecipeMenuStock extends PopupPanel {
     }
 
 
-    boolean containsOnlyRecipesOrIsEmpty(ArrayList list){
+    boolean containsOnlyRecipesOrIsEmpty(ArrayList list) {
         boolean positive = list.isEmpty();
-        for (Object o :list){
+        for (Object o : list) {
             positive = o instanceof Recipes;
             if (!positive) break;
         }
@@ -887,8 +582,8 @@ public class PnlRecipeMenuStock extends PopupPanel {
 //        }
 
 
-        if (cmbIngTypeOrRecipe.getSelectedItem() instanceof Recipes && !((Recipes) cmbIngTypeOrRecipe.getSelectedItem()).getIngTypes2Recipes().isEmpty()){
-            for (Ingtypes2Recipes it2r : ((Recipes) cmbIngTypeOrRecipe.getSelectedItem()).getIngTypes2Recipes()){
+        if (cmbIngTypeOrRecipe.getSelectedItem() instanceof Recipes && !((Recipes) cmbIngTypeOrRecipe.getSelectedItem()).getIngTypes2Recipes().isEmpty()) {
+            for (Ingtypes2Recipes it2r : ((Recipes) cmbIngTypeOrRecipe.getSelectedItem()).getIngTypes2Recipes()) {
                 it2rm.add(it2r.getIngType(), recipe, it2r.getAmount());
             }
         } else {
@@ -899,6 +594,8 @@ public class PnlRecipeMenuStock extends PopupPanel {
     }
 
     private void searchUnAssActionPerformed(ActionEvent e) {
+        tblIngTypes.getSelectionModel().clearSelection();
+        sorter.setRowFilter(textFilter);
         stmUnass.fireTableDataChanged();
     }
 
@@ -928,8 +625,8 @@ public class PnlRecipeMenuStock extends PopupPanel {
             }
         });
         setLayout(new FormLayout(
-            "default:grow, $lcgap, default, 2*($lcgap, default:grow)",
-            "2*(default, $lgap), fill:default:grow, $lgap, fill:pref, 3*($lgap, default)"));
+                "default:grow, $lcgap, default, 2*($lcgap, default:grow)",
+                "2*(default, $lgap), fill:default:grow, $lgap, fill:pref, 3*($lgap, default)"));
 
         //---- lblRecipe ----
         lblRecipe.setText("text");
@@ -1016,10 +713,10 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
         //---- cmbIngTypeOrRecipe ----
         cmbIngTypeOrRecipe.setFont(new Font("SansSerif", Font.BOLD, 14));
-        cmbIngTypeOrRecipe.setModel(new DefaultComboBoxModel(new String[] {
-            "item 1",
-            "item 2",
-            "item 3"
+        cmbIngTypeOrRecipe.setModel(new DefaultComboBoxModel(new String[]{
+                "item 1",
+                "item 2",
+                "item 3"
         }));
         add(cmbIngTypeOrRecipe, CC.xy(1, 9));
 

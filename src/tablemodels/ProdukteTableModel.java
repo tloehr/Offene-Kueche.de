@@ -2,7 +2,10 @@ package tablemodels;
 
 import Main.Main;
 import desktop.FrmDesktop;
-import entity.*;
+import entity.IngTypes;
+import entity.Produkte;
+import entity.ProdukteTools;
+import entity.Warengruppe;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
@@ -11,6 +14,7 @@ import javax.persistence.OptimisticLockException;
 import javax.swing.table.DefaultTableModel;
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,15 +30,15 @@ public class ProdukteTableModel extends DefaultTableModel {
     public static final int COL_BEZEICHNUNG = 1;
     public static final int COL_GTIN = 2;
     public static final int COL_PACKGROESSE = 3;
-    public static final int COL_ALLERGENES = 4;
-    public static final int COL_ADDITIVES = 5;
-    public static final int COL_INGTYPE = 6;
-    public static final int COL_WARENGRUPPE = 7;
-    public static final int COL_EINHEIT = 8;
-    public static final int COL_LAGERART = 9;
+    public static final int COL_ALLADD = 4;
+    //    public static final int COL_ADDITIVES = 5;
+    public static final int COL_INGTYPE = 5;
+    public static final int COL_EINHEIT = 6;
+    public static final int COL_LAGERART = 7;
+    public static final int COL_WARENGRUPPE = 8;
     private boolean editable;
 
-    private Object[] colID = new Object[]{"Produkt Nr.", "Bezeichnung", "GTIN", "Packungsgröße", "Allergene", "Zusatzstoffe", "Stoffart", "Warengruppe", "Einheit", "Lagerart"};
+    private Object[] colID = new Object[]{"Produkt Nr.", "Bezeichnung", "GTIN", "Packungsgröße", "Allergene, Zusatzstoffe", "Stoffart", "Einheit", "Lagerart", "Warengruppe"};
 
 
     public void setEditable(boolean editable) {
@@ -78,7 +82,7 @@ public class ProdukteTableModel extends DefaultTableModel {
     }
 
     public void update(Produkte produkt) {
-        if (!data.contains(produkt)){
+        if (!data.contains(produkt)) {
             add(produkt);
             return;
         }
@@ -117,6 +121,18 @@ public class ProdukteTableModel extends DefaultTableModel {
                 c = Long.class;
                 break;
             }
+            case COL_WARENGRUPPE: {
+                c = Warengruppe.class;
+                break;
+            }
+            case COL_EINHEIT: {
+                c = Short.class;
+                break;
+            }
+            case COL_LAGERART: {
+                c = Short.class;
+                break;
+            }
             default: {
                 c = String.class;
             }
@@ -138,6 +154,9 @@ public class ProdukteTableModel extends DefaultTableModel {
             em.getTransaction().begin();
 
             final Produkte produkte = em.merge(data.get(row));
+
+            ArrayList<Produkte> updateList = new ArrayList<Produkte>();
+
             em.lock(produkte, LockModeType.OPTIMISTIC);
 
             switch (column) {
@@ -145,12 +164,14 @@ public class ProdukteTableModel extends DefaultTableModel {
                 case COL_BEZEICHNUNG: {
                     if (!aValue.toString().isEmpty()) {
                         produkte.setBezeichnung(aValue.toString());
+                        updateList.add(produkte);
                     }
                     break;
                 }
                 case COL_GTIN: {
                     if (ProdukteTools.isGTIN(aValue.toString())) {
                         produkte.setGtin(aValue.toString());
+                        updateList.add(produkte);
                     }
                     break;
                 }
@@ -159,6 +180,7 @@ public class ProdukteTableModel extends DefaultTableModel {
                         BigDecimal packGroesse = new BigDecimal(aValue.toString());
                         if (packGroesse.compareTo(BigDecimal.ZERO) > 0) {
                             produkte.setPackGroesse(packGroesse);
+                            updateList.add(produkte);
                         }
                     } catch (NumberFormatException nfe) {
 
@@ -167,6 +189,41 @@ public class ProdukteTableModel extends DefaultTableModel {
                 }
                 case COL_INGTYPE: {
                     produkte.setIngTypes((IngTypes) aValue);
+                    updateList.add(produkte);
+                    break;
+                }
+                case COL_WARENGRUPPE: {
+                    Warengruppe warengruppe = em.merge((Warengruppe) aValue);
+                    IngTypes changedIngType = em.merge(produkte.getIngTypes());
+                    changedIngType.setWarengruppe(warengruppe);
+                    for (Produkte p : data) {
+                        if (p.getIngTypes().equals(changedIngType)) { // equals compares only the IDs.
+                            p.setIngTypes(changedIngType);
+                            updateList.add(p);
+                        }
+                    }
+                    break;
+                }
+                case COL_LAGERART: {
+                    IngTypes changedIngType = em.merge(produkte.getIngTypes());
+                    changedIngType.setLagerart((Short) aValue);
+                    for (Produkte p : data) {
+                        if (p.getIngTypes().equals(changedIngType)) { // equals compares only the IDs.
+                            p.setIngTypes(changedIngType);
+                            updateList.add(p);
+                        }
+                    }
+                    break;
+                }
+                case COL_EINHEIT: {
+                    IngTypes changedIngType = em.merge(produkte.getIngTypes());
+                    changedIngType.setEinheit((Short) aValue);
+                    for (Produkte p : data) {
+                        if (p.getIngTypes().equals(changedIngType)) { // equals compares only the IDs.
+                            p.setIngTypes(changedIngType);
+                            updateList.add(p);
+                        }
+                    }
                     break;
                 }
                 default: {
@@ -175,7 +232,8 @@ public class ProdukteTableModel extends DefaultTableModel {
             }
 
             em.getTransaction().commit();
-            update(produkte);
+            update(updateList);
+            updateList.clear();
 
         } catch (OptimisticLockException ole) {
             Main.warn(ole);
@@ -212,9 +270,7 @@ public class ProdukteTableModel extends DefaultTableModel {
                 break;
             }
             case COL_LAGERART: {
-                Main.debug(produkte.getId());
-                Main.debug(produkte.getBezeichnung());
-                value = LagerTools.LAGERART[produkte.getIngTypes().getLagerart()];
+                value = produkte.getIngTypes().getLagerart();
                 break;
             }
             case COL_GTIN: {
@@ -226,23 +282,28 @@ public class ProdukteTableModel extends DefaultTableModel {
                 break;
             }
             case COL_EINHEIT: {
-                value = IngTypesTools.EINHEIT[produkte.getIngTypes().getEinheit()];
+                value = produkte.getIngTypes().getEinheit();
                 break;
             }
             case COL_INGTYPE: {
                 value = produkte.getIngTypes();
                 break;
             }
-            case COL_ALLERGENES: {
-                value = produkte.getAllergenes().size() == 0 ? "" : Integer.toString(produkte.getAllergenes().size());
+            case COL_ALLADD: {
+                value = (produkte.getAllergenes().size() == 0 ? "" : "A." + Integer.toString(produkte.getAllergenes().size())) + "  " +
+                        (produkte.getAdditives().size() == 0 ? "" : "Z." + Integer.toString(produkte.getAdditives().size()));
                 break;
             }
-            case COL_ADDITIVES: {
-                value = produkte.getAdditives().size() == 0 ? "" : Integer.toString(produkte.getAdditives().size());
-                break;
-            }
+//            case COL_ALLERGENES: {
+//                value = produkte.getAllergenes().size() == 0 ? "" : Integer.toString(produkte.getAllergenes().size());
+//                break;
+//            }
+//            case COL_ADDITIVES: {
+//                value = produkte.getAdditives().size() == 0 ? "" : Integer.toString(produkte.getAdditives().size());
+//                break;
+//            }
             case COL_WARENGRUPPE: {
-                value = produkte.getIngTypes().getWarengruppe().getBezeichnung();
+                value = produkte.getIngTypes().getWarengruppe();
                 break;
             }
             default: {
@@ -255,7 +316,7 @@ public class ProdukteTableModel extends DefaultTableModel {
     @Override
     public boolean isCellEditable(int row, int column) {
         Produkte produkte = data.get(row);
-        return editable && (column == COL_BEZEICHNUNG || (!produkte.isLoseWare() && (column == COL_GTIN || column == COL_PACKGROESSE)) || column == COL_INGTYPE);
+        return editable && (column == COL_BEZEICHNUNG || (!produkte.isLoseWare() && (column == COL_GTIN || column == COL_PACKGROESSE)) || column == COL_INGTYPE || column == COL_WARENGRUPPE || column == COL_EINHEIT || column == COL_LAGERART);
     }
 
 
