@@ -790,8 +790,8 @@ public class PnlSingleDayMenu extends JPanel {
                 public void actionPerformed(ActionEvent e) {
                     dlg.dispose();
                     if (e.getActionCommand().equals("OK")) {
-                        Pair<java.util.List<Stock>, java.util.List<Ingtypes2Recipes>> pair = (Pair<java.util.List<Stock>, java.util.List<Ingtypes2Recipes>>) pnlAssign.getResult();
-                        rcl.recipeChanged(new RecipeChangeEvent(searcher, recipe, pair.getSecond(), new HashSet<Stock>(pair.getFirst())));
+                        Pair<java.util.List<Stock>, Recipes> pair = (Pair<java.util.List<Stock>, Recipes>) pnlAssign.getResult();
+                        rcl.recipeChanged(new RecipeChangeEvent(searcher, pair.getSecond(), pair.getSecond().getIngTypes2Recipes(), new HashSet<Stock>(pair.getFirst())));
                     }
                 }
             });

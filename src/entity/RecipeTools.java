@@ -33,18 +33,28 @@ public class RecipeTools {
 
 
     public static ArrayList<Recipes> getAll() {
-           ArrayList<Recipes> list = new ArrayList<Recipes>();
-           EntityManager em = Main.getEMF().createEntityManager();
-           Query query = em.createQuery("SELECT r FROM Recipes r ORDER BY r.title");
-           try {
-               list.addAll(query.getResultList());
-           } catch (Exception e) { // nicht gefunden
-               Main.fatal(e);
-           } finally {
-               em.close();
-           }
-           return list;
-       }
+        ArrayList<Recipes> list = new ArrayList<Recipes>();
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createQuery("SELECT r FROM Recipes r ORDER BY r.title");
+        try {
+            list.addAll(query.getResultList());
+        } catch (Exception e) { // nicht gefunden
+            Main.fatal(e);
+        } finally {
+            em.close();
+        }
+        return list;
+    }
+
+
+    public static boolean contains(Recipes recipes, IngTypes ingType) {
+        for (Ingtypes2Recipes ingtypes2Recipes : recipes.getIngTypes2Recipes()) {
+            if (ingtypes2Recipes.getIngType().equals(ingType)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 //    public static String getAsHTML(Recipes recipe, ) {
 //            String html = "";

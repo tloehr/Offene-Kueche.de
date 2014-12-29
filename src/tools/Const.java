@@ -139,8 +139,13 @@ public class Const {
     public static final Icon icon16greenBadge = new ImageIcon(Const.class.getResource("/artwork/16x16/greenstar.png"));
     public static final Icon icon16redBadge = new ImageIcon(Const.class.getResource("/artwork/16x16/redstar.png"));
 
+    public static final Icon icon24recipe = new ImageIcon(Const.class.getResource("/artwork/24x24/recipe24.png"));
+    public static final Icon icon24recipeBlue = new ImageIcon(Const.class.getResource("/artwork/24x24/recipe24-blue.png"));
+    public static final Icon icon24ingtype = new ImageIcon(Const.class.getResource("/artwork/24x24/ingredients24.png"));
+
     public static final Icon icon24redBadge = new ImageIcon(Const.class.getResource("/artwork/24x24/redstar.png"));
-    public static final Icon icon24greenBadge = new ImageIcon(Const.class.getResource("/artwork/24x24/greenstar.png"));
+        public static final Icon icon24greenBadge = new ImageIcon(Const.class.getResource("/artwork/24x24/greenstar.png"));
+
 
     public static final Icon icon24add = new ImageIcon(Const.class.getResource("/artwork/24x24/edit_add.png"));
     // http://findicons.com/icon/94106/edit_clear?id=96593

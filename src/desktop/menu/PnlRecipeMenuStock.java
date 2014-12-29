@@ -14,7 +14,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.jdesktop.swingx.JXSearchField;
 import org.jdesktop.swingx.renderer.DefaultListRenderer;
-import tablemodels.IngType2recipeTableModel;
 import tablemodels.StockTableModel3;
 import tools.Const;
 import tools.Pair;
@@ -28,6 +27,7 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableRowSorter;
+import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.math.BigDecimal;
@@ -40,7 +40,11 @@ public class PnlRecipeMenuStock extends PopupPanel {
     private final Recipes recipe;
     //    private final ArrayList<Stock> assigned, unassigned;
     private StockTableModel3 stmAss, stmUnass;
-    private IngType2recipeTableModel it2rm;
+//    private IngType2recipeTableModel it2rm;
+
+
+    private DefaultTreeModel treemodel;
+
     private JidePopup popup;
     private JPopupMenu menu;
     private RowFilter<StockTableModel3, Integer> textFilter, ingTypeFilter;
@@ -62,7 +66,10 @@ public class PnlRecipeMenuStock extends PopupPanel {
         ArrayList<Stock> unassigned = new ArrayList<Stock>(Main.getStockList(false));
         unassigned.removeAll(assigned);
 
-        it2rm = new IngType2recipeTableModel(recipe.getIngTypes2Recipes(), assigned);
+//        it2rm = new IngType2recipeTableModel(recipe.getIngTypes2Recipes(), assigned);
+
+        createFirstTreeModel();
+
         stmUnass = new StockTableModel3(unassigned);
         stmAss = new StockTableModel3(assigned);
 
@@ -79,7 +86,8 @@ public class PnlRecipeMenuStock extends PopupPanel {
         lblRecipe.setText(recipe.getTitle());
         lblRecipe.setToolTipText(recipe.getText());
 
-        tblIngTypes.setModel(it2rm);
+        treeIngredients.setModel(treemodel);
+
         tblUnassigned.setModel(stmUnass);
         tblAssigned.setModel(stmAss);
 
@@ -94,15 +102,18 @@ public class PnlRecipeMenuStock extends PopupPanel {
         stmAss.addTableModelListener(new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent e) {
-                it2rm.update(stmAss.getData());
+//                it2rm.update(stmAss.getData());
             }
         });
 
         tblAssigned.getColumnModel().getColumn(StockTableModel3.COL_LAGER).setCellRenderer(LagerTools.getTableCellRenderer());
         tblAssigned.getColumnModel().getColumn(StockTableModel3.COL_LAGER).setCellEditor(LagerTools.getTableCellEditor());
 
-        tblIngTypes.getColumnModel().getColumn(IngType2recipeTableModel.COL_BEZEICHNUNG).setCellRenderer(IngTypesTools.getTableCellRenderer());
-        tblIngTypes.getColumnModel().getColumn(IngType2recipeTableModel.COL_BEZEICHNUNG).setCellEditor(IngTypesTools.getTableCellEditor());
+
+        treeIngredients.setCellRenderer(getTreeCellRenderer());
+
+//        tblIngTypes.getColumnModel().getColumn(IngType2recipeTableModel.COL_BEZEICHNUNG).setCellRenderer(IngTypesTools.getTableCellRenderer());
+//        tblIngTypes.getColumnModel().getColumn(IngType2recipeTableModel.COL_BEZEICHNUNG).setCellEditor(IngTypesTools.getTableCellEditor());
 
         tblUnassigned.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         tblAssigned.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -185,26 +196,26 @@ public class PnlRecipeMenuStock extends PopupPanel {
 //            };
 //            warengruppeFilterKriterium = null;
 //
-        ingTypeFilter = new RowFilter<StockTableModel3, Integer>() {
-            @Override
-            public boolean include(Entry<? extends StockTableModel3, ? extends Integer> entry) {
-                if (it2rm.getRowCount() == 0 || tblIngTypes.getSelectedRows().length == 0) return true;
-
-                int row = entry.getIdentifier();
-                IngTypes ingTypes = entry.getModel().getStock(row).getProdukt().getIngTypes();
-
-                boolean includeMe = false;
-                for (int r : tblIngTypes.getSelectedRows()) {
-                    int itRow = tblIngTypes.convertRowIndexToModel(r);
-                    if (it2rm.getData().get(itRow).getIngType().equals(ingTypes)) {
-                        includeMe = true;
-                        break;
-                    }
-                }
-
-                return includeMe;
-            }
-        };
+//        ingTypeFilter = new RowFilter<StockTableModel3, Integer>() {
+//            @Override
+//            public boolean include(Entry<? extends StockTableModel3, ? extends Integer> entry) {
+//                if (it2rm.getRowCount() == 0 || tblIngTypes.getSelectedRows().length == 0) return true;
+//
+//                int row = entry.getIdentifier();
+//                IngTypes ingTypes = entry.getModel().getStock(row).getProdukt().getIngTypes();
+//
+//                boolean includeMe = false;
+//                for (int r : tblIngTypes.getSelectedRows()) {
+//                    int itRow = tblIngTypes.convertRowIndexToModel(r);
+//                    if (it2rm.getData().get(itRow).getIngType().equals(ingTypes)) {
+//                        includeMe = true;
+//                        break;
+//                    }
+//                }
+//
+//                return includeMe;
+//            }
+//        };
 
         textFilter = new RowFilter<StockTableModel3, Integer>() {
             @Override
@@ -433,66 +444,6 @@ public class PnlRecipeMenuStock extends PopupPanel {
     }
 
     private void tblIngTypesMousePressed(MouseEvent e) {
-        if (it2rm.getRowCount() == 0) {
-            return;
-        }
-
-        Point p = e.getPoint();
-        final int col = tblIngTypes.columnAtPoint(p);
-        final int row = tblIngTypes.rowAtPoint(p);
-        ListSelectionModel lsm = tblIngTypes.getSelectionModel();
-
-        if (lsm.isSelectionEmpty()) {
-            lsm.setSelectionInterval(row, row);
-        }
-
-        boolean singleRowSelected = lsm.getMaxSelectionIndex() == lsm.getMinSelectionIndex();
-
-        if (singleRowSelected) {
-            lsm.setSelectionInterval(row, row);
-        }
-
-//        if (SwingUtilities.isLeftMouseButton(e)) {
-//            sorter.setRowFilter(ingTypeFilter);
-//            stmUnass.fireTableDataChanged();
-//        }
-
-        if (SwingUtilities.isRightMouseButton(e)) {
-            if (menu != null && menu.isVisible()) {
-                menu.setVisible(false);
-            }
-
-            Tools.unregisterListeners(menu);
-            menu = new JPopupMenu();
-
-
-            JMenuItem miAssign = new JMenuItem("Markierte Stoffart entfernen");
-            miAssign.setFont(new Font("SansSerif", Font.PLAIN, 18));
-            final int[] rows = tblIngTypes.getSelectedRows();
-            final ArrayList<Ingtypes2Recipes> listSelected = new ArrayList<Ingtypes2Recipes>();
-            for (int r = 0; r < rows.length; r++) {
-                //                    final int finalR = r;
-                int thisRow = tblIngTypes.convertRowIndexToModel(rows[r]);
-                listSelected.add(it2rm.getData().get(thisRow));
-            }
-
-
-            miAssign.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    for (Ingtypes2Recipes ingtypes2Recipe : listSelected) {
-                        it2rm.remove(ingtypes2Recipe);
-                        recipe.getIngTypes2Recipes().remove(ingtypes2Recipe);
-                    }
-
-                }
-            });
-
-            menu.add(miAssign);
-
-            menu.show(tblIngTypes, (int) p.getX(), (int) p.getY());
-        }
 
 
     }
@@ -575,38 +526,165 @@ public class PnlRecipeMenuStock extends PopupPanel {
         return positive;
     }
 
+
+    void createFirstTreeModel() {
+
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode(recipe);
+
+        for (Recipes r : recipe.getSubrecipes()) {
+//            DefaultMutableTreeNode recipeRoot = new DefaultMutableTreeNode(r);
+//            root.add(recipeRoot);
+//
+//            for (Ingtypes2Recipes it2r : r.getIngTypes2Recipes()) {
+//                recipeRoot.add(new DefaultMutableTreeNode(it2r));
+//            }
+
+            root.add(getSubtree(r));
+        }
+
+        for (Ingtypes2Recipes it2r : recipe.getIngTypes2Recipes()) {
+            root.add(new DefaultMutableTreeNode(it2r));
+        }
+
+        treemodel = new DefaultTreeModel(root);
+    }
+
+
+    DefaultMutableTreeNode getSubtree(Recipes recipe) {
+        DefaultMutableTreeNode recipeRoot = new DefaultMutableTreeNode(recipe);
+
+
+        for (Ingtypes2Recipes it2r : recipe.getIngTypes2Recipes()) {
+            recipeRoot.add(new DefaultMutableTreeNode(it2r));
+        }
+
+        return recipeRoot;
+    }
+
+
     private void btnAddNewActionPerformed(ActionEvent e) {
 
-//        if (cmbStoffart.getModel().getSize() == 0){
-//
-//        } else {
-//
-//        }
-
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) treemodel.getRoot();
 
         if (cmbIngTypeOrRecipe.getSelectedItem() instanceof Recipes) { //&& !((Recipes) cmbIngTypeOrRecipe.getSelectedItem()).getIngTypes2Recipes().isEmpty()) {
 
-            recipe.getSubrecipes().add((Recipes) cmbIngTypeOrRecipe.getSelectedItem());
+            Recipes newSubRecipe = (Recipes) cmbIngTypeOrRecipe.getSelectedItem();
+
+            if (!recipe.getSubrecipes().contains(newSubRecipe)) {
+                recipe.getSubrecipes().add(newSubRecipe);
+                treemodel.insertNodeInto(getSubtree(newSubRecipe), root, root.getChildCount());
+            }
+
+        } else if (cmbIngTypeOrRecipe.getSelectedItem() instanceof IngTypes) {
+
+            IngTypes newIngType = (IngTypes) cmbIngTypeOrRecipe.getSelectedItem();
 
 
-//            for (Ingtypes2Recipes it2r : ((Recipes) cmbIngTypeOrRecipe.getSelectedItem()).getIngTypes2Recipes()) {
-//                it2rm.add(it2r.getIngType(), recipe, it2r.getAmount());
-//            }
-        } else {
-            it2rm.add((IngTypes) cmbIngTypeOrRecipe.getSelectedItem(), recipe, BigDecimal.ZERO);
+            if (!RecipeTools.contains(recipe, newIngType)) {
+                Ingtypes2Recipes newIngType2Recipe = new Ingtypes2Recipes(recipe, newIngType);
+                newIngType2Recipe.setAmount(BigDecimal.ZERO);
+                recipe.getIngTypes2Recipes().add(newIngType2Recipe);
+                treemodel.insertNodeInto(new DefaultMutableTreeNode(newIngType2Recipe), root, root.getChildCount());
+            }
+
         }
 
-//        it2rm.fireTableDataChanged();
     }
 
     private void searchUnAssActionPerformed(ActionEvent e) {
-        tblIngTypes.getSelectionModel().clearSelection();
+        treeIngredients.getSelectionModel().clearSelection();
         sorter.setRowFilter(textFilter);
         stmUnass.fireTableDataChanged();
     }
 
     private void tbOldStocksItemStateChanged(ItemEvent e) {
         searchUnAssActionPerformed(null);
+    }
+
+
+    private TreeCellRenderer getTreeCellRenderer() {
+        return new DefaultTreeCellRenderer() {
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+
+                if (node.getUserObject() instanceof Recipes) {
+                    JLabel comp = (JLabel) super.getTreeCellRendererComponent(tree, ((Recipes) node.getUserObject()).getTitle(), sel, expanded, leaf, row, hasFocus);
+                    comp.setIcon(node.isRoot() ? Const.icon24recipeBlue : Const.icon24recipe);
+                    if (node.isRoot()) {
+                        comp.setFont(comp.getFont().deriveFont(Font.BOLD));
+                    } else {
+                        comp.setFont(comp.getFont().deriveFont(Font.PLAIN));
+                    }
+                    return comp;
+                } else if (node.getUserObject() instanceof Ingtypes2Recipes) {
+                    JLabel comp = (JLabel) super.getTreeCellRendererComponent(tree, ((Ingtypes2Recipes) node.getUserObject()).getIngType().getBezeichnung(), sel, expanded, leaf, row, hasFocus);
+                    comp.setIcon(Const.icon24ingtype);
+                    return comp;
+                } else {
+                    return super.getTreeCellRendererComponent(tree, ":-( " + node.getUserObject(), sel, expanded, leaf, row, hasFocus);
+                }
+            }
+        };
+    }
+
+    private void treeIngredientsMousePressed(MouseEvent e) {
+        if (treemodel.getChildCount(treemodel.getRoot()) == 0) {
+            return;
+        }
+
+        Point p = e.getPoint();
+//        final int col = t.columnAtPoint(p);
+        final int row = treeIngredients.getRowForLocation(p.x, p.y);
+
+        final TreeSelectionModel tsm = treeIngredients.getSelectionModel();
+
+        if (tsm.isSelectionEmpty()) {
+            tsm.setSelectionPath(treeIngredients.getPathForLocation(p.x, p.y));
+        }
+
+//        boolean singleRowSelected = tsm.getSelectionPaths().length == 1;
+
+
+        //        if (SwingUtilities.isLeftMouseButton(e)) {
+        //            sorter.setRowFilter(ingTypeFilter);
+        //            stmUnass.fireTableDataChanged();
+        //        }
+
+        if (SwingUtilities.isRightMouseButton(e)) {
+            if (menu != null && menu.isVisible()) {
+                menu.setVisible(false);
+            }
+
+            Tools.unregisterListeners(menu);
+            menu = new JPopupMenu();
+
+
+            JMenuItem miAssign = new JMenuItem("Markierte Einträge entfernen");
+            miAssign.setFont(new Font("SansSerif", Font.PLAIN, 18));
+
+
+            miAssign.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    for (TreePath path : tsm.getSelectionPaths()) {
+                        if (path.getPath().length == 2) {
+                            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                            treemodel.removeNodeFromParent(node);
+                            if (node.getUserObject() instanceof Ingtypes2Recipes) {
+                                recipe.getIngTypes2Recipes().remove(node.getUserObject());
+                            } else if (node.getUserObject() instanceof Recipes) {
+                                recipe.getSubrecipes().remove(node.getUserObject());
+                            }
+                        }
+                    }
+                }
+            });
+
+            menu.add(miAssign);
+
+            menu.show(treeIngredients, (int) p.getX(), (int) p.getY());
+        }
     }
 
 
@@ -619,7 +697,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
         scrollPane3 = new JScrollPane();
         tblUnassigned = new JTable();
         scrollPane4 = new JScrollPane();
-        tblIngTypes = new JTable();
+        treeIngredients = new JTree();
         txtSearchNewIngType = new JXSearchField();
         btnAddNew = new JButton();
         tbOldStocks = new JToggleButton();
@@ -688,16 +766,14 @@ public class PnlRecipeMenuStock extends PopupPanel {
         //======== scrollPane4 ========
         {
 
-            //---- tblIngTypes ----
-            tblIngTypes.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-            tblIngTypes.setFont(new Font("Dialog", Font.BOLD, 12));
-            tblIngTypes.addMouseListener(new MouseAdapter() {
+            //---- treeIngredients ----
+            treeIngredients.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
-                    tblIngTypesMousePressed(e);
+                    treeIngredientsMousePressed(e);
                 }
             });
-            scrollPane4.setViewportView(tblIngTypes);
+            scrollPane4.setViewportView(treeIngredients);
         }
         add(scrollPane4, CC.xywh(1, 3, 3, 3));
 
@@ -771,7 +847,12 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
     @Override
     public Object getResult() {
-        return new Pair<java.util.List<Stock>, java.util.List<Ingtypes2Recipes>>(stmAss.getData(), it2rm.getData());
+
+        ArrayList result = new ArrayList();
+        result.add(stmAss.getData());
+
+
+        return new Pair<java.util.List<Stock>, Recipes>(stmAss.getData(), recipe);
     }
 
     @Override
@@ -792,7 +873,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
     private JScrollPane scrollPane3;
     private JTable tblUnassigned;
     private JScrollPane scrollPane4;
-    private JTable tblIngTypes;
+    private JTree treeIngredients;
     private JXSearchField txtSearchNewIngType;
     private JButton btnAddNew;
     private JToggleButton tbOldStocks;
