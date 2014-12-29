@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by tloehr on 12.09.14.
@@ -54,10 +55,16 @@ public class Recipes {
     @JoinColumn(name = "featureid"))
     private Collection<Recipefeature> features;
 
-    public Collection<Recipefeature> getFeatures() {
-        return features;
-    }
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "recipes2recipes", joinColumns =
+    @JoinColumn(name = "owner"), inverseJoinColumns =
+    @JoinColumn(name = "owned"))
+    private Set<Recipes> subrecipes;
+
+    public Set<Recipes> getSubrecipes() {
+        return subrecipes;
+    }
 
     @OneToMany(mappedBy = "recipes", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ingtypes2Recipes> ingTypes2Recipes;

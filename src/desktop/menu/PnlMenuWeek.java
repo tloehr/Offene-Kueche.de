@@ -53,11 +53,11 @@ public class PnlMenuWeek extends JPanel {
     final HashMap<LocalDate, String> holidays;
 
 
-    public PnlMenuWeek(Menuweek menuweek, PSDChangeListener bottomUpListener, HashMap<LocalDate, String> holidays) {
+    public PnlMenuWeek(Menuweek param_menuweek, PSDChangeListener bottomUpListener, HashMap<LocalDate, String> holidays) {
         this.bottomUpListener = bottomUpListener;
         this.holidays = holidays;
         initPhase = true;
-        this.menuweek = menuweek;
+        menuweek = param_menuweek;
 
         topDownListener = new PSDChangeListener() {
             @Override
@@ -69,6 +69,7 @@ public class PnlMenuWeek extends JPanel {
                         }
                     }
                 }
+                menuweek = psdce.getMenuweek();
             }
 
             @Override
@@ -80,6 +81,7 @@ public class PnlMenuWeek extends JPanel {
                         }
                     }
                 }
+                menuweek = psdce.getMenuweek();
             }
 
             @Override
@@ -91,6 +93,7 @@ public class PnlMenuWeek extends JPanel {
                         }
                     }
                 }
+                menuweek = psdce.getMenuweek();
             }
 
             @Override
@@ -338,6 +341,7 @@ public class PnlMenuWeek extends JPanel {
         try {
             em.getTransaction().begin();
             myMenuweek = em.merge(newMenuweek);
+
             myMenuweekall = em.merge(myMenuweek.getMenuweekall());
             em.lock(myMenuweekall, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
             em.getTransaction().commit();
@@ -465,8 +469,8 @@ public class PnlMenuWeek extends JPanel {
         //======== this ========
         setBorder(new DropShadowBorder(Color.black, 8, 0.6f, 12, true, true, true, true));
         setLayout(new FormLayout(
-            "default:grow, $lcgap, default",
-            "2*(default, $lgap), top:pref, $lgap, pref"));
+                "default:grow, $lcgap, default",
+                "2*(default, $lgap), top:pref, $lgap, pref"));
 
         //======== panel2 ========
         {
@@ -580,8 +584,8 @@ public class PnlMenuWeek extends JPanel {
         //======== panel12 ========
         {
             panel12.setLayout(new FormLayout(
-                "default:grow",
-                "default:grow, default"));
+                    "default:grow",
+                    "default:grow, default"));
 
             //======== scrollPane1 ========
             {

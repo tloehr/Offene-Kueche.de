@@ -81,7 +81,7 @@ public class Main {
 
     public static ArrayList<Stock> getStockList(boolean refreshFirst) {
         if (stockList == null) stockList = new ArrayList<Stock>();
-        if (refreshFirst || stockList.isEmpty()) stockList = StockTools.getActiveStocks();
+        if (refreshFirst || stockList.isEmpty()) stockList = StockTools.getAll();
 
         return stockList;
     }

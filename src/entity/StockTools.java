@@ -214,6 +214,21 @@ public class StockTools {
         return stocks;
     }
 
+    public static ArrayList<Stock> getAll() {
+           ArrayList stocks = new ArrayList<Stock>();
+           EntityManager em = Main.getEMF().createEntityManager();
+           Query query = em.createQuery("SELECT v FROM Stock v ORDER BY v.produkt.bezeichnung ");
+           try {
+               stocks = new ArrayList<Produkte>(query.getResultList());
+           } catch (Exception e1) { // nicht gefunden
+               stocks = null;
+           } finally {
+               em.close();
+           }
+
+           return stocks;
+       }
+
     public static ArrayList<Stock> getActiveStocks() {
         ArrayList stocks = new ArrayList<Stock>();
         EntityManager em = Main.getEMF().createEntityManager();

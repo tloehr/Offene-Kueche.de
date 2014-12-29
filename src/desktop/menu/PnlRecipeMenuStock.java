@@ -196,7 +196,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
                 boolean includeMe = false;
                 for (int r : tblIngTypes.getSelectedRows()) {
                     int itRow = tblIngTypes.convertRowIndexToModel(r);
-                    if (it2rm.getData().get(itRow).getIngType().equals(ingTypes)){
+                    if (it2rm.getData().get(itRow).getIngType().equals(ingTypes)) {
                         includeMe = true;
                         break;
                     }
@@ -209,12 +209,14 @@ public class PnlRecipeMenuStock extends PopupPanel {
         textFilter = new RowFilter<StockTableModel3, Integer>() {
             @Override
             public boolean include(Entry<? extends StockTableModel3, ? extends Integer> entry) {
+                int row = entry.getIdentifier();
+                Stock stock = entry.getModel().getStock(row);
+
+                if (!tbOldStocks.isSelected() && stock.isAusgebucht()) return false;
+
 
                 String textKriterium = searchUnAss.getText().trim().toLowerCase();
                 if (textKriterium.isEmpty()) return true;
-
-                int row = entry.getIdentifier();
-                Stock stock = entry.getModel().getStock(row);
 
                 return (stock.getProdukt().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0 ||
                         Long.toString(stock.getId()).equals(textKriterium) ||
@@ -450,10 +452,10 @@ public class PnlRecipeMenuStock extends PopupPanel {
             lsm.setSelectionInterval(row, row);
         }
 
-        if (SwingUtilities.isLeftMouseButton(e)){
-            sorter.setRowFilter(ingTypeFilter);
-            stmUnass.fireTableDataChanged();
-        }
+//        if (SwingUtilities.isLeftMouseButton(e)) {
+//            sorter.setRowFilter(ingTypeFilter);
+//            stmUnass.fireTableDataChanged();
+//        }
 
         if (SwingUtilities.isRightMouseButton(e)) {
             if (menu != null && menu.isVisible()) {
@@ -582,10 +584,14 @@ public class PnlRecipeMenuStock extends PopupPanel {
 //        }
 
 
-        if (cmbIngTypeOrRecipe.getSelectedItem() instanceof Recipes && !((Recipes) cmbIngTypeOrRecipe.getSelectedItem()).getIngTypes2Recipes().isEmpty()) {
-            for (Ingtypes2Recipes it2r : ((Recipes) cmbIngTypeOrRecipe.getSelectedItem()).getIngTypes2Recipes()) {
-                it2rm.add(it2r.getIngType(), recipe, it2r.getAmount());
-            }
+        if (cmbIngTypeOrRecipe.getSelectedItem() instanceof Recipes) { //&& !((Recipes) cmbIngTypeOrRecipe.getSelectedItem()).getIngTypes2Recipes().isEmpty()) {
+
+            recipe.getSubrecipes().add((Recipes) cmbIngTypeOrRecipe.getSelectedItem());
+
+
+//            for (Ingtypes2Recipes it2r : ((Recipes) cmbIngTypeOrRecipe.getSelectedItem()).getIngTypes2Recipes()) {
+//                it2rm.add(it2r.getIngType(), recipe, it2r.getAmount());
+//            }
         } else {
             it2rm.add((IngTypes) cmbIngTypeOrRecipe.getSelectedItem(), recipe, BigDecimal.ZERO);
         }
@@ -597,6 +603,10 @@ public class PnlRecipeMenuStock extends PopupPanel {
         tblIngTypes.getSelectionModel().clearSelection();
         sorter.setRowFilter(textFilter);
         stmUnass.fireTableDataChanged();
+    }
+
+    private void tbOldStocksItemStateChanged(ItemEvent e) {
+        searchUnAssActionPerformed(null);
     }
 
 
@@ -612,6 +622,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
         tblIngTypes = new JTable();
         txtSearchNewIngType = new JXSearchField();
         btnAddNew = new JButton();
+        tbOldStocks = new JToggleButton();
         cmbIngTypeOrRecipe = new JComboBox();
         panel2 = new JPanel();
         btnCancel = new JButton();
@@ -711,6 +722,16 @@ public class PnlRecipeMenuStock extends PopupPanel {
         });
         add(btnAddNew, CC.xywh(3, 7, 1, 3));
 
+        //---- tbOldStocks ----
+        tbOldStocks.setText("Auch alte Vorr\u00e4te");
+        tbOldStocks.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                tbOldStocksItemStateChanged(e);
+            }
+        });
+        add(tbOldStocks, CC.xy(7, 7));
+
         //---- cmbIngTypeOrRecipe ----
         cmbIngTypeOrRecipe.setFont(new Font("SansSerif", Font.BOLD, 14));
         cmbIngTypeOrRecipe.setModel(new DefaultComboBoxModel(new String[]{
@@ -774,6 +795,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
     private JTable tblIngTypes;
     private JXSearchField txtSearchNewIngType;
     private JButton btnAddNew;
+    private JToggleButton tbOldStocks;
     private JComboBox cmbIngTypeOrRecipe;
     private JPanel panel2;
     private JButton btnCancel;
