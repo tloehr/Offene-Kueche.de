@@ -19,6 +19,8 @@ import javax.persistence.Query;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
@@ -790,8 +792,27 @@ public class PnlSingleDayMenu extends JPanel {
                 public void actionPerformed(ActionEvent e) {
                     dlg.dispose();
                     if (e.getActionCommand().equals("OK")) {
-                        Pair<java.util.List<Stock>, Recipes> pair = (Pair<java.util.List<Stock>, Recipes>) pnlAssign.getResult();
-                        rcl.recipeChanged(new RecipeChangeEvent(searcher, pair.getSecond(), pair.getSecond().getIngTypes2Recipes(), new HashSet<Stock>(pair.getFirst())));
+
+
+                        Pair<java.util.List<Stock>, DefaultTreeModel> pair = (Pair<java.util.List<Stock>, DefaultTreeModel>) pnlAssign.getResult();
+
+                        recipe.getIngTypes2Recipes().clear();
+                        recipe.getSubrecipes().clear();
+
+                        for (int childNum = 0; childNum < pair.getSecond().getChildCount(pair.getSecond().getRoot()); childNum++) {
+
+                            DefaultMutableTreeNode child = (DefaultMutableTreeNode) pair.getSecond().getChild(pair.getSecond().getRoot(), childNum);
+
+                            if (child.getUserObject() instanceof Recipes) {
+                                recipe.getSubrecipes().add((Recipes) child.getUserObject());
+                            } else if (child.getUserObject() instanceof Ingtypes2Recipes) {
+                                recipe.getIngTypes2Recipes().add((Ingtypes2Recipes) child.getUserObject());
+                            }
+
+                        }
+
+
+                        rcl.recipeChanged(new RecipeChangeEvent(searcher, recipe, recipe.getIngTypes2Recipes(), new HashSet<Stock>(pair.getFirst())));
                     }
                 }
             });

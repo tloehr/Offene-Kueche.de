@@ -143,6 +143,9 @@ public class Const {
     public static final Icon icon24recipeBlue = new ImageIcon(Const.class.getResource("/artwork/24x24/recipe24-blue.png"));
     public static final Icon icon24ingtype = new ImageIcon(Const.class.getResource("/artwork/24x24/ingredients24.png"));
 
+    public static final Icon icon16recipe = new ImageIcon(Const.class.getResource("/artwork/16x16/recipe16.png"));
+        public static final Icon icon16ingtype = new ImageIcon(Const.class.getResource("/artwork/16x16/ingredients16.png"));
+
     public static final Icon icon24redBadge = new ImageIcon(Const.class.getResource("/artwork/24x24/redstar.png"));
         public static final Icon icon24greenBadge = new ImageIcon(Const.class.getResource("/artwork/24x24/greenstar.png"));
 

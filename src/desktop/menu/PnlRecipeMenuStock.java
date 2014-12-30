@@ -26,6 +26,8 @@ import javax.persistence.OptimisticLockException;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.TableRowSorter;
 import javax.swing.tree.*;
 import java.awt.*;
@@ -95,6 +97,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
         sorter = new TableRowSorter(stmUnass);
         sorter.setSortsOnUpdates(true);
         tblUnassigned.setRowSorter(sorter);
+        sorter.setRowFilter(textFilter);
 
         tblAssigned.getColumnModel().getColumn(StockTableModel3.COL_INGTYPE).setCellRenderer(IngTypesTools.getTableCellRenderer());
         tblAssigned.getColumnModel().getColumn(StockTableModel3.COL_INGTYPE).setCellEditor(IngTypesTools.getTableCellEditor());
@@ -111,6 +114,12 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
 
         treeIngredients.setCellRenderer(getTreeCellRenderer());
+        treeIngredients.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
+            @Override
+            public void valueChanged(TreeSelectionEvent e) {
+                stmUnass.fireTableDataChanged();
+            }
+        });
 
 //        tblIngTypes.getColumnModel().getColumn(IngType2recipeTableModel.COL_BEZEICHNUNG).setCellRenderer(IngTypesTools.getTableCellRenderer());
 //        tblIngTypes.getColumnModel().getColumn(IngType2recipeTableModel.COL_BEZEICHNUNG).setCellEditor(IngTypesTools.getTableCellEditor());
@@ -173,7 +182,14 @@ public class PnlRecipeMenuStock extends PopupPanel {
         cmbIngTypeOrRecipe.setRenderer(new DefaultListRenderer() {
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                return new DefaultListCellRenderer().getListCellRendererComponent(list, (value instanceof Recipes ? "R." : "S.") + value.toString(), index, isSelected, cellHasFocus);
+                JLabel comp = (JLabel) new DefaultListCellRenderer().getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                comp.setIcon(Const.icon16info);
+                if (value instanceof Recipes) {
+                    comp.setIcon(Const.icon16recipe);
+                } else if (value instanceof IngTypes) {
+                    comp.setIcon(Const.icon16ingtype);
+                }
+                return comp;
             }
         });
 
@@ -225,6 +241,20 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
                 if (!tbOldStocks.isSelected() && stock.isAusgebucht()) return false;
 
+                if (!treeIngredients.getSelectionModel().isSelectionEmpty()) {
+                    for (TreePath path : treeIngredients.getSelectionModel().getSelectionPaths()) {
+                        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                        if (node.getUserObject() instanceof Recipes) {
+                            if (!RecipeTools.contains((Recipes) node.getUserObject(), stock.getProdukt().getIngTypes())) {
+                                return false;
+                            }
+                        } else if (node.getUserObject() instanceof Ingtypes2Recipes) {
+                            if (!stock.getProdukt().getIngTypes().equals(((Ingtypes2Recipes) node.getUserObject()).getIngType())) {
+                                return false;
+                            }
+                        }
+                    }
+                }
 
                 String textKriterium = searchUnAss.getText().trim().toLowerCase();
                 if (textKriterium.isEmpty()) return true;
@@ -490,6 +520,11 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
             cmbIngTypeOrRecipe.setModel(Tools.newComboboxModel(listAllToSearchIn));
             btnAddNew.setIcon(Const.icon24upArrow);
+
+            if (!treeIngredients.getSelectionModel().isSelectionEmpty()) {
+                treeIngredients.getSelectionModel().clearSelection();
+            }
+
             return;
         }
         final String searchText = txtSearchNewIngType.getText().trim().toLowerCase();
@@ -571,8 +606,9 @@ public class PnlRecipeMenuStock extends PopupPanel {
             Recipes newSubRecipe = (Recipes) cmbIngTypeOrRecipe.getSelectedItem();
 
             if (!recipe.getSubrecipes().contains(newSubRecipe)) {
-                recipe.getSubrecipes().add(newSubRecipe);
+//                recipe.getSubrecipes().add(newSubRecipe);
                 treemodel.insertNodeInto(getSubtree(newSubRecipe), root, root.getChildCount());
+                treemodel.reload();
             }
 
         } else if (cmbIngTypeOrRecipe.getSelectedItem() instanceof IngTypes) {
@@ -583,17 +619,27 @@ public class PnlRecipeMenuStock extends PopupPanel {
             if (!RecipeTools.contains(recipe, newIngType)) {
                 Ingtypes2Recipes newIngType2Recipe = new Ingtypes2Recipes(recipe, newIngType);
                 newIngType2Recipe.setAmount(BigDecimal.ZERO);
-                recipe.getIngTypes2Recipes().add(newIngType2Recipe);
+//                recipe.getIngTypes2Recipes().add(newIngType2Recipe);
                 treemodel.insertNodeInto(new DefaultMutableTreeNode(newIngType2Recipe), root, root.getChildCount());
+                treemodel.reload();
             }
 
         }
 
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                scrollPane4.revalidate();
+//                scrollPane4.repaint();
+//            }
+//        });
+
     }
 
     private void searchUnAssActionPerformed(ActionEvent e) {
-        treeIngredients.getSelectionModel().clearSelection();
-        sorter.setRowFilter(textFilter);
+
+
+//        sorter.setRowFilter(textFilter);
         stmUnass.fireTableDataChanged();
     }
 
@@ -714,8 +760,8 @@ public class PnlRecipeMenuStock extends PopupPanel {
             }
         });
         setLayout(new FormLayout(
-                "default:grow, $lcgap, default, 2*($lcgap, default:grow)",
-                "2*(default, $lgap), fill:default:grow, $lgap, fill:pref, 3*($lgap, default)"));
+            "default:grow, $lcgap, default, 2*($lcgap, default:grow)",
+            "2*(default, $lgap), fill:default:grow, $lgap, fill:pref, 3*($lgap, default)"));
 
         //---- lblRecipe ----
         lblRecipe.setText("text");
@@ -810,10 +856,10 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
         //---- cmbIngTypeOrRecipe ----
         cmbIngTypeOrRecipe.setFont(new Font("SansSerif", Font.BOLD, 14));
-        cmbIngTypeOrRecipe.setModel(new DefaultComboBoxModel(new String[]{
-                "item 1",
-                "item 2",
-                "item 3"
+        cmbIngTypeOrRecipe.setModel(new DefaultComboBoxModel(new String[] {
+            "item 1",
+            "item 2",
+            "item 3"
         }));
         add(cmbIngTypeOrRecipe, CC.xy(1, 9));
 
@@ -851,8 +897,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
         ArrayList result = new ArrayList();
         result.add(stmAss.getData());
 
-
-        return new Pair<java.util.List<Stock>, Recipes>(stmAss.getData(), recipe);
+        return new Pair<java.util.List<Stock>, DefaultTreeModel>(stmAss.getData(), treemodel);
     }
 
     @Override

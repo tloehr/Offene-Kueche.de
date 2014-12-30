@@ -148,7 +148,10 @@ public class FrmIngType extends JFrame implements MyInternalFrames {
 
                 final ArrayList<IngTypes> listSelectedTypes = new ArrayList<IngTypes>();
                 for (int thisRow : tblTypes.getSelectedRows()) {
-                    listSelectedTypes.add(tm.getIngType(thisRow));
+
+
+//                    int row = tblVorrat.convertRowIndexToModel(rows[r]);
+                    listSelectedTypes.add(tm.getIngType(tblTypes.convertRowIndexToModel(thisRow)));
                 }
 
                 for (final IngTypes thisIngType : listSelectedTypes) {
@@ -549,8 +552,8 @@ public class FrmIngType extends JFrame implements MyInternalFrames {
         });
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-                "default, $lcgap, default:grow",
-                "default:grow, 2*($lgap, default)"));
+            "default, $lcgap, default:grow",
+            "default:grow, 2*($lgap, default)"));
 
         //======== jspSearch ========
         {
