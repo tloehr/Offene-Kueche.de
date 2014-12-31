@@ -72,6 +72,10 @@ public class HTML {
         return "<b>" + Tools.xx(content) + "</b>";
     }
 
+    public static String underline(String content) {
+            return "<u>" + Tools.xx(content) + "</u>";
+        }
+
     public static String italic(String content) {
         return "<i>" + Tools.xx(content) + "</i>";
     }

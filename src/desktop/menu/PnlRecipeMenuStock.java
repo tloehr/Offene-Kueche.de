@@ -198,40 +198,6 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
 
     private void createFilters() {
-//            warengruppeFilter = new RowFilter<ProdukteTableModel, Integer>() {
-//                @Override
-//                public boolean include(Entry<? extends ProdukteTableModel, ? extends Integer> entry) {
-//                    if (warengruppeFilterKriterium == null) return true;
-//
-//                    int row = entry.getIdentifier();
-//                    Produkte produkt = entry.getModel().getProdukt(row);
-//
-//
-//                    return produkt.getIngTypes().getWarengruppe().equals(warengruppeFilterKriterium);
-//                }
-//            };
-//            warengruppeFilterKriterium = null;
-//
-//        ingTypeFilter = new RowFilter<StockTableModel3, Integer>() {
-//            @Override
-//            public boolean include(Entry<? extends StockTableModel3, ? extends Integer> entry) {
-//                if (it2rm.getRowCount() == 0 || tblIngTypes.getSelectedRows().length == 0) return true;
-//
-//                int row = entry.getIdentifier();
-//                IngTypes ingTypes = entry.getModel().getStock(row).getProdukt().getIngTypes();
-//
-//                boolean includeMe = false;
-//                for (int r : tblIngTypes.getSelectedRows()) {
-//                    int itRow = tblIngTypes.convertRowIndexToModel(r);
-//                    if (it2rm.getData().get(itRow).getIngType().equals(ingTypes)) {
-//                        includeMe = true;
-//                        break;
-//                    }
-//                }
-//
-//                return includeMe;
-//            }
-//        };
 
         textFilter = new RowFilter<StockTableModel3, Integer>() {
             @Override
@@ -241,7 +207,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
                 if (!tbOldStocks.isSelected() && stock.isAusgebucht()) return false;
 
-                if (!treeIngredients.getSelectionModel().isSelectionEmpty()) {
+                if (!treeIngredients.getSelectionModel().isSelectionEmpty() && !treeIngredients.getSelectionModel().getLeadSelectionPath().getLastPathComponent().equals(treeIngredients.getModel().getRoot())) {
                     for (TreePath path : treeIngredients.getSelectionModel().getSelectionPaths()) {
                         DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
                         if (node.getUserObject() instanceof Recipes) {
@@ -733,20 +699,25 @@ public class PnlRecipeMenuStock extends PopupPanel {
         }
     }
 
+    private void btnUnselectActionPerformed(ActionEvent e) {
+        treeIngredients.getSelectionModel().clearSelection();
+    }
+
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         lblRecipe = new JLabel();
         searchUnAss = new JXSearchField();
+        scrollPane4 = new JScrollPane();
+        treeIngredients = new JTree();
         scrollPane2 = new JScrollPane();
         tblAssigned = new JTable();
         scrollPane3 = new JScrollPane();
         tblUnassigned = new JTable();
-        scrollPane4 = new JScrollPane();
-        treeIngredients = new JTree();
+        btnUnselect = new JButton();
+        tbOldStocks = new JToggleButton();
         txtSearchNewIngType = new JXSearchField();
         btnAddNew = new JButton();
-        tbOldStocks = new JToggleButton();
         cmbIngTypeOrRecipe = new JComboBox();
         panel2 = new JPanel();
         btnCancel = new JButton();
@@ -760,13 +731,13 @@ public class PnlRecipeMenuStock extends PopupPanel {
             }
         });
         setLayout(new FormLayout(
-            "default:grow, $lcgap, default, 2*($lcgap, default:grow)",
-            "2*(default, $lgap), fill:default:grow, $lgap, fill:pref, 3*($lgap, default)"));
+            "3*(default, $lcgap), 2*(default:grow, $lcgap), default",
+            "default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:pref, 3*($lgap, default)"));
 
         //---- lblRecipe ----
         lblRecipe.setText("text");
         lblRecipe.setFont(new Font("SansSerif", Font.PLAIN, 22));
-        add(lblRecipe, CC.xywh(1, 1, 5, 1));
+        add(lblRecipe, CC.xywh(3, 1, 5, 1));
 
         //---- searchUnAss ----
         searchUnAss.setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -777,7 +748,21 @@ public class PnlRecipeMenuStock extends PopupPanel {
                 searchUnAssActionPerformed(e);
             }
         });
-        add(searchUnAss, CC.xy(7, 1));
+        add(searchUnAss, CC.xy(9, 1));
+
+        //======== scrollPane4 ========
+        {
+
+            //---- treeIngredients ----
+            treeIngredients.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    treeIngredientsMousePressed(e);
+                }
+            });
+            scrollPane4.setViewportView(treeIngredients);
+        }
+        add(scrollPane4, CC.xywh(3, 3, 3, 1));
 
         //======== scrollPane2 ========
         {
@@ -792,7 +777,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
             });
             scrollPane2.setViewportView(tblAssigned);
         }
-        add(scrollPane2, CC.xywh(5, 3, 1, 3));
+        add(scrollPane2, CC.xywh(7, 3, 1, 7));
 
         //======== scrollPane3 ========
         {
@@ -807,21 +792,27 @@ public class PnlRecipeMenuStock extends PopupPanel {
             });
             scrollPane3.setViewportView(tblUnassigned);
         }
-        add(scrollPane3, CC.xywh(7, 3, 1, 3));
+        add(scrollPane3, CC.xywh(9, 3, 1, 5));
 
-        //======== scrollPane4 ========
-        {
+        //---- btnUnselect ----
+        btnUnselect.setText("unselect");
+        btnUnselect.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnUnselectActionPerformed(e);
+            }
+        });
+        add(btnUnselect, CC.xywh(3, 5, 3, 1));
 
-            //---- treeIngredients ----
-            treeIngredients.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    treeIngredientsMousePressed(e);
-                }
-            });
-            scrollPane4.setViewportView(treeIngredients);
-        }
-        add(scrollPane4, CC.xywh(1, 3, 3, 3));
+        //---- tbOldStocks ----
+        tbOldStocks.setText("Auch alte Vorr\u00e4te");
+        tbOldStocks.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                tbOldStocksItemStateChanged(e);
+            }
+        });
+        add(tbOldStocks, CC.xywh(9, 8, 1, 2));
 
         //---- txtSearchNewIngType ----
         txtSearchNewIngType.setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -832,7 +823,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
                 txtSearchNewIngTypeActionPerformed(e);
             }
         });
-        add(txtSearchNewIngType, CC.xy(1, 7));
+        add(txtSearchNewIngType, CC.xy(3, 7));
 
         //---- btnAddNew ----
         btnAddNew.setText(null);
@@ -842,17 +833,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
                 btnAddNewActionPerformed(e);
             }
         });
-        add(btnAddNew, CC.xywh(3, 7, 1, 3));
-
-        //---- tbOldStocks ----
-        tbOldStocks.setText("Auch alte Vorr\u00e4te");
-        tbOldStocks.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                tbOldStocksItemStateChanged(e);
-            }
-        });
-        add(tbOldStocks, CC.xy(7, 7));
+        add(btnAddNew, CC.xywh(5, 7, 1, 3));
 
         //---- cmbIngTypeOrRecipe ----
         cmbIngTypeOrRecipe.setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -861,7 +842,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
             "item 2",
             "item 3"
         }));
-        add(cmbIngTypeOrRecipe, CC.xy(1, 9));
+        add(cmbIngTypeOrRecipe, CC.xy(3, 9));
 
         //======== panel2 ========
         {
@@ -887,7 +868,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
             });
             panel2.add(btnOk);
         }
-        add(panel2, CC.xy(7, 11, CC.RIGHT, CC.DEFAULT));
+        add(panel2, CC.xy(9, 11, CC.RIGHT, CC.DEFAULT));
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
@@ -913,15 +894,16 @@ public class PnlRecipeMenuStock extends PopupPanel {
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     private JLabel lblRecipe;
     private JXSearchField searchUnAss;
+    private JScrollPane scrollPane4;
+    private JTree treeIngredients;
     private JScrollPane scrollPane2;
     private JTable tblAssigned;
     private JScrollPane scrollPane3;
     private JTable tblUnassigned;
-    private JScrollPane scrollPane4;
-    private JTree treeIngredients;
+    private JButton btnUnselect;
+    private JToggleButton tbOldStocks;
     private JXSearchField txtSearchNewIngType;
     private JButton btnAddNew;
-    private JToggleButton tbOldStocks;
     private JComboBox cmbIngTypeOrRecipe;
     private JPanel panel2;
     private JButton btnCancel;

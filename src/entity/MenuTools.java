@@ -1,5 +1,7 @@
 package entity;
 
+import tools.Const;
+import tools.HTML;
 import tools.Tools;
 
 import java.util.ArrayList;
@@ -122,6 +124,53 @@ public class MenuTools {
     }
 
 
+    public static String getIngredientsAsHTML(Menu menu) {
+
+        if (menu.isEmpty()) {
+            return "<i>nichts geplant</i>";
+        }
+
+
+        String html = "";
+//        HashSet<IngTypes> setIngTypes = new HashSet<IngTypes>();
+//        HashSet<Stock> setStocks = new HashSet<Stock>();
+
+        for (int dish : DISHES) {
+            if (getDish(menu, dish) != null) {
+
+//                if (!html.isEmpty()) html += "<br/>";
+
+                html += HTML.color(Const.mediumpurple3, HTML.bold( getDish(menu, dish).getTitle())) + "<br/>";
+
+                String innerHTML = RecipeTools.getSubRecipesAsHTML(getDish(menu, dish), HTML.bold("Andere Rezepte, die als Zutat verwendet werden"));
+
+                innerHTML += RecipeTools.getIngTypesAsHTMLList(getDish(menu, dish), HTML.bold("Zutaten"));
+
+                Set<Stock> stocks = MenuTools.getStocklist(menu, dish);
+                if (!stocks.isEmpty()) {
+                    String stocklist = "";
+                    for (Stock stock : stocks) {
+                        stocklist += HTML.li(stock.getId() + ": " + stock.getProdukt().getBezeichnung() +
+                                        "&nbsp;<font  size=\"-3\">(" + ProdukteTools.getAllergenesAndAdditivesAsCompactHTML(stock.getProdukt()) + ")</font>"
+                        );
+
+                    }
+
+                    innerHTML += HTML.bold("Vorräte");
+                    innerHTML += HTML.ul(stocklist);
+                }
+
+
+                html += innerHTML.isEmpty() ? "keine Zutaten<br/>" : innerHTML;
+
+
+            }
+        }
+
+
+        return html;
+
+    }
 
 
     public static Integer[] indicesOf(Menu menu, Recipes recipe) {

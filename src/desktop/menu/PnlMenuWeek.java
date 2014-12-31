@@ -414,7 +414,36 @@ public class PnlMenuWeek extends JPanel {
     }
 
     private void btnPrintActionPerformed(ActionEvent e) {
-        Printers.print(Main.getDesktop(), MenuweekTools.getAsHTML(menuweek), true);
+
+        JidePopupMenu jMenu = new JidePopupMenu();
+        JMenuItem miPrintAllMenus = new JMenuItem("Diesen Speiseplan drucken", Const.icon24Pageprinter);
+        miPrintAllMenus.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        JMenuItem miIngTypesAndStocks = new JMenuItem("Zutaten und Vorratslisten drucken", Const.icon24ingtype);
+        miIngTypesAndStocks.setFont(new Font("SansSerif", Font.PLAIN, 18));
+
+        jMenu.add(miPrintAllMenus);
+        jMenu.add(miIngTypesAndStocks);
+
+        miPrintAllMenus.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Printers.print(Main.getDesktop(), MenuweekTools.getAsHTML(menuweek), true);
+            }
+        });
+
+
+
+
+        miIngTypesAndStocks.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Printers.print(Main.getDesktop(), MenuweekTools.getIngredientsAsHTML(menuweek), true);
+            }
+        });
+
+
+        jMenu.show(btnPrint, 0, btnPrint.getPreferredSize().height);
+
     }
 
 //    private void btnDeleteThisMenuweekActionPerformed(ActionEvent e) {

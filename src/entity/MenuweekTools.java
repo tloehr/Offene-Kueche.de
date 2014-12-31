@@ -1,5 +1,7 @@
 package entity;
 
+import org.joda.time.LocalDate;
+import tools.HTML;
 import tools.Tools;
 
 import java.text.SimpleDateFormat;
@@ -102,6 +104,24 @@ public class MenuweekTools {
     }
 
 
+    public static String getIngredientsAsHTML(Menuweek menuweek) {
+        String html = HTML.h1("Zutaten und Vorräte");
+        LocalDate startDay = new LocalDate(menuweek.getMenuweekall().getWeek());
+
+        for (int day = 0; day <= 6; day++) {
+            LocalDate thisDay = startDay.plusDays(day);
+            Menuweek2Menu menuweek2Menu = menuweek.getMenuweek2menus().get(day);
+            Menu menu = menuweek2Menu.getMenu();
+
+            html += HTML.h2(thisDay.toString("EEEE, d. MMMM yyyy") + Tools.catchNull(menu.getText(), ", ", ""));
+
+            html += MenuTools.getIngredientsAsHTML(menu);
+
+        }
+
+
+        return html;
+    }
 
 
 }

@@ -1,6 +1,8 @@
 package entity;
 
 import Main.Main;
+import tools.Const;
+import tools.HTML;
 import tools.Tools;
 
 import javax.persistence.EntityManager;
@@ -130,7 +132,6 @@ public class ProdukteTools {
     }
 
 
-
     public static boolean isGTIN(String s) {
         return getGTIN(s) != null;
     }
@@ -227,6 +228,32 @@ public class ProdukteTools {
             }
             html += "</ul>";
         }
+
+        return html;
+    }
+
+
+    public static String getAllergenesAndAdditivesAsCompactHTML(Produkte produkte) {
+        if (produkte.getAdditives().isEmpty() && produkte.getAllergenes().isEmpty()) return null;
+
+        String html = "";
+
+        if (!produkte.getAllergenes().isEmpty()) {
+
+            for (Allergene allergene : produkte.getAllergenes()) {
+                html += HTML.color(Const.darkorange, allergene.getKennung() + " " + Tools.left(allergene.getText(), 10, "..")) + ", ";
+            }
+        }
+
+        if (!produkte.getAdditives().isEmpty()) {
+
+            for (Additives additives : produkte.getAdditives()) {
+                html += HTML.color(Const.darkgreen, additives.getSymbol() + " " + Tools.left(additives.getText(), 10, "..")) + ", ";
+            }
+
+        }
+
+        html = html.isEmpty() ? "" : Tools.left(html, html.length() - 2, "");
 
         return html;
     }

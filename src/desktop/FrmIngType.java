@@ -61,7 +61,7 @@ public class FrmIngType extends JFrame implements MyInternalFrames {
 
         loadTable();
 
-        setTitle(Tools.getWindowTitle("Produkte-Verwaltung"));
+        setTitle(Tools.getWindowTitle("Stoffart-Verwaltung"));
         pack();
     }
 

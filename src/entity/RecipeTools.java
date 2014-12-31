@@ -1,6 +1,7 @@
 package entity;
 
 import Main.Main;
+import tools.HTML;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -12,14 +13,14 @@ import java.util.ArrayList;
 public class RecipeTools {
 
 
-    public static String getIngTypesAsHTMLList(Recipes recipe) {
+    public static String getIngTypesAsHTMLList(Recipes recipe, String title) {
 
         if (recipe == null) return "";
 
 
         if (recipe.getIngTypes2Recipes().isEmpty()) return "";
 
-        String html = "<h2>Zutaten</h2><ul>";
+        String html = title+"<ul>";
 
         for (Ingtypes2Recipes its : recipe.getIngTypes2Recipes()) {
             html += "<li>" + its.getIngType().getBezeichnung() + ": " + its.getAmount() + " " + IngTypesTools.EINHEIT[its.getIngType().getEinheit()] + "</li>";
@@ -31,6 +32,35 @@ public class RecipeTools {
 
     }
 
+
+    public static String getSubRecipesAsHTML(Recipes recipe, String title) {
+
+        if (recipe == null) return "";
+
+
+        if (recipe.getSubrecipes().isEmpty()) return "";
+
+        String html = title + "<ul>";
+
+        for (Recipes r : recipe.getSubrecipes()) {
+            html += "<li>" + HTML.bold(r.getTitle());
+
+            if (!r.getIngTypes2Recipes().isEmpty()) {
+                html += "<ul>";
+                for (Ingtypes2Recipes its : r.getIngTypes2Recipes()) {
+                    html += "<li>" + its.getIngType().getBezeichnung() + ": " + its.getAmount() + " " + IngTypesTools.EINHEIT[its.getIngType().getEinheit()] + "</li>";
+                }
+                html += "</ul>";
+            }
+            html += "</li>";
+        }
+
+
+        html += "</ul>";
+
+        return html;
+
+    }
 
     public static ArrayList<Recipes> getAll() {
         ArrayList<Recipes> list = new ArrayList<Recipes>();
