@@ -32,7 +32,7 @@ public class MenuweekTools {
 //    }
 
 
-    public static String getAsHTML(Menuweek menuweek) {
+    public static String getAsHTML(Menuweek menuweek, boolean groupAdditives) {
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE, d. MMMM yyyy");
 
         String html = "<div align=\"center\">\n" +
@@ -62,7 +62,7 @@ public class MenuweekTools {
 
         for (Menuweek2Menu menuweek2Menu : menuweek.getMenuweek2menus()) {
             html += "<h1 id=\"fonth1\">" + sdf.format(menuweek2Menu.getDate()) + "</h1>";
-            html += MenuTools.getAsHTML(menuweek2Menu.getMenu(), setAdditives, setAllergenes);
+            html += MenuTools.getAsHTML(menuweek2Menu.getMenu(), setAdditives, setAllergenes, groupAdditives);
         }
 
 
@@ -85,17 +85,52 @@ public class MenuweekTools {
             }
 
             if (!setAdditives.isEmpty()) {
-                html += "<h2 id=\"fonth2\">Zusatzstoffe</h2>";
-                html += "<ul>";
 
-                ArrayList<Additives> list = new ArrayList<Additives>(setAdditives);
-                Collections.sort(list);
 
-                for (Additives additive : list) {
-                    html += "<li><b>" + additive.getSymbol() + "</b> " + additive.getName() + (additive.getText().isEmpty() ? "" : " <i>" + additive.getText() + "</i>");
+                if (groupAdditives) {
+
+
+                    html += "<h2 id=\"fonth2\">Zusatzstoff-Gruppen</h2>";
+                    html += "<ul>";
+
+                    ArrayList<Additives> list = new ArrayList<Additives>(setAdditives);
+//                    Collections.sort(list);
+
+                    ArrayList<Additivegroups> listAdditiveGroups = new ArrayList<Additivegroups>();
+
+                    for (Additives additive : list) {
+                        if (!listAdditiveGroups.contains(additive.getAdditivegroups())) {
+                            listAdditiveGroups.add(additive.getAdditivegroups());
+                        }
+                    }
+
+                    Collections.sort(listAdditiveGroups);
+
+
+                    for (Additivegroups group : listAdditiveGroups) {
+                        html += "<li><b>" + group.getId() + "</b> " + group.getGroupname() + "</li>";
+                    }
+
+                    html += "</ul>";
+
+                } else {
+
+
+                    html += "<h2 id=\"fonth2\">Zusatzstoffe</h2>";
+                    html += "<ul>";
+
+                    ArrayList<Additives> list = new ArrayList<Additives>(setAdditives);
+                    Collections.sort(list);
+
+                    for (Additives additive : list) {
+                        html += "<li><b>" + additive.getSymbol() + "</b> " + additive.getName() + (additive.getText().isEmpty() ? "" : " <i>" + additive.getText() + "</i></li>");
+                    }
+
+                    html += "</ul>";
+
                 }
 
-                html += "</ul>";
+
             }
         }
 

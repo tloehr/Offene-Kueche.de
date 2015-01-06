@@ -13,7 +13,6 @@ public class Additives implements Comparable<Additives> {
     private String symbol;
     private String name;
     private String text;
-    private short additivegroup;
     private String display;
 
 
@@ -21,6 +20,7 @@ public class Additives implements Comparable<Additives> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private long id;
+
     public long getId() {
         return id;
     }
@@ -60,16 +60,13 @@ public class Additives implements Comparable<Additives> {
     }
 
 
-    @Basic
-    @Column(name = "additivegroup", nullable = false, insertable = true, updatable = true)
-    public short getAdditivegroup() {
-        return additivegroup;
-    }
+    @JoinColumn(name = "additivegroup", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    private Additivegroups additivegroups;
 
-    public void setAdditivegroup(short additivegroup) {
-        this.additivegroup = additivegroup;
+    public Additivegroups getAdditivegroups() {
+        return additivegroups;
     }
-
 
     @Basic
     @Column(name = "display", nullable = true, insertable = true, updatable = true, length = 500)
@@ -89,10 +86,13 @@ public class Additives implements Comparable<Additives> {
 
         Additives additives = (Additives) o;
 
-        if (additivegroup != additives.additivegroup) return false;
         if (id != additives.id) return false;
+        if (additivegroups != null ? !additivegroups.equals(additives.additivegroups) : additives.additivegroups != null)
+            return false;
         if (display != null ? !display.equals(additives.display) : additives.display != null) return false;
+        if (ingTypes != null ? !ingTypes.equals(additives.ingTypes) : additives.ingTypes != null) return false;
         if (name != null ? !name.equals(additives.name) : additives.name != null) return false;
+        if (products != null ? !products.equals(additives.products) : additives.products != null) return false;
         if (symbol != null ? !symbol.equals(additives.symbol) : additives.symbol != null) return false;
         if (text != null ? !text.equals(additives.text) : additives.text != null) return false;
 
@@ -101,12 +101,14 @@ public class Additives implements Comparable<Additives> {
 
     @Override
     public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + (symbol != null ? symbol.hashCode() : 0);
+        int result = symbol != null ? symbol.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (text != null ? text.hashCode() : 0);
-        result = 31 * result + (int) additivegroup;
         result = 31 * result + (display != null ? display.hashCode() : 0);
+        result = 31 * result + (int) (id ^ (id >>> 32));
+        result = 31 * result + (additivegroups != null ? additivegroups.hashCode() : 0);
+        result = 31 * result + (products != null ? products.hashCode() : 0);
+        result = 31 * result + (ingTypes != null ? ingTypes.hashCode() : 0);
         return result;
     }
 

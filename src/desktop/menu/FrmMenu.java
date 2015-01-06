@@ -62,6 +62,7 @@ public class FrmMenu extends JFrame {
 
     private void initFrame() {
         listAll = MenuweekallTools.getAll();
+        Main.getStockList(true);
 
         if (listAll.isEmpty()) {
 
@@ -390,7 +391,7 @@ public class FrmMenu extends JFrame {
                     em.refresh(mergedMenuweek);
                     em.close();
 
-                    html += MenuweekTools.getAsHTML(mergedMenuweek);
+                    html += MenuweekTools.getAsHTML(mergedMenuweek, false);
                     html += Tools.isLastElement(mergedMenuweek, ((Menuweekall) cmbWeeks.getSelectedItem()).getMenuweeks()) ? "" : "<p style=\"page-break-before:always\"\\>";
                 }
                 Printers.print(Main.getDesktop(), html, true);

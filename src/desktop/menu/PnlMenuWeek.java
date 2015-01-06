@@ -416,23 +416,31 @@ public class PnlMenuWeek extends JPanel {
     private void btnPrintActionPerformed(ActionEvent e) {
 
         JidePopupMenu jMenu = new JidePopupMenu();
-        JMenuItem miPrintAllMenus = new JMenuItem("Diesen Speiseplan drucken", Const.icon24Pageprinter);
+        JMenuItem miPrintAllMenus = new JMenuItem("Diesen Speiseplan drucken (Vollansicht)", Const.icon24Pageprinter);
         miPrintAllMenus.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        JMenuItem miPrintAllMenusCustomer = new JMenuItem("Diesen Speiseplan drucken (Kundenansicht)", Const.icon24Pageprinter);
+        miPrintAllMenusCustomer.setFont(new Font("SansSerif", Font.PLAIN, 18));
         JMenuItem miIngTypesAndStocks = new JMenuItem("Zutaten und Vorratslisten drucken", Const.icon24ingtype);
         miIngTypesAndStocks.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
         jMenu.add(miPrintAllMenus);
+        jMenu.add(miPrintAllMenusCustomer);
         jMenu.add(miIngTypesAndStocks);
 
         miPrintAllMenus.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Printers.print(Main.getDesktop(), MenuweekTools.getAsHTML(menuweek), true);
+                Printers.print(Main.getDesktop(), MenuweekTools.getAsHTML(menuweek, false), true);
             }
         });
 
 
-
+        miPrintAllMenusCustomer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Printers.print(Main.getDesktop(), MenuweekTools.getAsHTML(menuweek, true), true);
+            }
+        });
 
         miIngTypesAndStocks.addActionListener(new ActionListener() {
             @Override

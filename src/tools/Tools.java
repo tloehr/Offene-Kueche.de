@@ -1216,7 +1216,7 @@ public class Tools {
         // Set the width
         col.setPreferredWidth(width);
 
-        Main.debug("packColumn/3: col="+vColIndex+"  width="+width);
+//        Main.debug("packColumn/3: col="+vColIndex+"  width="+width);
     }
 
     public static List<AbstractButton> getSelection(ButtonGroup bg) {

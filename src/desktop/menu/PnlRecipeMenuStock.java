@@ -49,7 +49,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
     private JidePopup popup;
     private JPopupMenu menu;
-    private RowFilter<StockTableModel3, Integer> textFilter, ingTypeFilter;
+    private RowFilter<StockTableModel3, Integer> textFilter;
     private TableRowSorter<StockTableModel3> sorter;
     private java.util.List<ActionListener> listActions;
     private Warengruppe someDefaultCG;

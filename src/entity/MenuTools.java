@@ -63,7 +63,27 @@ public class MenuTools {
     }
 
 
-    public static String getAsHTML(Menu menu, HashSet<Additives> setGlobalAdditives, HashSet<Allergene> setGlobalAllergenes) {
+    private static String getAdditiveGroupLine(Set<Additives> additives) {
+
+        ArrayList<Additivegroups> myAdditivesGroups = new ArrayList<Additivegroups>();
+        for (Additives additive : additives) {
+            if (!myAdditivesGroups.contains(additive.getAdditivegroups())) {
+                myAdditivesGroups.add(additive.getAdditivegroups());
+            }
+        }
+
+        Collections.sort(myAdditivesGroups);
+
+
+        String line = "";
+        for (Additivegroups addgroup : myAdditivesGroups) {
+            line += addgroup.getId() + " ";
+        }
+        return line;
+    }
+
+
+    public static String getAsHTML(Menu menu, HashSet<Additives> setGlobalAdditives, HashSet<Allergene> setGlobalAllergenes, boolean groupAdditives) {
 
         if (menu.isEmpty()) {
             return "<i>nichts geplant</i>";
@@ -103,7 +123,7 @@ public class MenuTools {
                 }
                 if (!myAdditives.isEmpty()) {
                     setAdditives.addAll(myAdditives);
-                    html += "<sub id=\"fontsmall\">" + getAdditiveLine(myAdditives) + "</sub>\n";
+                    html += "<sub id=\"fontsmall\">" + (groupAdditives ? getAdditiveGroupLine(myAdditives) : getAdditiveLine(myAdditives)) + "</sub>\n";
                 }
             }
         }
@@ -114,7 +134,7 @@ public class MenuTools {
         }
 
         if (!setAdditives.isEmpty()) {
-            html += (setAllergenes.isEmpty() ? "" : " // ") + "Zusatzstoffe: " + getAdditiveLine(setAdditives) + "\n";
+            html += (setAllergenes.isEmpty() ? "" : " // ") + "Zusatzstoffe: " + (groupAdditives ? getAdditiveGroupLine(setAdditives) : getAdditiveLine(setAdditives)) + "\n";
             setGlobalAdditives.addAll(setAdditives);
         }
 
@@ -140,7 +160,7 @@ public class MenuTools {
 
 //                if (!html.isEmpty()) html += "<br/>";
 
-                html += HTML.color(Const.mediumpurple3, HTML.bold( getDish(menu, dish).getTitle())) + "<br/>";
+                html += HTML.color(Const.mediumpurple3, HTML.bold(getDish(menu, dish).getTitle())) + "<br/>";
 
                 String innerHTML = RecipeTools.getSubRecipesAsHTML(getDish(menu, dish), HTML.bold("Andere Rezepte, die als Zutat verwendet werden"));
 
