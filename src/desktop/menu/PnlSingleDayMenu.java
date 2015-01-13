@@ -557,7 +557,7 @@ public class PnlSingleDayMenu extends JPanel {
             this.rcl = rclIn;
             lblBadgeRed = new JLabel(Const.icon24redBadge);
             lblBadgeRed.setHorizontalTextPosition(SwingConstants.CENTER);
-            lblBadgeGreen = new JLabel(Const.icon24greenBadge);
+            lblBadgeGreen = new JLabel(Const.icon24greenBadgeWide);
             lblBadgeGreen.setHorizontalTextPosition(SwingConstants.CENTER);
             initPhase = true;
             setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
@@ -728,8 +728,8 @@ public class PnlSingleDayMenu extends JPanel {
                 ovrBadge.addOverlayComponent(lblBadgeRed, DefaultOverlayable.NORTH_EAST);
             }
 
-            if (recipeIn != null && !recipeIn.getIngTypes2Recipes().isEmpty()) {
-                lblBadgeGreen.setText(Integer.toString(recipeIn.getIngTypes2Recipes().size()));
+            if (recipeIn != null && (!recipeIn.getIngTypes2Recipes().isEmpty() || !recipeIn.getSubrecipes().isEmpty())) {
+                lblBadgeGreen.setText(Integer.toString(recipeIn.getIngTypes2Recipes().size()) + "," + Integer.toString(recipeIn.getSubrecipes().size()));
                 lblBadgeGreen.setHorizontalTextPosition(SwingConstants.CENTER);
                 lblBadgeGreen.setVerticalTextPosition(SwingConstants.CENTER);
                 lblBadgeGreen.setFont(new Font("SansSerif", Font.BOLD, 11));
@@ -737,7 +737,7 @@ public class PnlSingleDayMenu extends JPanel {
                 ovrBadge.addOverlayComponent(lblBadgeGreen, DefaultOverlayable.SOUTH_WEST);
             }
 
-            btnMenu.setToolTipText("<html>" + RecipeTools.getSubRecipesAsHTML(recipeIn,HTML.h2("Andere Rezepte, die als Zutat verwendet werden")) + RecipeTools.getIngTypesAsHTMLList(recipeIn, HTML.h2("Zutaten")) + MenuTools.getStocksAsHTMLList(stocks) + "</html>");
+            btnMenu.setToolTipText("<html>" + RecipeTools.getSubRecipesAsHTML(recipeIn, HTML.h2("Andere Rezepte, die als Zutat verwendet werden")) + RecipeTools.getIngTypesAsHTMLList(recipeIn, HTML.h2("Zutaten")) + MenuTools.getStocksAsHTMLList(stocks) + "</html>");
             ovrBadge.setPreferredSize(btnMenu.getPreferredSize());
 //            ovrBadge.setOverlayVisible(!stocks.isEmpty());
             setRecipe(recipeIn);
@@ -856,8 +856,8 @@ public class PnlSingleDayMenu extends JPanel {
                     lblBadgeRed.setText(Integer.toString(stocks.size()));
                     ovrBadge.addOverlayComponent(lblBadgeRed, DefaultOverlayable.NORTH_EAST);
                 }
-                if (recipe != null && !recipe.getIngTypes2Recipes().isEmpty()) {
-                    lblBadgeGreen.setText(Integer.toString(recipe.getIngTypes2Recipes().size()));
+                if (recipe != null && (!recipe.getIngTypes2Recipes().isEmpty() || !recipe.getSubrecipes().isEmpty())) {
+                    lblBadgeGreen.setText(Integer.toString(recipe.getIngTypes2Recipes().size()) + "," + Integer.toString(recipe.getSubrecipes().size()));
                     ovrBadge.addOverlayComponent(lblBadgeGreen, DefaultOverlayable.SOUTH_WEST);
                 }
             }

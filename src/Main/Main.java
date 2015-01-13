@@ -9,7 +9,6 @@ import com.jidesoft.utils.Lm;
 import desktop.FrmDesktop;
 import entity.Mitarbeiter;
 import entity.Stock;
-import entity.StockTools;
 import org.apache.commons.cli.*;
 import org.apache.log4j.*;
 import printer.Printers;
@@ -79,12 +78,12 @@ public class Main {
         return (FrmDesktop) mainframe;
     }
 
-    public static ArrayList<Stock> getStockList(boolean refreshFirst) {
-        if (stockList == null) stockList = new ArrayList<Stock>();
-        if (refreshFirst || stockList.isEmpty()) stockList = StockTools.getAll();
-
-        return stockList;
-    }
+//    public static ArrayList<Stock> getStockList(boolean refreshFirst) {
+//        if (stockList == null) stockList = new ArrayList<Stock>();
+//        if (refreshFirst || stockList.isEmpty()) stockList = StockTools.getAll();
+//
+//        return stockList;
+//    }
 
     public static String getJdbcurl() {
         return jdbcurl;

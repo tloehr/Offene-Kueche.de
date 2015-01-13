@@ -506,8 +506,8 @@ public class PnlMenuWeek extends JPanel {
         //======== this ========
         setBorder(new DropShadowBorder(Color.black, 8, 0.6f, 12, true, true, true, true));
         setLayout(new FormLayout(
-                "default:grow, $lcgap, default",
-                "2*(default, $lgap), top:pref, $lgap, pref"));
+            "default:grow, $lcgap, default",
+            "2*(default, $lgap), top:pref, $lgap, pref"));
 
         //======== panel2 ========
         {
@@ -621,8 +621,8 @@ public class PnlMenuWeek extends JPanel {
         //======== panel12 ========
         {
             panel12.setLayout(new FormLayout(
-                    "default:grow",
-                    "default:grow, default"));
+                "default:grow",
+                "default:grow, default"));
 
             //======== scrollPane1 ========
             {

@@ -215,25 +215,84 @@ public class StockTools {
     }
 
     public static ArrayList<Stock> getAll() {
-           ArrayList stocks = new ArrayList<Stock>();
-           EntityManager em = Main.getEMF().createEntityManager();
-           Query query = em.createQuery("SELECT v FROM Stock v ORDER BY v.produkt.bezeichnung ");
-           try {
-               stocks = new ArrayList<Produkte>(query.getResultList());
-           } catch (Exception e1) { // nicht gefunden
-               stocks = null;
-           } finally {
-               em.close();
-           }
+        ArrayList stocks = new ArrayList<Stock>();
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createQuery("SELECT v FROM Stock v ORDER BY v.produkt.bezeichnung ");
+        try {
+            stocks = new ArrayList<Produkte>(query.getResultList());
+        } catch (Exception e1) { // nicht gefunden
+            stocks = null;
+        } finally {
+            em.close();
+        }
 
-           return stocks;
-       }
+        return stocks;
+    }
 
     public static ArrayList<Stock> getActiveStocks() {
         ArrayList stocks = new ArrayList<Stock>();
         EntityManager em = Main.getEMF().createEntityManager();
         Query query = em.createQuery("SELECT v FROM Stock v WHERE v.ausgang = :tfn ORDER BY v.produkt.bezeichnung ");
         query.setParameter("tfn", Const.DATE_BIS_AUF_WEITERES);
+        try {
+            stocks = new ArrayList<Produkte>(query.getResultList());
+        } catch (Exception e1) { // nicht gefunden
+            stocks = null;
+        } finally {
+            em.close();
+        }
+
+        return stocks;
+    }
+
+    public static ArrayList<Stock> getStocks(ArrayList<IngTypes> ingTypes) {
+        ArrayList stocks = new ArrayList<Stock>();
+        EntityManager em = Main.getEMF().createEntityManager();
+
+        Query query = em.createQuery("SELECT v FROM Stock v WHERE v.produkt.ingTypes IN :listTypes ORDER BY v.produkt.bezeichnung ");
+        query.setParameter("listTypes", ingTypes);
+        try {
+            stocks = new ArrayList<Produkte>(query.getResultList());
+        } catch (Exception e1) { // nicht gefunden
+            stocks = null;
+        } finally {
+            em.close();
+        }
+
+        return stocks;
+    }
+
+
+    public static ArrayList<Stock> getActiveStocks(ArrayList<IngTypes> ingTypes) {
+        ArrayList stocks = new ArrayList<Stock>();
+        EntityManager em = Main.getEMF().createEntityManager();
+
+        Query query = em.createQuery("SELECT v FROM Stock v WHERE v.ausgang = :tfn AND v.produkt.ingTypes IN :listTypes ORDER BY v.produkt.bezeichnung ");
+        query.setParameter("tfn", Const.DATE_BIS_AUF_WEITERES);
+        query.setParameter("listTypes", ingTypes);
+        try {
+            stocks = new ArrayList<Produkte>(query.getResultList());
+        } catch (Exception e1) { // nicht gefunden
+            stocks = null;
+        } finally {
+            em.close();
+        }
+
+        return stocks;
+    }
+
+    public static ArrayList<Stock> getActiveStocks(String text) {
+        ArrayList stocks = new ArrayList<Stock>();
+        EntityManager em = Main.getEMF().createEntityManager();
+
+        Query query = em.createQuery("SELECT v FROM Stock v WHERE v.ausgang = :tfn AND " +
+                "( " +
+                "   v.produkt.bezeichnung like :text OR v.produkt.gtin like :text OR v.id like :text " +
+                "   OR v.produkt.ingTypes.bezeichnung like :text OR v.produkt.ingTypes.warengruppe.bezeichnung like :text " +
+                ") " +
+                "ORDER BY v.produkt.bezeichnung ");
+        query.setParameter("tfn", Const.DATE_BIS_AUF_WEITERES);
+        query.setParameter("text", "%" + text + "%");
         try {
             stocks = new ArrayList<Produkte>(query.getResultList());
         } catch (Exception e1) { // nicht gefunden

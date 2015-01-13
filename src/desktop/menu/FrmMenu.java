@@ -62,7 +62,7 @@ public class FrmMenu extends JFrame {
 
     private void initFrame() {
         listAll = MenuweekallTools.getAll();
-        Main.getStockList(true);
+//        Main.getStockList(true);
 
         if (listAll.isEmpty()) {
 

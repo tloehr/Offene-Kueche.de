@@ -65,7 +65,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
         listActions = new ArrayList<ActionListener>();
 
-        ArrayList<Stock> unassigned = new ArrayList<Stock>(Main.getStockList(false));
+        ArrayList<Stock> unassigned = new ArrayList<Stock>();
         unassigned.removeAll(assigned);
 
 //        it2rm = new IngType2recipeTableModel(recipe.getIngTypes2Recipes(), assigned);
@@ -93,11 +93,11 @@ public class PnlRecipeMenuStock extends PopupPanel {
         tblUnassigned.setModel(stmUnass);
         tblAssigned.setModel(stmAss);
 
-        createFilters();
+//        createFilters();
         sorter = new TableRowSorter(stmUnass);
         sorter.setSortsOnUpdates(true);
         tblUnassigned.setRowSorter(sorter);
-        sorter.setRowFilter(textFilter);
+//        sorter.setRowFilter(textFilter);
 
         tblAssigned.getColumnModel().getColumn(StockTableModel3.COL_INGTYPE).setCellRenderer(IngTypesTools.getTableCellRenderer());
         tblAssigned.getColumnModel().getColumn(StockTableModel3.COL_INGTYPE).setCellEditor(IngTypesTools.getTableCellEditor());
@@ -117,6 +117,22 @@ public class PnlRecipeMenuStock extends PopupPanel {
         treeIngredients.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
+
+                ArrayList<IngTypes> listIngTypes = new ArrayList<IngTypes>();
+                for (TreePath path : treeIngredients.getSelectionPaths()) {
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+
+                    if (node.getUserObject() instanceof Ingtypes2Recipes) {
+                        if (!listIngTypes.contains(((Ingtypes2Recipes) node.getUserObject()).getIngType())) {
+                            listIngTypes.add(((Ingtypes2Recipes) node.getUserObject()).getIngType());
+                        }
+                    }
+                }
+
+                stmUnass.getData().clear();
+                if (!listIngTypes.isEmpty()) {
+                    stmUnass.getData().addAll(StockTools.getActiveStocks(listIngTypes));
+                }
                 stmUnass.fireTableDataChanged();
             }
         });
@@ -197,45 +213,45 @@ public class PnlRecipeMenuStock extends PopupPanel {
     }
 
 
-    private void createFilters() {
-
-        textFilter = new RowFilter<StockTableModel3, Integer>() {
-            @Override
-            public boolean include(Entry<? extends StockTableModel3, ? extends Integer> entry) {
-                int row = entry.getIdentifier();
-                Stock stock = entry.getModel().getStock(row);
-
-                if (!tbOldStocks.isSelected() && stock.isAusgebucht()) return false;
-
-                if (!treeIngredients.getSelectionModel().isSelectionEmpty() && !treeIngredients.getSelectionModel().getLeadSelectionPath().getLastPathComponent().equals(treeIngredients.getModel().getRoot())) {
-                    for (TreePath path : treeIngredients.getSelectionModel().getSelectionPaths()) {
-                        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-                        if (node.getUserObject() instanceof Recipes) {
-                            if (!RecipeTools.contains((Recipes) node.getUserObject(), stock.getProdukt().getIngTypes())) {
-                                return false;
-                            }
-                        } else if (node.getUserObject() instanceof Ingtypes2Recipes) {
-                            if (!stock.getProdukt().getIngTypes().equals(((Ingtypes2Recipes) node.getUserObject()).getIngType())) {
-                                return false;
-                            }
-                        }
-                    }
-                }
-
-                String textKriterium = searchUnAss.getText().trim().toLowerCase();
-                if (textKriterium.isEmpty()) return true;
-
-                return (stock.getProdukt().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0 ||
-                        Long.toString(stock.getId()).equals(textKriterium) ||
-                        Tools.catchNull(stock.getProdukt().getGtin()).indexOf(textKriterium) >= 0 ||
-                        stock.getProdukt().getIngTypes().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0 ||
-                        stock.getProdukt().getIngTypes().getWarengruppe().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0);
-
-
-            }
-        };
-
-    }
+//    private void createFilters() {
+//
+//        textFilter = new RowFilter<StockTableModel3, Integer>() {
+//            @Override
+//            public boolean include(Entry<? extends StockTableModel3, ? extends Integer> entry) {
+//                int row = entry.getIdentifier();
+//                Stock stock = entry.getModel().getStock(row);
+//
+//                if (!tbOldStocks.isSelected() && stock.isAusgebucht()) return false;
+//
+//                if (!treeIngredients.getSelectionModel().isSelectionEmpty() && !treeIngredients.getSelectionModel().getLeadSelectionPath().getLastPathComponent().equals(treeIngredients.getModel().getRoot())) {
+//                    for (TreePath path : treeIngredients.getSelectionModel().getSelectionPaths()) {
+//                        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+//                        if (node.getUserObject() instanceof Recipes) {
+//                            if (!RecipeTools.contains((Recipes) node.getUserObject(), stock.getProdukt().getIngTypes())) {
+//                                return false;
+//                            }
+//                        } else if (node.getUserObject() instanceof Ingtypes2Recipes) {
+//                            if (!stock.getProdukt().getIngTypes().equals(((Ingtypes2Recipes) node.getUserObject()).getIngType())) {
+//                                return false;
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                String textKriterium = searchUnAss.getText().trim().toLowerCase();
+//                if (textKriterium.isEmpty()) return true;
+//
+//                return (stock.getProdukt().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0 ||
+//                        Long.toString(stock.getId()).equals(textKriterium) ||
+//                        Tools.catchNull(stock.getProdukt().getGtin()).indexOf(textKriterium) >= 0 ||
+//                        stock.getProdukt().getIngTypes().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0 ||
+//                        stock.getProdukt().getIngTypes().getWarengruppe().getBezeichnung().toLowerCase().indexOf(textKriterium) >= 0);
+//
+//
+//            }
+//        };
+//
+//    }
 
     private void tblUnassignedMousePressed(MouseEvent e) {
 
@@ -603,9 +619,10 @@ public class PnlRecipeMenuStock extends PopupPanel {
     }
 
     private void searchUnAssActionPerformed(ActionEvent e) {
-
-
-//        sorter.setRowFilter(textFilter);
+        stmUnass.getData().clear();
+        if (!searchUnAss.getText().isEmpty()) {
+            stmUnass.getData().addAll(StockTools.getActiveStocks(searchUnAss.getText().trim()));
+        }
         stmUnass.fireTableDataChanged();
     }
 
@@ -731,8 +748,8 @@ public class PnlRecipeMenuStock extends PopupPanel {
             }
         });
         setLayout(new FormLayout(
-            "3*(default, $lcgap), 2*(default:grow, $lcgap), default",
-            "default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:pref, 3*($lgap, default)"));
+                "3*(default, $lcgap), 2*(default:grow, $lcgap), default",
+                "default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:pref, 3*($lgap, default)"));
 
         //---- lblRecipe ----
         lblRecipe.setText("text");
@@ -837,10 +854,10 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
         //---- cmbIngTypeOrRecipe ----
         cmbIngTypeOrRecipe.setFont(new Font("SansSerif", Font.BOLD, 14));
-        cmbIngTypeOrRecipe.setModel(new DefaultComboBoxModel(new String[] {
-            "item 1",
-            "item 2",
-            "item 3"
+        cmbIngTypeOrRecipe.setModel(new DefaultComboBoxModel(new String[]{
+                "item 1",
+                "item 2",
+                "item 3"
         }));
         add(cmbIngTypeOrRecipe, CC.xy(3, 9));
 
