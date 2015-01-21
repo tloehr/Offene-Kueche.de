@@ -162,8 +162,8 @@ public class IngTypes implements Comparable<IngTypes> {
         result = 31 * result + (int) einheit;
         result = 31 * result + (warengruppe != null ? warengruppe.hashCode() : 0);
 
-        result = 31 * result + (allergenes != null ? allergenes.hashCode() : 0);
-        result = 31 * result + (additives != null ? additives.hashCode() : 0);
+//        result = 31 * result + (allergenes != null ? allergenes.hashCode() : 0);
+//        result = 31 * result + (additives != null ? additives.hashCode() : 0);
 //        result = 31 * result + (menus != null ? menus.hashCode() : 0);
         result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;

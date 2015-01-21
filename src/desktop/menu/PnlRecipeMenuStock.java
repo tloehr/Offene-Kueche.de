@@ -34,6 +34,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * @author Torsten Löhr
@@ -70,7 +72,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
 //        it2rm = new IngType2recipeTableModel(recipe.getIngTypes2Recipes(), assigned);
 
-        createFirstTreeModel();
+        treemodel = new DefaultTreeModel(createSubtree(null, recipe));
 
         stmUnass = new StockTableModel3(unassigned);
         stmAss = new StockTableModel3(assigned);
@@ -117,6 +119,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
         treeIngredients.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
+                if (treeIngredients.getSelectionPaths() == null) return;
 
                 ArrayList<IngTypes> listIngTypes = new ArrayList<IngTypes>();
                 for (TreePath path : treeIngredients.getSelectionPaths()) {
@@ -132,6 +135,15 @@ public class PnlRecipeMenuStock extends PopupPanel {
                 stmUnass.getData().clear();
                 if (!listIngTypes.isEmpty()) {
                     stmUnass.getData().addAll(StockTools.getActiveStocks(listIngTypes));
+                    if (tbOldStocks.isSelected()) {
+                        stmUnass.getData().addAll(StockTools.getInActiveStocks(listIngTypes));
+                        Collections.sort(stmUnass.getData(), new Comparator<Stock>() {
+                            @Override
+                            public int compare(Stock o1, Stock o2) {
+                                return o1.getProdukt().getBezeichnung().compareTo(o2.getProdukt().getBezeichnung());
+                            }
+                        });
+                    }
                 }
                 stmUnass.fireTableDataChanged();
             }
@@ -544,39 +556,64 @@ public class PnlRecipeMenuStock extends PopupPanel {
     }
 
 
-    void createFirstTreeModel() {
+    DefaultMutableTreeNode createSubtree(DefaultMutableTreeNode root, Recipes myRecipe) {
 
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode(recipe);
-
-        for (Recipes r : recipe.getSubrecipes()) {
-//            DefaultMutableTreeNode recipeRoot = new DefaultMutableTreeNode(r);
-//            root.add(recipeRoot);
-//
-//            for (Ingtypes2Recipes it2r : r.getIngTypes2Recipes()) {
-//                recipeRoot.add(new DefaultMutableTreeNode(it2r));
-//            }
-
-            root.add(getSubtree(r));
+        if (root == null) {
+            root = new DefaultMutableTreeNode(myRecipe);
         }
 
-        for (Ingtypes2Recipes it2r : recipe.getIngTypes2Recipes()) {
+        for (Recipes subrecipe : myRecipe.getSubrecipes()) {
+            //            DefaultMutableTreeNode recipeRoot = new DefaultMutableTreeNode(r);
+            //            root.add(recipeRoot);
+            //
+            //            for (Ingtypes2Recipes it2r : r.getIngTypes2Recipes()) {
+            //                recipeRoot.add(new DefaultMutableTreeNode(it2r));
+            //            }
+
+            root.add(createSubtree(null, subrecipe));
+        }
+
+        for (Ingtypes2Recipes it2r : myRecipe.getIngTypes2Recipes()) {
             root.add(new DefaultMutableTreeNode(it2r));
         }
 
-        treemodel = new DefaultTreeModel(root);
+        return root;
     }
 
 
-    DefaultMutableTreeNode getSubtree(Recipes recipe) {
-        DefaultMutableTreeNode recipeRoot = new DefaultMutableTreeNode(recipe);
+//    void createFirstTreeModel() {
+
+//        DefaultMutableTreeNode root = new DefaultMutableTreeNode(recipe);
+//
+//        for (Recipes r : recipe.getSubrecipes()) {
+////            DefaultMutableTreeNode recipeRoot = new DefaultMutableTreeNode(r);
+////            root.add(recipeRoot);
+////
+////            for (Ingtypes2Recipes it2r : r.getIngTypes2Recipes()) {
+////                recipeRoot.add(new DefaultMutableTreeNode(it2r));
+////            }
+//
+//            root.add(getSubtree(r));
+//        }
+//
+//        for (Ingtypes2Recipes it2r : recipe.getIngTypes2Recipes()) {
+//            root.add(new DefaultMutableTreeNode(it2r));
+//        }
 
 
-        for (Ingtypes2Recipes it2r : recipe.getIngTypes2Recipes()) {
-            recipeRoot.add(new DefaultMutableTreeNode(it2r));
-        }
+//    }
 
-        return recipeRoot;
-    }
+//
+//    DefaultMutableTreeNode getSubtree(Recipes recipe) {
+//        DefaultMutableTreeNode recipeRoot = new DefaultMutableTreeNode(recipe);
+//
+//
+//        for (Ingtypes2Recipes it2r : recipe.getIngTypes2Recipes()) {
+//            recipeRoot.add(new DefaultMutableTreeNode(it2r));
+//        }
+//
+//        return recipeRoot;
+//    }
 
 
     private void btnAddNewActionPerformed(ActionEvent e) {
@@ -589,7 +626,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
             if (!recipe.getSubrecipes().contains(newSubRecipe)) {
 //                recipe.getSubrecipes().add(newSubRecipe);
-                treemodel.insertNodeInto(getSubtree(newSubRecipe), root, root.getChildCount());
+                treemodel.insertNodeInto(createSubtree(root, newSubRecipe), root, root.getChildCount());
                 treemodel.reload();
             }
 

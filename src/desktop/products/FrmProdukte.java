@@ -258,7 +258,7 @@ public class FrmProdukte extends JFrame {
         if (SwingUtilities.isLeftMouseButton(e) && col == ProdukteTableModel.COL_ALLADD && e.getClickCount() == 2) {
             final int thisRow = tblProdukt.convertRowIndexToModel(row);
 
-            final PnlAssignAdditives dlgAssign = new PnlAssignAdditives(this, ptm.getProdukt(thisRow).getAdditives(), ptm.getProdukt(thisRow).getAllergenes());
+            final PnlAssignAdditives dlgAssign = new PnlAssignAdditives(Main.getDesktop().getMenuweek(), ptm.getProdukt(thisRow).getAdditives(), ptm.getProdukt(thisRow).getAllergenes());
             dlgAssign.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {
@@ -1002,8 +1002,8 @@ public class FrmProdukte extends JFrame {
         setResizable(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new FormLayout(
-            "134dlu, default:grow",
-            "default:grow"));
+                "134dlu, default:grow",
+                "default:grow"));
 
         //======== jspSearch ========
         {
