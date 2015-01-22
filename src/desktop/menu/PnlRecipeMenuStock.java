@@ -626,7 +626,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
             if (!recipe.getSubrecipes().contains(newSubRecipe)) {
 //                recipe.getSubrecipes().add(newSubRecipe);
-                treemodel.insertNodeInto(createSubtree(root, newSubRecipe), root, root.getChildCount());
+                treemodel.insertNodeInto(createSubtree(null, newSubRecipe), root, root.getChildCount());
                 treemodel.reload();
             }
 
@@ -644,14 +644,6 @@ public class PnlRecipeMenuStock extends PopupPanel {
             }
 
         }
-
-//        SwingUtilities.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                scrollPane4.revalidate();
-//                scrollPane4.repaint();
-//            }
-//        });
 
     }
 

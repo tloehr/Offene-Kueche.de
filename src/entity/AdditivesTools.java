@@ -17,7 +17,7 @@ public class AdditivesTools {
         return new ListCellRenderer<Additives>() {
             @Override
             public Component getListCellRendererComponent(JList<? extends Additives> list, Additives value, int index, boolean isSelected, boolean cellHasFocus) {
-                return new DefaultListCellRenderer().getListCellRendererComponent(list, value.getSymbol() + " " + value.getName(), index, isSelected, cellHasFocus);
+                return new DefaultListCellRenderer().getListCellRendererComponent(list, value.getSymbol() + " (" + value.getAdditivegroups().getId() + ") " + value.getName(), index, isSelected, cellHasFocus);
             }
         };
     }

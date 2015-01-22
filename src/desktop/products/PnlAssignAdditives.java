@@ -151,14 +151,6 @@ public class PnlAssignAdditives extends JDialog {
     }
 
 
-    public JList getListAdditives() {
-        return listAdditives;
-    }
-
-    public JList getListAllergenes() {
-        return listAllergenes;
-    }
-
     private void txtSearchActionPerformed(ActionEvent e) {
         ArrayList searchList = new ArrayList();
         String searchText = txtSearch.getText().trim();
