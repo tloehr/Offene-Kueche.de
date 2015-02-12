@@ -1,9 +1,12 @@
 package entity;
 
+import Main.Main;
 import tools.Const;
 import tools.HTML;
 import tools.Tools;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,7 +25,7 @@ public class MenuTools {
     public static final int DESSERT = 5;
 
     public static final int[] DISHES = new int[]{STARTER, MAIN, SAUCE, VEGGIE, SIDEDISH, DESSERT};
-
+    public static final String[] DISHES_JPQL = new String[]{"starter", "maincourse", "sauce", "sideveggie", "sidedish", "dessert"};
 
     public static String getStocksAsHTMLList(Set<Stock> stocks) {
 
@@ -140,6 +143,27 @@ public class MenuTools {
 
 
         return html;
+
+    }
+
+    public static ArrayList<Menuweek2Menu> getMenus(Recipes recipes, int dish) {
+        ArrayList<Menuweek2Menu> listMenu = new ArrayList<Menuweek2Menu>();
+
+
+        EntityManager em = Main.getEMF().createEntityManager();
+        Query query = em.createQuery(" " +
+                " SELECT m2m FROM Menuweek2Menu m2m " +
+                " WHERE m2m.menu." + DISHES_JPQL[dish] + " = :recipe ORDER BY m2m.date DESC");
+        query.setParameter("recipe", recipes);
+        try {
+            listMenu.addAll(query.getResultList());
+        } catch (Exception e) { // nicht gefunden
+            Main.fatal(e);
+        } finally {
+            em.close();
+        }
+        return listMenu;
+
 
     }
 

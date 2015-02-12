@@ -155,6 +155,7 @@ public class PnlSingleDayMenu extends JPanel {
         ArrayList<Menu> affectedMenus = new ArrayList<Menu>();
 
         Menuweek2Menu myMenuweek2Menu = null;
+        Menuweek myMenuweek = null;
         EntityManager em = Main.getEMF().createEntityManager();
         Menu editedMenu = null;
         try {
@@ -162,6 +163,11 @@ public class PnlSingleDayMenu extends JPanel {
 
 
             myMenuweek2Menu = em.merge(menuweek2Menu);
+
+
+//            myMenuweek = em.merge(menuweek2Menu.getMenuweek());
+//            em.lock(myMenuweek, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+//            myMenuweek2Menu.setMenuweek(myMenuweek);
 
             Recipes newRecipe = null;
 
@@ -293,12 +299,22 @@ public class PnlSingleDayMenu extends JPanel {
         menuLine0.add(BorderLayout.EAST, lblID);
 
         String[] names = new String[]{"Vorspeise", "Hauptgericht", "Sauce", "Gemüse/Beilagen/Salat", "Kartoffeln/Reis/Nudeln", "Dessert"};
-        int[] dishIndices = new int[]{MenuTools.STARTER, MenuTools.MAIN, MenuTools.SAUCE, MenuTools.VEGGIE, MenuTools.SIDEDISH, MenuTools.DESSERT};
 
-        for (final int dishIndex : dishIndices) {
+        for (final int dishIndex : MenuTools.DISHES) {
             listOfBlocks.add(new MenuBlock(MenuTools.getDish(menuweek2Menu.getMenu(), dishIndex), MenuTools.getStocklist(menuweek2Menu.getMenu(), dishIndex), names[dishIndex], new RecipeChangeListener() {
                 @Override
                 public void recipeChanged(RecipeChangeEvent rce) {
+
+                    if (dishIndex == MenuTools.MAIN) {
+
+                        ArrayList<Menuweek2Menu> listMenus = MenuTools.getMenus(rce.getNewRecipe(), MenuTools.MAIN);
+                        listMenus.remove(menuweek2Menu); // remove me from the list
+
+                        for (Menuweek2Menu m2m : listMenus) {
+                            Main.debug(m2m.getDate() + " " + m2m.getMenu().getText());
+                        }
+                    }
+
                     Menu oldMenu = menuweek2Menu.getMenu();
                     ArrayList<Menu> affectedMenus = mergeChanges(dishIndex, rce);
                     searcherWholeMenu.setText(menuweek2Menu.getMenu().getText());
@@ -307,7 +323,9 @@ public class PnlSingleDayMenu extends JPanel {
                         psdChangeListener.menuEdited(new PSDChangeEvent(this, oldMenu, afftectedMenu, menuweek2Menu));
                     }
                 }
-            }));
+            }
+
+            ));
         }
 
 
@@ -782,18 +800,20 @@ public class PnlSingleDayMenu extends JPanel {
             }
             Tools.unregisterListeners(popupStocks);
 
-            final PnlRecipeMenuStock pnlAssign = new PnlRecipeMenuStock(recipe, new ArrayList<Stock>(stocks));
-
-
             final MyJDialog dlg = new MyJDialog(Main.getDesktop().getMenuweek());
+
+            final PnlRecipeMenuStock pnlAssign = new PnlRecipeMenuStock(recipe, new ArrayList<Stock>(stocks), new ComponentAdapter() {
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    dlg.pack();
+                }
+            });
 
             pnlAssign.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     dlg.dispose();
                     if (e.getActionCommand().equals("OK")) {
-
-
                         Pair<java.util.List<Stock>, DefaultTreeModel> pair = (Pair<java.util.List<Stock>, DefaultTreeModel>) pnlAssign.getResult();
 
                         recipe.getIngTypes2Recipes().clear();
@@ -811,7 +831,6 @@ public class PnlSingleDayMenu extends JPanel {
 
                         }
 
-
                         rcl.recipeChanged(new RecipeChangeEvent(searcher, recipe, recipe.getIngTypes2Recipes(), new HashSet<Stock>(pair.getFirst())));
                     }
                 }
@@ -822,6 +841,8 @@ public class PnlSingleDayMenu extends JPanel {
             dlg.getContentPane().add(pnlAssign);
             dlg.setResizable(true);
             dlg.setTitle("Zuordnungen zu Rezept");
+
+
             dlg.pack();
             dlg.setVisible(true);
 
@@ -966,6 +987,7 @@ public class PnlSingleDayMenu extends JPanel {
                     @Override
                     public void mouseClicked(MouseEvent e) {
                         if (e.getClickCount() == 2) {
+
                             setRecipe(jList.getSelectedValue());
                             if (popup != null && popup.isShowing()) {
                                 popup.hidePopup();
@@ -1016,6 +1038,7 @@ public class PnlSingleDayMenu extends JPanel {
         }
 
     }
+
 
     private interface RecipeChangeListener extends EventListener {
         void recipeChanged(RecipeChangeEvent rce);

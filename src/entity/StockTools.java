@@ -299,6 +299,38 @@ public class StockTools {
         return stocks;
     }
 
+
+    public static ArrayList<Stock> getAll(String text) {
+            ArrayList stocks = new ArrayList<Stock>();
+            EntityManager em = Main.getEMF().createEntityManager();
+
+            Query query = em.createQuery("SELECT v FROM Stock v WHERE " +
+                    "( " +
+                    "   v.produkt.bezeichnung like :text OR v.produkt.gtin like :text  OR v.id = :id " +
+                    "   OR v.produkt.ingTypes.bezeichnung like :text OR v.produkt.ingTypes.warengruppe.bezeichnung like :text " +
+                    ") " +
+                    " ORDER BY v.produkt.bezeichnung ");
+            query.setParameter("text", "%" + text + "%");
+
+            long id;
+            try {
+                id = Long.parseLong(text);
+            } catch (NumberFormatException nfe){
+                id = -1;
+            }
+            query.setParameter("id", id);
+
+            try {
+                stocks = new ArrayList<Produkte>(query.getResultList());
+            } catch (Exception e1) { // nicht gefunden
+                stocks = null;
+            } finally {
+                em.close();
+            }
+
+            return stocks;
+        }
+
     public static ArrayList<Stock> getActiveStocks(String text) {
         ArrayList stocks = new ArrayList<Stock>();
         EntityManager em = Main.getEMF().createEntityManager();

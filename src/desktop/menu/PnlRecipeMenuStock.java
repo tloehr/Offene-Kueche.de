@@ -42,6 +42,7 @@ import java.util.Comparator;
  */
 public class PnlRecipeMenuStock extends PopupPanel {
     private final Recipes recipe;
+    private final ComponentListener componentListener;
     //    private final ArrayList<Stock> assigned, unassigned;
     private StockTableModel3 stmAss, stmUnass;
 //    private IngType2recipeTableModel it2rm;
@@ -62,8 +63,9 @@ public class PnlRecipeMenuStock extends PopupPanel {
         listActions.add(al);
     }
 
-    public PnlRecipeMenuStock(Recipes recipe, ArrayList<Stock> assigned) {
+    public PnlRecipeMenuStock(Recipes recipe, ArrayList<Stock> assigned, ComponentListener componentListener) {
         this.recipe = recipe;
+        this.componentListener = componentListener;
 
         listActions = new ArrayList<ActionListener>();
 
@@ -463,6 +465,10 @@ public class PnlRecipeMenuStock extends PopupPanel {
             tblAssigned.getColumnModel().getColumn(col).setPreferredWidth(widths[col]);
         }
 
+
+        componentListener.componentResized(e);
+
+
 //        Tools.packTable(tblIngTypes, 0);
 
     }
@@ -650,7 +656,12 @@ public class PnlRecipeMenuStock extends PopupPanel {
     private void searchUnAssActionPerformed(ActionEvent e) {
         stmUnass.getData().clear();
         if (!searchUnAss.getText().isEmpty()) {
-            stmUnass.getData().addAll(StockTools.getActiveStocks(searchUnAss.getText().trim()));
+            if (tbOldStocks.isSelected()){
+                stmUnass.getData().addAll(StockTools.getAll(searchUnAss.getText().trim()));
+            } else {
+                stmUnass.getData().addAll(StockTools.getActiveStocks(searchUnAss.getText().trim()));
+            }
+
         }
         stmUnass.fireTableDataChanged();
     }
@@ -777,8 +788,8 @@ public class PnlRecipeMenuStock extends PopupPanel {
             }
         });
         setLayout(new FormLayout(
-                "3*(default, $lcgap), 2*(default:grow, $lcgap), default",
-                "default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:pref, 3*($lgap, default)"));
+            "5*(default, $lcgap), default",
+            "default, $lgap, fill:default:grow, $lgap, default, $lgap, fill:pref, 3*($lgap, default)"));
 
         //---- lblRecipe ----
         lblRecipe.setText("text");
@@ -863,6 +874,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
         //---- txtSearchNewIngType ----
         txtSearchNewIngType.setFont(new Font("SansSerif", Font.BOLD, 14));
         txtSearchNewIngType.setText(" ");
+        txtSearchNewIngType.setSearchMode(JXSearchField.SearchMode.REGULAR);
         txtSearchNewIngType.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -883,10 +895,10 @@ public class PnlRecipeMenuStock extends PopupPanel {
 
         //---- cmbIngTypeOrRecipe ----
         cmbIngTypeOrRecipe.setFont(new Font("SansSerif", Font.BOLD, 14));
-        cmbIngTypeOrRecipe.setModel(new DefaultComboBoxModel(new String[]{
-                "item 1",
-                "item 2",
-                "item 3"
+        cmbIngTypeOrRecipe.setModel(new DefaultComboBoxModel(new String[] {
+            "item 1",
+            "item 2",
+            "item 3"
         }));
         add(cmbIngTypeOrRecipe, CC.xy(3, 9));
 

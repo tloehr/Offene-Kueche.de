@@ -69,6 +69,7 @@ public class PnlMenuWeek extends JPanel {
                         }
                     }
                 }
+
                 menuweek = psdce.getMenuweek();
             }
 
