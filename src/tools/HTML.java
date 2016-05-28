@@ -92,6 +92,10 @@ public class HTML {
         return "<h1 id=\"fonth1\" >" + Tools.xx(content) + "</h1>\n";
     }
 
+    public static String pagebreak() {
+            return "<div class=\"pagebreak\"></div>\n";
+    }
+
     public static String h2(String content) {
         return "<h2 id=\"fonth2\" >" + Tools.xx(content) + "</h2>\n";
     }

@@ -536,15 +536,17 @@ public class PnlRecipeMenuStock extends PopupPanel {
             @Override
             public boolean evaluate(Object o) {
                 if (o instanceof Recipes) {
-                    return ((Recipes) o).getTitle().trim().toLowerCase().indexOf(searchText) > -1;
+                    //return ((Recipes) o).getTitle().trim().toLowerCase().indexOf(searchText) > -1;
+                    return ((Recipes) o).getTitle().trim().toLowerCase().matches("(?i).*" + searchText + ".*");
                 } else {
-                    return ((IngTypes) o).getBezeichnung().trim().toLowerCase().indexOf(searchText) > -1;
+                    // return ((IngTypes) o).getBezeichnung().trim().toLowerCase().indexOf(searchText) > -1;
+                    return ((IngTypes) o).getBezeichnung().trim().toLowerCase().matches("(?i).*" + searchText + ".*");
                 }
             }
         });
 
-        btnAddNew.setIcon(containsOnlyRecipesOrIsEmpty(listAllToSearchIn) ? Const.icon24add : Const.icon24upArrow);
-        if (containsOnlyRecipesOrIsEmpty(listAllToSearchIn)) {
+        btnAddNew.setIcon(listAllToSearchIn.isEmpty() ? Const.icon24add : Const.icon24upArrow);
+        if (listAllToSearchIn.isEmpty()) {
             cmbIngTypeOrRecipe.setModel(new DefaultComboBoxModel(new IngTypes[]{new IngTypes(txtSearchNewIngType.getText().trim(), someDefaultCG)}));
         } else {
             cmbIngTypeOrRecipe.setModel(Tools.newComboboxModel(listAllToSearchIn));
@@ -560,6 +562,15 @@ public class PnlRecipeMenuStock extends PopupPanel {
         }
         return positive;
     }
+
+    boolean containsOnlyIngTypesOrIsEmpty(ArrayList list) {
+            boolean positive = list.isEmpty();
+            for (Object o : list) {
+                positive = o instanceof Recipes;
+                if (!positive) break;
+            }
+            return positive;
+        }
 
 
     DefaultMutableTreeNode createSubtree(DefaultMutableTreeNode root, Recipes myRecipe) {
@@ -656,7 +667,7 @@ public class PnlRecipeMenuStock extends PopupPanel {
     private void searchUnAssActionPerformed(ActionEvent e) {
         stmUnass.getData().clear();
         if (!searchUnAss.getText().isEmpty()) {
-            if (tbOldStocks.isSelected()){
+            if (tbOldStocks.isSelected()) {
                 stmUnass.getData().addAll(StockTools.getAll(searchUnAss.getText().trim()));
             } else {
                 stmUnass.getData().addAll(StockTools.getActiveStocks(searchUnAss.getText().trim()));

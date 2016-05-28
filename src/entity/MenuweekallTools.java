@@ -66,7 +66,7 @@ public class MenuweekallTools {
     public static String getIngTypesAndStocksAsHTML(Menuweekall menuweekall) {
 //        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, d. MMMM yyyy");
 
-        String html = "<h1 id=\"fonth1\">Zustaten und Vorräte</h1>";
+        String html = "<h1 id=\"fonth1\">Zutaten und Vorräte</h1>";
 
 
         HashSet<Additives> setAdditives = new HashSet<Additives>();
@@ -170,5 +170,58 @@ public class MenuweekallTools {
 
         return html;
     }
+
+
+    public static String getIngTypesAndStocksAsHTML2(Menuweekall menuweekall) {
+        //        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, d. MMMM yyyy");
+
+        String html = "";
+
+        LocalDate startDay = new LocalDate(menuweekall.getWeek());
+
+
+        for (int day = 0; day < 7; day++) {
+            LocalDate thisDay = startDay.plusDays(day);
+
+            String dayHTML = "";//HTML.h1(thisDay.toString("EEEE, d. MMMM yyyy"));
+
+
+            boolean firstMenuThisDay = true; // just for the pagebreak
+            for (Menuweek menuweek : menuweekall.getMenuweeks()) {
+                Menuweek2Menu menuweek2Menu = menuweek.getMenuweek2menus().get(day);
+                Menu menu = menuweek2Menu.getMenu();
+
+                if (!menu.isEmpty()) {
+                    if (!firstMenuThisDay) dayHTML += HTML.pagebreak();
+                    firstMenuThisDay = false;
+                    dayHTML += HTML.h1(menuweek.getRecipefeature().getText() + " (" + thisDay.toString("EEEE, d. MMMM yyyy") + ")");
+
+                    for (int dish : MenuTools.DISHES) {
+                        Recipes recipe = MenuTools.getDish(menu, dish);
+
+                        if (recipe != null) {
+
+                            dayHTML += HTML.h2(recipe.getTitle());
+                            String list = RecipeTools.getSubRecipesAsHTML(MenuTools.getDish(menu, dish));
+
+                            Set<Stock> stocks = MenuTools.getStocklist(menu, dish);
+                            for (Stock stock : stocks) {
+                                list += HTML.li(stock.getId() + ": " + stock.getProdukt().getBezeichnung());
+                            }
+                            dayHTML += HTML.ul(list);
+
+                        }
+                    }
+                }
+
+            }
+            html += dayHTML;
+            if (day < 6) html += HTML.pagebreak();
+        }
+
+
+        return html;
+    }
+
 
 }

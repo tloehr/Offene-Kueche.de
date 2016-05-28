@@ -140,7 +140,7 @@ public class MenuweekTools {
 
 
     public static String getIngredientsAsHTML(Menuweek menuweek) {
-        String html = HTML.h1("Zutaten und Vorräte");
+        String html = HTML.h1("Rezepte für " + menuweek.getRecipefeature().getText());
         LocalDate startDay = new LocalDate(menuweek.getMenuweekall().getWeek());
 
         for (int day = 0; day <= 6; day++) {
@@ -150,13 +150,15 @@ public class MenuweekTools {
 
             html += HTML.h2(thisDay.toString("EEEE, d. MMMM yyyy") + Tools.catchNull(menu.getText(), ", ", ""));
 
-            html += MenuTools.getIngredientsAsHTML(menu);
+            html += MenuTools.getIngredientsAsHTML(menu, false);
 
         }
 
 
         return html;
     }
+
+
 
 
 }

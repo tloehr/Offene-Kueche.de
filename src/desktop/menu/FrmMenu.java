@@ -402,7 +402,7 @@ public class FrmMenu extends JFrame {
         miIngTypesAndStocks.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Printers.print(Main.getDesktop(), MenuweekallTools.getIngTypesAndStocksAsHTML(((Menuweekall) cmbWeeks.getSelectedItem())), true);
+                Printers.print(Main.getDesktop(), MenuweekallTools.getIngTypesAndStocksAsHTML2(((Menuweekall) cmbWeeks.getSelectedItem())), true);
             }
         });
 

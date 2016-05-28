@@ -138,7 +138,6 @@ public class PnlMenuWeek extends JPanel {
         pnlSat.add(new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.SATURDAY - 1), holidays, getPSDChangeListener()));
         pnlSun.add(new PnlSingleDayMenu(menuweek.getMenuweek2menus().get(DateTimeConstants.SUNDAY - 1), holidays, getPSDChangeListener()));
 
-
         listPanels = new ArrayList<JPanel>();
         listPanels.add(pnlMon);
         listPanels.add(pnlTue);
@@ -153,7 +152,6 @@ public class PnlMenuWeek extends JPanel {
 
         if (menuweek.getId() != 0l) {
             lblMessage.setText("Änderungen zuletzt gespeichert. " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(menuweek.getLastsave()) + " Uhr");
-
         }
 
         lblID.setText(menuweek.getId() > 0 ? "#" + Long.toString(menuweek.getId()) : "--");
@@ -421,7 +419,7 @@ public class PnlMenuWeek extends JPanel {
         miPrintAllMenus.setFont(new Font("SansSerif", Font.PLAIN, 18));
         JMenuItem miPrintAllMenusCustomer = new JMenuItem("Diesen Speiseplan drucken (Kundenansicht)", Const.icon24Pageprinter);
         miPrintAllMenusCustomer.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        JMenuItem miIngTypesAndStocks = new JMenuItem("Zutaten und Vorratslisten drucken", Const.icon24ingtype);
+        JMenuItem miIngTypesAndStocks = new JMenuItem("Rezepte drucken", Const.icon24ingtype);
         miIngTypesAndStocks.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
         jMenu.add(miPrintAllMenus);

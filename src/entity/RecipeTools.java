@@ -5,6 +5,7 @@ import tools.HTML;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 /**
@@ -20,7 +21,7 @@ public class RecipeTools {
 
         if (recipe.getIngTypes2Recipes().isEmpty()) return "";
 
-        String html = title+"<ul>";
+        String html = title + "<ul>";
 
         for (Ingtypes2Recipes its : recipe.getIngTypes2Recipes()) {
             html += "<li>" + its.getIngType().getBezeichnung() + ": " + its.getAmount() + " " + IngTypesTools.EINHEIT[its.getIngType().getEinheit()] + "</li>";
@@ -33,30 +34,28 @@ public class RecipeTools {
     }
 
 
-    public static String getSubRecipesAsHTML(Recipes recipe, String title) {
-
+    public static String getSubRecipesAsHTML(Recipes recipe) {
         if (recipe == null) return "";
 
-
-        if (recipe.getSubrecipes().isEmpty()) return "";
-
-        String html = title + "<ul>";
-
-        for (Recipes r : recipe.getSubrecipes()) {
-            html += "<li>" + HTML.bold(r.getTitle());
-
-            if (!r.getIngTypes2Recipes().isEmpty()) {
-                html += "<ul>";
-                for (Ingtypes2Recipes its : r.getIngTypes2Recipes()) {
-                    html += "<li>" + its.getIngType().getBezeichnung() + ": " + its.getAmount() + " " + IngTypesTools.EINHEIT[its.getIngType().getEinheit()] + "</li>";
-                }
-                html += "</ul>";
+        String html = "<li>" + HTML.bold(recipe.getTitle());
+        if (!recipe.getSubrecipes().isEmpty()) {
+            String innerHTML = "";
+            for (Recipes subRecipe : recipe.getSubrecipes()) {
+                innerHTML += getSubRecipesAsHTML(subRecipe);
             }
-            html += "</li>";
+
+            html += HTML.ul(innerHTML);
         }
 
+        if (!recipe.getIngTypes2Recipes().isEmpty()) {
+            String innerHTML = "";
+            for (Ingtypes2Recipes its : recipe.getIngTypes2Recipes()) {
+                innerHTML += "<li>" + its.getIngType().getBezeichnung() + (its.getAmount().compareTo(BigDecimal.ZERO) > 0 ? ": " + its.getAmount() + " " + IngTypesTools.EINHEIT[its.getIngType().getEinheit()] : "") + "</li>";
+            }
+            html += HTML.ul(innerHTML);
+        }
 
-        html += "</ul>";
+        html += "</li>";
 
         return html;
 
